@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-purple-500 dark:text-purple-400">
+  <defs>
+    <linearGradient id="screenshot-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#7e22ce" />
+    </linearGradient>
+  </defs>
+  <rect x="2" y="3" width="20" height="14" rx="2" ry="2" stroke="url(#screenshot-grad)" />
+  <line x1="8" y1="21" x2="16" y2="21" stroke="url(#screenshot-grad)" />
+  <line x1="12" y1="17" x2="12" y2="21" stroke="url(#screenshot-grad)" />
+  <circle cx="12" cy="10" r="3" stroke="url(#screenshot-grad)" />
+</svg>

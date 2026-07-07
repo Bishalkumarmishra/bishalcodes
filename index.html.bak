@@ -1,0 +1,306 @@
+
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+    <!-- 
+      ==========================================================================
+      GLOBAL SEO ARCHITECTURE & NEURAL RANKING PROTOCOL
+      Engineered by Bishal Mishra | bishalcodes.com
+      ==========================================================================
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="google-site-verification" content="9UfBNUlB0bN6D8aODWOnvRyMp93nqwVzLWLNniUNpoo" />
+    <title>Bishal Mishra | World-Class Full-Stack Developer & 3D Web Architect</title>
+    
+    <!-- PRIMARY META TAGS -->
+    <meta name="title" content="Bishal Mishra | World-Class Full-Stack Developer & 3D Web Architect">
+    <meta name="description" content="Bishal Mishra is a premium Full-Stack Developer specializing in high-performance 3D visuals, Next.js architecture, and custom enterprise web applications. 300+ projects delivered globally. Engineering the future of digital ecosystems with neural design and pixel-perfect precision.">
+    <meta name="keywords" content="Bishal Mishra, Bishal Codes, Full Stack Developer Nepal, 3D Web Developer, Next.js Expert, React Developer, Shopify Specialist, UI/UX Designer, Professional Web Development, Enterprise Software Architect, Freelance Developer Nepal, JavaScript Expert, TypeScript Mastery, High Performance Websites">
+    <meta name="author" content="Bishal Mishra">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="1 days">
+    <meta name="generator" content="BishalCodes Engine v4.0">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="canonical" href="https://bishalcodes.com/">
+
+    <!-- OPEN GRAPH / FACEBOOK / LINKEDIN PROTOCOL -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bishalcodes.com/">
+    <meta property="og:title" content="Bishal Mishra | Premium Full-Stack Developer & 3D Architect">
+    <meta property="og:description" content="Explore the portfolio of Bishal Mishra. Delivering elite digital transformation through 3D visuals, scalable cloud logic, and high-conversion UI/UX.">
+    <meta property="og:image" content="https://ik.imagekit.io/bishalc/desktop.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Bishal Codes">
+    <meta property="og:locale" content="en_US">
+
+    <!-- TWITTER CARD PROTOCOL -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://bishalcodes.com/">
+    <meta name="twitter:title" content="Bishal Mishra | Premium Full-Stack Developer">
+    <meta name="twitter:description" content="Engineering high-performance web ecosystems. 3D visuals, custom logic, and enterprise-grade deployment.">
+    <meta name="twitter:image" content="https://ik.imagekit.io/bishalc/desktop.png">
+    <meta name="twitter:creator" content="@bishalmishra">
+    <meta name="twitter:site" content="@bishalmishra">
+
+    <!-- MOBILE & PWA META -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Bishal Codes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- FONT PRELOADING & STYLING -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        html, body {
+          overflow-x: hidden !important;
+          width: 100% !important;
+          max-width: 100vw !important;
+        }
+        body { 
+          font-family: 'Inter', sans-serif; 
+          scroll-behavior: smooth; 
+          background-color: #f8fafc; 
+          color: #0f172a; 
+          margin: 0; 
+          padding: 0; 
+          overflow-x: hidden !important; 
+        }
+        h1, h2, h3, h4, .font-heading { font-family: 'Outfit', sans-serif; font-weight: 700; }
+        canvas { touch-action: none; }
+    </style>
+
+    <!-- 
+      ==========================================================================
+      STRUCTURED DATA (JSON-LD) - POWERFUL SEO CORE
+      ==========================================================================
+    -->
+    
+    <!-- 1. Sitelinks Searchbox & WebSite Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": "https://bishalcodes.com/",
+      "name": "Bishal Mishra Portfolio",
+      "alternateName": "Bishal Codes",
+      "description": "Premium Full-Stack Developer & 3D Web Architect Portfolio",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://bishalcodes.com/projects?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- 2. Personal Professional Identity (Person Schema) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Bishal Mishra",
+      "url": "https://bishalcodes.com/",
+      "image": "https://ik.imagekit.io/bishalc/bishal.png",
+      "sameAs": [
+        "https://www.facebook.com/share/1AhoqK2XMo/",
+        "https://www.instagram.com/bishalmishra9827?igsh=NHo2d2I5YTBmdms3",
+        "https://www.tiktok.com/@bishal_mishra1?_r=1&_t=ZS-92jwosZwCW0",
+        "https://www.linkedin.com/in/beesalmishra/",
+        "https://github.com/bishalcodes"
+      ],
+      "jobTitle": "Full-Stack Web Developer",
+      "worksFor": {
+        "@type": "Organization",
+        "name": "Bishal Codes"
+      },
+      "description": "Expert Full-Stack Developer with 3+ years of experience in high-performance web engineering, Next.js, and 3D UI designs.",
+      "knowsAbout": ["Web Development", "Next.js", "React", "TypeScript", "Shopify", "UI/UX Architecture", "Cloud Computing"],
+      "alumniOf": "Tribhuvan University"
+    }
+    </script>
+
+    <!-- 3. Local Business / Professional Service Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "Bishal Codes",
+      "image": "https://ik.imagekit.io/bishalc/desktop.png",
+      "@id": "https://bishalcodes.com/",
+      "url": "https://bishalcodes.com/",
+      "telephone": "+9779828701575",
+      "priceRange": "$$$",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Bishal Codes Studio",
+        "addressLocality": "Kathmandu",
+        "addressRegion": "Bagmati",
+        "postalCode": "44600",
+        "addressCountry": "NP"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 27.7172,
+        "longitude": 85.3240
+      },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday"
+        ],
+        "opens": "00:00",
+        "closes": "23:59"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5.0",
+        "reviewCount": "300"
+      }
+    }
+    </script>
+
+    <!-- 4. Breadcrumb Navigation Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://bishalcodes.com/"
+      },{
+        "@type": "ListItem",
+        "position": 2,
+        "name": "About",
+        "item": "https://bishalcodes.com/about"
+      },{
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Projects",
+        "item": "https://bishalcodes.com/projects"
+      },{
+        "@type": "ListItem",
+        "position": 4,
+        "name": "Blog",
+        "item": "https://bishalcodes.com/blog"
+      }]
+    }
+    </script>
+
+    <!-- 5. FAQ Page Schema (Matches Section Content) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [{
+        "@type": "Question",
+        "name": "How long does a typical website project take?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A standard informative website usually takes 7-14 days. Complex e-commerce platforms or custom web applications with advanced logic can take 4-8 weeks."
+        }
+      }, {
+        "@type": "Question",
+        "name": "What tech stack do you recommend for performance?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "For maximum speed and SEO, I primarily use React/Next.js for the frontend and Node.js or PHP for the backend."
+        }
+      }, {
+        "@type": "Question",
+        "name": "How does the Rs. 999 booking slot work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The Rs. 999 is a commitment deposit for serious clients. It includes a 30-minute consultancy and is fully adjusted into your final project quote."
+        }
+      }]
+    }
+    </script>
+
+    <!-- 6. Offer / Service List Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Bishal Codes Services",
+      "description": "Premium technical services offered by Bishal Mishra.",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "item": {
+            "@type": "Service",
+            "name": "UI/UX Architecture",
+            "description": "Pixel-perfect, high-converting digital interfaces."
+          }
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "item": {
+            "@type": "Service",
+            "name": "Full-Stack Development",
+            "description": "Scalable web and mobile applications using modern stacks."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "react/": "https://esm.sh/react@^19.2.3/",
+        "react": "https://esm.sh/react@^19.2.3",
+        "firebase/": "https://esm.sh/firebase@^12.7.0/",
+        "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+        "react-firebase-hooks/": "https://esm.sh/react-firebase-hooks@^5.1.1/",
+        "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+        "three": "https://esm.sh/three@0.170.0",
+        "three/": "https://esm.sh/three@0.170.0/",
+        "@react-three/fiber": "https://esm.sh/@react-three/fiber@8.17.10",
+        "@react-three/drei": "https://esm.sh/@react-three/drei@9.114.0",
+        "react-markdown": "https://esm.sh/react-markdown@9.0.1",
+        "remark-gfm": "https://esm.sh/remark-gfm@4.0.0"
+      }
+    }
+    </script>
+</head>
+<body class="bg-[#FFFFFF] selection:bg-[#915eff] selection:text-white">
+    <div id="root"></div>
+<script>
+  // Shim for process.env.API_KEY.
+  // THIS IS THE CORRECT AND ONLY PLACE TO SET THE API KEY FOR THIS PROJECT.
+  // Changes to .env or .env.local files will NOT work with this specific setup.
+  // The user-provided key has been placed below. If issues persist, the key itself may be invalid or restricted; please generate a new one from Google AI Studio.
+  window.process = {
+    env: {
+      API_KEY: 'AIzaSyAP0nRlLsQOAa6hCIV1Wi2rgN5clGtmNeg'
+    }
+  };
+</script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

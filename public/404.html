@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: #FAF9F6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: 0.1;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            z-index: 0;
+        }
+        .glow {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background-color: #915eff;
+            border-radius: 50%;
+            filter: blur(150px);
+            opacity: 0.2;
+            animation: pulse 6s infinite alternate;
+            z-index: 0;
+        }
+        .glow.top-left { top: 10%; left: 10%; background-color: #ccff00; }
+        .glow.bottom-right { bottom: 10%; right: 10%; }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.2; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+            100% { transform: scale(0.9); opacity: 0.2; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+            background-color: rgba(10, 10, 10, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 6em;
+            color: #ccff00;
+            margin-bottom: 0.2em;
+            text-shadow: 0 0 20px rgba(204,255,0,0.5);
+        }
+        h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2em;
+            color: #915eff;
+            margin-bottom: 1em;
+        }
+        p {
+            font-size: 1.1em;
+            max-width: 600px;
+            margin-bottom: 2em;
+            color: #dfd9ff;
+        }
+        a {
+            background-color: #915eff;
+            color: #FAF9F6;
+            padding: 12px 28px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 5px 15px rgba(145,94,255,0.4);
+        }
+        a:hover {
+            background-color: #804dee;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="glow top-left"></div>
+    <div class="glow bottom-right"></div>
+    <div class="container">
+        <h1>404</h1>
+        <h2>PAGE NOT FOUND</h2>
+        <p>The cosmic signal you were looking for seems to be lost in the digital void. <br/>Let's get you back to base.</p>
+        <a href="/">Return to Homepage</a>
+    </div>
+</body>
+</html>

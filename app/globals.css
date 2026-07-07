@@ -1,0 +1,700 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --html-bg: #FFFFFF;
+  --body-bg: #FFFFFF; /* Fully white `#FFFFFF` */
+  --nav-bg: #FFFFFF; /* Fully white `#FFFFFF` */
+  --nav-border: rgba(0, 0, 0, 0.06);
+  --nav-text: #475569;
+  --nav-text-active: #0f172a;
+  --nav-text-hover: #0f172a;
+  --status-bar-bg: #FFFFFF;
+  --logo-filter: drop-shadow(1px 0px 0px #2e2a24) drop-shadow(-1px 0px 0px #2e2a24) drop-shadow(0px 1px 0px #2e2a24) drop-shadow(0px -1px 0px #2e2a24);
+  --burger-bg: rgba(0, 0, 0, 0.03);
+  --burger-border: rgba(0, 0, 0, 0.06);
+  --burger-color: #334155;
+  --overlay-bg: #FFFFFF;
+  --overlay-text: #0f172a;
+  --connect-border: rgba(0, 0, 0, 0.06);
+  --social-bg: rgba(0, 0, 0, 0.03);
+  --social-color: #475569;
+  --card-bg: #FFFFFF;
+  --card-bg-secondary: #FFFFFF;
+  --border-color: #e2e8f0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --html-bg: #000000;
+    --body-bg: #000000; /* Fully black */
+    --nav-bg: #000000;
+    --nav-border: #111827;
+    --nav-text: #94a3b8;
+    --nav-text-active: #f1f5f9;
+    --nav-text-hover: #f1f5f9;
+    --status-bar-bg: #000000;
+    --logo-filter: none;
+    --burger-bg: rgba(255, 255, 255, 0.08);
+    --burger-border: rgba(255, 255, 255, 0.15);
+    --burger-color: #f1f5f9;
+    --overlay-bg: #000000;
+    --overlay-text: #f1f5f9;
+    --connect-border: #1e293b;
+    --social-bg: #0f172a;
+    --social-color: #94a3b8;
+    --card-bg: #000000;
+    --card-bg-secondary: #000000;
+    --border-color: #1e293b;
+  }
+}
+
+:root.dark {
+  --html-bg: #000000;
+  --body-bg: #000000; /* Fully black */
+  --nav-bg: #000000;
+  --nav-border: #111827;
+  --nav-text: #94a3b8;
+  --nav-text-active: #f1f5f9;
+  --nav-text-hover: #f1f5f9;
+  --status-bar-bg: #000000;
+  --logo-filter: none;
+  --burger-bg: rgba(255, 255, 255, 0.08);
+  --burger-border: rgba(255, 255, 255, 0.15);
+  --burger-color: #f1f5f9;
+  --overlay-bg: #000000;
+  --overlay-text: #f1f5f9;
+  --connect-border: #1e293b;
+  --social-bg: #0f172a;
+  --social-color: #94a3b8;
+  --card-bg: #000000;
+  --card-bg-secondary: #000000;
+  --border-color: #1e293b;
+}
+
+:root.light {
+  --html-bg: #FFFFFF;
+  --body-bg: #FFFFFF; /* Fully white */
+  --nav-bg: #FFFFFF;
+  --nav-border: rgba(0, 0, 0, 0.06);
+  --nav-text: #475569;
+  --nav-text-active: #0f172a;
+  --nav-text-hover: #0f172a;
+  --status-bar-bg: #FFFFFF;
+  --logo-filter: drop-shadow(1px 0px 0px #2e2a24) drop-shadow(-1px 0px 0px #2e2a24) drop-shadow(0px 1px 0px #2e2a24) drop-shadow(0px -1px 0px #2e2a24);
+  --burger-bg: rgba(0, 0, 0, 0.03);
+  --burger-border: rgba(0, 0, 0, 0.06);
+  --burger-color: #334155;
+  --overlay-bg: #FFFFFF;
+  --overlay-text: #0f172a;
+  --connect-border: rgba(0, 0, 0, 0.06);
+  --social-bg: rgba(0, 0, 0, 0.03);
+  --social-color: #475569;
+  --card-bg: #FFFFFF;
+  --card-bg-secondary: #FFFFFF;
+  --border-color: #e2e8f0;
+}
+
+html, body {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+}
+body { 
+  font-family: 'Inter', sans-serif; 
+  scroll-behavior: smooth; 
+  background-color: var(--body-bg) !important; 
+  color: var(--nav-text) !important; 
+  margin: 0; 
+  padding: 0; 
+  overflow-x: hidden !important; 
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+html {
+  background-color: var(--html-bg) !important;
+}
+h1, h2, h3, h4, .font-heading { font-family: 'Outfit', sans-serif; font-weight: 700; }
+canvas { touch-action: none; }
+
+/* Custom Scrollbar Styles - Completely hidden globally for an app-like experience */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* For Firefox, IE, and Edge compatibility */
+* {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* PWA Native Protection Shield Styles - Mobile Only */
+@media (pointer: coarse) or (max-width: 1023px) {
+  html, body {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    -khtml-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+  }
+}
+
+html, body {
+  touch-action: pan-x pan-y !important;
+}
+
+/* Allow text selection in admin mode (even on mobile) */
+html.admin-mode, html.admin-mode body {
+  -webkit-touch-callout: default !important;
+  -webkit-user-select: text !important;
+  -khtml-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
+
+/* Allow text input and selecting in form fields */
+input, textarea, [contenteditable="true"] {
+  -webkit-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  user-select: auto !important;
+}
+
+/* Hide web content if print screen/print is opened */
+@media print {
+  body {
+    display: none !important;
+  }
+}
+
+/* Blur protection for app-switching switcher */
+.app-protected-blur {
+  filter: blur(20px) grayscale(100%) !important;
+  pointer-events: none !important;
+  transition: filter 0.15s ease-out;
+}
+
+/* Adaptive status bar and navbar classes styling */
+.sky-status-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background-color: var(--status-bar-bg) !important;
+  z-index: 999999 !important;
+  pointer-events: none;
+  display: none;
+}
+
+.site-navbar {
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid var(--nav-border) !important;
+  background-color: var(--nav-bg) !important;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.site-navbar .brand-logo-img {
+  filter: var(--logo-filter) !important;
+}
+
+.nav-link-active {
+  color: var(--nav-text-active) !important;
+}
+
+.nav-link-inactive {
+  color: var(--nav-text) !important;
+}
+
+.nav-link-inactive:hover {
+  color: var(--nav-text-hover) !important;
+}
+
+@media (max-width: 768px) {
+  .sky-status-bar {
+    display: block !important;
+    height: max(16px, env(safe-area-inset-top, 16px)) !important;
+  }
+  
+  /* Push mobile navbar down below the status bar */
+  .site-navbar {
+    top: max(16px, env(safe-area-inset-top, 16px)) !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+  
+  /* Style mobile burger button */
+  .site-navbar button.burger-toggle {
+    background-color: var(--burger-bg) !important;
+    border-color: var(--burger-border) !important;
+    color: var(--burger-color) !important;
+  }
+  
+  /* Push down the navigation dropdown overlay list by the same height */
+  .nav-overlay {
+    padding-top: calc(max(16px, env(safe-area-inset-top, 16px)) + 4rem) !important;
+    background-color: var(--overlay-bg) !important;
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* Dynamic theme overrides for sections, cards, borders, text, and inputs */
+html,
+body,
+.min-h-screen,
+section:not(#hero),
+section.bg-white,
+section.bg-slate-50,
+div.min-h-screen.bg-slate-50,
+div.min-h-screen.bg-white {
+  background-color: var(--body-bg) !important;
+  color: var(--nav-text) !important;
+  border-color: var(--border-color) !important;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+.bg-slate-50 {
+  background-color: var(--card-bg-secondary) !important;
+}
+
+.bg-slate-100 {
+  background-color: var(--card-bg-secondary) !important;
+}
+
+.bg-slate-200 {
+  background-color: var(--card-bg-secondary) !important;
+}
+
+.border-slate-200, 
+.border-slate-100, 
+.border-slate-200\/60,
+.border-slate-800 {
+  border-color: var(--border-color) !important;
+}
+
+/* Form fields readability */
+input, 
+textarea, 
+select {
+  background-color: var(--card-bg-secondary) !important;
+  color: var(--nav-text-hover) !important;
+  border-color: var(--border-color) !important;
+}
+
+input:focus, 
+textarea:focus {
+  background-color: var(--card-bg) !important;
+  border-color: var(--nav-text-active) !important;
+}
+
+/* Light theme specific overrides (standard colors) */
+:root.light .text-slate-900,
+:root.light .text-slate-800,
+:root.light .text-slate-700 {
+  color: #0f172a !important;
+}
+
+:root.light .text-slate-600,
+:root.light .text-slate-500 {
+  color: #475569 !important;
+}
+
+/* System Light Theme (default if no manual override) */
+@media (prefers-color-scheme: light) {
+  :root:not(.dark) .text-slate-900,
+  :root:not(.dark) .text-slate-800,
+  :root:not(.dark) .text-slate-700 {
+    color: #0f172a !important;
+  }
+  
+  :root:not(.dark) .text-slate-600,
+  :root:not(.dark) .text-slate-500 {
+    color: #475569 !important;
+  }
+}
+
+/* Dark mode text readability overrides */
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700,
+.dark .text-slate-600,
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark span {
+  color: #f8fafc !important;
+}
+
+.dark p,
+.dark li {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+.dark label {
+  color: #94a3b8 !important;
+}
+
+/* Placeholder contrast in dark mode */
+.dark ::placeholder {
+  color: #64748b !important;
+}
+
+/* Alerts / state box styling in dark mode */
+.dark .bg-rose-50 {
+  background-color: rgba(244, 63, 94, 0.1) !important;
+  color: #fb7185 !important;
+}
+.dark .border-rose-100 {
+  border-color: rgba(244, 63, 94, 0.2) !important;
+}
+.dark .text-rose-600 {
+  color: #fb7185 !important;
+}
+
+.dark .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  color: #34d399 !important;
+}
+.dark .border-emerald-100 {
+  border-color: rgba(16, 185, 129, 0.2) !important;
+}
+.dark .text-emerald-700 {
+  color: #34d399 !important;
+}
+
+.dark .bg-indigo-50 {
+  background-color: rgba(99, 102, 241, 0.1) !important;
+  color: #818cf8 !important;
+}
+.dark .border-indigo-100 {
+  border-color: rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Blog Post Content - Justified text and mobile full-width */
+.blog-post-content p,
+.blog-post-content li,
+.blog-post-content td,
+.blog-post-content blockquote p {
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.blog-post-content h1,
+.blog-post-content h2,
+.blog-post-content h3,
+.blog-post-content h4,
+.blog-post-content h5,
+.blog-post-content h6 {
+  text-align: left;
+}
+
+/* Tables scrollable on mobile */
+.blog-post-content table {
+  width: 100%;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Remove left border on blockquotes inside blog post */
+.blog-post-content blockquote {
+  border-left: none !important;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+/* Images full width, no overflow */
+.blog-post-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 0.5rem;
+}
+
+/* Markdown and Prose text readability in dark mode */
+.dark .prose,
+.dark .prose *,
+.dark react-markdown,
+.dark .markdown-body,
+.dark .react-markdown,
+.dark .react-markdown * {
+  color: #e2e8f0 !important;
+}
+
+/* Code block readability in dark mode */
+.dark pre,
+.dark code {
+  background-color: #0f172a !important;
+  color: #818cf8 !important;
+}
+
+/* System Dark Mode (when no explicit light theme class exists) */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) .text-slate-900,
+  :root:not(.light) .text-slate-800,
+  :root:not(.light) .text-slate-700,
+  :root:not(.light) .text-slate-600,
+  :root:not(.light) h1,
+  :root:not(.light) h2,
+  :root:not(.light) h3,
+  :root:not(.light) h4,
+  :root:not(.light) span {
+    color: #f8fafc !important;
+  }
+  
+  :root:not(.light) p,
+  :root:not(.light) li {
+    color: #e2e8f0 !important;
+  }
+  
+  :root:not(.light) .text-slate-500,
+  :root:not(.light) .text-slate-400 {
+    color: #94a3b8 !important;
+  }
+
+  :root:not(.light) label {
+    color: #94a3b8 !important;
+  }
+
+  :root:not(.light) ::placeholder {
+    color: #64748b !important;
+  }
+
+  :root:not(.light) .bg-rose-50 {
+    background-color: rgba(244, 63, 94, 0.1) !important;
+    color: #fb7185 !important;
+  }
+  :root:not(.light) .border-rose-100 {
+    border-color: rgba(244, 63, 94, 0.2) !important;
+  }
+  :root:not(.light) .text-rose-600 {
+    color: #fb7185 !important;
+  }
+
+  :root:not(.light) .bg-emerald-50 {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    color: #34d399 !important;
+  }
+  :root:not(.light) .border-emerald-100 {
+    border-color: rgba(16, 185, 129, 0.2) !important;
+  }
+  :root:not(.light) .text-emerald-700 {
+    color: #34d399 !important;
+  }
+
+  :root:not(.light) .bg-indigo-50 {
+    background-color: rgba(99, 102, 241, 0.1) !important;
+    color: #818cf8 !important;
+  }
+  :root:not(.light) .border-indigo-100 {
+    border-color: rgba(99, 102, 241, 0.2) !important;
+  }
+
+  :root:not(.light) .prose,
+  :root:not(.light) .prose *,
+  :root:not(.light) react-markdown,
+  :root:not(.light) .markdown-body,
+  :root:not(.light) .react-markdown,
+  :root:not(.light) .react-markdown * {
+    color: #e2e8f0 !important;
+  }
+
+  :root:not(.light) pre,
+  :root:not(.light) code {
+    background-color: #0f172a !important;
+    color: #818cf8 !important;
+  }
+}
+
+.converter-card-white {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.dark .converter-card-white,
+:root:not(.light) .converter-card-white {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Converter refined inputs & actions layout */
+.converter-input {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+.converter-input:focus {
+  border-color: #7d2f12 !important;
+}
+
+.dark .converter-input,
+:root:not(.light) .converter-input {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+  border-color: #1e293b !important;
+}
+
+.converter-btn-primary {
+  background-color: #7d2f12 !important;
+  color: #ffffff !important;
+  border-color: #5c2009 !important;
+}
+
+.converter-btn-primary:hover {
+  background-color: #5c2009 !important;
+}
+
+.dark .converter-btn-primary,
+:root:not(.light) .converter-btn-primary {
+  background-color: #7d2f12 !important;
+  color: #ffffff !important;
+  border-color: #5c2009 !important;
+}
+
+.converter-btn-secondary {
+  background-color: #ffffff !important;
+  color: #475569 !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+.converter-btn-secondary:hover {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.dark .converter-btn-secondary,
+:root:not(.light) .converter-btn-secondary {
+  background-color: #1e293b !important;
+  color: #cbd5e1 !important;
+  border-color: #334155 !important;
+}
+
+.converter-result-box {
+  background-color: #faf5f2 !important;
+  border-color: #ebd6cc !important;
+}
+
+.dark .converter-result-box,
+:root:not(.light) .converter-result-box {
+  background-color: rgba(125, 47, 18, 0.15) !important;
+  border-color: rgba(125, 47, 18, 0.3) !important;
+}
+
+/* Interactive AI Studio Teaser Custom Styling */
+#ai-teaser {
+  background-color: #030712 !important; /* Dark fallback bg-gray-950 */
+  background-image: url('/ai_studio_teaser_bg.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+#ai-teaser,
+#ai-teaser h1,
+#ai-teaser h2,
+#ai-teaser h3,
+#ai-teaser h4,
+#ai-teaser p,
+#ai-teaser span {
+  color: #ffffff !important;
+}
+
+#ai-teaser .text-slate-400,
+#ai-teaser p.text-slate-400 {
+  color: #94a3b8 !important; /* Slate-400 equivalent for high contrast on dark */
+}
+
+#ai-teaser .text-indigo-400,
+#ai-teaser p.text-indigo-400 {
+  color: #818cf8 !important; /* Indigo-400 equivalent */
+}
+
+/* Scanner Laser Scan Line Animation */
+@keyframes scan-sweep {
+  0% {
+    top: 6%;
+    opacity: 0.8;
+  }
+  50% {
+    top: 94%;
+    opacity: 1;
+  }
+  100% {
+    top: 6%;
+    opacity: 0.8;
+  }
+}
+
+.animate-scan {
+  animation: scan-sweep 2.5s ease-in-out infinite;
+}
+
+/* Modal and connection helper animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+.animate-scale-up {
+  animation: scaleUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ═══════════════════════════════════════════════
+   BULLETPROOF FOOTER — always full viewport width
+   These rules override ANY inline style or Tailwind
+   class that tries to constrain the footer width.
+   ═══════════════════════════════════════════════ */
+footer,
+footer.site-footer {
+  width: 100% !important;
+  max-width: 100vw !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Inner content wrapper — full width, comfortable padding */
+footer .footer-inner {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 40px 24px 0 !important;
+  box-sizing: border-box !important;
+}
+
+@media (min-width: 768px) {
+  footer .footer-inner {
+    padding: 64px 48px 0 !important;
+  }
+}

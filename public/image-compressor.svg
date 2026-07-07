@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-indigo-500 dark:text-indigo-400">
+  <defs>
+    <linearGradient id="compress-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+  </defs>
+  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="url(#compress-grad)" />
+  <circle cx="9" cy="9" r="2" stroke="url(#compress-grad)" />
+  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" stroke="url(#compress-grad)" />
+  <!-- Compressor arrows pointing inward -->
+  <path d="M12 2v4M12 6l-2-2M12 6l2-2" stroke="#f43f5e" stroke-width="2.5" />
+  <path d="M12 22v-4M12 18l-2 2M12 18l2 2" stroke="#f43f5e" stroke-width="2.5" />
+</svg>

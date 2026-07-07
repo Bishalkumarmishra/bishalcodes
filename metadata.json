@@ -1,0 +1,8 @@
+{
+  "name": "123456",
+  "description": "Bishal Mishra - Premium Full-Stack Developer & 3D Web Architect. Providing elite Next.js, React, and custom enterprise software solutions.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

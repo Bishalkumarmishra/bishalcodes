@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-green-500 dark:text-green-400">
+  <defs>
+    <linearGradient id="transfer-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d084" />
+      <stop offset="100%" stop-color="#00a36c" />
+    </linearGradient>
+  </defs>
+  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="url(#transfer-grad)" />
+  <polyline points="17 8 12 3 7 8" stroke="url(#transfer-grad)" />
+  <line x1="12" y1="3" x2="12" y2="15" stroke="url(#transfer-grad)" />
+</svg>

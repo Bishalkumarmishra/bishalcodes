@@ -1,0 +1,142 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if the user is an allowed admin
+    function isAllowedAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'bishalmishra9000@gmail.com' ||
+        request.auth.token.email == 'admin@bishalcodes.com' ||
+        request.auth.token.email == 'developer@bishalcodes.com'
+      );
+    }
+
+    // User profiles and credits
+    match /users/{userId} {
+      allow read, write: if isAllowedAdmin();
+      allow get, create, update: if request.auth != null && request.auth.uid == userId;
+
+      match /{allSubpaths=**} {
+        allow read, write: if isAllowedAdmin();
+        allow get, list, create, update, delete: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // User activity logs
+    match /user_activity/{activityId} {
+      allow create: if request.auth != null;
+      allow read, write: if isAllowedAdmin();
+    }
+    
+    // Payment requests
+    match /payments/{paymentId} {
+      // Logged in users can create payment requests
+      allow create: if request.auth != null;
+      // Admins can read and update (status) all payment requests
+      allow read, update: if isAllowedAdmin();
+    }
+
+    match /blog/{postId} {
+      allow read: if true; // Public read
+      allow create, delete: if isAllowedAdmin(); // Admin write/delete
+      allow update: if isAllowedAdmin() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'reactions'])
+      );
+      
+      match /comments/{commentId} {
+        allow read: if true; // Public read
+        allow create: if request.auth != null; // Any logged-in user can comment
+        allow update, delete: if isAllowedAdmin(); // Only admin can modify/delete comments
+      }
+    }
+    
+    match /newsletter/{subId} {
+      allow create: if true; // Public can subscribe
+      allow read, update, delete: if isAllowedAdmin(); // Only admins can read/manage
+    }
+    
+    match /projects/{projectId} {
+      allow read: if true; // Public read
+      allow create, update, delete: if isAllowedAdmin(); // Admin write/delete
+    }
+    
+    match /settings/{settingId} {
+      allow read: if settingId == 'hero' || settingId == 'socials' || settingId == 'about' || settingId == 'gemini' || isAllowedAdmin();
+      allow create, update, delete: if isAllowedAdmin();
+    }
+
+    match /pricing/{planId} {
+      allow read: if true; // Public read
+      allow create, update, delete: if isAllowedAdmin(); // Admin write/delete
+    }
+
+    match /faq/{faqId} {
+      allow read: if true; // Public read
+      allow create, update, delete: if isAllowedAdmin(); // Admin write/delete
+    }
+
+    match /testimonials/{testimonialId} {
+      allow read: if true;
+      allow create, update, delete: if isAllowedAdmin();
+    }
+    
+    match /experience/{experienceId} {
+      allow read: if true;
+      allow create, update, delete: if isAllowedAdmin();
+    }
+
+    match /submissions/{subId} {
+      allow create: if true; // Public can create submissions (contact form)
+      allow read, delete: if isAllowedAdmin(); // Only admins can read/delete submissions
+    }
+
+    match /reports/{reportId} {
+      allow create: if true; // Public can create reports
+      allow read, delete: if isAllowedAdmin(); // Only admins can read/delete reports
+    }
+
+    match /legalPages/{legalPageId} {
+      allow read: if true; // Public read
+      allow create, update, delete: if isAllowedAdmin(); // Admin write/delete
+    }
+
+    match /services/{serviceId} {
+      allow read: if true; // Public read
+      allow create, update, delete: if isAllowedAdmin(); // Admin write/delete
+    }
+
+    match /analytics_daily_visits/{dayId} {
+      allow read, write: if true;
+    }
+
+    match /analytics_tool_clicks/{toolId} {
+      allow read, write: if true;
+    }
+
+    match /transfers/{transferId} {
+      allow read, write: if true;
+      match /senderCandidates/{candidateId} {
+        allow read, write: if true;
+      }
+      match /receiverCandidates/{candidateId} {
+        allow read, write: if true;
+      }
+    }
+
+    // SEO & Meta Tags configuration
+    match /seo_settings/{pageId} {
+      allow read: if true;
+      allow write: if isAllowedAdmin();
+    }
+
+    // Secure Vault: password-protected encrypted file sharing
+    // Files are encrypted client-side — Firestore only stores ciphertext
+    match /secure_vault/{vaultId} {
+      allow create: if true; // Anyone can create a vault (public tool)
+      allow read: if true;   // Anyone with the ID can fetch metadata to attempt decryption
+      // Only allow updating the `downloads` counter field (increment)
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['downloads']);
+      allow delete: if isAllowedAdmin();
+    }
+  }
+}

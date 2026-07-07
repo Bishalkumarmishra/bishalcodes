@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-emerald-500 dark:text-emerald-400">
+  <defs>
+    <linearGradient id="emi-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+  </defs>
+  <!-- Calculator shape -->
+  <rect x="4" y="2" width="16" height="20" rx="2" stroke="url(#emi-grad)" />
+  <line x1="8" y1="6" x2="16" y2="6" stroke="url(#emi-grad)" />
+  <line x1="16" y1="14" x2="16" y2="18" stroke="url(#emi-grad)" />
+  <circle cx="8" cy="11" r="1" fill="currentColor" stroke="url(#emi-grad)" />
+  <circle cx="12" cy="11" r="1" fill="currentColor" stroke="url(#emi-grad)" />
+  <circle cx="16" cy="11" r="1" fill="currentColor" stroke="url(#emi-grad)" />
+  <circle cx="8" cy="15" r="1" fill="currentColor" stroke="url(#emi-grad)" />
+  <circle cx="12" cy="15" r="1" fill="currentColor" stroke="url(#emi-grad)" />
+  <circle cx="8" cy="19" r="1" fill="currentColor" stroke="url(#emi-grad)" />
+  <circle cx="12" cy="19" r="1" fill="currentColor" stroke="url(#emi-grad)" />
+  <!-- Overlapping donut chart/percent slice -->
+  <path d="M16 8 A 4 4 0 1 1 12 4" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="2 1" />
+</svg>

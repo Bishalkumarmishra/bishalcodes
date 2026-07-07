@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-violet-500 dark:text-violet-400">
+  <defs>
+    <linearGradient id="qr-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+  </defs>
+  <!-- Top Left Pattern block -->
+  <rect x="3" y="3" width="6" height="6" rx="1" stroke="url(#qr-grad)" />
+  <rect x="5" y="5" width="2" height="2" fill="currentColor" stroke="url(#qr-grad)" />
+  
+  <!-- Top Right Pattern block -->
+  <rect x="15" y="3" width="6" height="6" rx="1" stroke="url(#qr-grad)" />
+  <rect x="17" y="5" width="2" height="2" fill="currentColor" stroke="url(#qr-grad)" />
+  
+  <!-- Bottom Left Pattern block -->
+  <rect x="3" y="15" width="6" height="6" rx="1" stroke="url(#qr-grad)" />
+  <rect x="5" y="17" width="2" height="2" fill="currentColor" stroke="url(#qr-grad)" />
+  
+  <!-- Tiny QR matrix elements -->
+  <rect x="15" y="15" width="2" height="2" fill="currentColor" stroke="url(#qr-grad)" />
+  <rect x="19" y="15" width="2" height="2" fill="currentColor" stroke="url(#qr-grad)" />
+  <rect x="15" y="19" width="2" height="2" fill="currentColor" stroke="url(#qr-grad)" />
+  <rect x="19" y="19" width="2" height="2" fill="currentColor" stroke="url(#qr-grad)" />
+  <rect x="11" y="7" width="2" height="2" fill="currentColor" stroke="url(#qr-grad)" />
+  <rect x="7" y="11" width="2" height="2" fill="currentColor" stroke="url(#qr-grad)" />
+  <rect x="11" y="11" width="2" height="2" fill="currentColor" stroke="url(#qr-grad)" />
+  <rect x="11" y="15" width="2" height="2" fill="currentColor" stroke="url(#qr-grad)" />
+  <rect x="15" y="11" width="2" height="2" fill="currentColor" stroke="url(#qr-grad)" />
+</svg>
