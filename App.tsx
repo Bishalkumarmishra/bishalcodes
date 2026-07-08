@@ -26,6 +26,8 @@ import UserDashboard from './page-components/UserDashboard';
 import { PathPage } from './types'; // Import PathPage type
 import { NavigationContext } from './context/NavigationContext'; // Correctly import the centralized context
 import { logDailyVisit, logToolClick } from './services/analytics';
+import LiveEditWidget from './components/LiveEditWidget';
+import FloatingEditorToolbar from './components/FloatingEditorToolbar';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PathPage>('home');
@@ -178,7 +180,8 @@ const App: React.FC = () => {
     <NavigationContext.Provider value={{ currentPage, selectedId, navigate }}>
       <div className="antialiased font-sans text-slate-800 bg-slate-50 min-h-screen">
         {renderContent()}
-
+        <LiveEditWidget />
+        <FloatingEditorToolbar />
       </div>
     </NavigationContext.Provider>
   );

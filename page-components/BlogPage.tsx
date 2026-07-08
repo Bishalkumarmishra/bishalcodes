@@ -7,6 +7,8 @@ import { query, collection, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useNavigation } from '../context/NavigationContext';
 
+import EditableText from '../components/EditableText';
+
 const BlogPage: React.FC = () => {
   const { navigate } = useNavigation();
   const [allPosts, setAllPosts] = useState<any[]>([]);
@@ -70,12 +72,12 @@ const BlogPage: React.FC = () => {
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <Navbar />
       <div className="w-full px-[5vw] mx-auto pt-32 pb-20 relative z-10">
-        <div className="mb-12 border-b border-slate-200 pb-8">
+        <div className="mb-12 border-b border-slate-200 pb-8 text-left">
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-2">
-            Blog
+            <EditableText collection="settings" document="blog_page" field="title" fallback="Blog" />
           </h1>
           <p className="text-slate-500 text-sm sm:text-base font-normal max-w-xl">
-            Writing about software engineering, database design, and building clean user interfaces.
+            <EditableText collection="settings" document="blog_page" field="description" fallback="Writing about software engineering, database design, and building clean user interfaces." />
           </p>
         </div>
 

@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { Plus, Minus, HelpCircle } from 'lucide-react';
+import EditableText from '../components/EditableText';
 
 interface FAQItemProps {
   question: string;
   answer: string;
   isOpen: boolean;
   toggle: () => void;
+  index: number;
 }
 
-const FAQItem: React.FC<FAQItemProps> = ({ question, answer, isOpen, toggle }) => {
+const FAQItem: React.FC<FAQItemProps> = ({ question, answer, isOpen, toggle, index }) => {
   return (
     <div 
       className={`border-b border-slate-100 transition-colors duration-200 ${isOpen ? 'bg-slate-50/50' : 'bg-transparent'}`}
@@ -19,14 +21,14 @@ const FAQItem: React.FC<FAQItemProps> = ({ question, answer, isOpen, toggle }) =
         aria-expanded={isOpen}
       >
         <span className="flex items-center gap-3">
-          <span className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors shrink-0 ${isOpen ? 'bg-slate-950 dark:bg-white text-white dark:text-black' : 'bg-white text-slate-400 group-hover:text-slate-950 dark:group-hover:text-white border border-slate-200'}`}>
+          <span className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors shrink-0 ${isOpen ? 'bg-slate-950 text-white' : 'bg-white text-slate-400 border border-slate-200'}`}>
              <HelpCircle size={16} />
           </span>
-          <span className={`text-sm sm:text-base font-semibold transition-colors leading-tight ${isOpen ? 'text-slate-950 dark:text-white' : 'text-slate-800 group-hover:text-slate-950 dark:group-hover:text-white'}`}>
-            {question}
+          <span className={`text-sm sm:text-base font-semibold transition-colors leading-tight ${isOpen ? 'text-slate-950' : 'text-slate-800'}`}>
+            <EditableText collection="settings" document="faq" field={`faq_q_${index}`} fallback={question} />
           </span>
         </span>
-        <div className={`shrink-0 w-6 h-6 rounded-full border border-slate-200 flex items-center justify-center transition-all ${isOpen ? 'rotate-180 border-slate-950 text-slate-950 dark:border-white dark:text-white' : 'text-slate-300'}`}>
+        <div className={`shrink-0 w-6 h-6 rounded-full border border-slate-200 flex items-center justify-center transition-all ${isOpen ? 'rotate-180 border-slate-950 text-slate-950' : 'text-slate-300'}`}>
           {isOpen ? <Minus size={12} /> : <Plus size={12} />}
         </div>
       </button>
@@ -35,8 +37,8 @@ const FAQItem: React.FC<FAQItemProps> = ({ question, answer, isOpen, toggle }) =
         className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[300px] opacity-100 pb-5' : 'max-h-0 opacity-0'}`}
       >
         <div className="pl-11 pr-4">
-          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal border-l border-slate-200 pl-4">
-            {answer}
+          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal border-l border-slate-200 pl-4 text-left">
+            <EditableText collection="settings" document="faq" field={`faq_a_${index}`} fallback={answer} isTextArea />
           </p>
         </div>
       </div>
@@ -75,10 +77,10 @@ const FAQ: React.FC = () => {
       <div className="w-full px-[5vw] mx-auto relative z-10">
         <div className="text-center mb-10">
           <h2 className="text-slate-900 text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
-            Frequently Asked Questions
+            <EditableText collection="settings" document="faq" field="title" fallback="Frequently Asked Questions" />
           </h2>
           <p className="text-slate-500 text-sm sm:text-base mt-2 font-normal">
-            Information about development timelines, processes, and tools.
+            <EditableText collection="settings" document="faq" field="description" fallback="Information about development timelines, processes, and tools." />
           </p>
         </div>
 
@@ -90,6 +92,7 @@ const FAQ: React.FC = () => {
               answer={faq.answer}
               isOpen={openIndex === index}
               toggle={() => setOpenIndex(openIndex === index ? null : index)}
+              index={index}
             />
           ))}
         </div>

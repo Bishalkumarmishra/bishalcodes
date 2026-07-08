@@ -1,126 +1,347 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Star, Loader2, MessageSquare } from 'lucide-react';
+import { Star, Edit2 } from 'lucide-react';
 // @ts-ignore
-import { query, collection, orderBy, getDocs } from 'firebase/firestore';
+import { query, collection, orderBy, getDocs, doc, setDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { Testimonial } from '../types';
+import { uploadToCloudinary } from '../services/cloudinary';
+
+const staticTestimonials = [
+  {
+    id: 'static-1',
+    name: 'Bishal Mishra',
+    company: 'Developer · bishalcodes.com',
+    role: 'Full-Stack Developer',
+    rating: 5,
+    text: "I built this platform myself, so I know every line of code inside out. What I'm genuinely proud of is how it performs — fast loads, clean UI, and it actually works the way I imagined. Building your own portfolio teaches you more than any tutorial ever will. Shipping real projects is the only way to grow.",
+    avatarUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=250&auto=format&fit=crop',
+    circleBg: '#e2e8f0', // Cool gray circle behind
+    offsetClass: '-translate-x-3 -translate-y-2',
+  },
+  {
+    id: 'static-2',
+    name: 'Janak Singh Karki',
+    company: 'Client · Web Project',
+    role: 'Business Owner',
+    rating: 5,
+    text: "Honestly didn't expect this level of quality from a freelancer. Bishal understood exactly what I needed without me explaining too much — the website looked great, loaded fast, and he made edits without any fuss. Will definitely hire again for my next project.",
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=250&auto=format&fit=crop',
+    circleBg: '#fef3c7', // Soft warm amber circle behind
+    offsetClass: 'translate-x-3 -translate-y-2',
+  },
+  {
+    id: 'static-3',
+    name: 'Ritik Chaudhary',
+    company: 'Client · Landing Page',
+    role: 'Entrepreneur',
+    rating: 5,
+    text: "Bhai ne kaam bahut accha kiya — seriously impressed. The landing page he made for my business got way more attention than I expected. Mobile look was especially clean. He replies fast and doesn't ghost you. Good guy to work with.",
+    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=250&auto=format&fit=crop',
+    circleBg: '#e9d5ff', // Soft purple circle behind
+    offsetClass: 'translate-x-2 -translate-y-3',
+  },
+];
 
 const Testimonials: React.FC = () => {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [dbTestimonials, setDbTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  const fetchAllFromFirestore = async () => {
+    try {
+      const q = query(collection(db, 'testimonials'), orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const data = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...(doc.data() as any),
+      } as Testimonial));
+      setDbTestimonials(data);
+    } catch (error) {
+      console.warn('Error fetching testimonials:', error);
+      setDbTestimonials([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTestimonials = async () => {
-      try {
-        const q = query(collection(db, 'testimonials'), orderBy('createdAt', 'desc'));
-        const querySnapshot = await getDocs(q);
-        const data = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...(doc.data() as any),
-        } as Testimonial));
-        setTestimonials(data);
-      } catch (error) {
-        console.warn("Error fetching testimonials:", error);
-        setTestimonials([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTestimonials();
+    fetchAllFromFirestore();
   }, []);
 
-  // Mobile Auto-Slide Engine
   useEffect(() => {
-    if (loading || testimonials.length <= 1) return;
-    const interval = setInterval(() => {
-      if (scrollRef.current && window.innerWidth < 768) {
-        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-        const cardWidth = scrollRef.current.firstElementChild?.clientWidth || clientWidth;
-        const gap = 20;
-        
-        let nextScroll = scrollLeft + cardWidth + gap;
-        if (nextScroll >= scrollWidth - clientWidth) {
-          nextScroll = 0;
-        }
+    if (typeof window === 'undefined') return;
+    const checkMode = () => {
+      setIsEditMode(localStorage.getItem('liveEditMode') === 'true');
+    };
+    checkMode();
+    window.addEventListener('liveEditToggle', checkMode);
+    return () => window.removeEventListener('liveEditToggle', checkMode);
+  }, []);
 
-        scrollRef.current.scrollTo({
-          left: nextScroll,
-          behavior: 'smooth'
-        });
+  // Show database testimonials if they exist; otherwise fallback to static ones.
+  const allTestimonials = dbTestimonials.length > 0 ? dbTestimonials : staticTestimonials;
+
+  const handleTestimonialSave = async (id: string, field: 'name' | 'role' | 'company' | 'text', value: string) => {
+    window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saving' }));
+    const docId = id.startsWith('static-') ? id.replace('static-', 'testimonial-') : id;
+
+    try {
+      const docRef = doc(db, 'testimonials', docId);
+      const snap = await getDoc(docRef);
+
+      if (snap.exists()) {
+        await updateDoc(docRef, { [field]: value });
+      } else {
+        const original = allTestimonials.find(t => t.id === id);
+        const newDoc = {
+          id: docId,
+          name: original?.name || '',
+          role: (original as any)?.role || '',
+          company: (original as any)?.company || '',
+          text: original?.text || '',
+          rating: original?.rating ?? 5,
+          avatarUrl: original?.avatarUrl || '',
+          createdAt: Date.now(),
+          [field]: value
+        };
+        await setDoc(docRef, newDoc);
+      }
+      
+      // Refresh list
+      await fetchAllFromFirestore();
+      window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saved' }));
+    } catch (err) {
+      console.error("Error saving testimonial visual edit:", err);
+    }
+  };
+
+  // Auto rotate on mobile (disabled in visual edit mode)
+  useEffect(() => {
+    if (allTestimonials.length <= 1 || isEditMode) return;
+    const timer = setInterval(() => {
+      if (window.innerWidth < 768) {
+        setActiveIdx(prev => (prev + 1) % allTestimonials.length);
       }
     }, 5000);
+    return () => clearInterval(timer);
+  }, [allTestimonials.length, isEditMode]);
 
-    return () => clearInterval(interval);
-  }, [loading, testimonials]);
+  // Scroll to active on mobile
+  useEffect(() => {
+    if (scrollRef.current && window.innerWidth < 768) {
+      const card = scrollRef.current.children[activeIdx] as HTMLElement;
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [activeIdx]);
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star key={i} size={14} className={i < rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200'} />
+  const renderStars = (rating: number) =>
+    Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        size={13}
+        className={i < rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200 fill-slate-100'}
+      />
     ));
-  };
-  
-  if (loading) {
-    return (
-        <section className="py-12 bg-white flex flex-col items-center justify-center">
-            <Loader2 className="animate-spin text-indigo-600 mb-3" size={28} />
-            <p className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Loading Feedback...</p>
-        </section>
-    );
-  }
 
   return (
-    <section id="testimonials" className="py-10 sm:py-14 bg-white relative overflow-hidden">
-      <div className="w-full px-[5vw] mx-auto relative z-10 flex flex-col items-center">
-        <div className="text-center mb-12 max-w-2xl">
-          <h2 className="text-slate-900 text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
-            Client Feedback
+    <section
+      id="testimonials"
+      className="py-12 sm:py-16 relative overflow-hidden"
+      style={{ background: 'var(--body-bg)' }}
+    >
+      {/* subtle grid background texture */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.02]"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(0deg,transparent,transparent 39px,#888 39px,#888 40px), repeating-linear-gradient(90deg,transparent,transparent 39px,#888 39px,#888 40px)',
+        }}
+      />
+
+      <div className="w-full px-[5vw] max-w-6xl mx-auto relative z-10">
+        {/* Section Header */}
+        <div className="mb-10 text-center max-w-2xl mx-auto">
+          <p
+            className="text-xs font-bold uppercase tracking-[0.25em] mb-3 text-indigo-600 dark:text-indigo-400"
+          >
+            What people say
+          </p>
+          <h2
+            className="font-outfit font-black text-3xl sm:text-4xl leading-tight tracking-tight"
+            style={{ color: 'var(--nav-text-active)' }}
+          >
+            Client Reviews
           </h2>
-          <p className="text-slate-500 text-sm sm:text-base mt-2 font-normal">
-            Feedback and comments from collaborators on delivered projects.
+          <p className="mt-3 text-sm sm:text-base text-slate-500 dark:text-slate-400">
+            Real feedback and comments from collaborators on delivered projects.
           </p>
         </div>
-        
-        {testimonials.length === 0 ? (
-           <div className="py-16 px-6 text-center border-2 border-dashed border-slate-200 rounded-xl bg-white w-full max-w-4xl">
-             <MessageSquare className="text-slate-300 opacity-60 mb-4 mx-auto" size={48} />
-             <p className="text-slate-400 font-bold text-lg uppercase tracking-wider">
-               No Feedback Available
-             </p>
-             <p className="text-slate-500 text-xs sm:text-sm mt-2">
-                Feedback is being compiled and will be deployed shortly.
-             </p>
-          </div>
-        ) : (
-          <div 
-            ref={scrollRef}
-            className="flex md:grid md:grid-cols-2 lg:grid-cols-3 overflow-x-auto md:overflow-x-visible gap-5 snap-x snap-mandatory scrollbar-hide pb-4 w-full max-w-6xl"
-          >
-            {testimonials.map((testimonial) => (
-              <div key={testimonial.id} className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col shrink-0 w-[85vw] md:w-full snap-center shadow-sm hover:shadow-md transition-all duration-300">
-                <div className="flex items-center gap-1.5 mb-3.5">
-                  {renderStars(testimonial.rating)}
-                </div>
-                <blockquote className="text-slate-600 text-sm sm:text-base leading-relaxed font-normal mb-6 flex-grow">
-                  "{testimonial.text}"
-                </blockquote>
-                <div className="flex items-center gap-3 pt-4 border-t border-slate-100 mt-auto">
-                  <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center overflow-hidden font-bold text-sm shrink-0 border border-indigo-100">
-                    {testimonial.avatarUrl ? (
-                      <img src={testimonial.avatarUrl} alt={testimonial.name} className="w-full h-full object-cover" />
-                    ) : (
-                      testimonial.name.charAt(0)
+
+        {/* Cards Grid */}
+        <div
+          ref={scrollRef}
+          className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-4 md:pb-0 scrollbar-hide pt-12"
+        >
+          {allTestimonials.map((t, idx) => {
+            const isStatic = (t as any).circleBg !== undefined;
+            const name = t.name;
+            const company = (t as any).company || '';
+            const role = (t as any).role || 'Client';
+            const text = (t as any).text || '';
+            const rating = t.rating ?? 5;
+            const avatarUrl = t.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=250&auto=format&fit=crop';
+            
+            const circleBg = isStatic ? (t as any).circleBg : '#f1f5f9';
+            const offsetClass = isStatic ? (t as any).offsetClass : (idx % 2 === 0 ? '-translate-x-2 -translate-y-2' : 'translate-x-2 -translate-y-2');
+
+            return (
+              <article
+                key={t.id}
+                className="flex flex-col shrink-0 w-[82vw] md:w-full snap-center rounded-[20px] p-5 sm:p-6 border relative transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group"
+                style={{
+                  background: 'var(--card-bg)',
+                  borderColor: 'var(--border-color)',
+                  boxShadow: '0 8px 24px -10px rgba(0,0,0,0.05)',
+                }}
+              >
+                {/* Modern Avatar Offset Style - slightly smaller to reduce height */}
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-28 h-28 flex items-center justify-center">
+                  {/* Larger Offset Background Circle */}
+                  <div
+                    className={`absolute w-[84px] h-[84px] rounded-full transition-transform duration-300 transform group-hover:scale-105 ${offsetClass}`}
+                    style={{ backgroundColor: circleBg }}
+                  />
+                  {/* Portrait Avatar */}
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-[4px] border-white dark:border-slate-900 shadow-md z-10 group-hover:scale-105 transition-transform duration-300 relative flex items-center justify-center">
+                    <img
+                      src={avatarUrl}
+                      alt={name}
+                      className="w-full h-full object-cover"
+                    />
+                    {isEditMode && (
+                      <label className="absolute inset-0 bg-black/60 z-20 flex items-center justify-center cursor-pointer text-white">
+                        <Edit2 size={12} className="animate-pulse" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            if (!e.target.files || e.target.files.length === 0) return;
+                            window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saving' }));
+                            try {
+                              const res = await uploadToCloudinary(e.target.files[0]);
+                              const docId = t.id.startsWith('static-') ? t.id.replace('static-', 'testimonial-') : t.id;
+                              
+                              const docRef = doc(db, 'testimonials', docId);
+                              const snap = await getDoc(docRef);
+
+                              if (snap.exists()) {
+                                await updateDoc(docRef, { avatarUrl: res.url });
+                              } else {
+                                const original = allTestimonials.find(item => item.id === t.id);
+                                const newDoc = {
+                                  id: docId,
+                                  name: original?.name || '',
+                                  role: (original as any)?.role || '',
+                                  company: (original as any)?.company || '',
+                                  text: original?.text || '',
+                                  rating: original?.rating ?? 5,
+                                  avatarUrl: res.url,
+                                  createdAt: Date.now()
+                                };
+                                await setDoc(docRef, newDoc);
+                              }
+                              
+                              await fetchAllFromFirestore();
+                              window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saved' }));
+                            } catch (err) {
+                              console.error("Error uploading testimonial image:", err);
+                            }
+                          }}
+                        />
+                      </label>
                     )}
                   </div>
-                  <div>
-                    <p className="font-bold text-slate-800 text-sm leading-tight">{testimonial.name}</p>
-                    <p className="text-slate-400 text-xs mt-0.5">{testimonial.company}</p>
-                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+
+                {/* Double Quote Quote Marks */}
+                <div className="mt-6 mb-2 text-left">
+                  <span className="text-[36px] font-serif text-indigo-400/25 leading-none block select-none">“</span>
+                </div>
+
+                {/* Review Text */}
+                <blockquote
+                  contentEditable={isEditMode}
+                  suppressContentEditableWarning
+                  onBlur={(e) => handleTestimonialSave(t.id, 'text', e.currentTarget.textContent || '')}
+                  className={`flex-grow text-[13px] sm:text-[13.5px] leading-relaxed mb-4 font-normal text-slate-600 dark:text-slate-300 text-left ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 p-0.5 rounded cursor-text' : ''}`}
+                >
+                  {text}
+                </blockquote>
+
+                {/* Stars Rating */}
+                <div className="flex items-center gap-0.5 mb-3 justify-start">
+                  {renderStars(rating)}
+                </div>
+
+                {/* Author Info */}
+                <div
+                  className="pt-4 border-t"
+                  style={{ borderColor: 'var(--border-color)' }}
+                >
+                  <p
+                    contentEditable={isEditMode}
+                    suppressContentEditableWarning
+                    onBlur={(e) => handleTestimonialSave(t.id, 'name', e.currentTarget.textContent || '')}
+                    className={`font-bold text-[14px] text-slate-800 dark:text-slate-100 leading-tight text-left ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                  >
+                    {name}
+                  </p>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 text-left">
+                    <span
+                      contentEditable={isEditMode}
+                      suppressContentEditableWarning
+                      onBlur={(e) => handleTestimonialSave(t.id, 'role', e.currentTarget.textContent || '')}
+                      className={isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-0.5 rounded cursor-text' : ''}
+                    >
+                      {role}
+                    </span>
+                    {' · '}
+                    <span
+                      contentEditable={isEditMode}
+                      suppressContentEditableWarning
+                      onBlur={(e) => handleTestimonialSave(t.id, 'company', e.currentTarget.textContent || '')}
+                      className={isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-0.5 rounded cursor-text' : ''}
+                    >
+                      {company}
+                    </span>
+                  </p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        {/* Mobile dot indicators */}
+        <div className="flex md:hidden items-center justify-center gap-1.5 mt-8">
+          {allTestimonials.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveIdx(i)}
+              className="rounded-full transition-all duration-300"
+              style={{
+                width: i === activeIdx ? '20px' : '6px',
+                height: '6px',
+                background: i === activeIdx ? 'var(--nav-text-active)' : 'var(--border-color)',
+              }}
+              aria-label={`Go to testimonial ${i + 1}`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );

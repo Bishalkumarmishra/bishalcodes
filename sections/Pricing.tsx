@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { CheckCircle2, Sparkles, ChevronRight } from 'lucide-react';
+import EditableText from '../components/EditableText';
 
 const Pricing: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -69,10 +70,12 @@ const Pricing: React.FC = () => {
       <div className="w-full px-[5vw] mx-auto relative z-10 flex flex-col items-center">
         <div className="text-center mb-12 max-w-2xl">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <p className="text-slate-900 dark:text-white font-semibold text-xs uppercase tracking-wider">Services</p>
+            <p className="text-slate-900 dark:text-white font-semibold text-xs uppercase tracking-wider">
+              <EditableText collection="settings" document="pricing" field="tag" fallback="Services" />
+            </p>
           </div>
           <h2 className="text-slate-900 text-3xl sm:text-4xl font-bold tracking-tight">
-            Consultation Plans
+            <EditableText collection="settings" document="pricing" field="title" fallback="Consultation Plans" />
           </h2>
         </div>
 
@@ -81,53 +84,60 @@ const Pricing: React.FC = () => {
             {plans.map((plan, index) => (
               <div 
                 key={index} 
-                className={`relative bg-white rounded-xl p-6 sm:p-8 border transition-all duration-300 flex flex-col h-full shrink-0 w-[85vw] md:w-full snap-center group ${
+                className={`relative bg-white rounded-xl p-6 sm:p-8 border transition-all duration-300 flex flex-col h-full shrink-0 w-[85vw] md:w-full snap-center group text-left ${
                   plan.isPopular 
                     ? 'border-slate-950 dark:border-white shadow-md scale-[1.01] z-10' 
                     : 'border-slate-200 hover:border-slate-300 hover:shadow-sm'
                 }`}
               >
                 {plan.badge && (
-                  <span className="absolute top-4 right-4 bg-slate-950 dark:bg-white text-white dark:text-black text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-transparent dark:border-slate-800">
-                    {plan.badge}
+                  <span className="absolute top-4 right-4 bg-slate-950 dark:bg-white text-white dark:text-black text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-transparent dark:border-slate-800 select-none">
+                    <EditableText collection="settings" document="pricing" field={`plan_badge_${index}`} fallback={plan.badge} />
                   </span>
                 )}
                 
                 <div className="mb-6">
-                  <h3 className="text-slate-400 font-semibold text-xs mb-3 uppercase tracking-wider">{plan.title}</h3>
+                  <h3 className="text-slate-400 font-semibold text-xs mb-3 uppercase tracking-wider">
+                    <EditableText collection="settings" document="pricing" field={`plan_title_${index}`} fallback={plan.title} />
+                  </h3>
                   <div className="flex items-baseline gap-1 mb-4">
-                    <span className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{plan.price}</span>
-                    <span className="text-slate-500 font-medium text-xs lowercase">Rs.</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                      <EditableText collection="settings" document="pricing" field={`plan_price_${index}`} fallback={plan.price} />
+                    </span>
+                    <span className="text-slate-500 font-medium text-xs lowercase select-none">Rs.</span>
                   </div>
-                  
-                  <a 
-                    href="https://wa.me/9779828701575" 
-                    className={`block w-full py-2 rounded-lg text-xs font-semibold text-center transition-colors shadow-sm ${
-                      plan.isPopular 
-                        ? 'bg-slate-950 text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-100' 
-                        : 'bg-slate-900 text-white hover:bg-slate-800'
-                    }`}
-                  >
-                    {plan.buttonText}
-                  </a>
-                  
-                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mt-4 font-normal">
-                    {plan.description}
+                  <p className="text-slate-500 text-xs sm:text-sm font-normal leading-relaxed">
+                    <EditableText collection="settings" document="pricing" field={`plan_desc_${index}`} fallback={plan.description} isTextArea />
                   </p>
                 </div>
-                
-                <div className="w-full h-[1px] bg-slate-100 mb-6" />
-                
-                <ul className="space-y-3 flex-grow">
-                  {plan.features.map((feature, fIndex) => (
-                    <li key={fIndex} className="flex items-center gap-3 text-slate-700">
-                      <div className="shrink-0 w-5 h-5 rounded-full border border-slate-200 flex items-center justify-center text-slate-850 bg-slate-100">
-                        <ChevronRight size={12} />
-                      </div>
-                      <span className="text-xs sm:text-sm tracking-tight text-slate-600 font-normal">{feature}</span>
+
+                <ul className="space-y-4 mb-8 flex-grow select-none">
+                  {plan.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-3">
+                      <CheckCircle2 size={16} className="text-slate-900 dark:text-white mt-0.5 shrink-0" />
+                      <span className="text-slate-600 text-xs sm:text-sm font-normal leading-tight">
+                        <EditableText collection="settings" document="pricing" field={`plan_feat_${index}_${idx}`} fallback={feature} />
+                      </span>
                     </li>
                   ))}
                 </ul>
+
+                <button 
+                  onClick={() => {
+                    const contactSection = document.getElementById('contact');
+                    if (contactSection) {
+                      contactSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                  className={`w-full py-3 px-4 rounded-lg font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-95 ${
+                    plan.isPopular 
+                      ? 'bg-slate-950 text-white hover:bg-slate-800' 
+                      : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
+                >
+                  <EditableText collection="settings" document="pricing" field={`plan_btn_${index}`} fallback={plan.buttonText} />
+                  <ChevronRight size={14} />
+                </button>
               </div>
             ))}
           </div>

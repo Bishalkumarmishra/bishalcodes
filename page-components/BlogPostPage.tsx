@@ -6,7 +6,7 @@ import Navbar from '../sections/Navbar';
 import Footer from '../sections/Footer';
 import { 
   Calendar, Loader2, User, ArrowLeft, Clock, Eye, Star, MessageSquare, Send, Twitter, Linkedin,
-  Copy, Check, Heart, Flame, Lightbulb, Sparkles
+  Copy, Check, Heart, Flame, Lightbulb, Sparkles, Edit2
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
 import ReactMarkdown from 'react-markdown';
@@ -48,6 +48,17 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
   const [comments, setComments] = useState<any[]>([]);
   const [commentForm, setCommentForm] = useState({ name: '', text: '', rating: 5 });
   const [submitting, setSubmitting] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkMode = () => {
+      setIsEditMode(localStorage.getItem('liveEditMode') === 'true');
+    };
+    checkMode();
+    window.addEventListener('liveEditToggle', checkMode);
+    return () => window.removeEventListener('liveEditToggle', checkMode);
+  }, []);
   const [readTime, setReadTime] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -287,17 +298,91 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
                 <span className="text-slate-700 truncate max-w-[200px] sm:max-w-none">{post.title}</span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight leading-tight mb-4 px-4 sm:px-0">
+              <h1 
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={async (e) => {
+                  const val = e.currentTarget.textContent || '';
+                  if (val === post.title) return;
+                  window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saving' }));
+                  await updateDoc(doc(db, 'blog', id!), { title: val });
+                  setPost(prev => ({ ...prev, title: val }));
+                  window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saved' }));
+                }}
+                onFocus={(e) => {
+                  if (isEditMode) {
+                    window.dispatchEvent(new CustomEvent('activeEditableFocus', { detail: e.currentTarget }));
+                  }
+                }}
+                onClick={(e) => {
+                  if (isEditMode) {
+                    window.dispatchEvent(new CustomEvent('activeEditableFocus', { detail: e.currentTarget }));
+                  }
+                }}
+                className={`text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight leading-tight mb-4 px-4 sm:px-0 text-left ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 p-0.5 rounded cursor-text' : ''}`}
+              >
                 {post.title}
               </h1>
 
               {/* Author profile and publish info */}
-              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 border-b border-slate-200 pb-6 mb-6 px-4 sm:px-0">
-                <span className="font-semibold text-slate-800">{post.author || 'Bishal Mishra'}</span>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 border-b border-slate-200 pb-6 mb-6 px-4 sm:px-0 text-left select-none">
+                <span className="font-semibold text-slate-800">
+                  <span
+                    contentEditable={isEditMode}
+                    suppressContentEditableWarning
+                    onBlur={async (e) => {
+                      const val = e.currentTarget.textContent || '';
+                      if (val === post.author) return;
+                      window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saving' }));
+                      await updateDoc(doc(db, 'blog', id!), { author: val });
+                      setPost(prev => ({ ...prev, author: val }));
+                      window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saved' }));
+                    }}
+                    onFocus={(e) => {
+                      if (isEditMode) {
+                        window.dispatchEvent(new CustomEvent('activeEditableFocus', { detail: e.currentTarget }));
+                      }
+                    }}
+                    onClick={(e) => {
+                      if (isEditMode) {
+                        window.dispatchEvent(new CustomEvent('activeEditableFocus', { detail: e.currentTarget }));
+                      }
+                    }}
+                    className={isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}
+                  >
+                    {post.author || 'Bishal Mishra'}
+                  </span>
+                </span>
                 <span>•</span>
                 <span>{new Date(post.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                 <span>•</span>
-                <span className="text-indigo-600 font-medium">{post.tag || 'Tech'}</span>
+                <span className="text-indigo-600 font-medium">
+                  <span
+                    contentEditable={isEditMode}
+                    suppressContentEditableWarning
+                    onBlur={async (e) => {
+                      const val = e.currentTarget.textContent || '';
+                      if (val === post.tag) return;
+                      window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saving' }));
+                      await updateDoc(doc(db, 'blog', id!), { tag: val });
+                      setPost(prev => ({ ...prev, tag: val }));
+                      window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saved' }));
+                    }}
+                    onFocus={(e) => {
+                      if (isEditMode) {
+                        window.dispatchEvent(new CustomEvent('activeEditableFocus', { detail: e.currentTarget }));
+                      }
+                    }}
+                    onClick={(e) => {
+                      if (isEditMode) {
+                        window.dispatchEvent(new CustomEvent('activeEditableFocus', { detail: e.currentTarget }));
+                      }
+                    }}
+                    className={isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}
+                  >
+                    {post.tag || 'Tech'}
+                  </span>
+                </span>
                 <span>•</span>
                 <span>{readTime} min read</span>
                 {post.views > 0 && (
@@ -308,33 +393,76 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
                 )}
               </div>
               
-              <figure className="mb-6 mx-4 sm:mx-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center h-[260px] sm:h-[400px]">
-                <img src={post.imageUrl || 'https://images.unsplash.com/photo/1555066931-4365d14bab8c'} className="w-full h-full object-cover" alt={post.title} />
+              <figure className="mb-6 mx-4 sm:mx-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center h-[260px] sm:h-[400px] relative group/figure select-none">
+                <img src={post.imageUrl || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c'} className="w-full h-full object-cover" alt={post.title} />
+                {isEditMode && (
+                  <label className="absolute inset-0 bg-black/60 z-20 flex flex-col items-center justify-center cursor-pointer text-white font-bold text-[11px] uppercase tracking-wider gap-1.5 transition-all">
+                    <Edit2 size={18} className="animate-pulse" />
+                    <span>Upload Cover Photo</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        if (!e.target.files || e.target.files.length === 0) return;
+                        window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saving' }));
+                        try {
+                          const { uploadToCloudinary } = await import('../services/cloudinary');
+                          const res = await uploadToCloudinary(e.target.files[0]);
+                          await updateDoc(doc(db, 'blog', id!), { imageUrl: res.url });
+                          setPost(prev => ({ ...prev, imageUrl: res.url }));
+                          window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saved' }));
+                        } catch (err) {
+                          console.error("Error uploading cover photo:", err);
+                        }
+                      }}
+                    />
+                  </label>
+                )}
               </figure>
 
-              <div ref={contentRef} className="prose prose-slate max-w-none text-slate-600 leading-relaxed text-sm sm:text-base font-normal px-4 sm:px-0 blog-post-content">
-                <ReactMarkdown 
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeRaw]}
-                  components={{
-                    pre({ children, ...props }: any) {
-                      const codeElement = React.Children.toArray(children).find(
-                        (child: any) => child.type === 'code' || (child.props && child.props.className)
-                      ) as any;
-                      const codeText = codeElement ? codeElement.props.children : '';
-                      return (
-                        <div className="relative group/code-block my-6">
-                          <CopyButton text={String(codeText).trim()} />
-                          <pre {...props}>
-                            {children}
-                          </pre>
-                        </div>
-                      );
-                    }
-                  } as any}
-                >
-                  {post.content}
-                </ReactMarkdown>
+              <div ref={contentRef} className="prose prose-slate max-w-none text-slate-600 leading-relaxed text-sm sm:text-base font-normal px-4 sm:px-0 blog-post-content text-left">
+                {isEditMode ? (
+                  <textarea
+                    value={post.content || ''}
+                    onChange={(e) => setPost(prev => ({ ...prev, content: e.target.value }))}
+                    onBlur={async (e) => {
+                      if (e.target.value === post.content) return;
+                      window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saving' }));
+                      try {
+                        await updateDoc(doc(db, 'blog', id!), { content: e.target.value });
+                        window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saved' }));
+                      } catch (err) {
+                        console.error(err);
+                      }
+                    }}
+                    className="w-full min-h-[350px] p-4 font-mono text-xs border-2 border-dashed border-amber-500/80 rounded-lg outline-none bg-slate-50 text-slate-800 focus:bg-white"
+                    placeholder="Write your blog post in Markdown format here..."
+                  />
+                ) : (
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw]}
+                    components={{
+                      pre({ children, ...props }: any) {
+                        const codeElement = React.Children.toArray(children).find(
+                          (child: any) => child.type === 'code' || (child.props && child.props.className)
+                        ) as any;
+                        const codeText = codeElement ? codeElement.props.children : '';
+                        return (
+                          <div className="relative group/code-block my-6">
+                            <CopyButton text={String(codeText).trim()} />
+                            <pre {...props}>
+                              {children}
+                            </pre>
+                          </div>
+                        );
+                      }
+                    } as any}
+                  >
+                    {post.content}
+                  </ReactMarkdown>
+                )}
               </div>
             </article>
 
