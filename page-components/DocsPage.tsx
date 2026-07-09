@@ -5,6 +5,9 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useNavigation } from '../context/NavigationContext';
 import { Search, BookOpen, User, Briefcase, Cpu, HelpCircle, AlertCircle, ChevronRight, ExternalLink, X } from 'lucide-react';
+// @ts-ignore
+import { getDoc, doc, updateDoc, setDoc, getDocs, collection } from 'firebase/firestore';
+import { db } from '../services/firebase';
 
 interface DocSection {
   id: string;
@@ -14,7 +17,7 @@ interface DocSection {
   content: string;
 }
 
-const docSections: DocSection[] = [
+const initialDocSections: DocSection[] = [
   {
     id: 'developer-utilities',
     title: 'Developer Utilities & Browser Tools',
@@ -455,17 +458,93 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
   const { navigate } = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [docSections, setDocSections] = useState<DocSection[]>([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkMode = () => {
+      setIsEditMode(localStorage.getItem('liveEditMode') === 'true');
+    };
+    checkMode();
+    window.addEventListener('liveEditToggle', checkMode);
+    return () => window.removeEventListener('liveEditToggle', checkMode);
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchDocs = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'docs'));
+        if (!querySnapshot.empty && isMounted) {
+          const list: DocSection[] = [];
+          querySnapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            list.push({
+              id: docSnap.id,
+              title: data.title || '',
+              category: data.category || '',
+              keywords: data.keywords || [],
+              content: data.content || ''
+            });
+          });
+          setDocSections(list);
+        } else if (isMounted) {
+          setDocSections(initialDocSections);
+          initialDocSections.forEach(async (item) => {
+            try {
+              await setDoc(doc(db, 'docs', item.id), {
+                title: item.title,
+                category: item.category,
+                keywords: item.keywords,
+                content: item.content
+              });
+            } catch (err) {
+              console.warn(`Failed to seed doc ${item.id}:`, err);
+            }
+          });
+        }
+      } catch (err) {
+        console.warn("Failed to fetch docs from Firestore:", err);
+        if (isMounted) {
+          setDocSections(initialDocSections);
+        }
+      }
+    };
+    fetchDocs();
+    return () => { isMounted = false; };
+  }, []);
+
+  const handleInlineSave = async (docId: string, field: 'title' | 'content', value: string) => {
+    window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saving' }));
+    
+    setDocSections(prev => prev.map(item => {
+      if (item.id === docId) {
+        return { ...item, [field]: value };
+      }
+      return item;
+    }));
+
+    try {
+      await updateDoc(doc(db, 'docs', docId), {
+        [field]: value
+      });
+      window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saved' }));
+    } catch (err) {
+      console.error("Error saving doc change:", err);
+    }
+  };
   
   // Set default section to 'getting-started' if none or invalid provided
   const activeSectionId = useMemo(() => {
     if (!sectionId) return 'getting-started';
     const exists = docSections.some(s => s.id === sectionId);
     return exists ? sectionId : 'getting-started';
-  }, [sectionId]);
+  }, [sectionId, docSections]);
 
   const activeSection = useMemo(() => {
-    return docSections.find(s => s.id === activeSectionId) || docSections[0];
-  }, [activeSectionId]);
+    return docSections.find(s => s.id === activeSectionId) || docSections[0] || initialDocSections[0];
+  }, [docSections, activeSectionId]);
 
   // Set page headers for SEO dynamically
   useEffect(() => {
@@ -673,7 +752,12 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                 </div>
 
                 {/* Main Heading */}
-                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight leading-tight mb-1">
+                <h1 
+                  contentEditable={isEditMode}
+                  suppressContentEditableWarning
+                  onBlur={(e) => handleInlineSave(activeSection.id, 'title', e.currentTarget.textContent || '')}
+                  className={`text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight leading-tight mb-1 w-fit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                >
                   {activeSection.title}
                 </h1>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-6 mb-6">
@@ -682,20 +766,28 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
 
                 {/* Markdown content rendering */}
                 <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed text-sm sm:text-base font-normal">
-                  <ReactMarkdown 
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      blockquote: ({ children }) => (
-                        <div className="my-4 pl-4 border-l-2 border-slate-200 text-xs sm:text-[13px] text-slate-500 font-normal">
-                          <div className="not-prose space-y-2">
-                            {children}
+                  {isEditMode ? (
+                    <textarea
+                      value={activeSection.content}
+                      onChange={(e) => handleInlineSave(activeSection.id, 'content', e.target.value)}
+                      className="w-full min-h-[400px] p-4 bg-slate-50 border-2 border-slate-200 rounded-xl font-mono text-xs text-slate-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none resize-y"
+                    />
+                  ) : (
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        blockquote: ({ children }) => (
+                          <div className="my-4 pl-4 border-l-2 border-slate-200 text-xs sm:text-[13px] text-slate-500 font-normal">
+                            <div className="not-prose space-y-2">
+                              {children}
+                            </div>
                           </div>
-                        </div>
-                      )
-                    } as any}
-                  >
-                    {activeSection.content}
-                  </ReactMarkdown>
+                        )
+                      } as any}
+                    >
+                      {activeSection.content}
+                    </ReactMarkdown>
+                  )}
                 </div>
 
                 {/* Quick Info Box Callout */}

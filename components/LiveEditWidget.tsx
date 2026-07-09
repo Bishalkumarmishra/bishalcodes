@@ -1,9 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Edit2, Check } from 'lucide-react';
+import { auth } from '../services/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const LiveEditWidget: React.FC = () => {
   const [liveEdit, setLiveEdit] = useState(false);
   const [savedStatus, setSavedStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const allowedAdmins = [
+      'bishalmishra9000@gmail.com',
+      'admin@bishalcodes.com',
+      'developer@bishalcodes.com'
+    ];
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && user.email && allowedAdmins.includes(user.email)) {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+        // Turn off edit mode if user is not authorized
+        if (typeof window !== 'undefined' && localStorage.getItem('liveEditMode') === 'true') {
+          localStorage.removeItem('liveEditMode');
+          window.dispatchEvent(new Event('liveEditToggle'));
+        }
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -34,6 +62,8 @@ const LiveEditWidget: React.FC = () => {
     return () => window.removeEventListener('liveEditSaveStatus', handleStatus);
   }, []);
 
+  if (loading || (!isAdmin && typeof window !== 'undefined' && window.location.hostname !== 'localhost')) return null;
+
   return (
     <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-2 font-sans select-none pointer-events-auto">
       {liveEdit && (
@@ -59,14 +89,14 @@ const LiveEditWidget: React.FC = () => {
       
       <button
         onClick={toggleEdit}
-        className={`flex items-center gap-2 px-4 py-2.5 rounded-full shadow-xl border font-bold text-[11px] uppercase tracking-wider transition-all duration-300 active:scale-95 ${
+        title={liveEdit ? 'Exit Live Edit' : 'Live Visual Edit'}
+        className={`flex items-center justify-center w-11 h-11 rounded-full shadow-xl border transition-all duration-300 active:scale-95 ${
           liveEdit 
             ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 border-amber-400' 
-            : 'bg-slate-900 hover:bg-slate-850 text-white border-slate-850'
+            : 'bg-slate-900 hover:bg-slate-800 text-white border-slate-700'
         }`}
       >
-        <Edit2 size={13} className={liveEdit ? 'animate-bounce' : ''} />
-        <span>{liveEdit ? 'Exit Live Edit' : 'Live Visual Edit'}</span>
+        <Edit2 size={16} className={liveEdit ? 'animate-pulse' : ''} />
       </button>
     </div>
   );

@@ -136,6 +136,7 @@ const Hero: React.FC = () => {
           const rawSlides =
             data.slides && data.slides.length > 0 ? data.slides : defaultSlides;
 
+          let didModify = false;
           const mappedSlides = rawSlides.map((slide: any, index: number) => {
             const globalTitle = data.title || "Hey, I'm Bishal Mishra";
             const globalSubtitle =
@@ -146,9 +147,24 @@ const Hero: React.FC = () => {
 
             if (typeof slide === 'string') return buildDefaultSlide(slide, index);
 
+            let title = slide.title || globalTitle;
+            // Auto convert all-caps titles to Title/Mixed Case
+            if (title && title.length > 3 && title === title.toUpperCase() && !title.includes('<')) {
+              title = title
+                .toLowerCase()
+                .split(' ')
+                .map((word: string) => {
+                  if (word === 'i' || word === "i'm") return word.charAt(0).toUpperCase() + word.slice(1);
+                  if (word === 'ui' || word === 'ux' || word === 'ai') return word.toUpperCase();
+                  return word.charAt(0).toUpperCase() + word.slice(1);
+                })
+                .join(' ');
+              didModify = true;
+            }
+
             return {
               imageUrl: slide.imageUrl || '',
-              title: slide.title || globalTitle,
+              title: title,
               subtitle: slide.subtitle || globalSubtitle,
               description: slide.description || globalDesc,
               primaryBtnText: slide.primaryBtnText || 'See My Work',
@@ -193,6 +209,13 @@ const Hero: React.FC = () => {
             sliderHeightDesktop:
               data.sliderHeightDesktop !== undefined ? Number(data.sliderHeightDesktop) : 100,
           });
+
+          // Save converted slides back to Firestore to permanently fix slide 2 and 3 fonts
+          if (didModify) {
+            updateDoc(doc(db, 'settings', 'hero'), {
+              slides: mappedSlides
+            }).catch(err => console.warn("Failed to auto-update slides in firestore:", err));
+          }
         }
       } catch (err) {
         console.warn('Error fetching hero settings:', err);
@@ -292,8 +315,8 @@ const Hero: React.FC = () => {
     <>
       <style>{`
         #hero-section {
-          height: ${heroData.sliderHeightMobile ?? 50}vh;
-          min-height: 480px;
+          height: ${heroData.sliderHeightMobile ?? 45}vh;
+          min-height: 420px;
         }
         @media (min-width: 768px) {
           #hero-section {
@@ -301,14 +324,29 @@ const Hero: React.FC = () => {
             min-height: 620px;
           }
         }
+        #hero-title, #hero-title * {
+          font-family: var(--font-outfit), sans-serif !important;
+        }
         #hero-title {
           font-size: ${activeSlide?.titleSizeMobile ?? 2.1}rem;
           color: ${activeSlide?.titleColor ?? '#ffffff'};
           line-height: 1.08;
         }
+        @media (max-width: 767px) {
+          #hero-title, #hero-title * {
+            white-space: nowrap !important;
+            font-size: 5.8vw !important;
+          }
+        }
+        #hero-typed, #hero-typed * {
+          font-family: var(--font-outfit), sans-serif !important;
+        }
         #hero-typed {
           font-size: ${activeSlide?.subtitleSizeMobile ?? 1.05}rem;
           color: ${activeSlide?.subtitleColor ?? '#d1d5db'};
+        }
+        #hero-desc, #hero-desc * {
+          font-family: var(--font-inter), sans-serif !important;
         }
         #hero-desc {
           font-size: ${activeSlide?.descSizeMobile ?? 0.9}rem;
@@ -364,11 +402,9 @@ const Hero: React.FC = () => {
         }
         .hero-stat {
           border-right: 1px solid rgba(255,255,255,0.12);
-          padding-right: 1.5rem;
         }
         .hero-stat:last-child {
           border-right: none;
-          padding-right: 0;
         }
       `}</style>
 
@@ -448,7 +484,7 @@ const Hero: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/50 z-[1]" />
 
         {/* Main content */}
-        <div className="relative w-full px-[6vw] md:px-[10vw] z-10 flex flex-col justify-center pt-20 pb-12 md:pt-28 md:pb-20">
+        <div className="relative w-full px-[6vw] md:px-[10vw] z-10 flex flex-col justify-center pt-16 pb-10 md:pt-28 md:pb-20">
 
           {/* Main heading */}
           <h1
@@ -467,14 +503,14 @@ const Hero: React.FC = () => {
                 window.dispatchEvent(new CustomEvent('activeEditableFocus', { detail: e.currentTarget }));
               }
             }}
-            className={`font-outfit font-black tracking-tight leading-none mb-3 md:mb-4 max-w-3xl text-left ${isEditMode ? 'outline-dashed outline-2 outline-amber-500/80 p-1 rounded cursor-text bg-black/30' : ''}`}
+            className={`font-outfit font-black tracking-tight leading-none mb-2 md:mb-3 max-w-3xl text-left ${isEditMode ? 'outline-dashed outline-2 outline-amber-500/80 p-1 rounded cursor-text bg-black/30' : ''}`}
             dangerouslySetInnerHTML={{ __html: activeSlide?.title ?? heroData.title }}
           />
 
           {/* Typed subtitle */}
           <p
             id="hero-typed"
-            className="font-outfit font-semibold tracking-wide mb-4 md:mb-5 text-left"
+            className="font-outfit font-semibold tracking-wide mb-2.5 md:mb-3.5 text-left"
             aria-label={activeSlide?.subtitle ?? heroData.subtitle}
           >
             {isEditMode ? (
@@ -522,12 +558,12 @@ const Hero: React.FC = () => {
                 window.dispatchEvent(new CustomEvent('activeEditableFocus', { detail: e.currentTarget }));
               }
             }}
-            className={`max-w-xl leading-relaxed font-normal mb-7 md:mb-9 text-left ${isEditMode ? 'outline-dashed outline-2 outline-amber-500/80 p-1 rounded cursor-text bg-black/30' : ''}`}
+            className={`max-w-xl leading-relaxed font-normal mb-6 md:mb-8 text-left ${isEditMode ? 'outline-dashed outline-2 outline-amber-500/80 p-1 rounded cursor-text bg-black/30' : ''}`}
             dangerouslySetInnerHTML={{ __html: activeSlide?.description ?? heroData.description }}
           />
 
           {/* CTA Buttons */}
-          <div className="flex flex-row flex-wrap gap-3 mb-10 md:mb-14">
+          <div className="flex flex-row flex-wrap gap-3 mb-6 md:mb-9">
             {activeSlide?.primaryBtnText && (
               <button
                 id="hero-cta-primary"
@@ -540,7 +576,7 @@ const Hero: React.FC = () => {
                     navigate(link as any);
                   }
                 }}
-                className="hero-btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide shadow-lg"
+                className="hero-btn-primary inline-flex items-center gap-2.5 px-6 py-2.5 rounded-xl font-bold text-sm tracking-wide shadow-lg"
               >
                 <span
                   contentEditable={isEditMode}
@@ -579,7 +615,7 @@ const Hero: React.FC = () => {
                     navigate(link as any);
                   }
                 }}
-                className="hero-btn-secondary inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide"
+                className="hero-btn-secondary inline-flex items-center gap-2.5 px-6 py-2.5 rounded-xl font-bold text-sm tracking-wide"
               >
                 <span
                   contentEditable={isEditMode}
@@ -608,11 +644,11 @@ const Hero: React.FC = () => {
           </div>
 
           {/* Stats bar */}
-          <div className="flex flex-row flex-wrap gap-5 md:gap-0">
+          <div className="flex flex-row flex-wrap gap-x-3 gap-y-2 md:gap-0">
             {heroData.stats.map((stat, i) => (
               <div
                 key={i}
-                className="hero-stat flex flex-col gap-0.5 pr-6 mr-6 text-left"
+                className="hero-stat flex flex-col gap-0.5 pr-3 mr-3 md:pr-8 md:mr-8 last:pr-0 last:mr-0 text-left"
               >
                 <span
                   contentEditable={isEditMode}
@@ -629,7 +665,7 @@ const Hero: React.FC = () => {
                       window.dispatchEvent(new CustomEvent('activeEditableFocus', { detail: e.currentTarget }));
                     }
                   }}
-                  className={`font-outfit font-black text-xl md:text-2xl text-white leading-none ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text bg-black/30' : ''}`}
+                  className={`font-outfit font-black text-[17px] md:text-2xl text-white leading-none ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text bg-black/30' : ''}`}
                 >
                   {stat.num}
                 </span>
@@ -648,7 +684,7 @@ const Hero: React.FC = () => {
                       window.dispatchEvent(new CustomEvent('activeEditableFocus', { detail: e.currentTarget }));
                     }
                   }}
-                  className={`text-[11px] uppercase tracking-[0.15em] font-medium ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text bg-black/30' : ''}`}
+                  className={`text-[9px] md:text-[11px] uppercase tracking-[0.15em] font-medium ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text bg-black/30' : ''}`}
                   style={{ color: 'rgba(255,255,255,0.45)' }}
                 >
                   {stat.label}

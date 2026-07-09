@@ -1,32 +1,115 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Sparkles, Briefcase } from 'lucide-react';
+// @ts-ignore
+import { getDoc, doc, updateDoc } from 'firebase/firestore';
+import { db } from '../services/firebase';
+
+const dispatchEditFocus = (el: HTMLElement) => {
+  window.dispatchEvent(new CustomEvent('activeEditableFocus', { detail: el }));
+};
 
 const Timeline: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [timelineData, setTimelineData] = useState({
+    tag: 'Timeline',
+    title: 'Work Experience',
+    experiences: [
+      {
+        year: '2025',
+        shortDesc: 'Scaling consulting and delivery',
+        title: 'Global Delivery',
+        description: 'Consulting and engineering web architectures for enterprise clients, focusing on Next.js scalability, security frameworks, and API optimization.',
+        isHighlighted: true,
+      },
+      {
+        year: '2024',
+        shortDesc: 'Full stack app architectures',
+        title: 'Web Developer',
+        description: 'Delivering end-to-end full stack web platforms using Node.js, React, and cloud integrations to optimize business operations.',
+        isHighlighted: false,
+      },
+      {
+        year: '2023',
+        shortDesc: 'Early commerce systems',
+        title: 'Commerce Developer',
+        description: 'Developed specialized e-commerce setups and PHP backends, integrating database schemas and custom features for growing brands.',
+        isHighlighted: false,
+      }
+    ]
+  });
 
-  const experiences = [
-    {
-      year: '2025',
-      shortDesc: 'Scaling consulting and delivery',
-      title: 'Global Delivery',
-      description: 'Consulting and engineering web architectures for enterprise clients, focusing on Next.js scalability, security frameworks, and API optimization.',
-      isHighlighted: true,
-    },
-    {
-      year: '2024',
-      shortDesc: 'Full stack app architectures',
-      title: 'Web Developer',
-      description: 'Delivering end-to-end full stack web platforms using Node.js, React, and cloud integrations to optimize business operations.',
-      isHighlighted: false,
-    },
-    {
-      year: '2023',
-      shortDesc: 'Early commerce systems',
-      title: 'Commerce Developer',
-      description: 'Developed specialized e-commerce setups and PHP backends, integrating database schemas and custom features for growing brands.',
-      isHighlighted: false,
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkMode = () => {
+      setIsEditMode(localStorage.getItem('liveEditMode') === 'true');
+    };
+    checkMode();
+    window.addEventListener('liveEditToggle', checkMode);
+    return () => window.removeEventListener('liveEditToggle', checkMode);
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchTimelineData = async () => {
+      try {
+        const snap = await getDoc(doc(db, 'settings', 'experience'));
+        if (snap.exists() && isMounted) {
+          const data = snap.data();
+          setTimelineData({
+            tag: data.tag || 'Timeline',
+            title: data.title || 'Work Experience',
+            experiences: data.experiences || [
+              {
+                year: '2025',
+                shortDesc: 'Scaling consulting and delivery',
+                title: 'Global Delivery',
+                description: 'Consulting and engineering web architectures for enterprise clients, focusing on Next.js scalability, security frameworks, and API optimization.',
+                isHighlighted: true,
+              },
+              {
+                year: '2024',
+                shortDesc: 'Full stack app architectures',
+                title: 'Web Developer',
+                description: 'Delivering end-to-end full stack web platforms using Node.js, React, and cloud integrations to optimize business operations.',
+                isHighlighted: false,
+              },
+              {
+                year: '2023',
+                shortDesc: 'Early commerce systems',
+                title: 'Commerce Developer',
+                description: 'Developed specialized e-commerce setups and PHP backends, integrating database schemas and custom features for growing brands.',
+                isHighlighted: false,
+              }
+            ]
+          });
+        }
+      } catch (err) {
+        console.warn("Error fetching timeline settings:", err);
+      }
+    };
+    fetchTimelineData();
+    return () => { isMounted = false; };
+  }, []);
+
+  const handleTimelineSave = async (field: string, value: any) => {
+    window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saving' }));
+    setTimelineData(prev => ({ ...prev, [field]: value }));
+    try {
+      await updateDoc(doc(db, 'settings', 'experience'), {
+        [field]: value
+      });
+      window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saved' }));
+    } catch (err) {
+      console.error("Error saving timeline settings:", err);
     }
-  ];
+  };
+
+  const handleExperienceSave = async (index: number, key: string, value: string) => {
+    const updatedExps = [...timelineData.experiences];
+    updatedExps[index] = { ...updatedExps[index], [key]: value };
+    await handleTimelineSave('experiences', updatedExps);
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -55,13 +138,29 @@ const Timeline: React.FC = () => {
       <div className="w-full px-[5vw] mx-auto relative z-10">
         
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6 text-left">
           <div className="flex flex-col">
             <div className="flex items-center gap-2 mb-2">
-              <p className="text-slate-900 dark:text-white font-semibold text-xs uppercase tracking-wider">Timeline</p>
+              <p 
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => handleTimelineSave('tag', e.currentTarget.textContent || '')}
+                onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+                onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+                className={`text-slate-900 dark:text-white font-semibold text-xs uppercase tracking-wider ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+              >
+                {timelineData.tag}
+              </p>
             </div>
-            <h2 className="text-slate-900 text-3xl sm:text-4xl font-bold tracking-tight">
-              Work Experience
+            <h2 
+              contentEditable={isEditMode}
+              suppressContentEditableWarning
+              onBlur={(e) => handleTimelineSave('title', e.currentTarget.textContent || '')}
+              onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+              onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+              className={`text-slate-900 text-3xl sm:text-4xl font-bold tracking-tight ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+            >
+              {timelineData.title}
             </h2>
           </div>
           <a 
@@ -81,15 +180,33 @@ const Timeline: React.FC = () => {
             ref={scrollRef}
             className="flex md:flex-col overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-hide gap-5 md:space-y-8 pb-4 md:pb-0"
           >
-            {experiences.map((exp, index) => (
+            {timelineData.experiences.map((exp, index) => (
               <div 
                 key={index} 
-                className="relative flex flex-col md:flex-row gap-6 md:gap-8 shrink-0 w-[85vw] md:w-full snap-center"
+                className="relative flex flex-col md:flex-row gap-6 md:gap-8 shrink-0 w-[85vw] md:w-full snap-center text-left"
               >
                 {/* Desktop Year Label */}
                 <div className="hidden md:block w-[120px] shrink-0 pt-1 text-right">
-                  <p className="text-slate-400 font-bold text-xs uppercase tracking-wider mb-1">{exp.year}</p>
-                  <p className="text-slate-700 font-semibold text-sm leading-snug">{exp.shortDesc}</p>
+                  <p 
+                    contentEditable={isEditMode}
+                    suppressContentEditableWarning
+                    onBlur={(e) => handleExperienceSave(index, 'year', e.currentTarget.textContent || '')}
+                    onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+                    onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+                    className={`text-slate-400 font-bold text-xs uppercase tracking-wider mb-1 w-fit ml-auto ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                  >
+                    {exp.year}
+                  </p>
+                  <p 
+                    contentEditable={isEditMode}
+                    suppressContentEditableWarning
+                    onBlur={(e) => handleExperienceSave(index, 'shortDesc', e.currentTarget.textContent || '')}
+                    onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+                    onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+                    className={`text-slate-700 font-semibold text-sm leading-snug w-fit ml-auto ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                  >
+                    {exp.shortDesc}
+                  </p>
                 </div>
 
                 {/* Dot Marker */}
@@ -106,14 +223,35 @@ const Timeline: React.FC = () => {
                   }`}>
                     <div className="flex-grow">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-slate-900 text-lg sm:text-xl font-bold tracking-tight">
+                        <h3 
+                          contentEditable={isEditMode}
+                          suppressContentEditableWarning
+                          onBlur={(e) => handleExperienceSave(index, 'title', e.currentTarget.textContent || '')}
+                          onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+                          onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+                          className={`text-slate-900 text-lg sm:text-xl font-bold tracking-tight ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                        >
                           {exp.title}
                         </h3>
-                        <span className="md:hidden bg-slate-100 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                        <span 
+                          contentEditable={isEditMode}
+                          suppressContentEditableWarning
+                          onBlur={(e) => handleExperienceSave(index, 'year', e.currentTarget.textContent || '')}
+                          onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+                          onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+                          className={`md:hidden bg-slate-100 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 uppercase tracking-wider ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                        >
                           {exp.year}
                         </span>
                       </div>
-                      <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-normal">
+                      <p 
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => handleExperienceSave(index, 'description', e.currentTarget.textContent || '')}
+                        onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+                        onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+                        className={`text-slate-650 text-sm sm:text-base leading-relaxed font-normal ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 p-1 rounded cursor-text' : ''}`}
+                      >
                         {exp.description}
                       </p>
                     </div>
@@ -121,10 +259,10 @@ const Timeline: React.FC = () => {
                     <div className="hidden sm:block shrink-0">
                         <a href="https://wa.me/9779828701575" className={`w-9 h-9 rounded-lg border flex items-center justify-center transition-all ${
                           exp.isHighlighted 
-                          ? 'bg-slate-950 border-slate-950 text-white hover:bg-slate-800 dark:bg-white dark:border-white dark:text-black dark:hover:bg-slate-100' 
-                          : 'border-slate-200 text-slate-400 hover:border-slate-950 hover:text-slate-950 dark:hover:border-white dark:hover:text-white hover:bg-slate-50'
+                          ? 'bg-slate-950 border-slate-950 text-white hover:bg-slate-800' 
+                          : 'border-slate-200 text-slate-400 hover:border-slate-950 hover:text-slate-950 hover:bg-slate-50'
                         }`}>
-                         <MessageSquare size={16} />
+                          <MessageSquare size={16} />
                        </a>
                     </div>
                   </div>

@@ -5,22 +5,40 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useApiKey } from '../hooks/useApiKey';
 import ApiKeyModal from '../components/ApiKeyModal';
+// @ts-ignore
+import { getDoc, doc, updateDoc } from 'firebase/firestore';
+import { db } from '../services/firebase';
 
 interface TechSkillCardProps {
   id: string;
   name: string;
   icon: string;
   onClick: (id: string, name: string) => void;
+  isEditMode: boolean;
+  onNameSave: (newName: string) => void;
 }
 
-const TechSkillCard: React.FC<TechSkillCardProps> = ({ id, name, icon, onClick }) => {
+const dispatchEditFocus = (el: HTMLElement) => {
+  window.dispatchEvent(new CustomEvent('activeEditableFocus', { detail: el }));
+};
+
+const TechSkillCard: React.FC<TechSkillCardProps> = ({ id, name, icon, onClick, isEditMode, onNameSave }) => {
   return (
     <div 
       className="p-3 sm:p-4 rounded-xl border border-slate-200 bg-white flex items-center gap-2 sm:gap-3.5 transition-all duration-200 hover:border-indigo-400 hover:shadow-sm cursor-pointer"
-      onClick={() => onClick(id, name)}
+      onClick={() => !isEditMode && onClick(id, name)}
     >
       <img src={icon} alt={name} className="w-6 h-6 sm:w-8 sm:h-8 object-contain shrink-0" />
-      <span className="text-xs sm:text-base font-semibold text-slate-800 truncate">{name}</span>
+      <span 
+        contentEditable={isEditMode}
+        suppressContentEditableWarning
+        onBlur={(e) => onNameSave(e.currentTarget.textContent || '')}
+        onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+        onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+        className={`text-xs sm:text-base font-semibold text-slate-800 truncate ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+      >
+        {name}
+      </span>
     </div>
   );
 };
@@ -226,15 +244,83 @@ const Overview: React.FC = () => {
   const [selectedSkillId, setSelectedSkillId] = useState<string | null>(null);
   const [selectedSkillName, setSelectedSkillName] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
-  const coreTechnologiesData = [
-    { id: "javascript", name: "JavaScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" },
-    { id: "typescript", name: "TypeScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" },
-    { id: "react", name: "React", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
-    { id: "next-js", name: "Next.js", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg" },
-    { id: "react-query", name: "React Query", icon: "https://cdn.prod.website-files.com/675da0ab9f940c0315fd965f/6767dea5d39b71a90a2523db_react-query.webp" },
-    { id: "git-github", name: "Git & GitHub", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" },
-  ];
+  const [overviewData, setOverviewData] = useState({
+    tag: 'Introduction',
+    title: 'Overview',
+    bioParagraph1: 'As a Full-Stack Developer, I focus on building responsive, highly functional web ecosystems. My passion lies in engineering robust backend architectures paired with clean, accessible frontends.',
+    bioParagraph2: 'I collaborate with businesses to deploy software solutions that solve real-world problems, with codebases that are optimized for performance, scalability, and long-term maintainability.',
+    coreTechTitle: 'Core Technologies',
+    coreTechnologies: [
+      { id: "javascript", name: "JavaScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" },
+      { id: "typescript", name: "TypeScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" },
+      { id: "react", name: "React", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
+      { id: "next-js", name: "Next.js", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg" },
+      { id: "react-query", name: "React Query", icon: "https://cdn.prod.website-files.com/675da0ab9f940c0315fd965f/6767dea5d39b71a90a2523db_react-query.webp" },
+      { id: "git-github", name: "Git & GitHub", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" },
+    ]
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkMode = () => {
+      setIsEditMode(localStorage.getItem('liveEditMode') === 'true');
+    };
+    checkMode();
+    window.addEventListener('liveEditToggle', checkMode);
+    return () => window.removeEventListener('liveEditToggle', checkMode);
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchOverviewData = async () => {
+      try {
+        const snap = await getDoc(doc(db, 'settings', 'overview'));
+        if (snap.exists() && isMounted) {
+          const data = snap.data();
+          setOverviewData({
+            tag: data.tag || 'Introduction',
+            title: data.title || 'Overview',
+            bioParagraph1: data.bioParagraph1 || 'As a Full-Stack Developer, I focus on building responsive, highly functional web ecosystems. My passion lies in engineering robust backend architectures paired with clean, accessible frontends.',
+            bioParagraph2: data.bioParagraph2 || 'I collaborate with businesses to deploy software solutions that solve real-world problems, with codebases that are optimized for performance, scalability, and long-term maintainability.',
+            coreTechTitle: data.coreTechTitle || 'Core Technologies',
+            coreTechnologies: data.coreTechnologies || [
+              { id: "javascript", name: "JavaScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" },
+              { id: "typescript", name: "TypeScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" },
+              { id: "react", name: "React", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
+              { id: "next-js", name: "Next.js", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg" },
+              { id: "react-query", name: "React Query", icon: "https://cdn.prod.website-files.com/675da0ab9f940c0315fd965f/6767dea5d39b71a90a2523db_react-query.webp" },
+              { id: "git-github", name: "Git & GitHub", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" },
+            ]
+          });
+        }
+      } catch (err) {
+        console.warn("Error fetching overview settings:", err);
+      }
+    };
+    fetchOverviewData();
+    return () => { isMounted = false; };
+  }, []);
+
+  const handleInlineSave = async (field: string, value: any) => {
+    window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saving' }));
+    setOverviewData(prev => ({ ...prev, [field]: value }));
+    try {
+      await updateDoc(doc(db, 'settings', 'overview'), {
+        [field]: value
+      });
+      window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saved' }));
+    } catch (err) {
+      console.error("Error saving overview data:", err);
+    }
+  };
+
+  const handleTechNameSave = async (index: number, newName: string) => {
+    const updatedTechs = [...overviewData.coreTechnologies];
+    updatedTechs[index] = { ...updatedTechs[index], name: newName };
+    await handleInlineSave('coreTechnologies', updatedTechs);
+  };
 
   const skillDetailsContent: { [key: string]: { mainTitle: string; icon: string; subTopics: { subTitle: string; subContent: string[]; }[] } } = {
     "javascript": {
@@ -485,28 +571,71 @@ const Overview: React.FC = () => {
   return (
     <section className="bg-slate-50 py-10 sm:py-14 w-full overflow-hidden border-t border-slate-200/60">
       <div className="w-full px-[5vw] mx-auto relative z-10">
-        <div className="mb-12">
-          <p className="text-indigo-600 font-semibold text-xs uppercase tracking-wider mb-2">Introduction</p>
-          <h2 className="text-slate-900 font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight">Overview</h2>
+        <div className="mb-12 text-left">
+          <p 
+            contentEditable={isEditMode}
+            suppressContentEditableWarning
+            onBlur={(e) => handleInlineSave('tag', e.currentTarget.textContent || '')}
+            onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+            onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+            className={`text-indigo-600 font-semibold text-xs uppercase tracking-wider mb-2 w-fit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+          >
+            {overviewData.tag}
+          </p>
+          <h2 
+            contentEditable={isEditMode}
+            suppressContentEditableWarning
+            onBlur={(e) => handleInlineSave('title', e.currentTarget.textContent || '')}
+            onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+            onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+            className={`text-slate-900 font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight w-fit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+          >
+            {overviewData.title}
+          </h2>
           
           <div className="mt-4 text-slate-600 text-sm sm:text-base max-w-4xl leading-relaxed space-y-4 font-normal">
-            <p>
-              As a Full-Stack Developer, I focus on building responsive, highly functional web ecosystems. My passion lies in engineering robust backend architectures paired with clean, accessible frontends.
+            <p
+              contentEditable={isEditMode}
+              suppressContentEditableWarning
+              onBlur={(e) => handleInlineSave('bioParagraph1', e.currentTarget.textContent || '')}
+              onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+              onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+              className={`${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 p-1 rounded cursor-text' : ''}`}
+            >
+              {overviewData.bioParagraph1}
             </p>
-            <p>
-              I collaborate with businesses to deploy software solutions that solve real-world problems, with codebases that are optimized for performance, scalability, and long-term maintainability.
+            <p
+              contentEditable={isEditMode}
+              suppressContentEditableWarning
+              onBlur={(e) => handleInlineSave('bioParagraph2', e.currentTarget.textContent || '')}
+              onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+              onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+              className={`${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 p-1 rounded cursor-text' : ''}`}
+            >
+              {overviewData.bioParagraph2}
             </p>
           </div>
         </div>
 
         {/* Tech Skills Grid */}
-        <div className="mt-12">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Core Technologies</h3>
+        <div className="mt-12 text-left">
+          <h3 
+            contentEditable={isEditMode}
+            suppressContentEditableWarning
+            onBlur={(e) => handleInlineSave('coreTechTitle', e.currentTarget.textContent || '')}
+            onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+            onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
+            className={`text-lg font-bold text-slate-900 mb-6 w-fit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+          >
+            {overviewData.coreTechTitle}
+          </h3>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {coreTechnologiesData.map((skill) => (
+            {overviewData.coreTechnologies.map((skill, index) => (
               <TechSkillCard 
                 key={skill.id} 
                 {...skill} 
+                isEditMode={isEditMode}
+                onNameSave={(newName) => handleTechNameSave(index, newName)}
                 onClick={handleCardClick} 
               />
             ))}

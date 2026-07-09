@@ -11,6 +11,7 @@ export const FloatingEditorToolbar: React.FC = () => {
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const toolbarRef = useRef<HTMLDivElement>(null);
   const isColorPickerOpenRef = useRef(false);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Popover Toggle States
   const [activePopover, setActivePopover] = useState<'background' | 'borderStyle' | 'borderColor' | 'typography' | 'spacing' | null>(null);
@@ -43,8 +44,25 @@ export const FloatingEditorToolbar: React.FC = () => {
   const [borderHue, setBorderHue] = useState(200);
 
   const setActiveEl = (el: HTMLElement | null) => {
-    _setActiveEl(el);
-    activeElRef.current = el;
+    if (el !== null) {
+      // Cancel any pending hide when a new element is being focused
+      if (hideTimerRef.current !== null) {
+        clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+      _setActiveEl(el);
+      activeElRef.current = el;
+    } else {
+      // Debounce the hide - wait 120ms so racing focus events can cancel it
+      if (hideTimerRef.current !== null) {
+        clearTimeout(hideTimerRef.current);
+      }
+      hideTimerRef.current = setTimeout(() => {
+        hideTimerRef.current = null;
+        _setActiveEl(null);
+        activeElRef.current = null;
+      }, 120);
+    }
   };
 
   // Position updating
@@ -103,65 +121,69 @@ export const FloatingEditorToolbar: React.FC = () => {
 
   // Prepopulate values from element style
   const loadElementStyles = (el: HTMLElement) => {
-    const style = el.style;
-    const computed = window.getComputedStyle(el);
+    try {
+      const style = el.style;
+      const computed = window.getComputedStyle(el);
 
-    // Background color
-    const bgVal = style.backgroundColor || computed.backgroundColor;
-    if (bgVal && bgVal !== 'rgba(0, 0, 0, 0)' && bgVal !== 'transparent') {
-      setHasBgColor(true);
-      const match = bgVal.match(/\d+/g);
-      if (match && match.length >= 3) {
-        setBgColor(rgbToHex(Number(match[0]), Number(match[1]), Number(match[2])));
+      // Background color
+      const bgVal = style.backgroundColor || computed.backgroundColor;
+      if (bgVal && bgVal !== 'rgba(0, 0, 0, 0)' && bgVal !== 'transparent') {
+        setHasBgColor(true);
+        const match = bgVal.match(/\d+/g);
+        if (match && match.length >= 3) {
+          setBgColor(rgbToHex(Number(match[0]), Number(match[1]), Number(match[2])));
+        }
+      } else {
+        setHasBgColor(false);
+        setBgColor('#ffffff');
       }
-    } else {
-      setHasBgColor(false);
-      setBgColor('#ffffff');
-    }
 
-    // Borders
-    setStrokeWidth(style.borderWidth ? style.borderWidth.replace('px', '') : '0');
-    setBorderStyle(style.borderStyle || 'none');
-    setBorderRadius(style.borderRadius ? style.borderRadius.replace('px', '') : '0');
+      // Borders
+      setStrokeWidth(style.borderWidth ? style.borderWidth.replace('px', '') : '0');
+      setBorderStyle(style.borderStyle || 'none');
+      setBorderRadius(style.borderRadius ? style.borderRadius.replace('px', '') : '0');
 
-    // Border Color
-    const bcVal = style.borderColor || computed.borderColor;
-    if (bcVal && bcVal !== 'rgba(0, 0, 0, 0)' && bcVal !== 'transparent') {
-      setHasBorderColor(true);
-      const match = bcVal.match(/\d+/g);
-      if (match && match.length >= 3) {
-        setBorderColor(rgbToHex(Number(match[0]), Number(match[1]), Number(match[2])));
+      // Border Color
+      const bcVal = style.borderColor || computed.borderColor;
+      if (bcVal && bcVal !== 'rgba(0, 0, 0, 0)' && bcVal !== 'transparent') {
+        setHasBorderColor(true);
+        const match = bcVal.match(/\d+/g);
+        if (match && match.length >= 3) {
+          setBorderColor(rgbToHex(Number(match[0]), Number(match[1]), Number(match[2])));
+        }
+      } else {
+        setHasBorderColor(false);
+        setBorderColor('#000000');
       }
-    } else {
-      setHasBorderColor(false);
-      setBorderColor('#000000');
+
+      // Typography
+      setFontFamily(style.fontFamily || computed.fontFamily?.split(',')[0]?.replace(/['"]/g, '') || 'Inter');
+      setFontSize(style.fontSize ? style.fontSize.replace('px', '') : computed.fontSize?.replace('px', '') || '16');
+      setLineHeight(style.lineHeight ? style.lineHeight.replace('px', '') : '24');
+      setIsBold(style.fontWeight === 'bold' || computed.fontWeight === '700' || computed.fontWeight === 'bold');
+      setIsItalic(style.fontStyle === 'italic' || computed.fontStyle === 'italic');
+      setIsUnderline(style.textDecoration?.includes('underline') || computed.textDecoration?.includes('underline') || false);
+      setIsStrike(style.textDecoration?.includes('line-through') || computed.textDecoration?.includes('line-through') || false);
+      
+      const alignVal = style.textAlign || computed.textAlign;
+      setAlignment((alignVal === 'left' || alignVal === 'center' || alignVal === 'right' || alignVal === 'justify') ? alignVal : 'left');
+
+      // Spacing
+      setPadding({
+        top: (style.paddingTop || computed.paddingTop || '0').replace('px', ''),
+        right: (style.paddingRight || computed.paddingRight || '0').replace('px', ''),
+        bottom: (style.paddingBottom || computed.paddingBottom || '0').replace('px', ''),
+        left: (style.paddingLeft || computed.paddingLeft || '0').replace('px', '')
+      });
+      setMargin({
+        top: (style.marginTop || computed.marginTop || '0').replace('px', ''),
+        right: (style.marginRight || computed.marginRight || '0').replace('px', ''),
+        bottom: (style.marginBottom || computed.marginBottom || '0').replace('px', ''),
+        left: (style.marginLeft || computed.marginLeft || '0').replace('px', '')
+      });
+    } catch (err) {
+      console.warn("Failed to load element styles safely:", err);
     }
-
-    // Typography
-    setFontFamily(style.fontFamily || computed.fontFamily.split(',')[0].replace(/['"]/g, '') || 'Inter');
-    setFontSize(style.fontSize ? style.fontSize.replace('px', '') : computed.fontSize.replace('px', ''));
-    setLineHeight(style.lineHeight ? style.lineHeight.replace('px', '') : '24');
-    setIsBold(style.fontWeight === 'bold' || computed.fontWeight === '700' || computed.fontWeight === 'bold');
-    setIsItalic(style.fontStyle === 'italic' || computed.fontStyle === 'italic');
-    setIsUnderline(style.textDecoration.includes('underline') || computed.textDecoration.includes('underline'));
-    setIsStrike(style.textDecoration.includes('line-through') || computed.textDecoration.includes('line-through'));
-    
-    const alignVal = style.textAlign || computed.textAlign;
-    setAlignment((alignVal === 'left' || alignVal === 'center' || alignVal === 'right' || alignVal === 'justify') ? alignVal : 'left');
-
-    // Spacing
-    setPadding({
-      top: (style.paddingTop || computed.paddingTop).replace('px', ''),
-      right: (style.paddingRight || computed.paddingRight).replace('px', ''),
-      bottom: (style.paddingBottom || computed.paddingBottom).replace('px', ''),
-      left: (style.paddingLeft || computed.paddingLeft).replace('px', '')
-    });
-    setMargin({
-      top: (style.marginTop || computed.marginTop).replace('px', ''),
-      right: (style.marginRight || computed.marginRight).replace('px', ''),
-      bottom: (style.marginBottom || computed.marginBottom).replace('px', ''),
-      left: (style.marginLeft || computed.marginLeft).replace('px', '')
-    });
   };
 
   useEffect(() => {
@@ -170,12 +192,57 @@ export const FloatingEditorToolbar: React.FC = () => {
     // Listen to custom focus event dispatched from editable elements
     const handleActiveFocus = (e: Event) => {
       const el = (e as CustomEvent).detail as HTMLElement;
-      if (el && (el.contentEditable === 'true' || el.hasAttribute('contenteditable'))) {
+      if (el && el.isContentEditable) {
         if (activeElRef.current !== el) {
           setActiveEl(el);
           loadElementStyles(el);
         }
         setTimeout(() => updatePosition(el), 30);
+      }
+    };
+
+    // Global click listener to catch click focus on any contenteditable element anywhere on the page
+    const handleGlobalClick = (e: MouseEvent) => {
+      if (isColorPickerOpenRef.current) return;
+      const target = e.target as HTMLElement;
+      if (!target) return;
+
+      // Ignore if click is inside the toolbar itself
+      if (toolbarRef.current && toolbarRef.current.contains(target)) {
+        return;
+      }
+
+      // If there is an active element and they clicked inside it, ignore (they are editing)
+      if (activeElRef.current && activeElRef.current.contains(target)) {
+        return;
+      }
+
+      // Find the closest truly editable element (only contenteditable="true", not false)
+      let editableEl: HTMLElement | null = null;
+      if (target.isContentEditable) {
+        editableEl = target;
+      } else {
+        // Walk up the tree to find an ancestor that is genuinely editable
+        let el: HTMLElement | null = target;
+        while (el && el !== document.body) {
+          if (el.isContentEditable) {
+            editableEl = el;
+            break;
+          }
+          el = el.parentElement;
+        }
+      }
+
+      if (editableEl && editableEl.isContentEditable) {
+        if (activeElRef.current !== editableEl) {
+          setActiveEl(editableEl);
+          loadElementStyles(editableEl);
+        }
+        setTimeout(() => updatePosition(editableEl!), 30);
+      } else {
+        // Clicked outside any editable elements and outside the toolbar -> hide the toolbar
+        setActiveEl(null);
+        setActivePopover(null);
       }
     };
 
@@ -186,21 +253,12 @@ export const FloatingEditorToolbar: React.FC = () => {
         const active = document.activeElement as HTMLElement;
         if (!active) return;
 
-        // Check if focus shifted to an editable element
-        const isEditable = active.hasAttribute('contenteditable') || 
-                           active.closest('[contenteditable="true"]') !== null ||
-                           active.closest('[contenteditable]') !== null;
-
-        if (isEditable) {
-          const editableEl = (active.hasAttribute('contenteditable') 
-            ? active 
-            : (active.closest('[contenteditable="true"]') || active.closest('[contenteditable]'))) as HTMLElement;
-            
-          if (activeElRef.current !== editableEl) {
-            setActiveEl(editableEl);
-            loadElementStyles(editableEl);
+        if (active.isContentEditable) {
+          if (activeElRef.current !== active) {
+            setActiveEl(active);
+            loadElementStyles(active);
           }
-          setTimeout(() => updatePosition(editableEl), 30);
+          setTimeout(() => updatePosition(active), 30);
         }
       }, 50);
     };
@@ -220,12 +278,18 @@ export const FloatingEditorToolbar: React.FC = () => {
     const handleLiveEditToggle = () => {
       const isModeOn = localStorage.getItem('liveEditMode') === 'true';
       if (!isModeOn) {
-        setActiveEl(null);
+        if (hideTimerRef.current !== null) {
+          clearTimeout(hideTimerRef.current);
+          hideTimerRef.current = null;
+        }
+        _setActiveEl(null);
+        activeElRef.current = null;
         setActivePopover(null);
       }
     };
 
     window.addEventListener('activeEditableFocus', handleActiveFocus);
+    window.addEventListener('click', handleGlobalClick, true);
     window.addEventListener('focusin', handleFocusIn);
     window.addEventListener('focus', handleWindowFocus);
     window.addEventListener('scroll', handleScrollOrResize, true);
@@ -234,6 +298,7 @@ export const FloatingEditorToolbar: React.FC = () => {
 
     return () => {
       window.removeEventListener('activeEditableFocus', handleActiveFocus);
+      window.removeEventListener('click', handleGlobalClick, true);
       window.removeEventListener('focusin', handleFocusIn);
       window.removeEventListener('focus', handleWindowFocus);
       window.removeEventListener('scroll', handleScrollOrResize, true);
@@ -354,9 +419,15 @@ export const FloatingEditorToolbar: React.FC = () => {
     const currentActive = activeElRef.current;
     if (currentActive) {
       currentActive.blur(); // Saves content + all inline styles to Firestore
-      setActiveEl(null);
-      setActivePopover(null);
     }
+    // Immediately clear without debounce
+    if (hideTimerRef.current !== null) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+    _setActiveEl(null);
+    activeElRef.current = null;
+    setActivePopover(null);
   };
 
   if (!activeEl) return null;

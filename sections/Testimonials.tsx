@@ -118,6 +118,7 @@ const Testimonials: React.FC = () => {
   };
 
   // Auto rotate on mobile (disabled in visual edit mode)
+  // Dependency on activeIdx ensures interval resets when user manually swipes/clicks
   useEffect(() => {
     if (allTestimonials.length <= 1 || isEditMode) return;
     const timer = setInterval(() => {
@@ -126,17 +127,61 @@ const Testimonials: React.FC = () => {
       }
     }, 5000);
     return () => clearInterval(timer);
-  }, [allTestimonials.length, isEditMode]);
+  }, [allTestimonials.length, isEditMode, activeIdx]);
 
-  // Scroll to active on mobile
+  // Scroll to active on mobile (horizontal only, avoids vertical page scrolling)
   useEffect(() => {
     if (scrollRef.current && window.innerWidth < 768) {
-      const card = scrollRef.current.children[activeIdx] as HTMLElement;
+      const container = scrollRef.current;
+      const card = container.children[activeIdx] as HTMLElement;
       if (card) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        const cardWidth = card.clientWidth;
+        const containerWidth = container.clientWidth;
+        const cardOffsetLeft = card.offsetLeft;
+        const targetScrollLeft = cardOffsetLeft - (containerWidth - cardWidth) / 2;
+        
+        if (Math.abs(container.scrollLeft - targetScrollLeft) > 5) {
+          container.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
+        }
       }
     }
   }, [activeIdx]);
+
+  // Listen to manual scrolling to update active idx and dot indicators
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container || typeof window === 'undefined' || window.innerWidth >= 768) return;
+
+    let isScrolling: any;
+    const handleScroll = () => {
+      window.clearTimeout(isScrolling);
+      isScrolling = setTimeout(() => {
+        const containerWidth = container.clientWidth;
+        const containerCenter = container.scrollLeft + containerWidth / 2;
+        
+        let closestIdx = 0;
+        let minDistance = Infinity;
+        
+        Array.from(container.children).forEach((child, idx) => {
+          const card = child as HTMLElement;
+          const cardCenter = card.offsetLeft + card.clientWidth / 2;
+          const distance = Math.abs(containerCenter - cardCenter);
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestIdx = idx;
+          }
+        });
+        
+        setActiveIdx(closestIdx);
+      }, 100);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+      window.clearTimeout(isScrolling);
+    };
+  }, [allTestimonials.length]);
 
   const renderStars = (rating: number) =>
     Array.from({ length: 5 }, (_, i) => (
@@ -184,7 +229,7 @@ const Testimonials: React.FC = () => {
         {/* Cards Grid */}
         <div
           ref={scrollRef}
-          className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-4 md:pb-0 scrollbar-hide pt-12"
+          className="relative flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-4 md:pb-0 scrollbar-hide pt-12"
         >
           {allTestimonials.map((t, idx) => {
             const isStatic = (t as any).circleBg !== undefined;
