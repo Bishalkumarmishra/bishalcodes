@@ -458,7 +458,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
   const { navigate } = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [docSections, setDocSections] = useState<DocSection[]>([]);
+  const [docSections, setDocSections] = useState<DocSection[]>(initialDocSections);
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
