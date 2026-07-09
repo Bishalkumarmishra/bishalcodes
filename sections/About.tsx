@@ -110,7 +110,7 @@ const About: React.FC = () => {
   }
 
   return (
-    <section id="about" className="py-10 sm:py-14 bg-gradient-to-br from-slate-50 via-white to-slate-50/50 relative overflow-hidden">
+    <section id="about" className="py-10 sm:py-14 bg-gradient-to-br from-slate-50 via-white to-slate-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 relative overflow-hidden transition-colors duration-300">
       {/* subtle grid overlay to keep it feeling clean & textured */}
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.015]"
@@ -127,7 +127,7 @@ const About: React.FC = () => {
           <div className="w-full lg:w-[42%] flex justify-center items-center">
             <div className="relative max-w-[300px] sm:max-w-[320px] w-full aspect-[4/5] group">
               {/* Backing decorative frame */}
-              <div className="absolute inset-0 border-2 border-slate-200 rounded-[32px] translate-x-3 translate-y-3 -z-10 transition-transform duration-500 group-hover:translate-x-1 group-hover:translate-y-1 hidden sm:block" />
+              <div className="absolute inset-0 border-2 border-slate-200 dark:border-slate-700 rounded-[32px] translate-x-3 translate-y-3 -z-10 transition-transform duration-500 group-hover:translate-x-1 group-hover:translate-y-1 hidden sm:block" />
               
               {/* Backing dot matrix SVG decoration */}
               <div className="absolute -top-4 -left-4 w-20 h-20 -z-20 text-slate-200/80 dark:text-slate-700/40 pointer-events-none hidden sm:block">
@@ -141,7 +141,7 @@ const About: React.FC = () => {
                 </svg>
               </div>
 
-              <div className="relative w-full h-full rounded-[28px] overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200/60 shadow-sm">
+              <div className="relative w-full h-full rounded-[28px] overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200/60 dark:border-slate-700 shadow-sm transition-colors duration-300">
                 {allImages.map((img, idx) => (
                   <img
                     key={idx}
@@ -248,16 +248,16 @@ const About: React.FC = () => {
 
           {/* Text/Content Column */}
           <div className="w-full lg:w-[58%]">
-            <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-all duration-300">
               
               {/* Professional Title (No Gemini Purple Gradients) */}
               <div className="flex items-center gap-2 mb-3">
-                <User size={14} className="text-slate-800 shrink-0" />
+                <User size={14} className="text-slate-800 dark:text-slate-300 shrink-0" />
                 <p 
                   contentEditable={isEditMode}
                   suppressContentEditableWarning
                   onBlur={(e) => handleInlineSave('title', e.currentTarget.textContent || '')}
-                  className={`text-slate-800 font-bold text-[11px] uppercase tracking-widest leading-none ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                  className={`text-slate-800 dark:text-slate-300 font-bold text-[11px] uppercase tracking-widest leading-none transition-colors ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
                 >
                   {aboutData.title || 'Full-Stack Web Architect'}
                 </p>
@@ -268,7 +268,7 @@ const About: React.FC = () => {
                 contentEditable={isEditMode}
                 suppressContentEditableWarning
                 onBlur={(e) => handleInlineSave('aboutHeaderTitle', e.currentTarget.textContent || '')}
-                className={`text-slate-900 text-2xl sm:text-3xl font-extrabold mb-4 tracking-tight font-outfit text-left ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                className={`text-slate-900 dark:text-white text-2xl sm:text-3xl font-extrabold mb-4 tracking-tight font-outfit text-left transition-colors ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
               >
                 {aboutData.aboutHeaderTitle || 'About Me'}
               </h2>
@@ -279,12 +279,12 @@ const About: React.FC = () => {
                   contentEditable
                   suppressContentEditableWarning
                   onBlur={(e) => handleInlineSave('bio', e.currentTarget.innerText || '')}
-                  className="text-slate-650 text-sm sm:text-[14.5px] leading-relaxed mb-6 font-normal space-y-3 text-left outline-dashed outline-2 outline-amber-500/80 p-2.5 rounded-lg bg-slate-50/50 cursor-text min-h-[100px] whitespace-pre-wrap"
+                  className="text-slate-700 dark:text-slate-300 text-sm sm:text-[14.5px] leading-relaxed mb-6 font-normal space-y-3 text-left outline-dashed outline-2 outline-amber-500/80 p-2.5 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 cursor-text min-h-[100px] whitespace-pre-wrap transition-colors"
                 >
                   {aboutData.bio}
                 </div>
               ) : (
-                <div className="text-slate-600 text-sm sm:text-[14.5px] leading-relaxed mb-6 font-normal space-y-3 text-left">
+                <div className="text-slate-600 dark:text-slate-300 text-sm sm:text-[14.5px] leading-relaxed mb-6 font-normal space-y-3 text-left transition-colors">
                   {aboutData.bio.split('\n\n').map((para, idx) => (
                     <p key={idx}>{para}</p>
                   ))}
@@ -292,69 +292,69 @@ const About: React.FC = () => {
               )}
 
               {/* Badges/Feature Icons (Solid Slate-800 Accents) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 border-t border-slate-100 pt-4 text-left">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 border-t border-slate-100 dark:border-slate-800 pt-4 text-left transition-colors">
                 <div className="flex items-start gap-1.5">
-                  <CheckCircle2 size={15} className="text-slate-800 mt-0.5 shrink-0" />
+                  <CheckCircle2 size={15} className="text-slate-800 dark:text-slate-400 mt-0.5 shrink-0" />
                   <div>
-                    <h4 className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">Clean Code</h4>
-                    <p className="text-[10px] text-slate-500 mt-0.5 leading-snug">Scalable & robust logic</p>
+                    <h4 className="text-[11px] font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">Clean Code</h4>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">Scalable & robust logic</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-1.5">
-                  <CheckCircle2 size={15} className="text-slate-800 mt-0.5 shrink-0" />
+                  <CheckCircle2 size={15} className="text-slate-800 dark:text-slate-400 mt-0.5 shrink-0" />
                   <div>
-                    <h4 className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">Fast Execution</h4>
-                    <p className="text-[10px] text-slate-500 mt-0.5 leading-snug">Snap-fast load speeds</p>
+                    <h4 className="text-[11px] font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">Fast Execution</h4>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">Snap-fast load speeds</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-1.5">
-                  <CheckCircle2 size={15} className="text-slate-800 mt-0.5 shrink-0" />
+                  <CheckCircle2 size={15} className="text-slate-800 dark:text-slate-400 mt-0.5 shrink-0" />
                   <div>
-                    <h4 className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">User-First</h4>
-                    <p className="text-[10px] text-slate-500 mt-0.5 leading-snug">Polished UX/UI systems</p>
+                    <h4 className="text-[11px] font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">User-First</h4>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">Polished UX/UI systems</p>
                   </div>
                 </div>
               </div>
 
               {/* Stats Bar */}
               <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="bg-slate-50/50 border border-slate-100 p-3 sm:p-4 rounded-xl hover:border-slate-200 transition-all duration-300 text-left">
+                <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 p-3 sm:p-4 rounded-xl hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-300 text-left">
                   <p 
                     contentEditable={isEditMode}
                     suppressContentEditableWarning
                     onBlur={(e) => handleInlineSave('projectsCompleted', e.currentTarget.textContent || '')}
-                    className={`text-xl sm:text-2xl font-extrabold text-slate-900 font-outfit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                    className={`text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-outfit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
                   >
                     {aboutData.projectsCompleted}
                   </p>
-                  <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Projects Completed</p>
+                  <p className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">Projects Completed</p>
                 </div>
-                <div className="bg-slate-50/50 border border-slate-100 p-3 sm:p-4 rounded-xl hover:border-slate-200 transition-all duration-300 text-left">
+                <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 p-3 sm:p-4 rounded-xl hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-300 text-left">
                   <p 
                     contentEditable={isEditMode}
                     suppressContentEditableWarning
                     onBlur={(e) => handleInlineSave('experience', e.currentTarget.textContent || '')}
-                    className={`text-xl sm:text-2xl font-extrabold text-slate-900 font-outfit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                    className={`text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-outfit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
                   >
                     {aboutData.experience}
                   </p>
-                  <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Experience</p>
+                  <p className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">Experience</p>
                 </div>
               </div>
 
               {/* Contact Information */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 border-t border-slate-100 pt-4 text-left">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 border-t border-slate-100 dark:border-slate-800 pt-4 text-left transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center text-slate-500 border border-slate-200/60 shrink-0">
+                  <div className="w-9 h-9 bg-slate-50 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700 shrink-0 transition-colors">
                     <Mail size={16} />
                   </div>
                   <div>
-                    <p className="text-slate-400 text-[9px] font-bold uppercase tracking-widest">Email</p>
+                    <p className="text-slate-400 dark:text-slate-500 text-[9px] font-bold uppercase tracking-widest">Email</p>
                     <span 
                       contentEditable={isEditMode}
                       suppressContentEditableWarning
                       onBlur={(e) => handleInlineSave('email', e.currentTarget.textContent || '')}
-                      className={`text-slate-850 font-semibold text-xs sm:text-[13px] hover:text-slate-950 transition-colors break-all block ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                      className={`text-slate-800 dark:text-slate-200 font-semibold text-xs sm:text-[13px] hover:text-slate-950 dark:hover:text-white transition-colors break-all block ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
                     >
                       {aboutData.email}
                     </span>
@@ -362,16 +362,16 @@ const About: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center text-slate-500 border border-slate-200/60 shrink-0">
+                  <div className="w-9 h-9 bg-slate-50 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700 shrink-0 transition-colors">
                     <Phone size={16} />
                   </div>
                   <div>
-                    <p className="text-slate-400 text-[9px] font-bold uppercase tracking-widest">Mobile</p>
+                    <p className="text-slate-400 dark:text-slate-500 text-[9px] font-bold uppercase tracking-widest">Mobile</p>
                     <span 
                       contentEditable={isEditMode}
                       suppressContentEditableWarning
                       onBlur={(e) => handleInlineSave('phone', e.currentTarget.textContent || '')}
-                      className={`text-slate-850 font-semibold text-xs sm:text-[13px] hover:text-slate-950 transition-colors block ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                      className={`text-slate-800 dark:text-slate-200 font-semibold text-xs sm:text-[13px] hover:text-slate-950 dark:hover:text-white transition-colors block ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
                     >
                       {aboutData.phone}
                     </span>
