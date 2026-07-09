@@ -29,31 +29,17 @@ import { logDailyVisit, logToolClick } from './services/analytics';
 import LiveEditWidget from './components/LiveEditWidget';
 import FloatingEditorToolbar from './components/FloatingEditorToolbar';
 
-const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<PathPage>('home');
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+interface AppProps {
+  initialSlug?: string[];
+}
 
+const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
+  // Helper to parse slug parts into page and ID
+  const parseSlug = (slugArr: string[]): { page: PathPage; id: string | null } => {
+    if (slugArr.length === 0) return { page: 'home' as PathPage, id: null }; // Home page
 
-  useEffect(() => {
-    logDailyVisit();
-  }, []);
-
-  useEffect(() => {
-    if (currentPage === 'services' && selectedId) {
-      logToolClick(selectedId);
-    }
-  }, [currentPage, selectedId]);
-
-  // Helper to parse pathname into page and ID
-  // Added explicit return type annotation to ensure correct type inference for 'page'
-  const parsePath = (): { page: PathPage; id: string | null } => {
-    const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
-    const parts = pathname.split('/').filter(Boolean); // Remove empty strings
-
-    if (parts.length === 0) return { page: 'home' as PathPage, id: null }; // Home page
-
-    const basePage = parts[0];
-    const id = parts[1] || null;
+    const basePage = slugArr[0];
+    const id = slugArr[1] || null;
 
     switch (basePage) {
       case 'admin': return { page: 'admin', id: null };
@@ -80,17 +66,50 @@ const App: React.FC = () => {
     }
   };
 
+  const getInitialPageState = () => {
+    if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname;
+      const parts = pathname.split('/').filter(Boolean);
+      return parseSlug(parts);
+    }
+    return parseSlug(initialSlug);
+  };
+
+  const initialState = getInitialPageState();
+  const [currentPage, setCurrentPage] = useState<PathPage>(initialState.page);
+  const [selectedId, setSelectedId] = useState<string | null>(initialState.id);
+
+
+  useEffect(() => {
+    logDailyVisit();
+  }, []);
+
+  useEffect(() => {
+    if (currentPage === 'services' && selectedId) {
+      logToolClick(selectedId);
+    }
+  }, [currentPage, selectedId]);
+
   useEffect(() => {
     const handlePopState = () => {
-      const { page, id } = parsePath();
+      if (typeof window === 'undefined') return;
+      const pathname = window.location.pathname;
+      const parts = pathname.split('/').filter(Boolean);
+      const { page, id } = parseSlug(parts);
       setCurrentPage(page);
       setSelectedId(id);
     };
 
-    window.addEventListener('popstate', handlePopState);
-    handlePopState(); // Initial load
+    if (typeof window !== 'undefined') {
+      window.addEventListener('popstate', handlePopState);
+      handlePopState(); // Initial load
+    }
 
-    return () => window.removeEventListener('popstate', handlePopState);
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('popstate', handlePopState);
+      }
+    };
   }, []);
 
 

@@ -3,11 +3,11 @@
 import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
-// Dynamically import the App component with SSR disabled
-// to guarantee identical client-side SPA routing and browser API safety.
-const App = dynamic(() => import('../../App'), { ssr: false });
+// Dynamically import the App component with SSR enabled
+// to support search engine crawlers and pre-render correct content.
+const App = dynamic(() => import('../../App'), { ssr: true });
 
-export default function ClientApp() {
+export default function ClientApp({ initialSlug = [] }: { initialSlug?: string[] }) {
   // Register the service worker for offline PWA support
   useEffect(() => {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
@@ -152,5 +152,5 @@ export default function ClientApp() {
     };
   }, []);
 
-  return <App />;
+  return <App initialSlug={initialSlug} />;
 }

@@ -29,7 +29,8 @@ export default function Widgets() {
   };
 
   const { width, height } = getDimensions();
-  const widgetUrl = `${window.location.origin}/widgets/${widgetType}`;
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bishalcodes.com';
+  const widgetUrl = `${origin}/widgets/${widgetType}`;
   const embedCode = `<iframe src="${widgetUrl}" frameborder="0" scrolling="no" style="border: none; overflow: hidden; width: ${width}px; height: ${height}px;" allowtransparency="true"></iframe>`;
 
   const handleCopyCode = () => {

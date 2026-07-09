@@ -2,8 +2,9 @@ import React from 'react';
 import { Metadata } from 'next';
 import ClientApp from './ClientApp';
 
-export default function CatchAllPage() {
-  return <ClientApp />;
+export default async function CatchAllPage(props: PageProps) {
+  const { slug } = await props.params;
+  return <ClientApp initialSlug={slug || []} />;
 }
 
 // Next.js 15: params is a Promise, so we must await it!
