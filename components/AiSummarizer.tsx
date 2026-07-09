@@ -1,7 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { FilePlus, FileText, Sparkles, AlertCircle, X, Loader2, Copy, Download, Check } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
-import * as pdfjsLib from 'pdfjs-dist';
 import ReactMarkdown from 'react-markdown';
 import { jsPDF } from "jspdf";
 
@@ -19,7 +18,9 @@ export const AiSummarizer: React.FC = () => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+      import('pdfjs-dist').then(pdfjsLib => {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+      }).catch(err => console.error('Failed to load pdfjs-dist', err));
     }
   }, []);
 
@@ -44,6 +45,7 @@ export const AiSummarizer: React.FC = () => {
 
   const extractTextFromPdf = async (file: File): Promise<string> => {
     const arrayBuffer = await file.arrayBuffer();
+    const pdfjsLib = await import('pdfjs-dist');
     const pdfDocument = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     let fullText = '';
     

@@ -2,7 +2,6 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { FilePlus, FileImage, Download, X, AlertCircle, Image as ImageIcon } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
 import JSZip from 'jszip';
-import * as pdfjsLib from 'pdfjs-dist';
 
 export const PdfToImageConverter: React.FC = () => {
   const { navigate } = useNavigation();
@@ -19,7 +18,9 @@ export const PdfToImageConverter: React.FC = () => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+      import('pdfjs-dist').then(pdfjsLib => {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+      }).catch(err => console.error('Failed to load pdfjs-dist', err));
     }
   }, []);
 
@@ -62,6 +63,7 @@ export const PdfToImageConverter: React.FC = () => {
         reader.readAsArrayBuffer(pdf.file);
       });
 
+      const pdfjsLib = await import('pdfjs-dist');
       const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
       const pdfDocument = await loadingTask.promise;
       const numPages = pdfDocument.numPages;
