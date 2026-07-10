@@ -1,6 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import ClientApp from './ClientApp';
+import { allFontsDB } from '../../components/fontData';
 
 export default async function CatchAllPage(props: PageProps) {
   const { slug } = await props.params;
@@ -601,6 +602,66 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
             title: "Secure Vault | Password-Protect & Share Any File | Bishal Codes",
             description: "Lock any file with AES-256 encryption. Zero-knowledge security — password never leaves browser.",
             images: ["https://bishalcodes.com/seo-images/secure-vault.png"]
+          }
+        };
+      }
+
+      if (subpage === 'font-downloader') {
+        const subFontId = slugArr[2] || '';
+        const font = subFontId ? allFontsDB.find(f => f.id === subFontId) : null;
+
+        if (font) {
+          const fontName = font.name;
+          const fileName = font.fileName;
+          const catName = font.category === 'nepali' ? 'Nepali' : font.category;
+          return {
+            title: `Download ${fontName} Font | Free TrueType TTF Download | Bishal Codes`,
+            description: `Download the real ${fontName} font (${fileName}) for free. Preview and install this official ${catName} font on Windows, macOS, and Linux. No registration required.`,
+            keywords: `download ${fontName} font, free ${fontName} ttf, install ${fontName}, ${catName} font download, bishal codes font downloader`,
+            alternates: {
+              canonical: `https://bishalcodes.com/tools/font-downloader/${subFontId}`,
+            },
+            openGraph: {
+              title: `Download ${fontName} Font | Free TrueType TTF Download`,
+              description: `Get the official ${fontName} font for free. Preview, test font size, and download the .ttf file directly.`,
+              url: `https://bishalcodes.com/tools/font-downloader/${subFontId}`,
+              siteName: "Bishal Codes",
+              type: "website",
+              images: [{ url: "https://bishalcodes.com/seo-images/tools.png", width: 1200, height: 630, alt: `Download ${fontName} Font` }],
+            },
+            twitter: {
+              card: "summary_large_image",
+              site: "@bishalmishra",
+              creator: "@bishalmishra",
+              title: `Download ${fontName} Font | Free TTF Download | Bishal Codes`,
+              description: `Get the official ${fontName} font for free. Preview and download the .ttf file directly.`,
+              images: ["https://bishalcodes.com/seo-images/tools.png"]
+            }
+          };
+        }
+
+        return {
+          title: "System Fonts Downloader | Batch Download 1100+ Fonts | Bishal Codes",
+          description: "Browse, preview, and batch download 1100+ real Nepali and English fonts for free. Includes Preeti, Kantipur, Mangal, Kalimati, Roboto, Inter, and more. Install directly on your computer.",
+          keywords: "system fonts downloader, download nepali fonts, download preeti, download kantipur, download roboto, download google fonts zip, bishal codes, font previews",
+          alternates: {
+            canonical: "https://bishalcodes.com/tools/font-downloader",
+          },
+          openGraph: {
+            title: "System Fonts Downloader | Batch Download 1100+ Fonts | Bishal Codes",
+            description: "Browse, preview, and batch download 1100+ real Nepali and English fonts for free. 100% private and offline-capable preview.",
+            url: "https://bishalcodes.com/tools/font-downloader",
+            siteName: "Bishal Codes",
+            type: "website",
+            images: [{ url: "https://bishalcodes.com/seo-images/tools.png", width: 1200, height: 630, alt: "System Fonts Downloader" }],
+          },
+          twitter: {
+            card: "summary_large_image",
+            site: "@bishalmishra",
+            creator: "@bishalmishra",
+            title: "System Fonts Downloader | Batch Download 1100+ Fonts | Bishal Codes",
+            description: "Browse, preview, and batch download 1100+ real Nepali and English fonts for free.",
+            images: ["https://bishalcodes.com/seo-images/tools.png"]
           }
         };
       }

@@ -18,6 +18,7 @@ import FileTransfer from '../components/FileTransfer';
 import ScreenshotStudio from '../components/ScreenshotStudio';
 import SecureVault from '../components/SecureVault';
 import DeveloperCardStudio from '../components/DeveloperCardStudio';
+import FontDownloader from '../components/FontDownloader';
 import Footer from '../sections/Footer';
 import { useNavigation } from '../context/NavigationContext';
 import { ArrowRight, Loader2 } from 'lucide-react';
@@ -130,7 +131,7 @@ const ServicesPage: React.FC = () => {
         const snap = await getDocs(q);
         setServices(snap.docs
           .map(doc => ({ id: doc.id, ...doc.data() } as ServiceTool))
-          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio')
+          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader')
         );
       } catch (err) {
         console.error("Failed to fetch services", err);
@@ -293,6 +294,7 @@ const ServicesPage: React.FC = () => {
       case 'screenshot-studio': return <ScreenshotStudio />;
       case 'secure-vault': return <SecureVault />;
       case 'dev-card-studio': return <DeveloperCardStudio />;
+      case 'font-downloader': return <FontDownloader />;
       default: return renderDashboard();
     }
   };
@@ -453,6 +455,37 @@ const ServicesPage: React.FC = () => {
               </div>
             </a>
 
+            {/* ── Hardcoded: System Fonts Downloader ── */}
+            <a
+              href="/tools/font-downloader"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('services', 'font-downloader');
+              }}
+              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-6 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[280px] hover:border-amber-500 dark:hover:border-amber-450 block"
+            >
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{ background: 'radial-gradient(ellipse at top left, rgba(245,158,11,0.07) 0%, transparent 60%)' }} />
+              <div className="space-y-4 w-full relative z-10">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-800/40">
+                  🔤
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">System Fonts Downloader</h3>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">NEW</span>
+                  </div>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                    Browse, preview and batch download 156 real Nepali and English fonts. Includes Preeti, Kantipur, Mangal, Kalimati, Roboto, Inter and more — install directly on your computer.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 group-hover:text-amber-700 transition-colors relative z-10">
+                <span>Open Tool</span>
+                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+              </div>
+            </a>
+
             {/* ── Firestore services ── */}
             {services.map(service => (
               <a
@@ -508,7 +541,7 @@ const ServicesPage: React.FC = () => {
     </div>
   );
 
-  const isFullBleed = selectedId === 'file-transfer';
+  const isFullBleed = selectedId === 'file-transfer' || selectedId === 'font-downloader';
 
   return (
     <div className="min-h-screen bg-[#FDF9F3] dark:bg-slate-950 font-sans transition-colors duration-300 selection:bg-indigo-500/30">

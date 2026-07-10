@@ -511,6 +511,9 @@ const Admin: React.FC = () => {
   });
   const [dailyVisits, setDailyVisits] = useState<any[]>([]);
   const [toolClicks, setToolClicks] = useState<any[]>([]);
+  const [trafficRange, setTrafficRange] = useState<number>(15); // default to 15 days
+  const [trafficLogSearch, setTrafficLogSearch] = useState<string>('');
+  const [hoveredDotIndex, setHoveredDotIndex] = useState<number | null>(null);
   // PURGED: Initialize projectForm with the empty defaultProjectForm to prevent hardcoded data.
   const [projectForm, setProjectForm] = useState<Project>(defaultProjectForm);
   const [legalForm, setLegalForm] = useState<LegalPageType>({
@@ -769,6 +772,7 @@ const Admin: React.FC = () => {
       
       const hasFileTransfer = fetchedServices.some(s => s.linkUrl === 'file-transfer');
       const hasScreenshot = fetchedServices.some(s => s.linkUrl === 'screenshot-studio');
+      const hasFontDownloader = fetchedServices.some(s => s.linkUrl === 'font-downloader');
       const missingServices = [];
       
       if (!hasFileTransfer) {
@@ -794,6 +798,19 @@ const Admin: React.FC = () => {
           linkUrl: 'screenshot-studio',
           badge: 'NEW',
           order: 16
+        });
+      }
+
+      if (!hasFontDownloader) {
+        missingServices.push({
+          id: 'font-downloader',
+          title: 'System Fonts Downloader',
+          description: 'Browse, test, and batch download 156 real Nepali and English fonts for Windows, macOS, and Linux locally in a single ZIP.',
+          iconUrl: '/font-downloader.svg',
+          bgImageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=600&auto=format&fit=crop',
+          linkUrl: 'font-downloader',
+          badge: 'NEW',
+          order: 17
         });
       }
       
@@ -2147,175 +2164,401 @@ If you have any questions about this Data Deletion Policy or your data deletion 
             {activeTab === 'dashboard' && (
               <div className="space-y-6">
                 {/* Traffic Trend Graph */}
-                <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm text-left space-y-4">
-                  <div className="flex justify-between items-center">
+                <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm text-left space-y-5">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
                       <h3 className="text-slate-900 font-semibold text-base flex items-center gap-2">
-                        <Activity size={18} className="text-indigo-600" />
+                        <Activity size={18} className="text-indigo-600 animate-pulse" />
                         Traffic Trend & Analytics
                       </h3>
                       <p className="text-[10px] text-slate-500 mt-0.5">Historical traffic data of visitors and tool interactions saved for a lifetime.</p>
                     </div>
-                    <span className="text-[10px] bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-bold uppercase tracking-wider">Visits Log</span>
+                    <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200/60 shrink-0">
+                      {[
+                        { label: '7D', value: 7 },
+                        { label: '15D', value: 15 },
+                        { label: '30D', value: 30 },
+                        { label: '90D', value: 90 },
+                        { label: 'All', value: -1 }
+                      ].map(opt => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setTrafficRange(opt.value)}
+                          className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
+                            trafficRange === opt.value
+                              ? 'bg-white text-indigo-600 shadow-sm border border-slate-200/40'
+                              : 'hover:bg-slate-200/50 text-slate-500'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Custom SVG Line Graph */}
-                  <div className="relative w-full h-44 pt-4 pb-2 px-2 border-b border-slate-100">
-                    {(() => {
-                      const chartDays = [...dailyVisits].slice(0, 15).reverse();
-                      const maxVisits = Math.max(...chartDays.map(d => d.visits || 0), 1);
-                      
-                      const chartData = [...chartDays];
-                      while (chartData.length < 15) {
-                        chartData.unshift({ date: 'No Data', visits: 0 });
+                  {(() => {
+                    const sortedVisits = [...dailyVisits];
+                    const sliceLength = trafficRange === -1 ? sortedVisits.length : Math.min(trafficRange, sortedVisits.length);
+                    const currentPeriod = sortedVisits.slice(0, sliceLength);
+                    const previousPeriod = sortedVisits.slice(sliceLength, sliceLength * 2);
+                    
+                    const chartDays = [...currentPeriod].reverse();
+                    const maxVisits = Math.max(...chartDays.map(d => d.visits || 0), 1);
+                    
+                    const chartData = [...chartDays];
+                    const padSize = trafficRange === -1 ? 0 : trafficRange;
+                    while (chartData.length < padSize) {
+                      chartData.unshift({ date: 'No Data', visits: 0 });
+                    }
+
+                    const totalVisits = currentPeriod.reduce((sum, d) => sum + (d.visits || 0), 0);
+                    const prevTotalVisits = previousPeriod.reduce((sum, d) => sum + (d.visits || 0), 0);
+                    
+                    const avgVisits = currentPeriod.length > 0 ? (totalVisits / currentPeriod.length) : 0;
+                    
+                    let peakDay = { date: 'N/A', visits: 0 };
+                    if (currentPeriod.length > 0) {
+                      const sortedByVisits = [...currentPeriod].sort((a, b) => (b.visits || 0) - (a.visits || 0));
+                      if (sortedByVisits[0]) {
+                        peakDay = { date: sortedByVisits[0].date, visits: sortedByVisits[0].visits || 0 };
                       }
+                    }
+                    
+                    let trendPercent = 0;
+                    let hasGrowth = true;
+                    if (prevTotalVisits > 0) {
+                      trendPercent = ((totalVisits - prevTotalVisits) / prevTotalVisits) * 100;
+                      if (trendPercent < 0) {
+                        hasGrowth = false;
+                        trendPercent = Math.abs(trendPercent);
+                      }
+                    } else {
+                      trendPercent = totalVisits > 0 ? 100 : 0;
+                    }
 
-                      const width = 600;
-                      const height = 140;
+                    const width = 600;
+                    const height = 140;
 
-                      const points = chartData.map((day, i) => {
-                        const x = (i / (chartData.length - 1)) * width;
-                        const y = height - ((day.visits || 0) / maxVisits) * (height - 30) - 15;
-                        return { x, y, date: day.date, visits: day.visits };
-                      });
+                    const points = chartData.map((day, i) => {
+                      const x = (i / (chartData.length - 1)) * width;
+                      const y = height - ((day.visits || 0) / maxVisits) * (height - 30) - 15;
+                      return { x, y, date: day.date, visits: day.visits };
+                    });
 
-                      const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-                      const fillD = `${pathD} L ${points[points.length - 1].x} ${height} L ${points[0].x} ${height} Z`;
+                    // Bezier curves generator
+                    const getBezierPath = (pts: typeof points) => {
+                      if (pts.length === 0) return '';
+                      let path = `M ${pts[0].x} ${pts[0].y}`;
+                      for (let i = 0; i < pts.length - 1; i++) {
+                        const p0 = pts[i];
+                        const p1 = pts[i + 1];
+                        const cp1x = p0.x + (p1.x - p0.x) / 3;
+                        const cp1y = p0.y;
+                        const cp2x = p0.x + (2 * (p1.x - p0.x)) / 3;
+                        const cp2y = p1.y;
+                        path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p1.x} ${p1.y}`;
+                      }
+                      return path;
+                    };
 
-                      return (
-                        <div className="relative w-full h-full">
-                          <svg className="w-full h-full overflow-visible" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
-                            <defs>
-                              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#6366f1" stopOpacity="0.25" />
-                                <stop offset="100%" stopColor="#6366f1" stopOpacity="0.00" />
-                              </linearGradient>
-                            </defs>
-                            
-                            {/* Grid lines (horizontal) */}
-                            {[0, 0.25, 0.5, 0.75, 1].map((p, idx) => (
-                              <line 
-                                key={idx} 
-                                x1="0" 
-                                y1={15 + p * (height - 30)} 
-                                x2={width} 
-                                y2={15 + p * (height - 30)} 
-                                stroke="#f8fafc" 
-                                strokeWidth="1" 
-                                strokeDasharray="4 4"
-                              />
-                            ))}
+                    const pathD = getBezierPath(points);
+                    const fillD = points.length > 0 ? `${pathD} L ${points[points.length - 1].x} ${height} L ${points[0].x} ${height} Z` : '';
 
-                            {/* Filled Area */}
-                            <path d={fillD} fill="url(#chartGradient)" />
+                    // Calculate a 3-day rolling average for the dotted trend line offset slightly above the main line
+                    const avgPoints = points.map((p, i) => {
+                      if (p.date === 'No Data' || !p.date) return p;
+                      const sub = points.slice(Math.max(0, i - 2), i + 1).filter(item => item.date !== 'No Data' && item.date);
+                      const avgV = sub.reduce((sum, item) => sum + (item.visits || 0), 0) / (sub.length || 1);
+                      const y = height - (avgV / maxVisits) * (height - 30) - 15 - 6; // Offset slightly above
+                      return { ...p, y };
+                    });
+                    const avgPathD = getBezierPath(avgPoints);
 
-                            {/* Line Path */}
-                            <path d={pathD} fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    // Decide label step size to prevent crowding
+                    let step = 1;
+                    if (chartData.length > 30) step = 7;
+                    else if (chartData.length > 15) step = 3;
+                    else if (chartData.length > 7) step = 1;
 
-                            {/* Bullet Nodes */}
-                            {points.map((p, idx) => {
-                              if (p.date === 'No Data') return null;
-                              return (
-                                <g key={idx} className="group/dot cursor-pointer">
-                                  <circle cx={p.x} cy={p.y} r="10" fill="transparent" />
-                                  <circle cx={p.x} cy={p.y} r="5" fill="#ffffff" stroke="#6366f1" strokeWidth="2" className="transition-all duration-200 group-hover/dot:r-7" />
-                                  <circle cx={p.x} cy={p.y} r="2" fill="#6366f1" />
-                                </g>
-                              );
-                            })}
-                          </svg>
+                    return (
+                      <div className="space-y-5">
+                        {/* Period metrics overview cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          {/* Total Visits Card */}
+                          <div className="p-4 bg-slate-50 border border-slate-200/50 rounded-xl space-y-1">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Visits</span>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-xl font-bold text-slate-900">{totalVisits}</span>
+                              <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                                hasGrowth ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+                              }`}>
+                                {hasGrowth ? '↑' : '↓'} {trendPercent.toFixed(1)}%
+                              </span>
+                            </div>
+                            <p className="text-[9px] text-slate-400">vs previous {sliceLength}d ({prevTotalVisits})</p>
+                          </div>
+                          
+                          {/* Average Daily Visits Card */}
+                          <div className="p-4 bg-slate-50 border border-slate-200/50 rounded-xl space-y-1">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Daily Average</span>
+                            <div>
+                              <span className="text-xl font-bold text-slate-900">{avgVisits.toFixed(1)}</span>
+                              <span className="text-[10px] text-slate-500 font-medium ml-1">visits / day</span>
+                            </div>
+                            <p className="text-[9px] text-slate-400">Active period mean engagement</p>
+                          </div>
 
-                          {/* Hover Tooltip Overlay Areas */}
-                          <div className="absolute inset-0 flex justify-between">
-                            {points.map((p, idx) => {
-                              if (p.date === 'No Data') return <div key={idx} className="flex-1" />;
-                              return (
-                                <div key={idx} className="flex-1 group relative flex justify-center">
-                                  {/* Vertical line indicator on hover */}
-                                  <div className="absolute top-0 bottom-0 w-[1px] bg-slate-200/40 hidden group-hover:block pointer-events-none" style={{ left: '50%' }} />
-                                  
-                                  {/* Tooltip */}
-                                  <div className="absolute bottom-full mb-2.5 hidden group-hover:flex flex-col items-center bg-slate-900 text-white text-[9px] font-bold px-2 py-1.5 rounded-lg shadow-xl z-30 whitespace-nowrap pointer-events-none">
-                                    <span>{p.date}</span>
-                                    <span className="text-indigo-400 mt-0.5 font-black">{p.visits} visits</span>
-                                  </div>
-                                </div>
-                              );
-                            })}
+                          {/* Peak Traffic Card */}
+                          <div className="p-4 bg-slate-50 border border-slate-200/50 rounded-xl space-y-1">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Peak Traffic</span>
+                            <div>
+                              <span className="text-xl font-bold text-slate-900">{peakDay.visits}</span>
+                              <span className="text-[10px] text-slate-500 font-medium ml-1">visits</span>
+                            </div>
+                            <p className="text-[9px] text-slate-400 truncate">
+                              On {peakDay.date !== 'N/A' ? new Date(peakDay.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'}) : 'N/A'}
+                            </p>
                           </div>
                         </div>
-                      );
-                    })()}
-                  </div>
 
-                  {/* Date labels below graph */}
-                  <div className="flex justify-between text-[8px] font-bold text-slate-400 px-3">
-                    {(() => {
-                      const chartDays = [...dailyVisits].slice(0, 15).reverse();
-                      const chartData = [...chartDays];
-                      while (chartData.length < 15) {
-                        chartData.unshift({ date: '', visits: 0 });
-                      }
-                      return chartData.map((d, i) => (
-                        <span key={i} className="w-8 text-center truncate">
-                          {d.date ? d.date.substring(5) : ''}
-                        </span>
-                      ));
-                    })()}
-                  </div>
+                        {/* Custom SVG Line Graph */}
+                        <div className="relative w-full h-48 pt-4 pb-2 px-2 border-b border-slate-100">
+                          <div className="relative w-full h-full">
+                            <svg className="w-full h-full overflow-visible" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+                              <defs>
+                                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="#6366f1" stopOpacity="0.08" />
+                                  <stop offset="100%" stopColor="#6366f1" stopOpacity="0.00" />
+                                </linearGradient>
+                                <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                                  <stop offset="0%" stopColor="#6366f1" />
+                                  <stop offset="50%" stopColor="#8b5cf6" />
+                                  <stop offset="100%" stopColor="#3b82f6" />
+                                </linearGradient>
+                              </defs>
+                              
+                              {/* Grid lines (horizontal) */}
+                              {[0, 0.25, 0.5, 0.75, 1].map((p, idx) => (
+                                <line 
+                                  key={idx} 
+                                  x1="0" 
+                                  y1={15 + p * (height - 30)} 
+                                  x2={width} 
+                                  y2={15 + p * (height - 30)} 
+                                  stroke="#f1f5f9" 
+                                  strokeWidth="1" 
+                                  strokeDasharray="4 4"
+                                />
+                              ))}
+
+                              {/* Filled Area */}
+                              {fillD && <path d={fillD} fill="url(#chartGradient)" />}
+
+                              {/* Dashed Guideline Path */}
+                              {avgPathD && (
+                                <path 
+                                  d={avgPathD} 
+                                  fill="none" 
+                                  stroke="#8b5cf6" 
+                                  strokeWidth="1" 
+                                  strokeDasharray="2 3" 
+                                  opacity="0.65" 
+                                  strokeLinecap="round" 
+                                  strokeLinejoin="round" 
+                                />
+                              )}
+
+                              {/* Solid Thin Line Path */}
+                              {pathD && (
+                                <path 
+                                  d={pathD} 
+                                  fill="none" 
+                                  stroke="url(#lineGradient)" 
+                                  strokeWidth="1.25" 
+                                  strokeLinecap="round" 
+                                  strokeLinejoin="round" 
+                                />
+                              )}
+
+                              {/* Bullet Nodes */}
+                              {points.map((p, idx) => {
+                                if (p.date === 'No Data' || !p.date) return null;
+                                const isHovered = hoveredDotIndex === idx;
+                                return (
+                                  <g key={idx}>
+                                    <circle 
+                                      cx={p.x} 
+                                      cy={p.y} 
+                                      r="4" 
+                                      fill="#ffffff" 
+                                      stroke="#6366f1" 
+                                      strokeWidth="1" 
+                                      style={{ opacity: isHovered ? 1 : 0, transition: 'opacity 0.15s ease' }} 
+                                    />
+                                    <circle 
+                                      cx={p.x} 
+                                      cy={p.y} 
+                                      r="1.5" 
+                                      fill={isHovered ? '#6366f1' : '#c7d2fe'} 
+                                      style={{ transition: 'fill 0.15s ease' }} 
+                                    />
+                                  </g>
+                                );
+                              })}
+                            </svg>
+
+                            {/* Hover Tooltip Overlay Areas */}
+                            <div className="absolute inset-0 flex justify-between">
+                              {points.map((p, idx) => {
+                                if (p.date === 'No Data' || !p.date) return <div key={idx} className="flex-1" />;
+                                return (
+                                  <div 
+                                    key={idx} 
+                                    className="flex-1 group relative flex justify-center"
+                                    onMouseEnter={() => setHoveredDotIndex(idx)}
+                                    onMouseLeave={() => setHoveredDotIndex(null)}
+                                  >
+                                    {/* Vertical line indicator on hover */}
+                                    <div className="absolute top-0 bottom-0 w-[1px] bg-slate-200/50 hidden group-hover:block pointer-events-none" style={{ left: '50%' }} />
+                                    
+                                    {/* Tooltip */}
+                                    <div className="absolute bottom-full mb-3 hidden group-hover:flex flex-col items-center bg-slate-900/95 backdrop-blur-sm text-white text-[10px] p-2.5 rounded-xl border border-slate-700/50 shadow-2xl z-30 whitespace-nowrap pointer-events-none transition-all duration-200">
+                                      <span className="text-slate-300 font-medium">
+                                        {new Date(p.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                                      </span>
+                                      <span className="text-indigo-400 text-xs font-black mt-1">{p.visits} visits</span>
+                                      {totalVisits > 0 && (
+                                        <span className="text-slate-400 text-[8px] mt-0.5">
+                                          {((p.visits / totalVisits) * 100).toFixed(1)}% of total
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Date labels below graph */}
+                        <div className="flex justify-between text-[9px] font-bold text-slate-400 px-3">
+                          {chartData.map((d, i) => {
+                            const showLabel = i % step === 0 && d.date && d.date !== 'No Data';
+                            return (
+                              <span key={i} className="w-8 text-center truncate" style={{ visibility: showLabel ? 'visible' : 'hidden' }}>
+                                {d.date ? new Date(d.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric'}) : ''}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Traffic Table & Leaderboard */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
                   {/* Site Visits List */}
                   <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm space-y-4">
-                    <h3 className="text-slate-900 font-semibold text-sm flex items-center gap-2">
-                      <Globe size={16} className="text-indigo-600" />
-                      Lifetime Traffic Log
-                    </h3>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-2">
+                      <h3 className="text-slate-900 font-semibold text-sm flex items-center gap-2">
+                        <Globe size={16} className="text-indigo-600" />
+                        Lifetime Traffic Log
+                      </h3>
+                      <div className="relative w-full sm:w-28 shrink-0">
+                        <input
+                          type="text"
+                          placeholder="Search date..."
+                          value={trafficLogSearch}
+                          onChange={(e) => setTrafficLogSearch(e.target.value)}
+                          className="w-full text-[10px] pl-5 pr-4 py-1 bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 rounded-lg outline-none text-slate-700 focus:border-indigo-500 transition-all font-semibold"
+                        />
+                        <Search size={10} className="absolute left-1.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                        {trafficLogSearch && (
+                          <button onClick={() => setTrafficLogSearch('')} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-[10px] font-bold">×</button>
+                        )}
+                      </div>
+                    </div>
                     <div className="space-y-3 max-h-60 overflow-y-auto custom-scrollbar pr-1">
-                      {dailyVisits.length > 0 ? dailyVisits.map((d, idx) => {
-                        const maxVisits = Math.max(...dailyVisits.map(v => v.visits || 1));
-                        const percent = ((d.visits || 0) / maxVisits) * 100;
-                        return (
-                          <div key={idx} className="space-y-1">
-                            <div className="flex justify-between text-xs font-semibold text-slate-700">
-                              <span>{d.date}</span>
-                              <span className="text-indigo-600">{d.visits || 0} visits</span>
-                            </div>
-                            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                              <div className="bg-indigo-600 h-full rounded-full" style={{ width: `${percent}%` }} />
-                            </div>
-                          </div>
+                      {(() => {
+                        const filteredLog = dailyVisits.filter(d => 
+                          d.date.includes(trafficLogSearch) || 
+                          new Date(d.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'}).toLowerCase().includes(trafficLogSearch.toLowerCase())
                         );
-                      }) : (
-                        <p className="text-slate-400 text-xs py-8 text-center font-medium uppercase tracking-wider">No traffic data yet</p>
-                      )}
+                        if (filteredLog.length === 0) {
+                          return <p className="text-slate-400 text-xs py-8 text-center font-medium uppercase tracking-wider">No matching logs</p>;
+                        }
+                        const maxVisits = Math.max(...dailyVisits.map(v => v.visits || 1));
+                        return filteredLog.map((d, idx) => {
+                          const percent = ((d.visits || 0) / maxVisits) * 100;
+                          const formattedDate = new Date(d.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
+                          return (
+                            <div key={idx} className="space-y-1">
+                              <div className="flex justify-between text-xs font-semibold text-slate-700">
+                                <span>{formattedDate}</span>
+                                <span className="text-indigo-600">{d.visits || 0} visits</span>
+                              </div>
+                              <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div className="bg-indigo-600 h-full rounded-full" style={{ width: `${percent}%` }} />
+                              </div>
+                            </div>
+                          );
+                        });
+                      })()}
                     </div>
                   </div>
 
                   {/* Tool Clicks Card */}
-                  <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm space-y-4 lg:col-span-2">
-                    <h3 className="text-slate-900 font-semibold text-sm flex items-center gap-2">
-                      <Cpu size={16} className="text-indigo-600" />
-                      Tool Usage Leaderboard
-                    </h3>
-                    <div className="space-y-3 max-h-60 overflow-y-auto custom-scrollbar pr-1">
+                  <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm space-y-4 lg:col-span-2 text-left">
+                    <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                      <h3 className="text-slate-900 font-semibold text-sm flex items-center gap-2">
+                        <Cpu size={16} className="text-indigo-600" />
+                        Tool Usage Leaderboard
+                      </h3>
+                      {toolClicks.length > 0 && (
+                        <span className="text-[10px] bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full font-bold">
+                          {toolClicks.reduce((sum, item) => sum + (item.clicks || 0), 0)} Total Clicks
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-4 max-h-60 overflow-y-auto custom-scrollbar pr-1">
                       {toolClicks.length > 0 ? [...toolClicks].sort((a,b) => b.clicks - a.clicks).map((tc, idx) => {
                         const totalClicks = toolClicks.reduce((sum, item) => sum + (item.clicks || 0), 0);
                         const percent = ((tc.clicks || 0) / (totalClicks || 1)) * 100;
+                        
+                        let rankBadgeStyle = 'bg-slate-50 text-slate-600 border-slate-200';
+                        let progressColor = 'bg-gradient-to-r from-indigo-500 to-purple-500';
+                        let rankLabel = `#${idx + 1}`;
+                        
+                        if (idx === 0) {
+                          rankBadgeStyle = 'bg-amber-500/10 text-amber-700 border-amber-500/20 font-black';
+                          progressColor = 'bg-gradient-to-r from-amber-500 to-yellow-400';
+                          rankLabel = '🥇';
+                        } else if (idx === 1) {
+                          rankBadgeStyle = 'bg-slate-300/30 text-slate-700 border-slate-300/40 font-black';
+                          progressColor = 'bg-gradient-to-r from-slate-400 to-slate-300';
+                          rankLabel = '🥈';
+                        } else if (idx === 2) {
+                          rankBadgeStyle = 'bg-orange-500/10 text-orange-700 border-orange-500/20 font-black';
+                          progressColor = 'bg-gradient-to-r from-orange-500 to-amber-600';
+                          rankLabel = '🥉';
+                        }
+
                         return (
                           <div key={idx} className="flex items-center gap-4 text-xs font-semibold text-slate-700">
-                            <div className="w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-[10px] shrink-0">
-                              #{idx + 1}
+                            <div className={`w-8 h-8 rounded-xl border flex items-center justify-center text-xs shrink-0 shadow-sm ${rankBadgeStyle}`}>
+                              {rankLabel}
                             </div>
-                            <div className="flex-1 space-y-1">
-                              <div className="flex justify-between">
-                                <span className="capitalize">{tc.toolSlug.replace(/-/g, ' ')}</span>
-                                <span className="text-indigo-600">{tc.clicks || 0} clicks ({percent.toFixed(0)}%)</span>
+                            <div className="flex-1 space-y-1.5">
+                              <div className="flex justify-between items-baseline">
+                                <span className="capitalize font-bold text-slate-800">{tc.toolSlug.replace(/-/g, ' ')}</span>
+                                <span className="text-[10px] text-slate-500 font-medium">
+                                  <strong className="text-indigo-600 font-extrabold">{tc.clicks || 0}</strong> clicks ({percent.toFixed(0)}%)
+                                </span>
                               </div>
-                              <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                <div className="bg-indigo-600 h-full rounded-full" style={{ width: `${percent}%` }} />
+                              <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                <div className={`h-full rounded-full transition-all duration-500 ${progressColor}`} style={{ width: `${percent}%` }} />
                               </div>
                             </div>
                           </div>
