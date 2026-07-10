@@ -19,6 +19,8 @@ import ScreenshotStudio from '../components/ScreenshotStudio';
 import SecureVault from '../components/SecureVault';
 import DeveloperCardStudio from '../components/DeveloperCardStudio';
 import FontDownloader from '../components/FontDownloader';
+import AiOcrConverter from '../components/AiOcrConverter';
+import BgRemover from '../components/BgRemover';
 import Footer from '../sections/Footer';
 import { useNavigation } from '../context/NavigationContext';
 import { ArrowRight, Loader2 } from 'lucide-react';
@@ -116,6 +118,16 @@ const toolSeoData: Record<string, { title: string; desc: string; keywords: strin
     title: 'HTML, CSS & JS Code Runner Sandbox',
     desc: 'Write, edit, and execute HTML, CSS, and JavaScript web code in an isolated iframe sandbox with immediate live rendering preview.',
     keywords: ['code runner', 'html editor live preview', 'js sandbox', 'iframe developer playground', 'front-end editor']
+  },
+  'ocr-converter': {
+    title: 'AI OCR Image to Text Converter',
+    desc: 'Extract text instantly from scanned documents, receipts, screenshots, and photos. Runs completely in your browser — 100% free and private.',
+    keywords: ['ocr converter', 'image to text', 'extract text from image', 'online ocr tool', 'free local ocr']
+  },
+  'bg-remover': {
+    title: 'Client-Side Image Background Remover',
+    desc: 'Remove image backgrounds automatically in seconds. Runs entirely on your browser for absolute data privacy and zero quality loss.',
+    keywords: ['background remover', 'remove bg online', 'transparent image converter', 'png maker', 'free local bg remover']
   }
 };
 
@@ -131,7 +143,7 @@ const ServicesPage: React.FC = () => {
         const snap = await getDocs(q);
         setServices(snap.docs
           .map(doc => ({ id: doc.id, ...doc.data() } as ServiceTool))
-          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader')
+          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover')
         );
       } catch (err) {
         console.error("Failed to fetch services", err);
@@ -295,6 +307,8 @@ const ServicesPage: React.FC = () => {
       case 'secure-vault': return <SecureVault />;
       case 'dev-card-studio': return <DeveloperCardStudio />;
       case 'font-downloader': return <FontDownloader />;
+      case 'ocr-converter': return <AiOcrConverter />;
+      case 'bg-remover': return <BgRemover />;
       default: return renderDashboard();
     }
   };
@@ -476,11 +490,73 @@ const ServicesPage: React.FC = () => {
                     <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">NEW</span>
                   </div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
-                    Browse, preview and batch download 156 real Nepali and English fonts. Includes Preeti, Kantipur, Mangal, Kalimati, Roboto, Inter and more — install directly on your computer.
+                    Browse, preview and batch download 1100+ real Nepali and English fonts. Includes Preeti, Kantipur, Mangal, Kalimati, Roboto, Inter and more — install directly on your computer.
                   </p>
                 </div>
               </div>
               <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 group-hover:text-amber-700 transition-colors relative z-10">
+                <span>Open Tool</span>
+                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+              </div>
+            </a>
+
+            {/* ── Hardcoded: AI OCR Image-to-Text ── */}
+            <a
+              href="/tools/ocr-converter"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('services', 'ocr-converter');
+              }}
+              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-6 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[280px] hover:border-indigo-600 dark:hover:border-indigo-500 block"
+            >
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{ background: 'radial-gradient(ellipse at top left, rgba(99,102,241,0.06) 0%, transparent 60%)' }} />
+              <div className="space-y-4 w-full relative z-10">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-900/30">
+                  📝
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">AI OCR Converter</h3>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">FREE AI</span>
+                  </div>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                    Extract text instantly from scanned documents, receipts, screenshots, and photos. Runs completely in your browser — 100% free and private.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 transition-colors relative z-10">
+                <span>Open Tool</span>
+                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+              </div>
+            </a>
+
+            {/* ── Hardcoded: Background Remover ── */}
+            <a
+              href="/tools/bg-remover"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('services', 'bg-remover');
+              }}
+              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-6 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[280px] hover:border-emerald-600 dark:hover:border-emerald-500 block"
+            >
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{ background: 'radial-gradient(ellipse at top left, rgba(16,185,129,0.06) 0%, transparent 60%)' }} />
+              <div className="space-y-4 w-full relative z-10">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-900/30">
+                  ✂️
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Background Remover</h3>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">FREE AI</span>
+                  </div>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                    Remove image backgrounds automatically in seconds. Runs entirely on your browser for absolute data privacy and zero quality limits.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 transition-colors relative z-10">
                 <span>Open Tool</span>
                 <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
               </div>

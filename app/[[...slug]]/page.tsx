@@ -606,6 +606,60 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
         };
       }
 
+      if (subpage === 'ocr-converter') {
+        return {
+          title: "AI OCR Image to Text Converter | Free Online OCR Scan | Bishal Codes",
+          description: "Extract text from images, receipts, screenshots, and scans instantly. Powered by 15-language client-side AI, completely free, unlimited, and private.",
+          keywords: "image to text, AI OCR online, free OCR scanner, extract text from image, local browser OCR, text recognizer, Bishal Codes",
+          alternates: {
+            canonical: "https://bishalcodes.com/tools/ocr-converter",
+          },
+          openGraph: {
+            title: "AI OCR Image to Text Converter | Free Online OCR Scan | Bishal Codes",
+            description: "Extract text from images, receipts, screenshots, and scans instantly. 100% private and runs entirely locally in your browser.",
+            url: "https://bishalcodes.com/tools/ocr-converter",
+            siteName: "Bishal Codes",
+            type: "website",
+            images: [{ url: "https://bishalcodes.com/seo-images/tools.png", width: 1200, height: 630, alt: "AI OCR Image-to-Text" }],
+          },
+          twitter: {
+            card: "summary_large_image",
+            site: "@bishalmishra",
+            creator: "@bishalmishra",
+            title: "AI OCR Image to Text Converter | Free Online OCR Scan | Bishal Codes",
+            description: "Extract text from images, receipts, screenshots, and scans instantly. 100% private client-side AI.",
+            images: ["https://bishalcodes.com/seo-images/tools.png"]
+          }
+        };
+      }
+
+      if (subpage === 'bg-remover') {
+        return {
+          title: "Free AI Image Background Remover | Transparent PNG Maker | Bishal Codes",
+          description: "Remove background from photos and portraits instantly inside your browser. Powered by local AI with zero server uploads for absolute privacy and high-resolution output.",
+          keywords: "remove background from image, transparent PNG converter, free background remover, image cut out online, local AI bg remover, Bishal Codes",
+          alternates: {
+            canonical: "https://bishalcodes.com/tools/bg-remover",
+          },
+          openGraph: {
+            title: "Free AI Image Background Remover | Transparent PNG Maker | Bishal Codes",
+            description: "Remove background from photos and portraits instantly inside your browser. 100% private with no quality limits.",
+            url: "https://bishalcodes.com/tools/bg-remover",
+            siteName: "Bishal Codes",
+            type: "website",
+            images: [{ url: "https://bishalcodes.com/seo-images/tools.png", width: 1200, height: 630, alt: "AI Background Remover" }],
+          },
+          twitter: {
+            card: "summary_large_image",
+            site: "@bishalmishra",
+            creator: "@bishalmishra",
+            title: "Free AI Image Background Remover | Transparent PNG Maker | Bishal Codes",
+            description: "Remove background from photos and portraits instantly inside your browser. 100% private.",
+            images: ["https://bishalcodes.com/seo-images/tools.png"]
+          }
+        };
+      }
+
       if (subpage === 'font-downloader') {
         const subFontId = slugArr[2] || '';
         const font = subFontId ? allFontsDB.find(f => f.id === subFontId) : null;
