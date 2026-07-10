@@ -19,7 +19,7 @@ interface ScannedPage {
   createdAt: string;
 }
 
-// ── Homography system helper ──
+// ── 1. Homography solver math ──
 function solveGaussian(A: number[][], B: number[]) {
   const n = 8;
   for (let i = 0; i < n; i++) {
@@ -70,6 +70,76 @@ function getPerspectiveTransform(src: { x: number; y: number }[], dst: { x: numb
   ];
 }
 
+// ── 2. Computer Vision Auto-Crop boundary detector ──
+function detectDocumentCorners(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  try {
+    const imageData = ctx.getImageData(0, 0, w, h);
+    const data = imageData.data;
+
+    // Calculate average luminance (brightness)
+    let totalLuma = 0;
+    const lumaGrid = new Float32Array(w * h);
+    for (let i = 0; i < data.length; i += 4) {
+      const luma = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+      lumaGrid[i / 4] = luma;
+      totalLuma += luma;
+    }
+    const avgLuma = totalLuma / (w * h);
+
+    // Filter bright/paper coordinates (brightness threshold)
+    const threshold = avgLuma + 12;
+    const points = [];
+    for (let y = 0; y < h; y += 3) {
+      for (let x = 0; x < w; x += 3) {
+        const idx = y * w + x;
+        if (lumaGrid[idx] > threshold) {
+          points.push({ x, y });
+        }
+      }
+    }
+
+    if (points.length < 150) {
+      return [
+        { x: 0.15, y: 0.15 },
+        { x: 0.85, y: 0.15 },
+        { x: 0.85, y: 0.85 },
+        { x: 0.15, y: 0.85 }
+      ];
+    }
+
+    // Heuristics: Find extreme nodes forming paper bounds
+    let tl = points[0], tr = points[0], br = points[0], bl = points[0];
+    let minTL = Infinity, maxTR = -Infinity, maxBR = -Infinity, minBL = Infinity;
+
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      const sum = p.x + p.y;
+      const diff = p.x - p.y;
+
+      if (sum < minTL) { minTL = sum; tl = p; }
+      if (diff > maxTR) { maxTR = diff; tr = p; }
+      if (sum > maxBR) { maxBR = sum; br = p; }
+      if (diff < minBL) { minBL = diff; bl = p; }
+    }
+
+    // Return normalized handles (0.0 to 1.0)
+    return [
+      { x: Math.max(0, Math.min(1, tl.x / w)), y: Math.max(0, Math.min(1, tl.y / h)) },
+      { x: Math.max(0, Math.min(1, tr.x / w)), y: Math.max(0, Math.min(1, tr.y / h)) },
+      { x: Math.max(0, Math.min(1, br.x / w)), y: Math.max(0, Math.min(1, br.y / h)) },
+      { x: Math.max(0, Math.min(1, bl.x / w)), y: Math.max(0, Math.min(1, bl.y / h)) }
+    ];
+  } catch (e) {
+    console.error('[Auto Crop] Error scanning pixels:', e);
+    return [
+      { x: 0.15, y: 0.15 },
+      { x: 0.85, y: 0.15 },
+      { x: 0.85, y: 0.85 },
+      { x: 0.15, y: 0.85 }
+    ];
+  }
+}
+
 export default function DocScanner() {
   const { navigate } = useNavigation();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -93,10 +163,10 @@ export default function DocScanner() {
   
   // Draggable corners (Normalized)
   const [corners, setCorners] = useState<{ x: number; y: number }[]>([
-    { x: 0.15, y: 0.15 }, // TL
-    { x: 0.85, y: 0.15 }, // TR
-    { x: 0.85, y: 0.85 }, // BR
-    { x: 0.15, y: 0.85 }  // BL
+    { x: 0.15, y: 0.15 },
+    { x: 0.85, y: 0.15 },
+    { x: 0.85, y: 0.85 },
+    { x: 0.15, y: 0.85 }
   ]);
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
 
@@ -188,6 +258,7 @@ export default function DocScanner() {
     setCameraActive(false);
   };
 
+  // ── 4. Snapping & Triggering Computer Vision Auto-Crop ──
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
@@ -200,40 +271,47 @@ export default function DocScanner() {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         
         const rawUrl = canvas.toDataURL('image/jpeg', 0.9);
+        
+        // Execute dynamic auto boundary detection
+        const detected = detectDocumentCorners(ctx, canvas.width, canvas.height);
+        setCorners(detected);
         setCroppingImage(rawUrl);
-        // Reset corners to reasonable default crop
-        setCorners([
-          { x: 0.15, y: 0.15 },
-          { x: 0.85, y: 0.15 },
-          { x: 0.85, y: 0.85 },
-          { x: 0.15, y: 0.85 }
-        ]);
         stopCamera();
       }
     }
   };
 
-  // ── 4. Local File Import ──
+  // ── 5. Local File Import ──
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
-          setCroppingImage(event.target.result as string);
-          setCorners([
-            { x: 0.15, y: 0.15 },
-            { x: 0.85, y: 0.15 },
-            { x: 0.85, y: 0.85 },
-            { x: 0.15, y: 0.85 }
-          ]);
+          const rawUrl = event.target.result as string;
+          
+          // Detect corners for uploaded files
+          const img = new Image();
+          img.src = rawUrl;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              const detected = detectDocumentCorners(ctx, img.width, img.height);
+              setCorners(detected);
+            }
+            setCroppingImage(rawUrl);
+          };
         }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // ── 5. Perspective Warping Pixel Algorithm ──
+  // ── 6. Perspective Warping Pixel Algorithm ──
   const runPerspectiveWarp = () => {
     if (!croppingImage) return;
     setLoading(true);
@@ -321,7 +399,7 @@ export default function DocScanner() {
     };
   };
 
-  // ── 6. Drag & Drop Perspective Point Handlers ──
+  // ── 7. Drag & Drop Perspective Point Handlers ──
   const handlePointerDown = (index: number, e: React.PointerEvent) => {
     e.preventDefault();
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -350,7 +428,7 @@ export default function DocScanner() {
     }
   };
 
-  // ── 7. Image Filters (Magic Color, BW, Grayscale) ──
+  // ── 8. Image Filters (Magic Color, BW, Grayscale) ──
   const applyFilters = (dataUrl: string, filterType: 'original' | 'magic' | 'bw' | 'grayscale', callback: (filteredUrl: string) => void) => {
     if (filterType === 'original') {
       callback(dataUrl);
@@ -407,7 +485,7 @@ export default function DocScanner() {
     };
   };
 
-  // ── 8. Mobile Page Sync Sender ──
+  // ── 9. Mobile Page Sync Sender ──
   const sendPageToDesktop = () => {
     if (!imagePreview || !sessionId) return;
     setUploadStatus('sending');
@@ -436,30 +514,12 @@ export default function DocScanner() {
     });
   };
 
-  // ── 9. Desktop Add Page Direct ──
-  const handleDesktopFileAdd = (files: FileList | null) => {
-    if (!files || files.length === 0) return;
-    const file = files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        setCroppingImage(e.target.result as string);
-        setCorners([
-          { x: 0.15, y: 0.15 },
-          { x: 0.85, y: 0.15 },
-          { x: 0.85, y: 0.85 },
-          { x: 0.15, y: 0.85 }
-        ]);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
 
   const deletePage = (pid: string) => {
     setPages(prev => prev.filter(p => p.id !== pid));
   };
 
-  // ── 10. jsPDF A4 Document Compile ──
+  // ── 11. jsPDF A4 Document Compile ──
   const compileAndDownloadPdf = () => {
     if (pages.length === 0) return;
     setLoading(true);
@@ -489,11 +549,11 @@ export default function DocScanner() {
   if (croppingImage) {
     const polyPoints = corners.map(c => `${c.x * 100}%,${c.y * 100}%`).join(' ');
     return (
-      <div className="w-full text-slate-800 dark:text-slate-100 min-h-screen pt-24 pb-16 flex flex-col items-center bg-slate-950 text-white">
+      <div className="w-full text-slate-800 dark:text-slate-100 min-h-screen pt-24 pb-16 flex flex-col items-center bg-slate-50 dark:bg-slate-900 transition-colors">
         <div className="w-full max-w-md px-4 flex flex-col gap-6">
           <div className="text-left">
-            <h2 className="text-base font-black">Perspective Adjust</h2>
-            <p className="text-xs text-slate-400 mt-1">Drag the 4 corner handles to match the borders of the paper sheet.</p>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Perspective Crop Bounds</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Adjust corner handles to match document borders. Background outside the green line will be removed.</p>
           </div>
 
           {/* Interactive Bounding Box Polygon Grid */}
@@ -501,7 +561,7 @@ export default function DocScanner() {
             ref={containerRef}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
-            className="w-full aspect-[3/4] bg-slate-900 rounded-3xl overflow-hidden relative select-none border border-slate-800"
+            className="w-full aspect-[3/4] bg-slate-200 dark:bg-slate-950 rounded-2xl overflow-hidden relative select-none border border-slate-300 dark:border-slate-800"
             style={{ touchAction: 'none' }}
           >
             <img 
@@ -514,7 +574,7 @@ export default function DocScanner() {
             <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
               <polygon
                 points={polyPoints}
-                fill="rgba(34, 197, 94, 0.15)"
+                fill="rgba(34, 197, 94, 0.12)"
                 stroke="#22c55e"
                 strokeWidth="2.5"
               />
@@ -525,7 +585,7 @@ export default function DocScanner() {
               <div
                 key={i}
                 onPointerDown={(e) => handlePointerDown(i, e)}
-                className="absolute w-8 h-8 -ml-4 -mt-4 rounded-full border-[3px] border-green-500 bg-white/90 active:bg-green-100 flex items-center justify-center cursor-move shadow-md z-20 transition-transform active:scale-110"
+                className="absolute w-8 h-8 -ml-4 -mt-4 rounded-full border-[3px] border-green-500 bg-white shadow-md z-20 flex items-center justify-center cursor-move transition-transform active:scale-110"
                 style={{
                   left: `${corner.x * 100}%`,
                   top: `${corner.y * 100}%`
@@ -539,19 +599,19 @@ export default function DocScanner() {
           <div className="flex gap-4">
             <button
               onClick={() => setCroppingImage(null)}
-              className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-2xl text-xs transition-all text-center"
+              className="flex-1 py-2.5 bg-slate-200 hover:bg-slate-350 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition-all text-center border border-slate-300 dark:border-slate-700"
             >
               Cancel
             </button>
             <button
               onClick={runPerspectiveWarp}
               disabled={loading}
-              className="flex-1 py-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-bold rounded-2xl text-xs transition-all flex items-center justify-center gap-1.5"
+              className="flex-1 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow"
             >
               {loading ? (
                 <>
                   <Loader2 size={13} className="animate-spin" />
-                  <span>Processing...</span>
+                  <span>Cropping...</span>
                 </>
               ) : (
                 <>
@@ -569,21 +629,21 @@ export default function DocScanner() {
   // ── Render Mobile Mode ──
   if (isMobileMode) {
     return (
-      <div className="w-full text-slate-800 dark:text-slate-100 min-h-screen pt-24 pb-16 flex flex-col items-center bg-slate-900 text-white">
+      <div className="w-full text-slate-800 dark:text-slate-100 min-h-screen pt-24 pb-16 flex flex-col items-center bg-slate-50 dark:bg-slate-900 transition-colors">
         <div className="w-full max-w-md px-4 flex flex-col gap-6">
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
             <div className="w-8 h-8 bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center rounded-lg">
-              <Smartphone size={16} className="text-indigo-400" />
+              <Smartphone size={16} className="text-indigo-500" />
             </div>
             <div>
-              <h2 className="text-sm font-bold leading-none text-white">Mobile CamScanner</h2>
-              <p className="text-[10px] text-slate-400 mt-1">Sync Session: {sessionId}</p>
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white">Mobile CamScanner</h2>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Session ID: {sessionId}</p>
             </div>
           </div>
 
           {error && (
-            <div className="w-full bg-rose-500/20 border border-rose-500/40 rounded-xl p-3 flex items-start gap-2.5 text-xs text-rose-300">
+            <div className="w-full bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 rounded-xl p-3 flex items-start gap-2.5 text-xs text-rose-700 dark:text-rose-400">
               <AlertCircle className="shrink-0 mt-0.5" size={14} />
               <span>{error}</span>
             </div>
@@ -591,7 +651,7 @@ export default function DocScanner() {
 
           {/* Camera Viewport */}
           {!imagePreview ? (
-            <div className="w-full aspect-[3/4] bg-black rounded-3xl overflow-hidden border border-slate-800 relative flex flex-col items-center justify-center shadow-lg">
+            <div className="w-full aspect-[3/4] bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 relative flex flex-col items-center justify-center shadow-sm">
               <video
                 ref={videoRef}
                 autoPlay
@@ -600,15 +660,30 @@ export default function DocScanner() {
               />
               <canvas ref={canvasRef} className="hidden" />
 
+              {/* Scanning guidemarkers and laser line */}
+              {cameraActive && (
+                <>
+                  {/* Bounding Target bracket overlay */}
+                  <div className="absolute inset-8 border border-white/25 rounded-2xl pointer-events-none flex items-center justify-center">
+                    <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-emerald-500 rounded-tl-lg" />
+                    <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-emerald-500 rounded-tr-lg" />
+                    <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-emerald-500 rounded-bl-lg" />
+                    <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-emerald-500 rounded-br-lg" />
+                  </div>
+                  {/* Moving scanning line */}
+                  <div className="absolute left-[10%] right-[10%] h-0.5 bg-emerald-500 shadow-[0_0_8px_#10b981] animate-scanner-line pointer-events-none z-10" />
+                </>
+              )}
+
               {!cameraActive ? (
                 <button
                   onClick={startCamera}
-                  className="absolute z-10 flex items-center gap-1.5 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl text-xs transition-all shadow-md"
+                  className="absolute z-10 flex items-center gap-1.5 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition-all shadow"
                 >
-                  <Play size={14} /> Start Camera
+                  <Play size={14} /> Start Scanner Camera
                 </button>
               ) : (
-                <div className="absolute bottom-4 left-0 right-0 px-4 flex justify-between items-center gap-4">
+                <div className="absolute bottom-4 left-0 right-0 px-4 flex justify-between items-center gap-4 z-20">
                   
                   {cameras.length > 1 && (
                     <select
@@ -618,7 +693,7 @@ export default function DocScanner() {
                         stopCamera();
                         setTimeout(startCamera, 100);
                       }}
-                      className="bg-black/80 border border-slate-700 px-2.5 py-1.5 rounded-xl text-[10px] max-w-[120px] truncate focus:outline-none"
+                      className="bg-slate-900/90 text-white border border-slate-700 px-2 py-1.5 rounded-lg text-[10px] max-w-[100px] truncate focus:outline-none"
                     >
                       {cameras.map((c, i) => (
                         <option key={c.deviceId} value={c.deviceId}>Cam {i + 1}</option>
@@ -628,15 +703,15 @@ export default function DocScanner() {
 
                   <button
                     onClick={capturePhoto}
-                    className="w-14 h-14 bg-white hover:bg-slate-200 border-4 border-slate-600 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 animate-pulse"
+                    className="w-14 h-14 bg-white border-4 border-slate-350 hover:border-slate-400 rounded-full flex items-center justify-center shadow-md transition-transform active:scale-95"
                     title="Capture Photo"
                   >
-                    <div className="w-10 h-10 bg-white rounded-full border border-slate-300" />
+                    <div className="w-10 h-10 bg-slate-100 hover:bg-white rounded-full border border-slate-300" />
                   </button>
 
                   <button 
                     onClick={stopCamera}
-                    className="text-[10px] font-bold bg-slate-800/80 px-3 py-1.5 border border-slate-700 rounded-xl"
+                    className="text-[10px] font-bold bg-slate-900/90 text-white px-3 py-1.5 border border-slate-700 rounded-lg"
                   >
                     Cancel
                   </button>
@@ -644,12 +719,12 @@ export default function DocScanner() {
               )}
             </div>
           ) : (
-            /* Filter Selection screen after warp */
-            <div className="w-full flex flex-col gap-4">
-              <div className="w-full aspect-[3/4] bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 relative flex items-center justify-center">
+            /* Filter Selection screen */
+            <div className="w-full flex flex-col gap-4 animate-fade-in">
+              <div className="w-full aspect-[3/4] bg-slate-100 dark:bg-slate-950 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 relative flex items-center justify-center">
                 <img
                   src={imagePreview}
-                  alt="Captured page preview"
+                  alt="Captured document page"
                   className={`max-w-full max-h-full object-contain ${
                     activeFilter === 'grayscale' ? 'grayscale' :
                     activeFilter === 'bw' ? 'contrast-200 brightness-100 grayscale' :
@@ -658,7 +733,7 @@ export default function DocScanner() {
                 />
               </div>
 
-              {/* Filters */}
+              {/* Filter Switcher */}
               <div className="grid grid-cols-4 gap-2">
                 {[
                   { id: 'original', name: 'Original', icon: ImageIcon },
@@ -672,7 +747,7 @@ export default function DocScanner() {
                     className={`flex flex-col items-center py-2 rounded-xl border text-[10px] font-bold gap-1 transition-all ${
                       activeFilter === f.id 
                         ? 'bg-indigo-600 border-indigo-500 text-white' 
-                        : 'border-slate-800 bg-slate-900/60 hover:bg-slate-800 text-slate-400'
+                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-500 dark:text-slate-400'
                     }`}
                   >
                     <f.icon size={12} />
@@ -685,7 +760,7 @@ export default function DocScanner() {
                 <button
                   onClick={() => { setImagePreview(null); startCamera(); }}
                   disabled={uploadStatus === 'sending'}
-                  className="flex-1 py-3 border border-slate-800 bg-slate-900/80 hover:bg-slate-800 text-slate-300 font-bold rounded-2xl text-xs transition-all text-center"
+                  className="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition-all border border-slate-300 dark:border-slate-700"
                 >
                   Retake
                 </button>
@@ -693,7 +768,7 @@ export default function DocScanner() {
                 <button
                   onClick={sendPageToDesktop}
                   disabled={uploadStatus === 'sending' || uploadStatus === 'sent'}
-                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-800 text-white font-bold rounded-2xl text-xs transition-all flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-850 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow"
                 >
                   {uploadStatus === 'sending' && <Loader2 size={13} className="animate-spin" />}
                   {uploadStatus === 'sent' && <CheckCircle2 size={13} className="text-emerald-400" />}
@@ -708,11 +783,22 @@ export default function DocScanner() {
           )}
 
         </div>
+
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes scanner {
+            0% { top: 10%; }
+            50% { top: 90%; }
+            100% { top: 10%; }
+          }
+          .animate-scanner-line {
+            animation: scanner 2s ease-in-out infinite;
+          }
+        `}} />
       </div>
     );
   }
 
-  // ── Render Desktop Mode ──
+  // ── Render Desktop Mode (Clean Human Design) ──
   return (
     <div className="w-full text-slate-800 dark:text-slate-100 transition-colors duration-300 min-h-screen pt-28 pb-16 flex flex-col items-center">
       <div className="w-full px-4 md:px-8 xl:px-12 flex flex-col text-left">
@@ -721,19 +807,19 @@ export default function DocScanner() {
         <div className="flex flex-col gap-4 mb-8 text-left">
           <button 
             onClick={() => navigate('services')}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white text-xs font-bold uppercase tracking-wider transition-colors border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-600 bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-lg w-fit shrink-0"
+            className="flex items-center gap-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white text-xs font-bold uppercase tracking-wider transition-colors border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-lg w-fit shrink-0"
             title="Back to Tools"
           >
             <ArrowLeft size={13} />
             <span>Back to Tools</span>
           </button>
           
-          <div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white flex items-center gap-3">
-              Scan-to-PDF <span className="text-indigo-600 dark:text-indigo-400 font-normal">CamScanner</span>
+          <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              Scan-to-PDF Document Scanner
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-xl font-medium leading-relaxed">
-              Scan documents with your smartphone camera and stream pages directly to your browser in real-time. Apply magic colors, warp perspective bounds, and export to PDF.
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xl font-medium leading-relaxed">
+              Snap paper documents with your smartphone and sync them to your PC screen in real-time. Automatically removes background desks, corrects skewed angles, and compiles pages into clean PDFs.
             </p>
           </div>
         </div>
@@ -754,47 +840,47 @@ export default function DocScanner() {
           <div className="xl:col-span-4 flex flex-col gap-6 w-full">
             
             {/* Connection Status Box */}
-            <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col items-center text-center">
+            <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col items-center text-center">
               
               <div className="flex items-center gap-2 mb-4 bg-indigo-50 dark:bg-indigo-950/30 px-3 py-1.5 rounded-full border border-indigo-100 dark:border-indigo-900/20">
-                <Smartphone size={13} className="text-indigo-500" />
-                <span className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">Smartphone Scanner Sync</span>
+                <Smartphone size={13} className="text-indigo-600 dark:text-indigo-400" />
+                <span className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">Sync Mobile Camera</span>
               </div>
 
               {qrUrl ? (
-                <div className="w-44 h-44 rounded-2xl bg-white p-2.5 border border-slate-100 flex items-center justify-center shadow-md relative group overflow-hidden">
+                <div className="w-44 h-44 rounded-xl bg-white p-2.5 border border-slate-200 flex items-center justify-center shadow-sm relative group overflow-hidden">
                   <img src={qrUrl} alt="Connect QR Code" className="w-full h-full object-contain" />
                 </div>
               ) : (
-                <div className="w-44 h-44 rounded-2xl bg-slate-50 dark:bg-slate-950 flex items-center justify-center border border-dashed border-slate-350">
+                <div className="w-44 h-44 rounded-xl bg-slate-50 dark:bg-slate-950 flex items-center justify-center border border-dashed border-slate-350">
                   <Loader2 className="animate-spin text-indigo-500" size={24} />
                 </div>
               )}
 
-              <h4 className="text-xs font-black text-slate-800 dark:text-slate-100 mt-4">Scan QR to Scan Page</h4>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 max-w-xs mt-1 leading-normal font-medium">
-                Point your phone camera at this QR code to instantly link your phone as a portable scanner. All photos snapped on mobile sync to this screen in real-time.
+              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100 mt-4">1. Scan QR with Smartphone</h4>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 max-w-xs mt-1 leading-normal font-medium">
+                Point your phone camera here to open the remote capture scanner page. Photos snapped on your phone will stream directly to this dashboard.
               </p>
 
-              <div className="flex items-center justify-between gap-4 w-full border-t border-slate-100 dark:border-slate-800 pt-4 mt-4 text-[10px] font-bold text-slate-400 uppercase">
-                <div className="flex items-center gap-1.5 text-indigo-500 animate-pulse">
+              <div className="flex items-center justify-between gap-4 w-full border-t border-slate-100 dark:border-slate-800 pt-4 mt-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">
+                <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 animate-pulse">
                   <span className="w-2 h-2 rounded-full bg-indigo-500" />
-                  <span>Waiting for mobile...</span>
+                  <span>Waiting for scan...</span>
                 </div>
-                <span>Sync: {sessionId}</span>
+                <span>Session ID: {sessionId}</span>
               </div>
             </div>
 
-            {/* Local file uploader */}
-            <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
+            {/* Desktop direct upload */}
+            <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
               <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                 <Laptop size={14} className="text-slate-400" />
-                <span>Upload From Desktop</span>
+                <span>Or Upload Local File</span>
               </h4>
               
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full min-h-[120px] rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center p-4 text-center cursor-pointer hover:border-indigo-500 hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-all"
+                className="w-full min-h-[100px] rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center p-4 text-center cursor-pointer hover:border-indigo-500 hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-all"
               >
                 <input
                   type="file"
@@ -803,55 +889,56 @@ export default function DocScanner() {
                   accept="image/*"
                   className="hidden"
                 />
-                <ImageIcon size={20} className="text-slate-400 mb-2" />
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">Choose image file</span>
+                <ImageIcon size={18} className="text-slate-400 mb-1.5" />
+                <span className="text-[10px] font-bold text-slate-650 dark:text-slate-400">Drag & drop or browse image</span>
                 <span className="text-[9px] text-slate-400 mt-0.5">JPEG, PNG, WebP</span>
               </div>
             </div>
 
           </div>
 
-          {/* Right panel: Scanned Pages grid & Compilation */}
+          {/* Right panel: Scanned Pages grid */}
           <div className="xl:col-span-8 flex flex-col gap-6 w-full min-h-[480px]">
             
-            <div className="flex items-center justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+            {/* Sheet Actions Header */}
+            <div className="flex items-center justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Scanned Pages ({pages.length})</span>
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Scanned Sheets ({pages.length})</span>
               </div>
               
               <button
                 onClick={compileAndDownloadPdf}
                 disabled={pages.length === 0 || loading}
-                className="flex items-center justify-center gap-1.5 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-indigo-600 hover:opacity-95 text-white disabled:opacity-40 disabled:pointer-events-none rounded-xl text-xs font-black shadow-md transition-all shrink-0"
+                className="flex items-center justify-center gap-1.5 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-40 disabled:pointer-events-none rounded-lg text-xs font-bold shadow transition-all shrink-0 border border-indigo-700"
               >
                 {loading ? <Loader2 size={13} className="animate-spin" /> : <FileDown size={13} />}
-                <span>Download Compiled PDF</span>
+                <span>Compile to PDF</span>
               </button>
             </div>
 
             {pages.length === 0 ? (
-              <div className="flex-1 w-full border border-slate-200 dark:border-slate-850 rounded-3xl bg-white dark:bg-slate-900/40 border-dashed min-h-[360px] flex flex-col items-center justify-center p-8 text-center">
-                <div className="w-14 h-14 rounded-full bg-slate-50 dark:bg-slate-950 flex items-center justify-center mb-4 text-slate-300 border border-slate-100 dark:border-slate-850">
-                  <Camera size={22} />
+              <div className="flex-1 w-full border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/30 border-dashed min-h-[360px] flex flex-col items-center justify-center p-8 text-center">
+                <div className="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-950 flex items-center justify-center mb-3 text-slate-350 border border-slate-200 dark:border-slate-800">
+                  <Camera size={20} />
                 </div>
-                <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">Your Document Workspace is Empty</h3>
-                <p className="text-xs text-slate-400 dark:text-slate-500 max-w-sm leading-normal">
-                  Connect your phone using the QR code on the left, capture document pages, and they will populate here instantly.
+                <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Workspace is empty</h3>
+                <p className="text-xs text-slate-450 dark:text-slate-500 max-w-sm leading-normal">
+                  Connect your phone using the QR code instructions on the left or upload a local photo to build your document pages list.
                 </p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {pages.map((page, index) => (
-                  <div key={page.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden p-2.5 flex flex-col gap-2 shadow-sm relative group animate-fade-in">
+                  <div key={page.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden p-2.5 flex flex-col gap-2 shadow-sm relative group animate-fade-in">
                     
                     <div className="absolute top-4 left-4 z-10 w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-black shadow">
                       {index + 1}
                     </div>
 
-                    <div className="w-full aspect-[3/4] bg-slate-50 dark:bg-slate-950 rounded-xl overflow-hidden flex items-center justify-center border border-slate-100 dark:border-slate-850 relative">
-                      <img src={page.dataUrl} alt={`Page ${index + 1}`} className="max-w-full max-h-full object-contain" />
+                    <div className="w-full aspect-[3/4] bg-slate-50 dark:bg-slate-950 rounded-lg overflow-hidden flex items-center justify-center border border-slate-100 dark:border-slate-850 relative">
+                      <img src={page.dataUrl} alt={`Page ${index + 1}`} className="max-w-full max-h-full object-contain pointer-events-none" />
                       
-                      <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                         <button
                           onClick={() => deletePage(page.id)}
                           className="w-8 h-8 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center shadow transition-all"
@@ -862,9 +949,9 @@ export default function DocScanner() {
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center text-[10px] text-slate-400 px-1">
+                    <div className="flex justify-between items-center text-[10px] text-slate-450 px-1">
                       <span className="font-mono">Page {index + 1}</span>
-                      <span className="capitalize text-indigo-500 font-bold">{page.filter} filter</span>
+                      <span className="capitalize text-indigo-600 dark:text-indigo-400 font-bold">{page.filter}</span>
                     </div>
 
                   </div>
