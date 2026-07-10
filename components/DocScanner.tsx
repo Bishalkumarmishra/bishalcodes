@@ -76,7 +76,6 @@ function detectDocumentCorners(ctx: CanvasRenderingContext2D, w: number, h: numb
     const imageData = ctx.getImageData(0, 0, w, h);
     const data = imageData.data;
 
-    // Calculate average luminance (brightness)
     let totalLuma = 0;
     const lumaGrid = new Float32Array(w * h);
     for (let i = 0; i < data.length; i += 4) {
@@ -86,11 +85,11 @@ function detectDocumentCorners(ctx: CanvasRenderingContext2D, w: number, h: numb
     }
     const avgLuma = totalLuma / (w * h);
 
-    // Filter bright/paper coordinates (brightness threshold)
-    const threshold = avgLuma + 12;
+    // Threshold coordinates (paper brightness)
+    const threshold = avgLuma + 10;
     const points = [];
-    for (let y = 0; y < h; y += 3) {
-      for (let x = 0; x < w; x += 3) {
+    for (let y = 0; y < h; y += 4) {
+      for (let x = 0; x < w; x += 4) {
         const idx = y * w + x;
         if (lumaGrid[idx] > threshold) {
           points.push({ x, y });
@@ -98,7 +97,7 @@ function detectDocumentCorners(ctx: CanvasRenderingContext2D, w: number, h: numb
       }
     }
 
-    if (points.length < 150) {
+    if (points.length < 80) {
       return [
         { x: 0.15, y: 0.15 },
         { x: 0.85, y: 0.15 },
@@ -122,7 +121,6 @@ function detectDocumentCorners(ctx: CanvasRenderingContext2D, w: number, h: numb
       if (diff < minBL) { minBL = diff; bl = p; }
     }
 
-    // Return normalized handles (0.0 to 1.0)
     return [
       { x: Math.max(0, Math.min(1, tl.x / w)), y: Math.max(0, Math.min(1, tl.y / h)) },
       { x: Math.max(0, Math.min(1, tr.x / w)), y: Math.max(0, Math.min(1, tr.y / h)) },
@@ -140,35 +138,111 @@ function detectDocumentCorners(ctx: CanvasRenderingContext2D, w: number, h: numb
   }
 }
 
+// ── 3. Backward Mapping perspective warper helper ──
+const warpImage = (
+  rawUrl: string,
+  normalizedCorners: { x: number; y: number }[],
+  callback: (warpedUrl: string) => void
+) => {
+  const img = new Image();
+  img.src = rawUrl;
+  img.onload = () => {
+    const srcWidth = img.width;
+    const srcHeight = img.height;
+
+    // Standard high-quality A4 dimensions
+    const dstWidth = 900;
+    const dstHeight = 1270;
+
+    const srcCanvas = document.createElement('canvas');
+    srcCanvas.width = srcWidth;
+    srcCanvas.height = srcHeight;
+    const srcCtx = srcCanvas.getContext('2d');
+    if (!srcCtx) return;
+    srcCtx.drawImage(img, 0, 0);
+    const srcImageData = srcCtx.getImageData(0, 0, srcWidth, srcHeight);
+    const srcData = srcImageData.data;
+
+    const dstCanvas = document.createElement('canvas');
+    dstCanvas.width = dstWidth;
+    dstCanvas.height = dstHeight;
+    const dstCtx = dstCanvas.getContext('2d');
+    if (!dstCtx) return;
+    const dstImageData = dstCtx.createImageData(dstWidth, dstHeight);
+    const dstData = dstImageData.data;
+
+    const p0 = { x: normalizedCorners[0].x * srcWidth, y: normalizedCorners[0].y * srcHeight };
+    const p1 = { x: normalizedCorners[1].x * srcWidth, y: normalizedCorners[1].y * srcHeight };
+    const p2 = { x: normalizedCorners[2].x * srcWidth, y: normalizedCorners[2].y * srcHeight };
+    const p3 = { x: normalizedCorners[3].x * srcWidth, y: normalizedCorners[3].y * srcHeight };
+
+    const d0 = { x: 0, y: 0 };
+    const d1 = { x: dstWidth, y: 0 };
+    const d2 = { x: dstWidth, y: dstHeight };
+    const d3 = { x: 0, y: dstHeight };
+
+    const H = getPerspectiveTransform([d0, d1, d2, d3], [p0, p1, p2, p3]);
+    if (!H) {
+      callback(rawUrl);
+      return;
+    }
+
+    for (let v = 0; v < dstHeight; v++) {
+      for (let u = 0; u < dstWidth; u++) {
+        const w = H[6] * u + H[7] * v + H[8];
+        const x = (H[0] * u + H[1] * v + H[2]) / w;
+        const y = (H[3] * u + H[4] * v + H[5]) / w;
+
+        const xs = Math.round(x);
+        const ys = Math.round(y);
+
+        const dstIdx = (v * dstWidth + u) * 4;
+
+        if (xs >= 0 && xs < srcWidth && ys >= 0 && ys < srcHeight) {
+          const srcIdx = (ys * srcWidth + xs) * 4;
+          dstData[dstIdx] = srcData[srcIdx];
+          dstData[dstIdx + 1] = srcData[srcIdx + 1];
+          dstData[dstIdx + 2] = srcData[srcIdx + 2];
+          dstData[dstIdx + 3] = srcData[srcIdx + 3];
+        } else {
+          dstData[dstIdx] = 255;
+          dstData[dstIdx + 1] = 255;
+          dstData[dstIdx + 2] = 255;
+          dstData[dstIdx + 3] = 255;
+        }
+      }
+    }
+
+    dstCtx.putImageData(dstImageData, 0, 0);
+    callback(dstCanvas.toDataURL('image/jpeg', 0.85));
+  };
+};
+
 export default function DocScanner() {
   const { navigate } = useNavigation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Router session states
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isMobileMode, setIsMobileMode] = useState(false);
   const [qrUrl, setQrUrl] = useState<string>('');
 
-  // Scanning & Cropping states
+  // Scanning & Sync lists
   const [pages, setPages] = useState<ScannedPage[]>([]);
-  const [activeFilter, setActiveFilter] = useState<'original' | 'magic' | 'bw' | 'grayscale'>('magic');
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [croppingImage, setCroppingImage] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [selectedCameraId, setSelectedCameraId] = useState<string>('');
+
+  // Live Auto Capture & stability checks
+  const [liveDetectedCorners, setLiveDetectedCorners] = useState<{ x: number; y: number }[]>([]);
+  const [flashActive, setFlashActive] = useState(false);
+  const [isStableDetected, setIsStableDetected] = useState(false);
   
-  // Draggable corners (Normalized)
-  const [corners, setCorners] = useState<{ x: number; y: number }[]>([
-    { x: 0.15, y: 0.15 },
-    { x: 0.85, y: 0.15 },
-    { x: 0.85, y: 0.85 },
-    { x: 0.15, y: 0.85 }
-  ]);
-  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const scanLoopIdRef = useRef<number | null>(null);
+  const stableCountRef = useRef<number>(0);
+  const prevCornersRef = useRef<{ x: number; y: number }[]>([]);
 
   // Syncing & UI status
   const [loading, setLoading] = useState(false);
@@ -191,6 +265,10 @@ export default function DocScanner() {
         setupDesktopSession(newSessionId);
       }
     }
+
+    return () => {
+      if (scanLoopIdRef.current) cancelAnimationFrame(scanLoopIdRef.current);
+    };
   }, []);
 
   // ── 2. Desktop Host: Initialize Session & Listen ──
@@ -241,6 +319,9 @@ export default function DocScanner() {
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        videoRef.current.onloadedmetadata = () => {
+          startScanningLoop();
+        };
       }
     } catch (err: any) {
       console.error(err);
@@ -250,38 +331,148 @@ export default function DocScanner() {
   };
 
   const stopCamera = () => {
+    if (scanLoopIdRef.current) {
+      cancelAnimationFrame(scanLoopIdRef.current);
+      scanLoopIdRef.current = null;
+    }
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
       stream.getTracks().forEach(track => track.stop());
       videoRef.current.srcObject = null;
     }
     setCameraActive(false);
+    setLiveDetectedCorners([]);
+    setIsStableDetected(false);
   };
 
-  // ── 4. Snapping & Triggering Computer Vision Auto-Crop ──
-  const capturePhoto = () => {
-    if (videoRef.current && canvasRef.current) {
+  // ── 4. Real-time Frame Analysis Scanning Loop ──
+  const startScanningLoop = () => {
+    const checkFrame = () => {
+      if (!videoRef.current || !canvasRef.current) {
+        if (cameraActive) scanLoopIdRef.current = requestAnimationFrame(checkFrame);
+        return;
+      }
+
       const video = videoRef.current;
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
 
-      if (ctx) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+      if (ctx && video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = 160; 
+        canvas.height = 210;
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        const rawUrl = canvas.toDataURL('image/jpeg', 0.9);
-        
-        // Execute dynamic auto boundary detection
-        const detected = detectDocumentCorners(ctx, canvas.width, canvas.height);
-        setCorners(detected);
-        setCroppingImage(rawUrl);
-        stopCamera();
+
+        const newCorners = detectDocumentCorners(ctx, canvas.width, canvas.height);
+        setLiveDetectedCorners(newCorners);
+
+        // Check stability across sequential frames
+        if (prevCornersRef.current.length === 4) {
+          let isStable = true;
+          for (let i = 0; i < 4; i++) {
+            const dx = Math.abs(newCorners[i].x - prevCornersRef.current[i].x);
+            const dy = Math.abs(newCorners[i].y - prevCornersRef.current[i].y);
+            if (dx > 0.045 || dy > 0.045) {
+              isStable = false;
+              break;
+            }
+          }
+
+          if (isStable) {
+            stableCountRef.current += 1;
+            setIsStableDetected(true);
+            if (stableCountRef.current >= 4) {
+              stableCountRef.current = 0;
+              setIsStableDetected(false);
+              triggerAutoCapture(video, newCorners);
+              return; 
+            }
+          } else {
+            stableCountRef.current = 0;
+            setIsStableDetected(false);
+          }
+        }
+        prevCornersRef.current = newCorners;
       }
-    }
+
+      // Scan every 180ms to prevent browser lag
+      setTimeout(() => {
+        if (videoRef.current && videoRef.current.srcObject) {
+          scanLoopIdRef.current = requestAnimationFrame(checkFrame);
+        }
+      }, 180);
+    };
+
+    scanLoopIdRef.current = requestAnimationFrame(checkFrame);
   };
 
-  // ── 5. Local File Import ──
+  // ── 5. Auto Capture Trigger, Warp, & Filter ──
+  const triggerAutoCapture = (video: HTMLVideoElement, cropCorners: { x: number; y: number }[]) => {
+    // Visual flash animation trigger
+    setFlashActive(true);
+    setTimeout(() => setFlashActive(false), 250);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const rawUrl = canvas.toDataURL('image/jpeg', 0.90);
+
+    // Pause feed capture
+    stopCamera();
+
+    warpAndEnhanceDirectly(rawUrl, cropCorners);
+  };
+
+  const warpAndEnhanceDirectly = (rawUrl: string, cropCorners: { x: number; y: number }[]) => {
+    setLoading(true);
+
+    warpImage(rawUrl, cropCorners, (warpedUrl) => {
+      // Magic Color automatic enhancement filter
+      applyFilters(warpedUrl, 'magic', async (filteredUrl) => {
+        if (isMobileMode) {
+          setUploadStatus('sending');
+          try {
+            const sessionRef = doc(db, 'transfers', `scan_${sessionId}`);
+            await updateDoc(sessionRef, {
+              pages: arrayUnion({
+                id: Math.random().toString(36).substring(7),
+                dataUrl: filteredUrl,
+                filter: 'magic',
+                createdAt: new Date().toISOString()
+              })
+            });
+            setUploadStatus('sent');
+            setTimeout(() => {
+              setUploadStatus('idle');
+              // Automatically resume scanner for the next page
+              startCamera();
+            }, 1000);
+          } catch (err: any) {
+            console.error(err);
+            setError('Failed to send sheet to PC. Resuming camera...');
+            setUploadStatus('error');
+            setTimeout(startCamera, 1200);
+          }
+        } else {
+          // Desktop mode direct addition
+          setPages(prev => [
+            ...prev,
+            {
+              id: Math.random().toString(36).substring(7),
+              dataUrl: filteredUrl,
+              filter: 'magic',
+              createdAt: new Date().toISOString()
+            }
+          ]);
+        }
+        setLoading(false);
+      });
+    });
+  };
+
+  // ── 6. Local File Import ──
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
@@ -290,7 +481,6 @@ export default function DocScanner() {
         if (event.target?.result) {
           const rawUrl = event.target.result as string;
           
-          // Detect corners for uploaded files
           const img = new Image();
           img.src = rawUrl;
           img.onload = () => {
@@ -300,10 +490,11 @@ export default function DocScanner() {
             const ctx = canvas.getContext('2d');
             if (ctx) {
               ctx.drawImage(img, 0, 0);
+              // Run corner detector
               const detected = detectDocumentCorners(ctx, img.width, img.height);
-              setCorners(detected);
+              // Warp and Enhance directly without showing manual edit circular handles
+              warpAndEnhanceDirectly(rawUrl, detected);
             }
-            setCroppingImage(rawUrl);
           };
         }
       };
@@ -311,124 +502,7 @@ export default function DocScanner() {
     }
   };
 
-  // ── 6. Perspective Warping Pixel Algorithm ──
-  const runPerspectiveWarp = () => {
-    if (!croppingImage) return;
-    setLoading(true);
-
-    const img = new Image();
-    img.src = croppingImage;
-    img.onload = () => {
-      const srcWidth = img.width;
-      const srcHeight = img.height;
-
-      // Clean A4 canvas aspect ratio dimensions
-      const dstWidth = 900;
-      const dstHeight = 1270;
-
-      const srcCanvas = document.createElement('canvas');
-      srcCanvas.width = srcWidth;
-      srcCanvas.height = srcHeight;
-      const srcCtx = srcCanvas.getContext('2d');
-      if (!srcCtx) return;
-      srcCtx.drawImage(img, 0, 0);
-      const srcImageData = srcCtx.getImageData(0, 0, srcWidth, srcHeight);
-      const srcData = srcImageData.data;
-
-      const dstCanvas = document.createElement('canvas');
-      dstCanvas.width = dstWidth;
-      dstCanvas.height = dstHeight;
-      const dstCtx = dstCanvas.getContext('2d');
-      if (!dstCtx) return;
-      const dstImageData = dstCtx.createImageData(dstWidth, dstHeight);
-      const dstData = dstImageData.data;
-
-      // Source corners mapped from normalized positions
-      const p0 = { x: corners[0].x * srcWidth, y: corners[0].y * srcHeight };
-      const p1 = { x: corners[1].x * srcWidth, y: corners[1].y * srcHeight };
-      const p2 = { x: corners[2].x * srcWidth, y: corners[2].y * srcHeight };
-      const p3 = { x: corners[3].x * srcWidth, y: corners[3].y * srcHeight };
-
-      // Destination coordinates
-      const d0 = { x: 0, y: 0 };
-      const d1 = { x: dstWidth, y: 0 };
-      const d2 = { x: dstWidth, y: dstHeight };
-      const d3 = { x: 0, y: dstHeight };
-
-      // Generate the mapping matrix H mapping (u, v) -> (x, y)
-      const H = getPerspectiveTransform([d0, d1, d2, d3], [p0, p1, p2, p3]);
-      if (!H) {
-        setImagePreview(croppingImage);
-        setCroppingImage(null);
-        setLoading(false);
-        return;
-      }
-
-      // Backward map pixel matrix warp
-      for (let v = 0; v < dstHeight; v++) {
-        for (let u = 0; u < dstWidth; u++) {
-          const w = H[6] * u + H[7] * v + H[8];
-          const x = (H[0] * u + H[1] * v + H[2]) / w;
-          const y = (H[3] * u + H[4] * v + H[5]) / w;
-
-          const xs = Math.round(x);
-          const ys = Math.round(y);
-
-          const dstIdx = (v * dstWidth + u) * 4;
-
-          if (xs >= 0 && xs < srcWidth && ys >= 0 && ys < srcHeight) {
-            const srcIdx = (ys * srcWidth + xs) * 4;
-            dstData[dstIdx] = srcData[srcIdx];
-            dstData[dstIdx + 1] = srcData[srcIdx + 1];
-            dstData[dstIdx + 2] = srcData[srcIdx + 2];
-            dstData[dstIdx + 3] = srcData[srcIdx + 3];
-          } else {
-            dstData[dstIdx] = 255;
-            dstData[dstIdx + 1] = 255;
-            dstData[dstIdx + 2] = 255;
-            dstData[dstIdx + 3] = 255;
-          }
-        }
-      }
-
-      dstCtx.putImageData(dstImageData, 0, 0);
-      const warpedUrl = dstCanvas.toDataURL('image/jpeg', 0.85);
-      setImagePreview(warpedUrl);
-      setCroppingImage(null);
-      setLoading(false);
-    };
-  };
-
-  // ── 7. Drag & Drop Perspective Point Handlers ──
-  const handlePointerDown = (index: number, e: React.PointerEvent) => {
-    e.preventDefault();
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    setDraggingIndex(index);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (draggingIndex === null || !containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
-
-    setCorners(prev => {
-      const next = [...prev];
-      next[draggingIndex] = { x, y };
-      return next;
-    });
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (draggingIndex !== null) {
-      try {
-        (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-      } catch (err) {}
-      setDraggingIndex(null);
-    }
-  };
-
-  // ── 8. Image Filters (Magic Color, BW, Grayscale) ──
+  // ── 7. Image Filter logic ──
   const applyFilters = (dataUrl: string, filterType: 'original' | 'magic' | 'bw' | 'grayscale', callback: (filteredUrl: string) => void) => {
     if (filterType === 'original') {
       callback(dataUrl);
@@ -485,41 +559,11 @@ export default function DocScanner() {
     };
   };
 
-  // ── 9. Mobile Page Sync Sender ──
-  const sendPageToDesktop = () => {
-    if (!imagePreview || !sessionId) return;
-    setUploadStatus('sending');
-
-    applyFilters(imagePreview, activeFilter, async (filteredUrl) => {
-      try {
-        const sessionRef = doc(db, 'transfers', `scan_${sessionId}`);
-        await updateDoc(sessionRef, {
-          pages: arrayUnion({
-            id: Math.random().toString(36).substring(7),
-            dataUrl: filteredUrl,
-            filter: activeFilter,
-            createdAt: new Date().toISOString()
-          })
-        });
-        setUploadStatus('sent');
-        setTimeout(() => {
-          setUploadStatus('idle');
-          setImagePreview(null);
-        }, 1800);
-      } catch (err: any) {
-        console.error(err);
-        setError('Connection timed out. Retrying...');
-        setUploadStatus('error');
-      }
-    });
-  };
-
-
   const deletePage = (pid: string) => {
     setPages(prev => prev.filter(p => p.id !== pid));
   };
 
-  // ── 11. jsPDF A4 Document Compile ──
+  // ── 8. jsPDF A4 Document Compile ──
   const compileAndDownloadPdf = () => {
     if (pages.length === 0) return;
     setLoading(true);
@@ -545,88 +589,7 @@ export default function DocScanner() {
     }
   };
 
-  // ── Perspective Crop Overlay Screen ──
-  if (croppingImage) {
-    const polyPoints = corners.map(c => `${c.x * 100}%,${c.y * 100}%`).join(' ');
-    return (
-      <div className="w-full text-slate-800 dark:text-slate-100 min-h-screen pt-24 pb-16 flex flex-col items-center bg-slate-50 dark:bg-slate-900 transition-colors">
-        <div className="w-full max-w-md px-4 flex flex-col gap-6">
-          <div className="text-left">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Perspective Crop Bounds</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Adjust corner handles to match document borders. Background outside the green line will be removed.</p>
-          </div>
-
-          {/* Interactive Bounding Box Polygon Grid */}
-          <div 
-            ref={containerRef}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            className="w-full aspect-[3/4] bg-slate-200 dark:bg-slate-950 rounded-2xl overflow-hidden relative select-none border border-slate-300 dark:border-slate-800"
-            style={{ touchAction: 'none' }}
-          >
-            <img 
-              src={croppingImage} 
-              alt="Raw document" 
-              className="w-full h-full object-contain pointer-events-none" 
-            />
-
-            {/* SVG Polygon connecting handle coordinates */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
-              <polygon
-                points={polyPoints}
-                fill="rgba(34, 197, 94, 0.12)"
-                stroke="#22c55e"
-                strokeWidth="2.5"
-              />
-            </svg>
-
-            {/* Draggable Circle Handles */}
-            {corners.map((corner, i) => (
-              <div
-                key={i}
-                onPointerDown={(e) => handlePointerDown(i, e)}
-                className="absolute w-8 h-8 -ml-4 -mt-4 rounded-full border-[3px] border-green-500 bg-white shadow-md z-20 flex items-center justify-center cursor-move transition-transform active:scale-110"
-                style={{
-                  left: `${corner.x * 100}%`,
-                  top: `${corner.y * 100}%`
-                }}
-              >
-                <div className="w-2.5 h-2.5 rounded-full bg-green-600" />
-              </div>
-            ))}
-          </div>
-
-          <div className="flex gap-4">
-            <button
-              onClick={() => setCroppingImage(null)}
-              className="flex-1 py-2.5 bg-slate-200 hover:bg-slate-350 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition-all text-center border border-slate-300 dark:border-slate-700"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={runPerspectiveWarp}
-              disabled={loading}
-              className="flex-1 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow"
-            >
-              {loading ? (
-                <>
-                  <Loader2 size={13} className="animate-spin" />
-                  <span>Cropping...</span>
-                </>
-              ) : (
-                <>
-                  <Check size={13} />
-                  <span>Crop & Warp</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Render Mobile Mode ──
+  // ── Render Mobile Mode (Auto-Capture & Real-time Guide) ──
   if (isMobileMode) {
     return (
       <div className="w-full text-slate-800 dark:text-slate-100 min-h-screen pt-24 pb-16 flex flex-col items-center bg-slate-50 dark:bg-slate-900 transition-colors">
@@ -649,136 +612,102 @@ export default function DocScanner() {
             </div>
           )}
 
-          {/* Camera Viewport */}
-          {!imagePreview ? (
-            <div className="w-full aspect-[3/4] bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 relative flex flex-col items-center justify-center shadow-sm">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                className="w-full h-full object-cover"
-              />
-              <canvas ref={canvasRef} className="hidden" />
+          {/* Camera Frame Viewport */}
+          <div className="w-full aspect-[3/4] bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 relative flex flex-col items-center justify-center shadow-sm">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            <canvas ref={canvasRef} className="hidden" />
 
-              {/* Scanning guidemarkers and laser line */}
-              {cameraActive && (
-                <>
-                  {/* Bounding Target bracket overlay */}
-                  <div className="absolute inset-8 border border-white/25 rounded-2xl pointer-events-none flex items-center justify-center">
-                    <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-emerald-500 rounded-tl-lg" />
-                    <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-emerald-500 rounded-tr-lg" />
-                    <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-emerald-500 rounded-bl-lg" />
-                    <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-emerald-500 rounded-br-lg" />
-                  </div>
-                  {/* Moving scanning line */}
-                  <div className="absolute left-[10%] right-[10%] h-0.5 bg-emerald-500 shadow-[0_0_8px_#10b981] animate-scanner-line pointer-events-none z-10" />
-                </>
-              )}
+            {/* Flash visual overlay */}
+            {flashActive && <div className="absolute inset-0 bg-white z-30 animate-flash" />}
 
-              {!cameraActive ? (
-                <button
-                  onClick={startCamera}
-                  className="absolute z-10 flex items-center gap-1.5 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition-all shadow"
-                >
-                  <Play size={14} /> Start Scanner Camera
-                </button>
-              ) : (
-                <div className="absolute bottom-4 left-0 right-0 px-4 flex justify-between items-center gap-4 z-20">
-                  
-                  {cameras.length > 1 && (
-                    <select
-                      value={selectedCameraId}
-                      onChange={(e) => {
-                        setSelectedCameraId(e.target.value);
-                        stopCamera();
-                        setTimeout(startCamera, 100);
-                      }}
-                      className="bg-slate-900/90 text-white border border-slate-700 px-2 py-1.5 rounded-lg text-[10px] max-w-[100px] truncate focus:outline-none"
-                    >
-                      {cameras.map((c, i) => (
-                        <option key={c.deviceId} value={c.deviceId}>Cam {i + 1}</option>
-                      ))}
-                    </select>
-                  )}
+            {/* Scanning guidemarkers, dynamic detected bounding box, and laser scanning line */}
+            {cameraActive && (
+              <>
+                {/* Dynamic Auto-Crop Bounding polygon overlay */}
+                {liveDetectedCorners.length === 4 && (
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
+                    <polygon
+                      points={liveDetectedCorners.map(c => `${c.x * 100}%,${c.y * 100}%`).join(' ')}
+                      fill={isStableDetected ? "rgba(34, 197, 94, 0.12)" : "rgba(99, 102, 241, 0.08)"}
+                      stroke={isStableDetected ? "#22c55e" : "#6366f1"}
+                      strokeWidth="2.5"
+                      strokeDasharray={isStableDetected ? "none" : "5,5"}
+                    />
+                  </svg>
+                )}
 
-                  <button
-                    onClick={capturePhoto}
-                    className="w-14 h-14 bg-white border-4 border-slate-350 hover:border-slate-400 rounded-full flex items-center justify-center shadow-md transition-transform active:scale-95"
-                    title="Capture Photo"
-                  >
-                    <div className="w-10 h-10 bg-slate-100 hover:bg-white rounded-full border border-slate-300" />
-                  </button>
+                {/* Laser scanning line */}
+                <div className="absolute left-[10%] right-[10%] h-0.5 bg-emerald-500 shadow-[0_0_8px_#10b981] animate-scanner-line pointer-events-none z-10" />
 
-                  <button 
-                    onClick={stopCamera}
-                    className="text-[10px] font-bold bg-slate-900/90 text-white px-3 py-1.5 border border-slate-700 rounded-lg"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Filter Selection screen */
-            <div className="w-full flex flex-col gap-4 animate-fade-in">
-              <div className="w-full aspect-[3/4] bg-slate-100 dark:bg-slate-950 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 relative flex items-center justify-center">
-                <img
-                  src={imagePreview}
-                  alt="Captured document page"
-                  className={`max-w-full max-h-full object-contain ${
-                    activeFilter === 'grayscale' ? 'grayscale' :
-                    activeFilter === 'bw' ? 'contrast-200 brightness-100 grayscale' :
-                    activeFilter === 'magic' ? 'contrast-125 brightness-105 saturate-120' : ''
-                  }`}
-                />
-              </div>
-
-              {/* Filter Switcher */}
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { id: 'original', name: 'Original', icon: ImageIcon },
-                  { id: 'magic', name: 'Magic', icon: Sparkles },
-                  { id: 'grayscale', name: 'Gray', icon: RotateCw },
-                  { id: 'bw', name: 'B&W', icon: RotateCw }
-                ].map(f => (
-                  <button
-                    key={f.id}
-                    onClick={() => setActiveFilter(f.id as any)}
-                    className={`flex flex-col items-center py-2 rounded-xl border text-[10px] font-bold gap-1 transition-all ${
-                      activeFilter === f.id 
-                        ? 'bg-indigo-600 border-indigo-500 text-white' 
-                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-500 dark:text-slate-400'
-                    }`}
-                  >
-                    <f.icon size={12} />
-                    <span>{f.name}</span>
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => { setImagePreview(null); startCamera(); }}
-                  disabled={uploadStatus === 'sending'}
-                  className="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition-all border border-slate-300 dark:border-slate-700"
-                >
-                  Retake
-                </button>
-                
-                <button
-                  onClick={sendPageToDesktop}
-                  disabled={uploadStatus === 'sending' || uploadStatus === 'sent'}
-                  className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-850 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow"
-                >
-                  {uploadStatus === 'sending' && <Loader2 size={13} className="animate-spin" />}
-                  {uploadStatus === 'sent' && <CheckCircle2 size={13} className="text-emerald-400" />}
-                  {uploadStatus === 'idle' && <FileDown size={13} />}
-                  <span>
-                    {uploadStatus === 'sending' ? 'Sending Page...' : 
-                     uploadStatus === 'sent' ? 'Page Sent!' : 'Send to PC'}
+                {/* Status indicator */}
+                <div className="absolute top-4 left-4 right-4 z-20 flex justify-center">
+                  <span className={`px-3 py-1.5 text-[10px] font-black uppercase rounded-lg border shadow-sm ${
+                    isStableDetected 
+                      ? 'bg-green-600 border-green-500 text-white animate-pulse' 
+                      : 'bg-slate-950/80 border-slate-800 text-slate-300'
+                  }`}>
+                    {isStableDetected ? 'Hold Steady: Scanning...' : 'Align Document Paper'}
                   </span>
+                </div>
+              </>
+            )}
+
+            {!cameraActive && (
+              <button
+                onClick={startCamera}
+                className="absolute z-15 flex items-center gap-1.5 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition-all shadow"
+              >
+                <Play size={14} /> Start Automatic Scanner
+              </button>
+            )}
+
+            {cameraActive && (
+              <div className="absolute bottom-4 left-4 right-4 z-20 flex justify-between items-center">
+                {cameras.length > 1 && (
+                  <select
+                    value={selectedCameraId}
+                    onChange={(e) => {
+                      setSelectedCameraId(e.target.value);
+                      stopCamera();
+                      setTimeout(startCamera, 100);
+                    }}
+                    className="bg-slate-950/85 text-white border border-slate-800 px-2 py-1.5 rounded-lg text-[10px] max-w-[100px] truncate focus:outline-none"
+                  >
+                    {cameras.map((c, i) => (
+                      <option key={c.deviceId} value={c.deviceId}>Cam {i + 1}</option>
+                    ))}
+                  </select>
+                )}
+
+                <button 
+                  onClick={stopCamera}
+                  className="text-[10px] font-bold bg-slate-950/85 text-white px-3 py-1.5 border border-slate-800 rounded-lg ml-auto"
+                >
+                  Close
                 </button>
               </div>
+            )}
+          </div>
+
+          {loading && (
+            <div className="w-full flex items-center justify-center gap-2 text-xs font-bold text-slate-500">
+              <Loader2 size={13} className="animate-spin text-indigo-500" />
+              <span>Processing Perspective Auto-Crop & Enhancing...</span>
+            </div>
+          )}
+
+          {uploadStatus !== 'idle' && (
+            <div className="w-full flex items-center justify-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400">
+              {uploadStatus === 'sending' && <Loader2 size={13} className="animate-spin" />}
+              {uploadStatus === 'sent' && <CheckCircle2 size={13} className="text-emerald-500" />}
+              <span>
+                {uploadStatus === 'sending' ? 'Uploading page to PC...' : 'Sheet uploaded successfully!'}
+              </span>
             </div>
           )}
 
@@ -791,7 +720,14 @@ export default function DocScanner() {
             100% { top: 10%; }
           }
           .animate-scanner-line {
-            animation: scanner 2s ease-in-out infinite;
+            animation: scanner 2.2s ease-in-out infinite;
+          }
+          @keyframes flashAnim {
+            from { opacity: 0.95; }
+            to { opacity: 0; }
+          }
+          .animate-flash {
+            animation: flashAnim 0.25s ease-out forwards;
           }
         `}} />
       </div>
