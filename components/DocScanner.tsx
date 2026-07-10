@@ -239,6 +239,7 @@ export default function DocScanner() {
   const [liveDetectedCorners, setLiveDetectedCorners] = useState<{ x: number; y: number }[]>([]);
   const [flashActive, setFlashActive] = useState(false);
   const [isStableDetected, setIsStableDetected] = useState(false);
+  const [videoAspectRatio, setVideoAspectRatio] = useState<number>(3 / 4);
   
   const scanLoopIdRef = useRef<number | null>(null);
   const stableCountRef = useRef<number>(0);
@@ -320,6 +321,13 @@ export default function DocScanner() {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => {
+          if (videoRef.current) {
+            const width = videoRef.current.videoWidth;
+            const height = videoRef.current.videoHeight;
+            if (width && height) {
+              setVideoAspectRatio(width / height);
+            }
+          }
           startScanningLoop();
         };
       }
@@ -358,8 +366,14 @@ export default function DocScanner() {
       const ctx = canvas.getContext('2d');
 
       if (ctx && video.readyState === video.HAVE_ENOUGH_DATA) {
-        canvas.width = 160; 
-        canvas.height = 210;
+        const maxDim = 200;
+        if (video.videoWidth > video.videoHeight) {
+          canvas.width = maxDim;
+          canvas.height = Math.round(maxDim * (video.videoHeight / video.videoWidth));
+        } else {
+          canvas.height = maxDim;
+          canvas.width = Math.round(maxDim * (video.videoWidth / video.videoHeight));
+        }
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         const newCorners = detectDocumentCorners(ctx, canvas.width, canvas.height);
@@ -613,12 +627,15 @@ export default function DocScanner() {
           )}
 
           {/* Camera Frame Viewport */}
-          <div className="w-full aspect-[3/4] bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 relative flex flex-col items-center justify-center shadow-sm">
+          <div 
+            className="w-full bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 relative flex flex-col items-center justify-center shadow-sm transition-all duration-300"
+            style={{ aspectRatio: cameraActive ? videoAspectRatio : 3 / 4 }}
+          >
             <video
               ref={videoRef}
               autoPlay
               playsInline
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
             <canvas ref={canvasRef} className="hidden" />
 

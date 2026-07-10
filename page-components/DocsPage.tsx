@@ -124,10 +124,18 @@ The Developer Services dashboard hosts a comprehensive suite of high-performance
 - **Capabilities**: Removes background from photos, selfies, portraits, and product shots instantly. Downloads model components on-demand (~75MB, cached for speed on subsequent runs). Outputs high-resolution transparent PNG files.
 - **Security**: 100% private. Your images are never sent to external servers or API cloud networks, guaranteeing data safety.
 
-#### 17. Scan-to-PDF Document CamScanner
-- **Engine**: Local HTML5 MediaDevices camera API + Firestore real-time dynamic sync channels.
-- **Capabilities**: Snaps paper documents with your phone's camera, auto-enhances contrast/brightness using client-side WebGL canvas filters (Magic Color, High-Contrast B&W, Grayscale), and streams pages in real-time to your desktop browser session for compilation and multi-page PDF generation.
-- **Security**: 100% private. Captured images are stored temporarily in a secure database node for instant transfer, and are cleared automatically. No storage on external file servers.
+#### 17. Scan-to-PDF Document CamScanner (Fully Automatic)
+- **Engine**: Local HTML5 MediaDevices camera API + Canvas-based Computer Vision Frame Analyzer + Homography Perspective Warp Engine + Firestore real-time sync channels.
+- **Capabilities**:
+  - **Automatic Capture**: Runs a real-time pixel luminance scanner on live video frames every 180ms using \`requestAnimationFrame\`. When the document boundary detected remains stable across 4 consecutive frames, the camera automatically triggers a flash and captures the shot. **No button press required.**
+  - **Auto Document Boundary Detection**: A custom Computer Vision algorithm analyzes pixel brightness on each video frame using a luminance grid to find the document's four corner boundary points using TL/TR/BR/BL minimum-sum extremal point heuristics.
+  - **Perspective Warp (De-skew)**: Uses a full 8x8 Gaussian elimination linear system solver to compute the homography transformation matrix H. Performs backward-mapped pixel-level warp of the captured frame to a clean A4 (900×1270px) rectangle, removing desk backgrounds and correcting tilt/angle distortions entirely.
+  - **Magic Color Auto-Enhance**: Applies contrast amplification (factor 1.35x) and brightness correction (+15) to every pixel after warping, producing clean document scans automatically.
+  - **Live Scan Guide Overlay**: Displays real-time animated bounding polygon showing detected document bounds in indigo (searching) or green (stable, ready to snap). A glowing green laser line sweeps the viewfinder continuously.
+  - **Auto Page Resume**: After processing each page, the scanner automatically restarts and syncs to the next document ready state.
+  - **QR Mobile Sync**: Scan the QR code shown on desktop to instantly link your smartphone as a remote capture device. All pages sync in real-time to the desktop via Firestore.
+  - **PDF Compilation**: Compiles all scanned pages into a proper A4 PDF document using jsPDF library for one-click download.
+- **Security**: 100% private. Captured images are stored temporarily in a secure Firestore session node for instant browser-to-browser transfer, and are cleared automatically per session. No cloud file server storage.
 
 ---
 
@@ -185,15 +193,25 @@ To help you get the most out of our tools, here is a detailed breakdown of how t
 * **What is There**: Zero-knowledge processing, local ONNX model runtime, download progress tracking, and full original resolution transparent output.
 * **What is NOT**: The initial run requires a model file download of ~75MB, which might take a few seconds depending on internet speed.
 
-#### 8. Scan-to-PDF CamScanner
+#### 8. Scan-to-PDF CamScanner (Fully Automatic — No Buttons Needed)
 * **How to Use**:
-  1. Open the tool on your computer. It displays a QR code.
-  2. Scan the QR code using your phone's camera. This loads the mobile scanner web-app.
-  3. Snap a photo of your paper document, apply the "Magic Color" or "B&W" filter, and click **Send to PC**.
-  4. The page instantly appears on your computer dashboard. Snapping additional sheets adds pages sequentially.
-  5. Click **Download Compiled PDF** on your computer to save the full document.
-* **What is There**: QR-based real-time mobile syncing, client-side Canvas-based image enhancement (original, magic color, contrast-boosted B&W, grayscale), multi-page drag-ordering, and vector A4 PDF compiler.
-* **What is NOT**: Does not require installing external app store apps. Runs completely in the browser. Hand-shake connection is session-specific.
+  1. Open the tool on your computer at [bishalcodes.com/tools/scan-pdf](https://bishalcodes.com/tools/scan-pdf). A QR code session link is generated automatically.
+  2. On your smartphone, open the camera and scan the QR code. This loads the mobile scanner web-app without installing any app.
+  3. Tap **Start Automatic Scanner**. Point the phone camera at your paper document.
+  4. The AI automatically detects the paper boundary and shows a green animated overlay when it locks on. After 4 stable detection frames, it auto-captures — **no tap or button press needed.**
+  5. The tool instantly: ① warps & de-skews the page, ② enhances colors, ③ streams the page to your desktop in real-time.
+  6. Repeat for each page. Pages build up automatically on the desktop workspace.
+  7. Click **Compile to PDF** on your computer to download the full document as a clean A4 PDF file.
+* **What is There**:
+  - Fully automatic frame analysis and document capture — no manual shutter button
+  - Computer Vision luminance-based document boundary detection
+  - Homography perspective warp (removes desk background, corrects angles)
+  - Magic Color automatic enhancement (contrast + brightness correction)
+  - Real-time animated scan guide overlay with stable-lock green indicator
+  - QR-based mobile-to-desktop real-time Firestore sync
+  - Multi-page document workspace and A4 PDF compilation
+  - Also works by uploading local photos directly on desktop (auto-detects and crops)
+* **What is NOT**: Does not require installing any apps. Does not support printing directly (download PDF and print). Each session generates a fresh sync ID (cannot be resumed after closing).
 
 ---
 
@@ -280,7 +298,7 @@ Here is a pricing comparison of our tools compared to popular paid alternatives:
 | :--- | :--- | :--- | :--- |
 | **AI OCR Converter** | **$0 (100% Free, Local WASM)** | $5 - $15/mo (Limits pages, requires login) | **$10/mo** |
 | **Background Remover** | **$0 (100% Free, Local AI)** | $9 - $29/mo (Credits-based, charges per high-res download) | **$15/mo** |
-| **Scan-to-PDF Scanner** | **$0 (100% Free, Phone Sync)** | $5 - $10/mo (e.g. CamScanner Pro / iLovePDF premium) | **$7/mo** |
+| **Scan-to-PDF Scanner** | **$0 (100% Free, Auto-Capture AI)** | $5 - $10/mo (e.g. CamScanner Pro / iLovePDF premium) | **$7/mo** |
 | **System Fonts Downloader**| **$0 (100% Free, 1,100 fonts)** | Often behind registration or bundled subscriptions | **$5/mo** |
 | **Secure Vault** | **$0 (100% Free, AES-256)** | $5 - $10/mo (Requires storage plan upgrades) | **$8/mo** |
 | **Fast File Transfer** | **$0 (100% Free, up to 100 GB)** | $12 - $20/mo (e.g. WeTransfer Pro for large files) | **$15/mo** |
