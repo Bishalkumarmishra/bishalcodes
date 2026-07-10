@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-const SITE_URL = 'https://www.bishalcodes.com';
+const SITE_URL = 'https://bishalcodes.com';
 const PROJECT_ID = 'bishal-mishra-3c559';
 
 function fetchUrl(url) {
@@ -191,8 +191,10 @@ ${sitemapUrls.map(item => `  <url>
 </urlset>`;
 
   const destPath = path.join(__dirname, '../public/sitemap.xml');
+  const rootPath = path.join(__dirname, '../sitemap.xml');
   fs.writeFileSync(destPath, xml, 'utf8');
-  console.log(`[Sitemap Generator] Successfully generated sitemap with ${sitemapUrls.length} links to ${destPath}`);
+  fs.writeFileSync(rootPath, xml, 'utf8');
+  console.log(`[Sitemap Generator] Successfully generated sitemap with ${sitemapUrls.length} links to public/sitemap.xml and root sitemap.xml`);
 }
 
 run();
