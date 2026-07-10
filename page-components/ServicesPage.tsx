@@ -21,6 +21,7 @@ import DeveloperCardStudio from '../components/DeveloperCardStudio';
 import FontDownloader from '../components/FontDownloader';
 import AiOcrConverter from '../components/AiOcrConverter';
 import BgRemover from '../components/BgRemover';
+import DocScanner from '../components/DocScanner';
 import Footer from '../sections/Footer';
 import { useNavigation } from '../context/NavigationContext';
 import { ArrowRight, Loader2 } from 'lucide-react';
@@ -128,6 +129,11 @@ const toolSeoData: Record<string, { title: string; desc: string; keywords: strin
     title: 'Client-Side Image Background Remover',
     desc: 'Remove image backgrounds automatically in seconds. Runs entirely on your browser for absolute data privacy and zero quality loss.',
     keywords: ['background remover', 'remove bg online', 'transparent image converter', 'png maker', 'free local bg remover']
+  },
+  'scan-pdf': {
+    title: 'Scan-to-PDF Document CamScanner',
+    desc: 'Scan paper documents using your phone camera, apply magic color enhancement filters, and compile pages into a clean, searchable PDF directly in your browser.',
+    keywords: ['scan to pdf', 'camscanner online', 'document scanner', 'phone camera scan to computer', 'mobile document capture', 'free online scanner']
   }
 };
 
@@ -143,7 +149,7 @@ const ServicesPage: React.FC = () => {
         const snap = await getDocs(q);
         setServices(snap.docs
           .map(doc => ({ id: doc.id, ...doc.data() } as ServiceTool))
-          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover')
+          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover' && service.linkUrl !== 'scan-pdf')
         );
       } catch (err) {
         console.error("Failed to fetch services", err);
@@ -309,6 +315,7 @@ const ServicesPage: React.FC = () => {
       case 'font-downloader': return <FontDownloader />;
       case 'ocr-converter': return <AiOcrConverter />;
       case 'bg-remover': return <BgRemover />;
+      case 'scan-pdf': return <DocScanner />;
       default: return renderDashboard();
     }
   };
@@ -562,6 +569,37 @@ const ServicesPage: React.FC = () => {
               </div>
             </a>
 
+            {/* ── Hardcoded: Scan-to-PDF Document CamScanner ── */}
+            <a
+              href="/tools/scan-pdf"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('services', 'scan-pdf');
+              }}
+              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-6 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[280px] hover:border-indigo-600 dark:hover:border-indigo-500 block"
+            >
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{ background: 'radial-gradient(ellipse at top left, rgba(99,102,241,0.06) 0%, transparent 60%)' }} />
+              <div className="space-y-4 w-full relative z-10">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-900/30">
+                  📷
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Scan-to-PDF CamScanner</h3>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">REAL TIME</span>
+                  </div>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                    Scan documents using your phone camera, apply magic color enhancement filters, and compile pages into a clean PDF directly in your browser.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 transition-colors relative z-10">
+                <span>Open Tool</span>
+                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+              </div>
+            </a>
+
             {/* ── Firestore services ── */}
             {services.map(service => (
               <a
@@ -617,7 +655,7 @@ const ServicesPage: React.FC = () => {
     </div>
   );
 
-  const isFullBleed = selectedId === 'file-transfer' || selectedId === 'font-downloader' || selectedId === 'ocr-converter' || selectedId === 'bg-remover';
+  const isFullBleed = selectedId === 'file-transfer' || selectedId === 'font-downloader' || selectedId === 'ocr-converter' || selectedId === 'bg-remover' || selectedId === 'scan-pdf';
 
   return (
     <div className="min-h-screen bg-[#FDF9F3] dark:bg-slate-950 font-sans transition-colors duration-300 selection:bg-indigo-500/30">

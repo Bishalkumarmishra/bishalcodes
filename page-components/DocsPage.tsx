@@ -22,7 +22,7 @@ const initialDocSections: DocSection[] = [
     id: 'developer-utilities',
     title: 'Developer Utilities & Browser Tools',
     category: 'Developer Utilities & Tools',
-    keywords: ['pdf', 'converter', 'tools', 'utilities', 'translator', 'date', 'currency', 'compressor', 'emi', 'qr', 'json', 'diff', 'code runner', 'font downloader', 'ocr', 'image to text', 'background remover', 'bg remover'],
+    keywords: ['pdf', 'converter', 'tools', 'utilities', 'translator', 'date', 'currency', 'compressor', 'emi', 'qr', 'json', 'diff', 'code runner', 'font downloader', 'ocr', 'image to text', 'background remover', 'bg remover', 'scan to pdf', 'camscanner', 'document scanner'],
     content: `
 The Developer Services dashboard hosts a comprehensive suite of high-performance utility tools. To ensure absolute data confidentiality, **all file-processing and calculations run 100% client-side** inside your browser using modern APIs (Canvas, WebAssembly, and local JS libraries). Your files and data are never sent to external servers.
 
@@ -124,6 +124,11 @@ The Developer Services dashboard hosts a comprehensive suite of high-performance
 - **Capabilities**: Removes background from photos, selfies, portraits, and product shots instantly. Downloads model components on-demand (~75MB, cached for speed on subsequent runs). Outputs high-resolution transparent PNG files.
 - **Security**: 100% private. Your images are never sent to external servers or API cloud networks, guaranteeing data safety.
 
+#### 17. Scan-to-PDF Document CamScanner
+- **Engine**: Local HTML5 MediaDevices camera API + Firestore real-time dynamic sync channels.
+- **Capabilities**: Snaps paper documents with your phone's camera, auto-enhances contrast/brightness using client-side WebGL canvas filters (Magic Color, High-Contrast B&W, Grayscale), and streams pages in real-time to your desktop browser session for compilation and multi-page PDF generation.
+- **Security**: 100% private. Captured images are stored temporarily in a secure database node for instant transfer, and are cleared automatically. No storage on external file servers.
+
 ---
 
 ### PDF Manipulation Suite
@@ -180,12 +185,22 @@ To help you get the most out of our tools, here is a detailed breakdown of how t
 * **What is There**: Zero-knowledge processing, local ONNX model runtime, download progress tracking, and full original resolution transparent output.
 * **What is NOT**: The initial run requires a model file download of ~75MB, which might take a few seconds depending on internet speed.
 
+#### 8. Scan-to-PDF CamScanner
+* **How to Use**:
+  1. Open the tool on your computer. It displays a QR code.
+  2. Scan the QR code using your phone's camera. This loads the mobile scanner web-app.
+  3. Snap a photo of your paper document, apply the "Magic Color" or "B&W" filter, and click **Send to PC**.
+  4. The page instantly appears on your computer dashboard. Snapping additional sheets adds pages sequentially.
+  5. Click **Download Compiled PDF** on your computer to save the full document.
+* **What is There**: QR-based real-time mobile syncing, client-side Canvas-based image enhancement (original, magic color, contrast-boosted B&W, grayscale), multi-page drag-ordering, and vector A4 PDF compiler.
+* **What is NOT**: Does not require installing external app store apps. Runs completely in the browser. Hand-shake connection is session-specific.
+
 ---
 
 ### Frequently Asked Questions (FAQ)
 
 > **Q: Are my files or text uploaded to external servers?**  
-> **A:** No. Privacy is our top priority. Except for the AI Summarizer and Translator which query secure third-party APIs, all operations (Image Compression, Date Conversion, PDF conversions, Code Runner, OCR Scan, Background Removal, and secure encryption) run completely locally on your device's browser sandbox.
+> **A:** No. Privacy is our top priority. Except for the AI Summarizer and Translator which query secure third-party APIs, all operations (Image Compression, Date Conversion, PDF conversions, Code Runner, OCR Scan, Background Removal, CamScanner Scan, and secure encryption) run completely locally on your device's browser sandbox.
 
 > **Q: Why does my downloaded Developer Card look blurry on some platforms?**  
 > **A:** Make sure you use the official **Download Image** button inside the studio. It uses a high-resolution 3x scale rendering clone to export crispy, print-ready PNG assets. If you screenshot the preview container manually, the resolution will be limited by your monitor's pixel density.
@@ -265,6 +280,7 @@ Here is a pricing comparison of our tools compared to popular paid alternatives:
 | :--- | :--- | :--- | :--- |
 | **AI OCR Converter** | **$0 (100% Free, Local WASM)** | $5 - $15/mo (Limits pages, requires login) | **$10/mo** |
 | **Background Remover** | **$0 (100% Free, Local AI)** | $9 - $29/mo (Credits-based, charges per high-res download) | **$15/mo** |
+| **Scan-to-PDF Scanner** | **$0 (100% Free, Phone Sync)** | $5 - $10/mo (e.g. CamScanner Pro / iLovePDF premium) | **$7/mo** |
 | **System Fonts Downloader**| **$0 (100% Free, 1,100 fonts)** | Often behind registration or bundled subscriptions | **$5/mo** |
 | **Secure Vault** | **$0 (100% Free, AES-256)** | $5 - $10/mo (Requires storage plan upgrades) | **$8/mo** |
 | **Fast File Transfer** | **$0 (100% Free, up to 100 GB)** | $12 - $20/mo (e.g. WeTransfer Pro for large files) | **$15/mo** |

@@ -659,6 +659,33 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
           }
         };
       }
+      
+      if (subpage === 'scan-pdf') {
+        return {
+          title: "Scan to PDF Online | Free Mobile CamScanner App | Bishal Codes",
+          description: "Scan paper documents using your smartphone camera and stream them to your computer screen in real-time. Apply magic colors and compile to PDF.",
+          keywords: "scan to pdf, online camscanner, scan document phone to pc, mobile document scanner, free scanner app, scan to pdf online, Bishal Codes",
+          alternates: {
+            canonical: "https://bishalcodes.com/tools/scan-pdf",
+          },
+          openGraph: {
+            title: "Scan to PDF Online | Free Mobile CamScanner App | Bishal Codes",
+            description: "Scan paper documents using your smartphone camera and stream them to your computer screen in real-time. Apply magic colors and compile to PDF.",
+            url: "https://bishalcodes.com/tools/scan-pdf",
+            siteName: "Bishal Codes",
+            type: "website",
+            images: [{ url: "https://bishalcodes.com/seo-images/tools.png", width: 1200, height: 630, alt: "Online CamScanner" }],
+          },
+          twitter: {
+            card: "summary_large_image",
+            site: "@bishalmishra",
+            creator: "@bishalmishra",
+            title: "Scan to PDF Online | Free Mobile CamScanner App | Bishal Codes",
+            description: "Scan paper documents using your smartphone camera and stream them to your computer screen in real-time.",
+            images: ["https://bishalcodes.com/seo-images/tools.png"]
+          }
+        };
+      }
 
       if (subpage === 'font-downloader') {
         const subFontId = slugArr[2] || '';
