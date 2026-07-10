@@ -22,7 +22,7 @@ const initialDocSections: DocSection[] = [
     id: 'developer-utilities',
     title: 'Developer Utilities & Browser Tools',
     category: 'Developer Utilities & Tools',
-    keywords: ['pdf', 'converter', 'tools', 'utilities', 'translator', 'date', 'currency', 'compressor', 'emi', 'qr', 'json', 'diff', 'code runner'],
+    keywords: ['pdf', 'converter', 'tools', 'utilities', 'translator', 'date', 'currency', 'compressor', 'emi', 'qr', 'json', 'diff', 'code runner', 'font downloader', 'ocr', 'image to text', 'background remover', 'bg remover'],
     content: `
 The Developer Services dashboard hosts a comprehensive suite of high-performance utility tools. To ensure absolute data confidentiality, **all file-processing and calculations run 100% client-side** inside your browser using modern APIs (Canvas, WebAssembly, and local JS libraries). Your files and data are never sent to external servers.
 
@@ -109,6 +109,21 @@ The Developer Services dashboard hosts a comprehensive suite of high-performance
 - **Capabilities**: Generates social cards (OG image, LinkedIn cover, Twitter header, YouTube banner, Instagram post) at 3x scale. Supports 10 customizable designer layouts, dynamic drag-and-drop element visual positioning, and real-time custom font/color presets.
 - **Security**: 100% client-side. Avatars and texts are parsed in browser memory only.
 
+#### 14. System Fonts Downloader
+- **Engine**: Static lookup database of 1,100 fonts (Nepali + Google CDN fonts) combined with browser-native FontFace caching.
+- **Capabilities**: Previews any font with custom test text and size controls. Supports downloading individual fonts (.TTF) or downloading multiple checked fonts packaged dynamically into a ZIP file in the browser.
+- **Security**: 100% offline-capable, runs entirely locally, and resolves fonts via secure, high-speed static CDN links.
+
+#### 15. AI OCR Image-to-Text Converter
+- **Engine**: Client-side Tesseract.js WASM engine.
+- **Capabilities**: Scans images, photos, receipts, or screenshots to extract text with high precision. Supports 8 major languages including English, Nepali, Hindi, Spanish, French, German, Chinese, and Japanese. Features automatic text extraction progress tracking, copy-to-clipboard, and direct download of text files.
+- **Security**: 100% private. OCR processing is done locally on your device's GPU/CPU; your files never touch or leave the browser.
+
+#### 16. Client-Side Image Background Remover
+- **Engine**: Client-side ONNX Runtime Web using \`@imgly/background-removal\` neural segmenter WASM.
+- **Capabilities**: Removes background from photos, selfies, portraits, and product shots instantly. Downloads model components on-demand (~75MB, cached for speed on subsequent runs). Outputs high-resolution transparent PNG files.
+- **Security**: 100% private. Your images are never sent to external servers or API cloud networks, guaranteeing data safety.
+
 ---
 
 ### PDF Manipulation Suite
@@ -150,12 +165,27 @@ To help you get the most out of our tools, here is a detailed breakdown of how t
 * **What is There**: Zero-knowledge encryption (AES-256-GCM), local PBKDF2 key derivation, direct upload to Supabase storage, and customizable download counts/expiry days.
 * **What is NOT**: We do not store passwords. If you lose or forget the file password, there is absolutely no password recovery system available.
 
+#### 5. System Fonts Downloader
+* **How to Use**: Select a font to preview, customize the preview text or size, and download the \`.ttf\` directly. You can select multiple check-boxes to batch download as a single \`.zip\`.
+* **What is There**: 1,100 real pre-compiled Nepali and English fonts with secure direct-download URLs, batch zipping in the browser, custom live preview rendering, and dynamic deep links (e.g. \`/tools/font-downloader/preeti\`) optimized for search engines.
+* **What is NOT**: Does not support uploading custom files to the web database (fonts are curated statically).
+
+#### 6. AI OCR Image-to-Text
+* **How to Use**: Drag and drop an image or screenshot, select the primary document language, and click **Extract Text**. Copy or download the results instantly.
+* **What is There**: High-accuracy local OCR library, multi-language support (English, Nepali, Hindi, etc.), real-time parsing logs, one-click clipboard copy, and direct \`.txt\` downloads.
+* **What is NOT**: Hand-written text recognition might have lower accuracy compared to clear, typed digital scans or print layouts.
+
+#### 7. Image Background Remover
+* **How to Use**: Upload a photo, preview it, and click **Remove Background**. The local AI model runs segmentation and reveals a download button for the transparent \`.png\` result.
+* **What is There**: Zero-knowledge processing, local ONNX model runtime, download progress tracking, and full original resolution transparent output.
+* **What is NOT**: The initial run requires a model file download of ~75MB, which might take a few seconds depending on internet speed.
+
 ---
 
 ### Frequently Asked Questions (FAQ)
 
 > **Q: Are my files or text uploaded to external servers?**  
-> **A:** No. Privacy is our top priority. Except for the AI Summarizer and Translator which query secure third-party APIs, all operations (Image Compression, Date Conversion, PDF conversions, Code Runner, and secure encryption) run completely locally on your device's browser sandbox.
+> **A:** No. Privacy is our top priority. Except for the AI Summarizer and Translator which query secure third-party APIs, all operations (Image Compression, Date Conversion, PDF conversions, Code Runner, OCR Scan, Background Removal, and secure encryption) run completely locally on your device's browser sandbox.
 
 > **Q: Why does my downloaded Developer Card look blurry on some platforms?**  
 > **A:** Make sure you use the official **Download Image** button inside the studio. It uses a high-resolution 3x scale rendering clone to export crispy, print-ready PNG assets. If you screenshot the preview container manually, the resolution will be limited by your monitor's pixel density.
@@ -204,7 +234,7 @@ We build fast, secure, and modern digital web platforms. Our engineering workflo
     id: 'services',
     title: 'Services & Engagement Model',
     category: 'Services & Pricing',
-    keywords: ['pricing', 'rates', 'fees', 'services', 'ui/ux', 'next.js', 'react', '3d', 'webGL', 'ecommerce'],
+    keywords: ['pricing', 'rates', 'fees', 'services', 'ui/ux', 'next.js', 'react', '3d', 'webGL', 'ecommerce', 'free tools', 'savings'],
     content: `
 We offer full-cycle development services, ranging from custom frontend UI components to high-performance enterprise applications.
 
@@ -222,6 +252,26 @@ We offer full-cycle development services, ranging from custom frontend UI compon
 
 #### 3. Brand & UI/UX Design System
 - **Deliverables**: Figma component libraries, typography guides, and interactive wireframes.
+
+---
+
+### Tool Pricing & Credit Systems (100% Free vs Paid Competitors)
+
+Our developer utility tools are **100% free with no monthly subscription, no credit limits, no account signups, and no premium paywalls**. Other online platforms charge high rates or put files behind paywalls. 
+
+Here is a pricing comparison of our tools compared to popular paid alternatives:
+
+| Tool / Service | Bishal Codes | Other Websites (Paid Competitors) | Monthly Saving |
+| :--- | :--- | :--- | :--- |
+| **AI OCR Converter** | **$0 (100% Free, Local WASM)** | $5 - $15/mo (Limits pages, requires login) | **$10/mo** |
+| **Background Remover** | **$0 (100% Free, Local AI)** | $9 - $29/mo (Credits-based, charges per high-res download) | **$15/mo** |
+| **System Fonts Downloader**| **$0 (100% Free, 1,100 fonts)** | Often behind registration or bundled subscriptions | **$5/mo** |
+| **Secure Vault** | **$0 (100% Free, AES-256)** | $5 - $10/mo (Requires storage plan upgrades) | **$8/mo** |
+| **Fast File Transfer** | **$0 (100% Free, up to 100 GB)** | $12 - $20/mo (e.g. WeTransfer Pro for large files) | **$15/mo** |
+| **Developer Card Studio** | **$0 (100% Free, 3x exports)** | $5 - $12/mo (Watermarked templates on Canva Pro) | **$8/mo** |
+
+**Why is it Free?**
+By utilizing **client-side processing (WebAssembly, Canvas API, Web Crypto API, and local browser database caching)**, we eliminate expensive cloud server processing costs. This allows us to offer premium AI utilities to our visitors completely free, without limits, ads, or hidden charges!
 
 ---
 
