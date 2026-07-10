@@ -131,7 +131,7 @@ const ServiceTools: React.FC = () => {
             <p className="text-slate-400 font-semibold text-sm">No tools available yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-5">
             {displayServices.map((service, index) => {
               const accent = accents[index % accents.length];
               return (

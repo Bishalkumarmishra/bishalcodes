@@ -350,7 +350,7 @@ const ServicesPage: React.FC = () => {
             <Loader2 className="animate-spin text-indigo-600" size={32} />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-none">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 w-full max-w-none">
             {/* ── Hardcoded: Developer Card Studio ── */}
             <a
               href="/tools/dev-card-studio"
