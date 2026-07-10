@@ -352,7 +352,9 @@ export const DeveloperCardStudio: React.FC = () => {
       const link = document.createElement('a');
       link.download = `${name.toLowerCase().replace(/\s+/g, '_')}_og_banner.png`;
       link.href = dataUrl;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } catch (err) {
       console.error('Failed to generate crisp PNG image:', err);
     } finally {

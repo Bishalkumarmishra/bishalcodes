@@ -89,9 +89,12 @@ export default function BgRemover() {
 
   const handleDownload = () => {
     if (!resultUrl) return;
+    const originalName = image?.name || 'img';
+    const lastDotIndex = originalName.lastIndexOf('.');
+    const baseName = lastDotIndex !== -1 ? originalName.substring(0, lastDotIndex) : originalName;
     const link = document.createElement('a');
     link.href = resultUrl;
-    link.download = `${image?.name.split('.')[0] || 'img'}_nobg.png`;
+    link.download = `${baseName}_nobg.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

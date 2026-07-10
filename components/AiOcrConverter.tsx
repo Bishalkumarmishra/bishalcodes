@@ -118,9 +118,12 @@ export default function AiOcrConverter() {
     if (!extractedText) return;
     const blob = new Blob([extractedText], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
+    const originalName = image?.name || 'ocr';
+    const lastDotIndex = originalName.lastIndexOf('.');
+    const baseName = lastDotIndex !== -1 ? originalName.substring(0, lastDotIndex) : originalName;
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${image?.name.split('.')[0] || 'ocr'}_extracted.txt`;
+    link.download = `${baseName}_extracted.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
