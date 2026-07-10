@@ -617,7 +617,7 @@ const ServicesPage: React.FC = () => {
     </div>
   );
 
-  const isFullBleed = selectedId === 'file-transfer' || selectedId === 'font-downloader';
+  const isFullBleed = selectedId === 'file-transfer' || selectedId === 'font-downloader' || selectedId === 'ocr-converter' || selectedId === 'bg-remover';
 
   return (
     <div className="min-h-screen bg-[#FDF9F3] dark:bg-slate-950 font-sans transition-colors duration-300 selection:bg-indigo-500/30">
