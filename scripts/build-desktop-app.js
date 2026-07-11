@@ -36,7 +36,18 @@ try {
   process.exit(1);
 }
 
-// 3. Compile and Package Electron application with electron-builder
+// 3. Clean stale output directories to prevent picking old installer versions
+console.log("\nCleaning previous build outputs...");
+try {
+  const distPath = path.join(appDir, 'dist');
+  if (fs.existsSync(distPath)) {
+    fs.rmSync(distPath, { recursive: true, force: true });
+    console.log("Cleaned dist output directory.");
+  }
+} catch(e) {
+  console.warn("Failed to clean dist folder, continuing...", e);
+}
+
 console.log("\nBuilding Electron Installer (.exe) with electron-builder...");
 try {
   // We run electron-builder via npm run package
@@ -62,7 +73,8 @@ const destZip = path.join(publicDownloadsDir, destZipName);
 
 try {
   const files = fs.readdirSync(distDir);
-  const exeFile = files.find(f => f.endsWith('.exe') && !f.includes('blockmap'));
+  // Match specifically the current version exe to prevent compression of stale exe files
+  const exeFile = files.find(f => f.endsWith('.exe') && f.includes(version) && !f.includes('blockmap'));
   
   if (exeFile) {
     const sourceExe = path.join(distDir, exeFile);

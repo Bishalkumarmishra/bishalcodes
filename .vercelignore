@@ -1,0 +1,11 @@
+# Exclude heavy desktop app and test files from Vercel deployments
+desktop-calendar-app
+.next
+temp-next-test
+test-unzipped
+test_extract
+node_modules
+.vscode
+*.bak
+dist
+C:\Users\BISHAL\Desktop\bishal\desktop-calendar-app\dist
