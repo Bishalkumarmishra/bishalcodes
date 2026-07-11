@@ -1412,14 +1412,20 @@ const connectOutlookBtn = document.getElementById('connect-outlook-btn');
 const syncOutlookNowBtn = document.getElementById('sync-outlook-now-btn');
 const outlookStatusText = document.getElementById('outlook-status-text');
 
-// Load saved client credentials from localStorage
-if (googleClientIdInput) googleClientIdInput.value = localStorage.getItem('google_client_id') || '';
-if (googleClientSecretInput) googleClientSecretInput.value = localStorage.getItem('google_client_secret') || '';
-if (outlookClientIdInput) outlookClientIdInput.value = localStorage.getItem('outlook_client_id') || '';
-if (outlookClientSecretInput) outlookClientSecretInput.value = localStorage.getItem('outlook_client_secret') || '';
+// Load saved client credentials from persistent config (survives reinstalls)
+async function loadSavedCredentials() {
+  const cfg = await ipcRenderer.invoke('get-config') || {};
+  if (googleClientIdInput)      googleClientIdInput.value      = cfg.google_client_id      || '';
+  if (googleClientSecretInput)  googleClientSecretInput.value  = cfg.google_client_secret  || '';
+  if (outlookClientIdInput)     outlookClientIdInput.value     = cfg.outlook_client_id     || '';
+  if (outlookClientSecretInput) outlookClientSecretInput.value = cfg.outlook_client_secret || '';
+  updateConnectionUI();
+}
+loadSavedCredentials();
 
-function updateConnectionUI() {
-  const googleToken = localStorage.getItem('google_refresh_token');
+async function updateConnectionUI() {
+  const cfg = await ipcRenderer.invoke('get-config') || {};
+  const googleToken = cfg.google_refresh_token || null;
   if (googleStatusText && syncGoogleNowBtn) {
     if (googleToken) {
       googleStatusText.innerText = 'Connected';
@@ -1432,7 +1438,7 @@ function updateConnectionUI() {
     }
   }
 
-  const outlookToken = localStorage.getItem('outlook_refresh_token');
+  const outlookToken = cfg.outlook_refresh_token || null;
   if (outlookStatusText && syncOutlookNowBtn) {
     if (outlookToken) {
       outlookStatusText.innerText = 'Connected';
@@ -1448,15 +1454,16 @@ function updateConnectionUI() {
 
 // Button Events setup
 if (connectGoogleBtn) {
-  connectGoogleBtn.addEventListener('click', () => {
+  connectGoogleBtn.addEventListener('click', async () => {
     const cid = googleClientIdInput.value.trim();
     const secret = googleClientSecretInput.value.trim();
     if (!cid || !secret) {
       alert("Please enter both Google Client ID and Client Secret!");
       return;
     }
-    localStorage.setItem('google_client_id', cid);
-    localStorage.setItem('google_client_secret', secret);
+    // Save to persistent config instead of localStorage
+    await ipcRenderer.invoke('set-config', 'google_client_id', cid);
+    await ipcRenderer.invoke('set-config', 'google_client_secret', secret);
     ipcRenderer.send('start-google-auth');
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${cid}&redirect_uri=http://localhost:48281/google-callback&response_type=code&scope=https://www.googleapis.com/auth/calendar.events&access_type=offline&prompt=consent`;
     require('electron').shell.openExternal(authUrl);
@@ -1468,8 +1475,8 @@ if (syncGoogleNowBtn) {
 }
 
 ipcRenderer.on('google-auth-success', async (event, code) => {
-  const cid = localStorage.getItem('google_client_id');
-  const secret = localStorage.getItem('google_client_secret');
+  const cid = await ipcRenderer.invoke('get-config', 'google_client_id');
+  const secret = await ipcRenderer.invoke('get-config', 'google_client_secret');
   try {
     const response = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
@@ -1484,8 +1491,9 @@ ipcRenderer.on('google-auth-success', async (event, code) => {
     });
     const data = await response.json();
     if (data.access_token) {
-      localStorage.setItem('google_access_token', data.access_token);
-      if (data.refresh_token) localStorage.setItem('google_refresh_token', data.refresh_token);
+      // Save tokens to persistent config
+      await ipcRenderer.invoke('set-config', 'google_access_token', data.access_token);
+      if (data.refresh_token) await ipcRenderer.invoke('set-config', 'google_refresh_token', data.refresh_token);
       alert("Successfully connected to Google Calendar!");
       updateConnectionUI();
     } else {
@@ -1498,15 +1506,16 @@ ipcRenderer.on('google-auth-success', async (event, code) => {
 });
 
 if (connectOutlookBtn) {
-  connectOutlookBtn.addEventListener('click', () => {
+  connectOutlookBtn.addEventListener('click', async () => {
     const cid = outlookClientIdInput.value.trim();
     const secret = outlookClientSecretInput.value.trim();
     if (!cid || !secret) {
       alert("Please enter both Microsoft Outlook Client ID and Client Secret!");
       return;
     }
-    localStorage.setItem('outlook_client_id', cid);
-    localStorage.setItem('outlook_client_secret', secret);
+    // Save to persistent config instead of localStorage
+    await ipcRenderer.invoke('set-config', 'outlook_client_id', cid);
+    await ipcRenderer.invoke('set-config', 'outlook_client_secret', secret);
     ipcRenderer.send('start-outlook-auth');
     const authUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${cid}&response_type=code&redirect_uri=http://localhost:48281/outlook-callback&response_mode=query&scope=offline_access%20Calendars.ReadWrite`;
     require('electron').shell.openExternal(authUrl);
@@ -1518,8 +1527,8 @@ if (syncOutlookNowBtn) {
 }
 
 ipcRenderer.on('outlook-auth-success', async (event, code) => {
-  const cid = localStorage.getItem('outlook_client_id');
-  const secret = localStorage.getItem('outlook_client_secret');
+  const cid = await ipcRenderer.invoke('get-config', 'outlook_client_id');
+  const secret = await ipcRenderer.invoke('get-config', 'outlook_client_secret');
   try {
     const response = await fetch('https://login.microsoftonline.com/common/oauth2/v2.0/token', {
       method: 'POST',
@@ -1534,8 +1543,9 @@ ipcRenderer.on('outlook-auth-success', async (event, code) => {
     });
     const data = await response.json();
     if (data.access_token) {
-      localStorage.setItem('outlook_access_token', data.access_token);
-      if (data.refresh_token) localStorage.setItem('outlook_refresh_token', data.refresh_token);
+      // Save tokens to persistent config
+      await ipcRenderer.invoke('set-config', 'outlook_access_token', data.access_token);
+      if (data.refresh_token) await ipcRenderer.invoke('set-config', 'outlook_refresh_token', data.refresh_token);
       alert("Successfully connected to Microsoft Outlook!");
       updateConnectionUI();
     } else {

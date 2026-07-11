@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, Tray, Menu } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 let mainWindow;
 let tray;
@@ -362,4 +363,49 @@ ipcMain.on('download-and-install-update', (event, exeUrl) => {
   });
 });
 
+// ─── Persistent Config (survives reinstalls) ────────────────────────────────
+// Stores Google/Outlook credentials & tokens in %APPDATA%/NepaliCalendar/config.json
+const CONFIG_PATH = path.join(app.getPath('userData'), 'config.json');
 
+function readConfig() {
+  try {
+    if (fs.existsSync(CONFIG_PATH)) {
+      return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    }
+  } catch (e) {
+    console.error('Config read error:', e);
+  }
+  return {};
+}
+
+function writeConfig(data) {
+  try {
+    fs.mkdirSync(path.dirname(CONFIG_PATH), { recursive: true });
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(data, null, 2), 'utf8');
+  } catch (e) {
+    console.error('Config write error:', e);
+  }
+}
+
+// Get entire config or a single key
+ipcMain.handle('get-config', (event, key) => {
+  const config = readConfig();
+  if (key) return config[key] ?? null;
+  return config;
+});
+
+// Set a key in config
+ipcMain.handle('set-config', (event, key, value) => {
+  const config = readConfig();
+  config[key] = value;
+  writeConfig(config);
+  return true;
+});
+
+// Delete a key from config
+ipcMain.handle('remove-config-key', (event, key) => {
+  const config = readConfig();
+  delete config[key];
+  writeConfig(config);
+  return true;
+});
