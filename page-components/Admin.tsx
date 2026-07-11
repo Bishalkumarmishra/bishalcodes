@@ -23,7 +23,7 @@ import { useApiKey } from '../hooks/useApiKey';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-type AdminTab = 'dashboard' | 'hero' | 'about' | 'projects' | 'blog' | 'pricing' | 'faq' | 'leads' | 'system' | 'legal' | 'socials' | 'reports' | 'payments' | 'testimonials' | 'experience' | 'services' | 'seo' | 'users'; // Added 'payments', 'testimonials', 'experience', 'seo', and 'users'
+type AdminTab = 'dashboard' | 'hero' | 'about' | 'projects' | 'blog' | 'pricing' | 'faq' | 'leads' | 'system' | 'legal' | 'socials' | 'reports' | 'payments' | 'testimonials' | 'experience' | 'services' | 'seo' | 'users' | 'desktop';
 
 // FIX: Define an interface for sidebar tab items to ensure correct type inference.
 interface SidebarTab {
@@ -339,6 +339,10 @@ const Admin: React.FC = () => {
   const [experiences, setExperiences] = useState<Experience[]>([]); // State for experiences
   const [dashboardUsers, setDashboardUsers] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
+
+  // Desktop App states
+  const [desktopDownloads, setDesktopDownloads] = useState<number>(0);
+  const [desktopFeedback, setDesktopFeedback] = useState<any[]>([]);
 
   // SEO Pages list & state variables
   const SEO_PAGES = [
@@ -876,6 +880,18 @@ const Admin: React.FC = () => {
         
         const actSnap = await getDocs(query(collection(db, 'user_activity'), orderBy('timestamp', 'desc')));
         setActivities(actSnap.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) })));
+      }
+
+      if (activeTab === 'desktop' || activeTab === 'dashboard') {
+        try {
+          const mSnap = await getDoc(doc(db, 'desktop_app_metrics', 'downloads'));
+          if (mSnap.exists()) setDesktopDownloads(mSnap.data()?.count || 0);
+
+          const fSnap = await getDocs(query(collection(db, 'desktop_app_feedback'), orderBy('timestamp', 'desc')));
+          setDesktopFeedback(fSnap.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) })));
+        } catch(err) {
+          console.error(err);
+        }
       }
 
     } catch (e) { console.warn("Data Stream Interrupted", e); }
@@ -1637,7 +1653,7 @@ Output ONLY the final humanized text in Markdown format. Do NOT wrap it in extra
       }
       if (seedTarget === 'all' || seedTarget === 'blog') {
         const seeds = [
-          { title: 'Next.js 15: The New Era', excerpt: 'Deep dive into performance optimizations.', tag: 'NEXTJS', views: 0, content: 'Content payload...', imageUrl: 'https://images.unsplash.com/photo/1555066931-4365d14bab8c', createdAt: Date.now() }
+          { title: 'Next.js 15: The New Era', excerpt: 'Deep dive into performance optimizations.', tag: 'NEXTJS', views: 0, content: 'Content payload...', imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c', createdAt: Date.now() }
         ];
         seeds.forEach(s => batch.set(doc(collection(db, 'blog')), s));
       }
@@ -2004,7 +2020,7 @@ Please be aware that certain data may be retained if legally required or for leg
 
 
 If you have any questions about this Data Deletion Policy or your data deletion request, please contact me:
-*   By email: [developer@bishalcodes.com](mailto://developer@bishalcodes.com)
+*   By email: [developer@bishalcodes.com](mailto:developer@bishalcodes.com)
 *   By visiting this page on my website: [/contact](/contact)
 *   For general data protection inquiries, you may consult your local data protection authority (e.g., [Your Local DPA Link](https://example-dpa.org)).
 `,
@@ -2102,6 +2118,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
               { id: 'legal', label: 'Legal Pages', icon: <ShieldCheck size={15} /> },
               { id: 'socials', label: 'Social Links', icon: <Share2 size={15} /> },
               { id: 'users', label: 'Users & Activity', icon: <Users size={15} /> },
+              { id: 'desktop', label: 'Desktop App', icon: <Package size={15} /> },
               { id: 'seo', label: 'SEO & Metadata', icon: <Search size={15} /> },
               { id: 'system', label: 'System Tools', icon: <Database size={15} /> },
             ] as SidebarTab[]
@@ -4626,6 +4643,49 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                     {loading ? <Loader2 size={16} className="animate-spin"/> : <><Save size={16} /> Save SEO Metadata</>}
                   </button>
                 </form>
+              </div>
+            )}
+
+            {activeTab === 'desktop' && (
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm w-full space-y-6 text-left">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 mb-1">Desktop App Analytics</h2>
+                  <p className="text-slate-500 text-xs font-normal">Track total desktop application downloads and read user feedback.</p>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-5 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
+                    <div className="text-indigo-600 font-medium mb-1">Total Downloads</div>
+                    <div className="text-3xl font-bold text-slate-800">{desktopDownloads}</div>
+                  </div>
+                  <div className="p-5 bg-green-50 dark:bg-green-900/10 rounded-xl border border-green-100 dark:border-green-900/30">
+                    <div className="text-green-600 font-medium mb-1">Total Feedback</div>
+                    <div className="text-3xl font-bold text-slate-800">{desktopFeedback.length}</div>
+                  </div>
+                </div>
+
+                <div className="mt-8">
+                  <h3 className="font-semibold text-slate-800 mb-4">Recent Feedback</h3>
+                  {desktopFeedback.length === 0 ? (
+                    <div className="text-sm text-slate-500 italic">No feedback received yet.</div>
+                  ) : (
+                    <div className="space-y-4">
+                      {desktopFeedback.map((f: any) => (
+                        <div key={f.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex text-yellow-400">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star key={i} size={14} className={i < f.rating ? 'fill-current' : 'text-slate-200'} />
+                              ))}
+                            </div>
+                            <span className="text-xs text-slate-400">{new Date(f.timestamp).toLocaleDateString()}</span>
+                          </div>
+                          <p className="text-sm text-slate-700">{f.feedback}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

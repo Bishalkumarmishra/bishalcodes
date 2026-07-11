@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Calendar as CalendarIcon, Clock, Copy, Check, Download, Share2, ChevronLeft, ChevronRight, RotateCcw, ArrowRightLeft, Sparkles, HelpCircle, Code } from 'lucide-react';
 import NepaliDate from 'nepali-date-converter';
 import { useNavigation } from '../context/NavigationContext';
-import { auth } from '../services/firebase';
+import { auth, db } from '../services/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import { doc, updateDoc, increment, setDoc } from 'firebase/firestore';
+import DesktopDownloadModal from './DesktopDownloadModal';
 
 // Date Constants
 const NEPALI_MONTHS_EN = [
@@ -165,7 +167,10 @@ const NOTE_COLORS: Record<string, { bg: string; dot: string; text: string; borde
 
 export const DateConverter: React.FC = () => {
   const { navigate } = useNavigation();
-  // Navigation tabs: 'adToBs' | 'bsToAd'
+  const [user] = useAuthState(auth);
+  
+  // Custom Modal State
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'adToBs' | 'bsToAd'>('adToBs');
 
   // Input states
@@ -208,7 +213,6 @@ export const DateConverter: React.FC = () => {
   const [noteText, setNoteText] = useState<string>('');
   const [noteColor, setNoteColor] = useState<string>('default');
 
-  const [user] = useAuthState(auth);
   const [emailInput, setEmailInput] = useState<string>('');
   const [sendEmailCopy, setSendEmailCopy] = useState<boolean>(false);
 
@@ -413,6 +417,25 @@ export const DateConverter: React.FC = () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  const handleDownloadDesktopApp = async (e: React.MouseEvent) => {
+    // Open the modal
+    setIsDownloadModalOpen(true);
+
+    // Track the download
+    try {
+      const metricRef = doc(db, 'desktop_app_metrics', 'downloads');
+      await updateDoc(metricRef, {
+        count: increment(1)
+      }).catch(async (err) => {
+        if (err.code === 'not-found') {
+          await setDoc(metricRef, { count: 1 });
+        }
+      });
+    } catch (err) {
+      console.error("Error tracking download", err);
+    }
   };
 
   // Share converted date
@@ -1530,8 +1553,9 @@ END:VCALENDAR`;
               <div className="hidden sm:block text-slate-300 dark:text-slate-700 text-xs">|</div>
               <div className="flex flex-col items-center gap-0.5">
                 <a
-                  href="/downloads/NepaliCalendar-Setup.zip"
+                  href="/downloads/NepaliCalendar-Setup-v1.1.0.zip"
                   download
+                  onClick={handleDownloadDesktopApp}
                   className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors cursor-pointer inline-flex items-center gap-1.5"
                 >
                   <span className="text-sm">💻</span>
@@ -1609,6 +1633,10 @@ END:VCALENDAR`;
         </div>
       </div>
       
+      <DesktopDownloadModal 
+        isOpen={isDownloadModalOpen} 
+        onClose={() => setIsDownloadModalOpen(false)} 
+      />
     </div>
   );
 };

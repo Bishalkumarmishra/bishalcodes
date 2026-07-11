@@ -52,20 +52,35 @@ if (!fs.existsSync(publicDownloadsDir)) {
 
 // 5. Copy Installer Setup to public/downloads
 const distDir = path.join(appDir, 'dist');
-const destZip = path.join(publicDownloadsDir, 'NepaliCalendar-Setup.zip');
+const packageJson = require(path.join(appDir, 'package.json'));
+const version = packageJson.version;
+const destZipName = `NepaliCalendar-Setup-v${version}.zip`;
+const destZip = path.join(publicDownloadsDir, destZipName);
 
 try {
   const files = fs.readdirSync(distDir);
-  const setupExe = files.find(f => f.endsWith('.exe') && f.includes('Setup'));
+  const exeFile = files.find(f => f.endsWith('.exe') && !f.includes('blockmap'));
   
-  if (setupExe) {
-    const sourceExe = path.join(distDir, setupExe);
-    console.log(`\nCompressing Installer to public downloads: ${sourceExe} -> ${destZip}`);
+  if (exeFile) {
+    const sourceExe = path.join(distDir, exeFile);
+    console.log(`\nCompressing Installer to public/downloads: ${sourceExe} -> ${destZip}`);
     
-    // Use PowerShell to zip the file on Windows
+    // Ensure the public/downloads directory exists
+    if (!fs.existsSync(publicDownloadsDir)) {
+      fs.mkdirSync(publicDownloadsDir, { recursive: true });
+    }
+
+    // Delete the old zip files if they exist to avoid confusion
+    const oldZips = ['NepaliCalendar-Setup.zip', 'NepaliCalendar-Windows.zip'];
+    oldZips.forEach(z => {
+      const oldZipPath = path.join(publicDownloadsDir, z);
+      if (fs.existsSync(oldZipPath)) fs.unlinkSync(oldZipPath);
+    });
+    
+    // Compress the new exe directly to the public folder
     execSync(`powershell -NoProfile -Command "Compress-Archive -Path '${sourceExe}' -DestinationPath '${destZip}' -Force"`, { stdio: 'inherit' });
     
-    console.log("\nInstaller successfully compressed to public/downloads/NepaliCalendar-Setup.zip!");
+    console.log(`\nInstaller successfully compressed to public/downloads/${destZipName}!`);
   } else {
     console.error("Could not find the generated Setup .exe in dist folder.");
     process.exit(1);

@@ -93,8 +93,8 @@ let widgetWindow;
 
 function createWidgetWindow() {
   widgetWindow = new BrowserWindow({
-    width: 320,
-    height: 85,
+    width: 280,
+    height: 70,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -111,25 +111,48 @@ function createWidgetWindow() {
   });
 }
 
+function positionWidgetWindow() {
+  if (!widgetWindow) return;
+  const { screen } = require('electron');
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize;
+  const { x, y } = primaryDisplay.workArea;
+  const [winWidth, winHeight] = widgetWindow.getSize();
+  // Position bottom right with 10px margin
+  widgetWindow.setPosition(x + width - winWidth - 10, y + height - winHeight - 10);
+}
+
 function toggleWindowMode(widgetMode) {
   if (!mainWindow) return;
   isWidgetMode = widgetMode;
 
   if (isWidgetMode) {
-    mainWindow.hide();
     if (!widgetWindow) createWidgetWindow();
+    positionWidgetWindow();
     widgetWindow.show();
   } else {
     if (widgetWindow) widgetWindow.hide();
-    mainWindow.show();
   }
 }
 
+// Auto start logic
+app.setLoginItemSettings({
+  openAtLogin: true,
+  args: ['--hidden']
+});
+
 app.whenReady().then(() => {
-  // We'll generate a dummy blank icon if missing
   createMainWindow();
   createWidgetWindow();
   createTray();
+
+  const isHidden = process.argv.includes('--hidden');
+  if (isHidden) {
+    // If started automatically on boot, wait 3 seconds and show widget
+    setTimeout(() => {
+      toggleWindowMode(true);
+    }, 3000);
+  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
@@ -158,10 +181,15 @@ ipcMain.on('toggle-widget-mode', (event, targetMode) => {
 
 ipcMain.on('close-widget', () => {
   if (widgetWindow) widgetWindow.hide();
+  isWidgetMode = false;
+  if (mainWindow) mainWindow.webContents.send('window-mode-changed', false);
 });
 
 ipcMain.on('open-dashboard', () => {
-  toggleWindowMode(false);
+  if (mainWindow) {
+    mainWindow.show();
+    mainWindow.focus();
+  }
 });
 
 ipcMain.on('set-always-on-top', (event, alwaysTop) => {

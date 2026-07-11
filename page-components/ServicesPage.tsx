@@ -51,9 +51,9 @@ const toolSeoData: Record<string, { title: string; desc: string; keywords: strin
     keywords: ['website screenshot', 'full page capture', 'headless rendering screenshot', 'web screenshot tool', 'viewport mockup']
   },
   'date-converter': {
-    title: 'Nepali Date Converter - BS to AD & AD to BS',
-    desc: 'Convert Bikram Sambat (BS) dates to Gregorian (AD) and vice-versa instantly. Offline-capable, accurate calendar conversion.',
-    keywords: ['nepali date converter', 'bs to ad', 'ad to bs', 'nepali calendar conversion', 'bikram sambat converter']
+    title: 'Nepali Calendar Desktop App & Date Converter (BS to AD)',
+    desc: 'Download the official Nepali Calendar Desktop App for Windows. Convert Bikram Sambat (BS) to Gregorian (AD) instantly offline. The most powerful desktop widget for Nepal.',
+    keywords: ['nepali calendar desktop app', 'nepali calendar download', 'windows calendar widget', 'bs to ad converter', 'nepali date converter']
   },
   'translator': {
     title: 'Multi-Language Text Translator & Text-to-Speech',

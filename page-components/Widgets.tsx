@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import Navbar from '../sections/Navbar';
 import Footer from '../sections/Footer';
 import { Copy, Check, Calendar, ArrowRightLeft, Code, Eye } from 'lucide-react';
+import { doc, updateDoc, increment, setDoc } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import DesktopDownloadModal from '../components/DesktopDownloadModal';
 
 export default function Widgets() {
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [widgetType, setWidgetType] = useState<'date-converter' | 'calendar'>('date-converter');
   const [sizePreset, setSizePreset] = useState<'small' | 'medium' | 'full' | 'custom'>('medium');
   
@@ -38,6 +42,22 @@ export default function Widgets() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  const handleDownloadDesktopApp = async (e: React.MouseEvent) => {
+    setIsDownloadModalOpen(true);
+    try {
+      const metricRef = doc(db, 'desktop_app_metrics', 'downloads');
+      await updateDoc(metricRef, {
+        count: increment(1)
+      }).catch(async (err) => {
+        if (err.code === 'not-found') {
+          await setDoc(metricRef, { count: 1 });
+        }
+      });
+    } catch (err) {
+      console.error("Error tracking download", err);
+    }
   };
 
   return (
@@ -176,8 +196,9 @@ export default function Widgets() {
                   Want the Nepali Calendar directly on your Windows desktop? Download our standalone app featuring system tray widget integration and offline support.
                 </p>
                 <a
-                  href="/downloads/NepaliCalendar-Setup.zip"
+                  href="/downloads/NepaliCalendar-Setup-v1.1.0.zip"
                   download
+                  onClick={handleDownloadDesktopApp}
                   className="inline-flex w-full items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-lg text-[10px] uppercase tracking-wider transition-all active:scale-98 shadow-sm"
                 >
                   Download for Windows 10/11
@@ -220,6 +241,10 @@ export default function Widgets() {
 
       </main>
 
+      <DesktopDownloadModal 
+        isOpen={isDownloadModalOpen} 
+        onClose={() => setIsDownloadModalOpen(false)} 
+      />
       <Footer />
     </div>
   );

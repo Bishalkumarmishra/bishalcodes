@@ -257,7 +257,6 @@ body {
   border-radius: 16px;
   padding: 20px;
   box-shadow: 0 4px 20px var(--shadow-color);
-  overflow: hidden;
   margin-bottom: 20px;
 }
 
@@ -270,9 +269,8 @@ body {
 /* Tab 1: Calendar Layout */
 .calendar-layout {
   display: grid;
-  grid-template-cols: 1.6fr 1fr;
+  grid-template-columns: 1.6fr 1fr;
   gap: 20px;
-  height: 100%;
 }
 
 .calendar-card-panel {

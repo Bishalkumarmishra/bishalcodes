@@ -531,6 +531,39 @@ The iframe wrapper automatically adapts to light and dark theme modes based on t
 ></iframe>
 \`\`\`
 `
+  },
+  {
+    id: 'desktop-calendar',
+    title: 'Nepali Calendar Desktop App for Windows',
+    category: 'Desktop Applications',
+    keywords: ['desktop', 'calendar', 'nepali', 'windows', 'app', 'widget', 'download', 'offline', 'converter'],
+    content: `
+  The Nepali Calendar Desktop App is a powerful, offline-capable calendar and date conversion utility built specifically for Windows 10 and 11. It brings all the functionality of our web calendar directly to your desktop.
+  
+  ---
+  
+  ### Key Features
+  
+  - **Persistent Mini Widget**: Once installed, the calendar widget can run silently in the background and pin itself to the bottom-right corner of your screen for quick date lookups.
+  - **Offline Conversion**: Instantly convert dates between Bikram Sambat (BS) and Gregorian (AD) without an active internet connection.
+  - **Auto-Start at Login**: The application automatically boots when you turn on your PC so the widget is always ready.
+  - **Dual Mode UI**: Seamlessly switch between a full interactive dashboard calendar and the compact minimal desktop widget.
+  
+  ---
+  
+  ### Installation Guide
+  
+  1. Visit the [Date Converter & Calendar](/tools/date-converter) page on the web app.
+  2. Click on the **Download Desktop App (Win 10/11)** button.
+  3. When downloading, Windows SmartScreen may show a warning ("Windows protected your PC") because the application is built by an independent developer without a corporate EV certificate.
+  4. Click **More Info**, then click **Run Anyway** to launch the installer safely.
+  5. Follow the setup wizard.
+  
+  ---
+  
+  ### Need Help?
+  If you encounter any issues or want to leave feedback, use the rating modal on the download page, or contact us through the main website.
+      `
   }
 ];
 
@@ -561,18 +594,36 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
       try {
         const querySnapshot = await getDocs(collection(db, 'docs'));
         if (!querySnapshot.empty && isMounted) {
-          const list: DocSection[] = [];
-          querySnapshot.forEach(docSnap => {
-            const data = docSnap.data();
-            list.push({
-              id: docSnap.id,
-              title: data.title || '',
-              category: data.category || '',
-              keywords: data.keywords || [],
-              content: data.content || ''
+            const list: DocSection[] = [];
+            querySnapshot.forEach(docSnap => {
+              const data = docSnap.data();
+              list.push({
+                id: docSnap.id,
+                title: data.title || '',
+                category: data.category || '',
+                keywords: data.keywords || [],
+                content: data.content || ''
+              });
             });
-          });
-          setDocSections(list);
+            // Auto-seed missing sections newly added to code
+            initialDocSections.forEach(async (item) => {
+              if (!list.some(d => d.id === item.id)) {
+                try {
+                  await setDoc(doc(db, 'docs', item.id), {
+                    title: item.title,
+                    category: item.category,
+                    keywords: item.keywords,
+                    content: item.content
+                  });
+                  if (isMounted) {
+                    setDocSections(prev => [...prev, item]);
+                  }
+                } catch (err) {
+                  console.warn(`Failed to seed doc ${item.id}:`, err);
+                }
+              }
+            });
+            setDocSections(list);
         } else if (isMounted) {
           setDocSections(initialDocSections);
           initialDocSections.forEach(async (item) => {
