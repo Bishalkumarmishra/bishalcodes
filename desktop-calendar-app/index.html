@@ -224,6 +224,58 @@
 
             <div class="divider"></div>
 
+            <!-- User Authentication & Cloud Sync Card -->
+            <div class="settings-auth-container" style="background: rgba(0,0,0,0.015); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; margin-bottom: 20px;">
+              <div id="auth-logged-out-view">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--accent-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  <strong style="font-size: 12.5px; color: var(--text-primary);" id="auth-title-label">क्लाउड सिंक खाता (Cloud Sync Account)</strong>
+                </div>
+                <p style="font-size: 10.5px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">Sign in or sign up to securely backup and synchronize your personal notes, reminders, and scheduled events in the cloud.</p>
+                
+                <!-- Auth Toggle Tabs -->
+                <div style="display: flex; gap: 12px; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
+                  <span id="auth-tab-signin-btn" style="font-size: 11px; font-weight: bold; cursor: pointer; color: var(--accent-color); border-bottom: 2px solid var(--accent-color); padding-bottom: 4px;">Sign In (लगइन)</span>
+                  <span id="auth-tab-signup-btn" style="font-size: 11px; font-weight: bold; cursor: pointer; color: var(--text-secondary); padding-bottom: 4px;">Sign Up (दर्ता)</span>
+                </div>
+                
+                <!-- Auth Input Form -->
+                <div id="auth-form" style="display: flex; flex-direction: column; gap: 8px;">
+                  <div>
+                    <input type="text" id="auth-email-username" class="form-control text-xs" placeholder="Email or Username" style="width: 100%; height: 32px; font-size: 11px;">
+                  </div>
+                  <div style="position: relative; display: flex; align-items: center; width: 100%;">
+                    <input type="password" id="auth-password" class="form-control text-xs" placeholder="Password" style="width: 100%; height: 32px; font-size: 11px; padding-right: 32px;">
+                    <button id="toggle-auth-password-btn" style="position: absolute; right: 8px; background: none; border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;">
+                      <!-- Eye Icon -->
+                      <svg id="eye-icon-show" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      <!-- Eye Off Icon -->
+                      <svg id="eye-icon-hide" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    </button>
+                  </div>
+                  
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
+                    <button class="btn btn-sm btn-primary" id="auth-submit-btn" style="font-size: 10px; font-weight: bold; height: 28px; padding: 0 16px;">Sign In</button>
+                    <button id="auth-forgot-password-btn" style="background: none; border: none; color: var(--accent-color); font-size: 10px; cursor: pointer; text-decoration: underline; padding: 0;">Forgot Password?</button>
+                  </div>
+                </div>
+              </div>
+              
+              <div id="auth-logged-in-view" style="display: none;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <strong style="font-size: 12.5px; color: var(--text-primary);">खाता जोडिएको छ (Cloud Sync Active)</strong>
+                  </div>
+                  <button class="btn btn-xs btn-outline" id="auth-signout-btn" style="font-size: 9px; font-weight: bold; height: 22px; padding: 0 8px;">Sign Out</button>
+                </div>
+                <div style="font-size: 10.5px; color: var(--text-secondary); line-height: 1.4;">
+                  <span>Logged in as: <strong id="logged-in-user-email" style="color: var(--text-primary); font-weight: bold;">-</strong></span>
+                  <p style="margin-top: 4px; color: #22c55e; font-weight: 500;">✓ Your personal notes and scheduled events are fully synchronized to the cloud.</p>
+                </div>
+              </div>
+            </div>
+
             <div class="settings-list">
               <div class="settings-item">
                 <div class="settings-text">
@@ -438,6 +490,11 @@
     </div>
 
   </div>
+
+  <!-- Firebase SDKs Compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
   <script src="renderer.js"></script>
 </body>

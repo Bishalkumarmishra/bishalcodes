@@ -296,6 +296,33 @@ export async function POST(request: Request) {
 
       textContent = `Bishal Codes - System Bug Report\n\nName: ${name}\nEmail: ${email || 'Not provided'}\nProblem Description:\n${problem}`;
 
+    } else if (type === 'welcome-app') {
+      const { email } = data;
+      subject = `Welcome to Nepali Calendar Desktop App!`;
+      singleTo = email;
+
+      const welcomeContent = `
+        <p>Congratulations! You have successfully registered your account on the <strong>Nepali Calendar & Date Converter Desktop App</strong>.</p>
+        <p>Your notes, reminders, and custom settings are now securely synchronized with your account in the cloud. You can access them from any desktop machine anytime.</p>
+        <p><strong>App Features Enabled:</strong></p>
+        <ul style="padding-left: 20px; margin: 16px 0;">
+          <li style="margin-bottom: 8px;"><strong>Cloud Notes Sync:</strong> Create notes and scheduled events, and sync them automatically.</li>
+          <li style="margin-bottom: 8px;"><strong>Tray Widget Mode:</strong> Toggle to a minimal floating calendar on your screen.</li>
+          <li style="margin-bottom: 8px;"><strong>Instant Notifications:</strong> Native desktop announcements and holiday alerts.</li>
+        </ul>
+        <p style="margin-top: 24px;">Thank you for choosing Bishal Codes utilities! If you have any feedback or feature requests, feel free to contact us.</p>
+      `;
+
+      htmlContent = createEmailTemplate(
+        `Welcome to Nepali Calendar!`,
+        `Account registration successful for the desktop suite`,
+        `Account Active`,
+        welcomeContent,
+        `<a href="https://bishalcodes.com" class="cta-btn">Visit Client Portal</a>`
+      );
+
+      textContent = `Welcome to Nepali Calendar Desktop App!\n\nAccount registration successful. Your notes are now synced to the cloud.\n\nVisit: https://bishalcodes.com`;
+
     } else if (type === 'newsletter-welcome') {
       const { email } = data;
       subject = `Welcome to Bishal Codes Newsletter!`;

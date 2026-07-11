@@ -607,8 +607,8 @@ function saveNote() {
     delete notes[noteKey];
   }
 
-  localStorage.setItem('desktop_calendar_notes', JSON.stringify(notes));
-  localStorage.setItem('desktop_calendar_scheduled_events', JSON.stringify(scheduledEvents));
+  updateLocalNotes(notes);
+  updateLocalEvents(scheduledEvents);
   noteModal.classList.remove('active-modal');
   
   updateSelectedDayDetails();
@@ -811,7 +811,7 @@ function renderAllNotesInManager() {
     item.querySelector('.btn-delete-note').addEventListener('click', (e) => {
       const deleteKey = e.target.getAttribute('data-key');
       delete notes[deleteKey];
-      localStorage.setItem('desktop_calendar_notes', JSON.stringify(notes));
+      updateLocalNotes(notes);
       renderAllNotesInManager();
       renderCalendar();
       updateSelectedDayDetails();
@@ -1177,7 +1177,7 @@ async function syncEventsToGoogle() {
     }
   }
   
-  localStorage.setItem('desktop_calendar_scheduled_events', JSON.stringify(scheduledEvents));
+  updateLocalEvents(scheduledEvents);
   alert(`Google Calendar sync completed! Synced ${syncCount} events.`);
 }
 
@@ -1300,7 +1300,7 @@ async function syncEventsToOutlook() {
     }
   }
   
-  localStorage.setItem('desktop_calendar_scheduled_events', JSON.stringify(scheduledEvents));
+  updateLocalEvents(scheduledEvents);
   alert(`Outlook Calendar sync completed! Synced ${syncCount} events.`);
 }
 
@@ -1703,4 +1703,256 @@ document.getElementById('tool-btn-qr')?.addEventListener('click', () => loadTool
 document.getElementById('tool-btn-converter')?.addEventListener('click', () => loadToolIframe('date-converter'));
 document.getElementById('tool-btn-translator')?.addEventListener('click', () => loadToolIframe('translator'));
 document.getElementById('close-tools-iframe-btn')?.addEventListener('click', closeToolIframe);
+
+
+// --- Firebase Authentication & Cloud Sync Integration ---
+const firebaseConfig = {
+  apiKey: "AIzaSyBVmSAxOR4nZxvzMZZS1uH4II_sdoJSQ1g",
+  authDomain: "bishal-mishra-3c559.firebaseapp.com",
+  projectId: "bishal-mishra-3c559",
+  storageBucket: "bishal-mishra-3c559.firebasestorage.app",
+  messagingSenderId: "459193835216",
+  appId: "1:459193835216:web:32de44a9f2d52ed80b88d5",
+  measurementId: "G-V89CSR1TXR"
+};
+
+let db = null;
+let auth = null;
+let currentUser = null;
+let authMode = 'signin';
+
+if (typeof firebase !== 'undefined') {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+  auth = firebase.auth();
+}
+
+// 1. Auth state change listener
+if (auth) {
+  auth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+    updateAuthUI();
+    if (user) {
+      // Sync notes from Cloud upon sign in
+      await syncNotesFromCloud(user.uid);
+    }
+  });
+}
+
+// 2. Update Auth UI panels
+function updateAuthUI() {
+  const loggedOutView = document.getElementById('auth-logged-out-view');
+  const loggedInView = document.getElementById('auth-logged-in-view');
+  const userEmailLabel = document.getElementById('logged-in-user-email');
+  
+  if (currentUser) {
+    if (loggedOutView) loggedOutView.style.display = 'none';
+    if (loggedInView) loggedInView.style.display = 'block';
+    if (userEmailLabel) {
+      const email = currentUser.email || '';
+      if (email.endsWith('@bishalcodes.app')) {
+        userEmailLabel.innerText = email.split('@')[0];
+      } else {
+        userEmailLabel.innerText = email;
+      }
+    }
+  } else {
+    if (loggedOutView) loggedOutView.style.display = 'block';
+    if (loggedInView) loggedInView.style.display = 'none';
+  }
+}
+
+// 3. Tab toggles
+const tabSignInBtn = document.getElementById('auth-tab-signin-btn');
+const tabSignUpBtn = document.getElementById('auth-tab-signup-btn');
+const authSubmitBtn = document.getElementById('auth-submit-btn');
+
+if (tabSignInBtn && tabSignUpBtn) {
+  tabSignInBtn.style.cursor = 'pointer';
+  tabSignUpBtn.style.cursor = 'pointer';
+
+  tabSignInBtn.addEventListener('click', () => {
+    authMode = 'signin';
+    tabSignInBtn.style.color = 'var(--accent-color)';
+    tabSignInBtn.style.borderBottom = '2px solid var(--accent-color)';
+    tabSignUpBtn.style.color = 'var(--text-secondary)';
+    tabSignUpBtn.style.borderBottom = 'none';
+    if (authSubmitBtn) authSubmitBtn.innerText = 'Sign In';
+  });
+  
+  tabSignUpBtn.addEventListener('click', () => {
+    authMode = 'signup';
+    tabSignUpBtn.style.color = 'var(--accent-color)';
+    tabSignUpBtn.style.borderBottom = '2px solid var(--accent-color)';
+    tabSignInBtn.style.color = 'var(--text-secondary)';
+    tabSignInBtn.style.borderBottom = 'none';
+    if (authSubmitBtn) authSubmitBtn.innerText = 'Sign Up';
+  });
+}
+
+// 4. Show/Hide Password Toggle
+const togglePasswordBtn = document.getElementById('toggle-auth-password-btn');
+const passwordInput = document.getElementById('auth-password');
+const eyeShow = document.getElementById('eye-icon-show');
+const eyeHide = document.getElementById('eye-icon-hide');
+
+if (togglePasswordBtn && passwordInput && eyeShow && eyeHide) {
+  togglePasswordBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      eyeShow.style.display = 'block';
+      eyeHide.style.display = 'none';
+    } else {
+      passwordInput.type = 'password';
+      eyeShow.style.display = 'none';
+      eyeHide.style.display = 'block';
+    }
+  });
+}
+
+// 5. Sign In / Sign Up submission
+if (authSubmitBtn) {
+  authSubmitBtn.addEventListener('click', async () => {
+    const emailUserVal = document.getElementById('auth-email-username').value.trim();
+    const passVal = document.getElementById('auth-password').value;
+    
+    if (!emailUserVal || !passVal) {
+      alert("Please fill in all credentials.");
+      return;
+    }
+    
+    let email = emailUserVal;
+    if (!email.includes('@')) {
+      email = emailUserVal.toLowerCase() + '@bishalcodes.app';
+    }
+    
+    authSubmitBtn.innerText = authMode === 'signin' ? 'Signing In...' : 'Registering...';
+    authSubmitBtn.disabled = true;
+    
+    try {
+      if (authMode === 'signin') {
+        await auth.signInWithEmailAndPassword(email, passVal);
+        alert("Successfully signed in!");
+      } else {
+        const cred = await auth.createUserWithEmailAndPassword(email, passVal);
+        alert("Successfully registered your account!");
+        
+        // Trigger welcome email post
+        try {
+          await fetch('https://www.bishalcodes.com/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'welcome-app',
+              data: { email: email.endsWith('@bishalcodes.app') ? emailUserVal : email }
+            })
+          });
+        } catch (emailErr) {
+          console.error("Welcome email delivery failed:", emailErr);
+        }
+        
+        // Initial upload of existing local notes to cloud
+        await uploadLocalNotesToCloud(cred.user.uid);
+      }
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      authSubmitBtn.innerText = authMode === 'signin' ? 'Sign In' : 'Sign Up';
+      authSubmitBtn.disabled = false;
+    }
+  });
+}
+
+// 6. Forgot Password Reset
+const forgotPasswordBtn = document.getElementById('auth-forgot-password-btn');
+if (forgotPasswordBtn) {
+  forgotPasswordBtn.addEventListener('click', async () => {
+    const emailUserVal = document.getElementById('auth-email-username').value.trim();
+    if (!emailUserVal) {
+      alert("Please enter your email address in the field first.");
+      return;
+    }
+    let email = emailUserVal;
+    if (!email.includes('@')) {
+      email = emailUserVal.toLowerCase() + '@bishalcodes.app';
+    }
+    
+    try {
+      await auth.sendPasswordResetEmail(email);
+      alert("Password reset instructions sent to your email!");
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+}
+
+// 7. Sign Out
+const signOutBtn = document.getElementById('auth-signout-btn');
+if (signOutBtn) {
+  signOutBtn.addEventListener('click', async () => {
+    if (confirm("Are you sure you want to sign out? Your notes will remain stored locally.")) {
+      await auth.signOut();
+      currentUser = null;
+      updateAuthUI();
+    }
+  });
+}
+
+// 8. Bidirectional Cloud Sync functions
+async function uploadLocalNotesToCloud(uid) {
+  if (!db) return;
+  const localNotes = localStorage.getItem('desktop_calendar_notes') || '[]';
+  const localEvents = localStorage.getItem('desktop_calendar_scheduled_events') || '[]';
+  
+  try {
+    await db.collection('users').doc(uid).collection('data').doc('calendar_data').set({
+      notes: JSON.parse(localNotes),
+      events: JSON.parse(localEvents),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (err) {
+    console.error("Cloud upload failed:", err);
+  }
+}
+
+async function syncNotesFromCloud(uid) {
+  if (!db) return;
+  try {
+    const doc = await db.collection('users').doc(uid).collection('data').doc('calendar_data').get();
+    if (doc.exists) {
+      const data = doc.data();
+      if (data.notes) {
+        localStorage.setItem('desktop_calendar_notes', JSON.stringify(data.notes));
+      }
+      if (data.events) {
+        localStorage.setItem('desktop_calendar_scheduled_events', JSON.stringify(data.events));
+      }
+      // Re-render views with cloud notes
+      renderAllNotesInManager();
+      renderCalendar();
+      updateSelectedDayDetails();
+    } else {
+      // First sign in: upload local notes to seed cloud storage
+      await uploadLocalNotesToCloud(uid);
+    }
+  } catch (err) {
+    console.error("Cloud sync failed:", err);
+  }
+}
+
+// Helper wrapper functions to save changes and sync
+function updateLocalNotes(notes) {
+  localStorage.setItem('desktop_calendar_notes', JSON.stringify(notes));
+  if (currentUser) {
+    uploadLocalNotesToCloud(currentUser.uid);
+  }
+}
+
+function updateLocalEvents(events) {
+  localStorage.setItem('desktop_calendar_scheduled_events', JSON.stringify(events));
+  if (currentUser) {
+    uploadLocalNotesToCloud(currentUser.uid);
+  }
+}
 
