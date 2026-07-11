@@ -3,6 +3,7 @@ const path = require('path');
 
 let mainWindow;
 let tray;
+let trayContextMenu;
 let isWidgetMode = false;
 let isAlwaysOnTop = false;
 
@@ -53,7 +54,7 @@ function createTray() {
   const trayIcon = path.join(__dirname, 'tray-icon.png');
   tray = new Tray(trayIcon);
   
-  const contextMenu = Menu.buildFromTemplate([
+  trayContextMenu = Menu.buildFromTemplate([
     { label: 'Nepali Calendar Desktop', enabled: false },
     { type: 'separator' },
     { label: 'Show Full Dashboard', click: () => { toggleWindowMode(false); } },
@@ -67,6 +68,7 @@ function createTray() {
         isAlwaysOnTop = menuItem.checked;
         if (mainWindow) {
           mainWindow.setAlwaysOnTop(isAlwaysOnTop, 'screen-saver');
+          mainWindow.webContents.send('always-on-top-changed', isAlwaysOnTop);
         }
       }
     },
@@ -75,7 +77,7 @@ function createTray() {
   ]);
 
   tray.setToolTip('Nepali Calendar & Date Converter');
-  tray.setContextMenu(contextMenu);
+  tray.setContextMenu(trayContextMenu);
 
   tray.on('click', () => {
     if (mainWindow) {
@@ -198,9 +200,107 @@ ipcMain.on('set-always-on-top', (event, alwaysTop) => {
     mainWindow.setAlwaysOnTop(alwaysTop, 'screen-saver');
   }
   // Sync menu state
-  if (tray) {
-    const menu = tray.getContextMenu();
-    const item = menu.items.find(i => i.label === 'Always on Top');
-    if (item) item.checked = alwaysTop;
+  if (tray && trayContextMenu) {
+    const item = trayContextMenu.items.find(i => i.label === 'Always on Top');
+    if (item) {
+      item.checked = alwaysTop;
+      tray.setContextMenu(trayContextMenu);
+    }
   }
 });
+
+// Advanced Event & Sync IPC handlers
+const http = require('http');
+const { nativeImage, Notification } = require('electron');
+
+let oauthServer = null;
+
+function startLocalOAuthServer(port, type) {
+  if (oauthServer) {
+    try {
+      oauthServer.close();
+    } catch(e) {}
+  }
+  
+  oauthServer = http.createServer((req, res) => {
+    try {
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      
+      if (url.pathname === '/google-callback') {
+        const code = url.searchParams.get('code');
+        if (code && mainWindow) {
+          mainWindow.webContents.send('google-auth-success', code);
+        }
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end('<h1>Google Authentication Successful!</h1><p>You can close this window now and return to the Nepali Calendar app.</p>');
+        
+        setTimeout(() => {
+          if (oauthServer) {
+            oauthServer.close();
+            oauthServer = null;
+          }
+        }, 1000);
+      } else if (url.pathname === '/outlook-callback') {
+        const code = url.searchParams.get('code');
+        if (code && mainWindow) {
+          mainWindow.webContents.send('outlook-auth-success', code);
+        }
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end('<h1>Outlook Authentication Successful!</h1><p>You can close this window now and return to the Nepali Calendar app.</p>');
+        
+        setTimeout(() => {
+          if (oauthServer) {
+            oauthServer.close();
+            oauthServer = null;
+          }
+        }, 1000);
+      } else {
+        res.writeHead(404);
+        res.end();
+      }
+    } catch (e) {
+      console.error("Error in OAuth local server", e);
+      res.writeHead(500);
+      res.end("Internal Server Error");
+    }
+  });
+
+  oauthServer.listen(port, () => {
+    console.log(`Local OAuth server listening on port ${port} for ${type}`);
+  });
+}
+
+ipcMain.on('start-google-auth', () => {
+  startLocalOAuthServer(48281, 'Google');
+});
+
+ipcMain.on('start-outlook-auth', () => {
+  startLocalOAuthServer(48281, 'Outlook');
+});
+
+ipcMain.on('update-tray-icon', (event, dataUrl) => {
+  if (tray) {
+    const img = nativeImage.createFromDataURL(dataUrl);
+    tray.setImage(img);
+  }
+});
+
+ipcMain.on('show-notification', (event, { title, body }) => {
+  if (Notification.isSupported()) {
+    const notif = new Notification({
+      title: title || 'नेपाली क्यालेन्डर',
+      body: body || '',
+      icon: path.join(__dirname, 'logo-icon.png')
+    });
+    
+    notif.on('click', () => {
+      if (mainWindow) {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    });
+    
+    notif.show();
+  }
+});
+

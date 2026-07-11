@@ -8,20 +8,23 @@ const publicDownloadsDir = path.join(rootDir, 'public', 'downloads');
 
 console.log("=== Starting Desktop Calendar App Builder ===");
 
-// 1. Ensure icons exist to prevent Electron packaging errors
-const sourceIconPath = 'C:\\Users\\BISHAL\\.gemini\\antigravity-ide\\brain\\241cbc10-e82a-45fa-a77f-b6466821a359\\nepali_calendar_icon_1783755335592.png';
-const iconPaths = [
-  path.join(appDir, 'icon.png'),
-  path.join(appDir, 'logo-icon.png'),
-  path.join(appDir, 'tray-icon.png'),
-];
-
-iconPaths.forEach(p => {
-  if (!fs.existsSync(p) && fs.existsSync(sourceIconPath)) {
-    fs.copyFileSync(sourceIconPath, p);
-    console.log(`Copied premium app icon: ${path.basename(p)}`);
+// 1. Ensure fresh transparent icons are generated
+try {
+  console.log("Generating fresh premium transparent app icons...");
+  execSync('node scripts/generate-desktop-icon.js', { cwd: rootDir, stdio: 'inherit' });
+} catch (err) {
+  console.warn("Warning: Icon generation script failed, verifying if icons exist:", err);
+  const iconPaths = [
+    path.join(appDir, 'icon.png'),
+    path.join(appDir, 'logo-icon.png'),
+    path.join(appDir, 'tray-icon.png'),
+  ];
+  const missing = iconPaths.filter(p => !fs.existsSync(p));
+  if (missing.length > 0) {
+    console.error("Missing critical icons and failed to generate them:", missing);
+    process.exit(1);
   }
-});
+}
 
 // 2. Install dependencies in desktop-calendar-app
 console.log("\nInstalling Electron dependencies in desktop-calendar-app...");

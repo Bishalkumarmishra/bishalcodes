@@ -13,7 +13,7 @@ import {
   MessageSquare, Zap, Database, Edit3, Search, Image as ImageIcon, Link as LinkIcon,
   CheckCircle2, Eye, Clock, List, ArrowRight, UploadCloud, Video, Image, File,
   AlertTriangle, Share2, Activity, Globe, Cpu, BarChart3, Wifi, Package, Code, Book, Terminal,
-  Coins, Star, GalleryVertical // Added Coins, Star, GalleryVertical icons
+  Coins, Star, GalleryVertical, Send // Added Coins, Star, GalleryVertical, Send icons
 } from 'lucide-react'; 
 import { useNavigation } from '../context/NavigationContext';
 import { LegalPage as LegalPageType, Project, SocialLink, Report, PaymentRequest, PathPage, Testimonial, Experience } from '../types'; // Import SocialLink, Report, PaymentRequest, Testimonial, and Experience types
@@ -520,6 +520,11 @@ const Admin: React.FC = () => {
   const [hoveredDotIndex, setHoveredDotIndex] = useState<number | null>(null);
   // PURGED: Initialize projectForm with the empty defaultProjectForm to prevent hardcoded data.
   const [projectForm, setProjectForm] = useState<Project>(defaultProjectForm);
+
+  // Custom Push Notifications states
+  const [notificationTitle, setNotificationTitle] = useState('');
+  const [notificationBody, setNotificationBody] = useState('');
+  const [sendingNotification, setSendingNotification] = useState(false);
   const [legalForm, setLegalForm] = useState<LegalPageType>({
     id: '',
     title: 'Privacy Policy',
@@ -934,6 +939,28 @@ const Admin: React.FC = () => {
       alert("System Execution Error: Asset deletion failed. Your view has been restored to prevent data loss.");
       // Rollback by re-fetching all data.
       fetchData(); 
+    }
+  };
+
+  const handleSendNotification = async () => {
+    if (!notificationTitle.trim() || !notificationBody.trim()) {
+      alert("Please fill in both Title and Message Body!");
+      return;
+    }
+    setSendingNotification(true);
+    try {
+      await addDoc(collection(db, 'notifications'), {
+        title: notificationTitle.trim(),
+        body: notificationBody.trim(),
+        timestamp: Date.now()
+      });
+      alert("Notification published successfully! Desktop users will receive it shortly.");
+      setNotificationTitle('');
+      setNotificationBody('');
+    } catch (err: any) {
+      alert("Failed to send notification: " + (err.message || err));
+    } finally {
+      setSendingNotification(false);
     }
   };
 
@@ -4661,6 +4688,45 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                   <div className="p-5 bg-green-50 dark:bg-green-900/10 rounded-xl border border-green-100 dark:border-green-900/30">
                     <div className="text-green-600 font-medium mb-1">Total Feedback</div>
                     <div className="text-3xl font-bold text-slate-800">{desktopFeedback.length}</div>
+                  </div>
+                </div>
+
+                {/* Send Custom Push Notification */}
+                <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                      <Bell size={16} className="text-indigo-600" /> Send Custom Push Notification
+                    </h3>
+                    <p className="text-slate-500 text-[10px] font-normal">Broadcast an instant native push notification alert to all running desktop app installations.</p>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 max-w-lg">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">Notification Title</label>
+                      <input 
+                        type="text" 
+                        value={notificationTitle} 
+                        onChange={e => setNotificationTitle(e.target.value)} 
+                        placeholder="e.g., Happy Vijaya Dashami!" 
+                        className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-slate-900 outline-none focus:border-indigo-500 transition-all text-xs" 
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">Message Body</label>
+                      <textarea 
+                        rows={3} 
+                        value={notificationBody} 
+                        onChange={e => setNotificationBody(e.target.value)} 
+                        placeholder="e.g., Wishing you a prosperous, peaceful and happy Dashain festival." 
+                        className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-slate-900 outline-none focus:border-indigo-500 transition-all text-xs resize-none" 
+                      />
+                    </div>
+                    <button 
+                      onClick={handleSendNotification} 
+                      disabled={sendingNotification}
+                      className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-5 py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-2 shadow-sm max-w-xs transition-all active:scale-95"
+                    >
+                      {sendingNotification ? 'Publishing...' : 'Publish Notification'}
+                    </button>
                   </div>
                 </div>
 

@@ -216,6 +216,49 @@
                 </div>
                 <div class="text-mute text-xs">Supported via Windows Startup Folder</div>
               </div>
+
+              <!-- Firestore Holiday Sync -->
+              <div class="settings-item">
+                <div class="settings-text">
+                  <span class="settings-label">क्यालेन्डर अपडेट (Firestore Sync)</span>
+                  <p class="settings-desc">Download published public holidays from our Firestore database.</p>
+                </div>
+                <button class="btn btn-sm btn-primary" id="sync-firestore-btn">🔄 Update Holidays</button>
+              </div>
+
+              <!-- Google Calendar Sync -->
+              <div class="settings-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                <div class="settings-text">
+                  <span class="settings-label">Google Calendar Synchronization</span>
+                  <p class="settings-desc">Connect and sync your scheduled events to Google Calendar.</p>
+                </div>
+                <div class="sync-credentials-grid" style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">
+                  <input type="text" id="google-client-id" class="form-control text-xs" placeholder="Google Client ID" style="flex: 1;">
+                  <input type="password" id="google-client-secret" class="form-control text-xs" placeholder="Google Client Secret" style="flex: 1;">
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                  <button class="btn btn-sm btn-outline" id="connect-google-btn">🔌 Connect Google</button>
+                  <button class="btn btn-sm btn-primary" id="sync-google-now-btn" disabled>Sync Now</button>
+                  <span id="google-status-text" class="text-xs" style="align-self: center; color: var(--text-secondary);">Disconnected</span>
+                </div>
+              </div>
+
+              <!-- Outlook Calendar Sync -->
+              <div class="settings-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                <div class="settings-text">
+                  <span class="settings-label">Microsoft Outlook Sync</span>
+                  <p class="settings-desc">Connect and sync your scheduled events to Microsoft Outlook.</p>
+                </div>
+                <div class="sync-credentials-grid" style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">
+                  <input type="text" id="outlook-client-id" class="form-control text-xs" placeholder="Outlook Client ID" style="flex: 1;">
+                  <input type="password" id="outlook-client-secret" class="form-control text-xs" placeholder="Outlook Client Secret" style="flex: 1;">
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                  <button class="btn btn-sm btn-outline" id="connect-outlook-btn">🔌 Connect Outlook</button>
+                  <button class="btn btn-sm btn-primary" id="sync-outlook-now-btn" disabled>Sync Now</button>
+                  <span id="outlook-status-text" class="text-xs" style="align-self: center; color: var(--text-secondary);">Disconnected</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -246,6 +289,24 @@
               <div class="color-dot-opt" data-color="yellow" style="background-color: #eab308;"></div>
               <div class="color-dot-opt" data-color="purple" style="background-color: #a855f7;"></div>
             </div>
+          </div>
+          
+          <div class="form-group mt-3">
+            <label for="note-recurrence">पुनरावृत्ति (Recurrence)</label>
+            <select id="note-recurrence" class="form-control">
+              <option value="once">एक पटक मात्र (Once)</option>
+              <option value="bs-yearly">हरेक वर्ष नेपाली मितिमा (Yearly BS)</option>
+              <option value="ad-yearly">हरेक वर्ष अंग्रेजी मितिमा (Yearly AD)</option>
+            </select>
+          </div>
+
+          <div class="form-group mt-3" style="display: flex; gap: 16px;">
+            <label class="checkbox-container" style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+              <input type="checkbox" id="note-sync-google"> Google Sync
+            </label>
+            <label class="checkbox-container" style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+              <input type="checkbox" id="note-sync-outlook"> Outlook Sync
+            </label>
           </div>
         </div>
         <div class="modal-footer">

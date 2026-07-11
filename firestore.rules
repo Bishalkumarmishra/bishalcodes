@@ -137,6 +137,18 @@ service cloud.firestore {
       allow create: if true;
       allow read, update, delete: if isAllowedAdmin();
     }
+
+    // Public Holiday configuration for calendar desktop app
+    match /holidays/{holidayId} {
+      allow read: if true;
+      allow write: if isAllowedAdmin();
+    }
+
+    // Custom push notifications collection
+    match /notifications/{notificationId} {
+      allow read: if true;
+      allow write: if isAllowedAdmin();
+    }
     
     // Secure Vault: password-protected encrypted file sharing
     // Files are encrypted client-side — Firestore only stores ciphertext

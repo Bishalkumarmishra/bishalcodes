@@ -538,32 +538,33 @@ The iframe wrapper automatically adapts to light and dark theme modes based on t
     category: 'Desktop Applications',
     keywords: ['desktop', 'calendar', 'nepali', 'windows', 'app', 'widget', 'download', 'offline', 'converter'],
     content: `
-  The Nepali Calendar Desktop App is a powerful, offline-capable calendar and date conversion utility built specifically for Windows 10 and 11. It brings all the functionality of our web calendar directly to your desktop.
-  
-  ---
-  
-  ### Key Features
-  
-  - **Persistent Mini Widget**: Once installed, the calendar widget can run silently in the background and pin itself to the bottom-right corner of your screen for quick date lookups.
-  - **Offline Conversion**: Instantly convert dates between Bikram Sambat (BS) and Gregorian (AD) without an active internet connection.
-  - **Auto-Start at Login**: The application automatically boots when you turn on your PC so the widget is always ready.
-  - **Dual Mode UI**: Seamlessly switch between a full interactive dashboard calendar and the compact minimal desktop widget.
-  
-  ---
-  
-  ### Installation Guide
-  
-  1. Visit the [Date Converter & Calendar](/tools/date-converter) page on the web app.
-  2. Click on the **Download Desktop App (Win 10/11)** button.
-  3. When downloading, Windows SmartScreen may show a warning ("Windows protected your PC") because the application is built by an independent developer without a corporate EV certificate.
-  4. Click **More Info**, then click **Run Anyway** to launch the installer safely.
-  5. Follow the setup wizard.
-  
-  ---
-  
-  ### Need Help?
-  If you encounter any issues or want to leave feedback, use the rating modal on the download page, or contact us through the main website.
-      `
+The Nepali Calendar Desktop App is a premium, offline-first calendar and date conversion utility built specifically for Windows 10 and 11. It brings all the capabilities of our web calendar directly to your desktop alongside advanced native integrations.
+
+---
+
+### Core Desktop Capabilities
+
+- **Persistent Mini Widget**: Dock or float the widget on your desktop or run it silently in your Windows System Tray for quick access.
+- **Dynamic Tray Day Icon**: The system tray icon dynamically updates in real-time to display the current day number in Devanagari (e.g. १४) on a premium card background.
+- **Custom Event & Birthday Scheduler**: Schedule alerts on three cycles: once, yearly on Bikram Sambat (BS) dates, or yearly on English Gregorian (AD) dates.
+- **Bi-directional Google & Outlook Sync**: Securely authorize the app using local OAuth redirects, convert BS schedules automatically to AD, and write them directly to your Google Calendar or Microsoft Outlook schedule.
+- **Live Firestore Holiday Sync**: Automatically queries and fetches published national holidays from our cloud database, caching updates locally for offline availability.
+- **Native OS Push Notifications**: Receives morning briefs (date, tithi, today's holidays) and custom notifications sent in real-time by the website administrators.
+
+---
+
+### Installation & Configuration Guide
+
+1. Visit the [Date Converter & Calendar](/tools/date-converter) page on the web app.
+2. Click **Download Desktop App (Win 10/11)** to download the latest setup archive (\`NepaliCalendar-Setup-v1.2.0.zip\`).
+3. Extract and run the installer setup. If Windows SmartScreen displays a warning, select **More Info** ➔ **Run Anyway** to finish installation.
+4. **Google & Outlook Setup**: Navigate to the App Settings tab, enter your custom OAuth credentials (Client ID & Secret), and click **Connect** to link your calendars.
+
+---
+
+### Need Help?
+If you encounter any issues or want to leave feedback, use the rating modal on the download page, or contact us through the main website.
+    `
   }
 ];
 
