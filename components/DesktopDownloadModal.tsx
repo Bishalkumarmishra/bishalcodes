@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { doc, updateDoc, increment, collection, addDoc, setDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { db } from '../services/firebase';
 import { Star, X } from 'lucide-react';
 
 export default function DesktopDownloadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
