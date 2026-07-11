@@ -42,9 +42,14 @@ if (!gotTheLock) {
 } else {
   app.on('second-instance', () => {
     if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
       mainWindow.show();
+      mainWindow.restore();
+      mainWindow.focus();
+    }
+    if (widgetWindow && isWidgetMode) {
+      widgetWindow.show();
+      widgetWindow.restore();
+      widgetWindow.focus();
     }
   });
 }
@@ -147,6 +152,24 @@ app.whenReady().then(() => {
   createMainWindow();
   createWidgetWindow();
   createTray();
+
+  // Enable standard Copy/Paste keyboard shortcuts on frameless window inputs
+  const template = [
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'selectall' }
+      ]
+    }
+  ];
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
 
   const isHidden = process.argv.includes('--hidden');
   if (isHidden) {
@@ -313,4 +336,30 @@ ipcMain.on('show-notification', (event, { title, body }) => {
     notif.show();
   }
 });
+
+// Download and run installer executable for auto updates
+ipcMain.on('download-and-install-update', (event, exeUrl) => {
+  const { exec } = require('child_process');
+  const fs = require('fs');
+  const https = require('https');
+  
+  const tempPath = path.join(app.getPath('temp'), 'nepali-calendar-setup.exe');
+  const file = fs.createWriteStream(tempPath);
+  
+  https.get(exeUrl, (response) => {
+    response.pipe(file);
+    file.on('finish', () => {
+      file.close(() => {
+        // Run installer setup normally (with user prompt)
+        exec(`"${tempPath}"`);
+        // Quit current application so installer can overwrite process files
+        app.isQuitting = true;
+        app.quit();
+      });
+    });
+  }).on('error', (err) => {
+    console.error("Update download failed:", err);
+  });
+});
+
 

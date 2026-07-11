@@ -141,6 +141,16 @@ const ServicesPage: React.FC = () => {
   const { selectedId, navigate } = useNavigation();
   const [services, setServices] = useState<ServiceTool[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isEmbed, setIsEmbed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('embed') === 'true' || params.get('desktop') === 'true') {
+        setIsEmbed(true);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -659,11 +669,11 @@ const ServicesPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FDF9F3] dark:bg-slate-950 font-sans transition-colors duration-300 selection:bg-indigo-500/30">
-      <Navbar />
-      <main className={`w-full flex-grow flex flex-col ${isFullBleed ? 'pt-0 pb-0' : selectedId ? 'pt-0 pb-12' : 'pb-12 pt-20 sm:pt-28'}`}>
+      {!isEmbed && <Navbar />}
+      <main className={`w-full flex-grow flex flex-col ${isEmbed ? 'pt-0 pb-0 mt-0' : isFullBleed ? 'pt-0 pb-0' : selectedId ? 'pt-0 pb-12' : 'pb-12 pt-20 sm:pt-28'}`}>
         {renderActiveService()}
       </main>
-      {!selectedId && <Footer />}
+      {!selectedId && !isEmbed && <Footer />}
     </div>
   );
 };

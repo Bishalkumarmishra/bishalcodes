@@ -95,6 +95,12 @@ try {
     // Compress the new exe directly to the public folder
     execSync(`powershell -NoProfile -Command "Compress-Archive -Path '${sourceExe}' -DestinationPath '${destZip}' -Force"`, { stdio: 'inherit' });
     
+    // Copy the raw .exe setup file directly for desktop app auto-update downloads
+    const destExeName = `NepaliCalendar-Setup-v${version}.exe`;
+    const destExe = path.join(publicDownloadsDir, destExeName);
+    fs.copyFileSync(sourceExe, destExe);
+    console.log(`Raw installer copied: ${sourceExe} -> ${destExe}`);
+    
     console.log(`\nInstaller successfully compressed to public/downloads/${destZipName}!`);
   } else {
     console.error("Could not find the generated Setup .exe in dist folder.");

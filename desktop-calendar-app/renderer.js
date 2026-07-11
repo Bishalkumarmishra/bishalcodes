@@ -1564,6 +1564,7 @@ updateDynamicTrayIcon(selectedDay);
 // Query custom admin notifications on startup and every 10 seconds (for instant alert delivery)
 checkFirestoreNotifications();
 setInterval(checkFirestoreNotifications, 10 * 1000);
+checkAppUpdates();
 
 // Setup calendar language toggle
 const calLangToggleBtn = document.getElementById('cal-lang-toggle');
@@ -1619,11 +1620,18 @@ function loadToolIframe(tool) {
   const selectionGrid = document.getElementById('tools-selection-grid');
   const iframeContainer = document.getElementById('tools-iframe-container');
   const iframe = document.getElementById('tools-iframe');
+  const preloader = document.getElementById('tools-preloader');
   
   if (selectionGrid && iframeContainer && iframe) {
     selectionGrid.style.display = 'none';
     iframeContainer.style.display = 'block';
-    iframe.src = `https://www.bishalcodes.com/${tool}`;
+    if (preloader) preloader.style.display = 'flex';
+    
+    iframe.src = `https://www.bishalcodes.com/tools/${tool}?embed=true`;
+    
+    iframe.onload = () => {
+      if (preloader) preloader.style.display = 'none';
+    };
   }
 }
 
@@ -1637,6 +1645,55 @@ function closeToolIframe() {
     iframeContainer.style.display = 'none';
     iframe.src = 'about:blank';
   }
+}
+
+// Auto Update Checker client side logic
+async function checkAppUpdates() {
+  try {
+    const response = await fetch('https://www.bishalcodes.com/downloads/version.json');
+    if (!response.ok) return;
+    const data = await response.json();
+    
+    const currentVersion = '1.3.0'; // Local desktop version (new compiled setup)
+    const latestVersion = data.version;
+    
+    if (isNewerVersion(latestVersion, currentVersion)) {
+      const banner = document.getElementById('update-banner');
+      const label = document.getElementById('update-version-label');
+      if (banner && label) {
+        label.innerText = `v${latestVersion}`;
+        banner.style.display = 'flex';
+        
+        const startUpdateBtn = document.getElementById('start-update-btn');
+        if (startUpdateBtn) {
+          // Replace button clone to clean listeners
+          const newBtn = startUpdateBtn.cloneNode(true);
+          startUpdateBtn.parentNode.replaceChild(newBtn, startUpdateBtn);
+          newBtn.addEventListener('click', () => {
+            newBtn.innerText = 'Downloading update...';
+            newBtn.disabled = true;
+            ipcRenderer.send('download-and-install-update', data.url);
+          });
+        }
+        
+        document.getElementById('dismiss-update-btn')?.addEventListener('click', () => {
+          banner.style.display = 'none';
+        });
+      }
+    }
+  } catch (e) {
+    console.error("Failed to check app updates:", e);
+  }
+}
+
+function isNewerVersion(latest, current) {
+  const l = latest.split('.').map(Number);
+  const c = current.split('.').map(Number);
+  for(let i=0; i<3; i++) {
+    if (l[i] > c[i]) return true;
+    if (l[i] < c[i]) return false;
+  }
+  return false;
 }
 
 document.getElementById('tool-btn-compressor')?.addEventListener('click', () => loadToolIframe('image-compressor'));
