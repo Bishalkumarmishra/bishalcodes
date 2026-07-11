@@ -52,7 +52,7 @@ if (!fs.existsSync(publicDownloadsDir)) {
 
 // 5. Copy Installer Setup to public/downloads
 const distDir = path.join(appDir, 'dist');
-const destExe = path.join(publicDownloadsDir, 'NepaliCalendar-Setup.exe');
+const destZip = path.join(publicDownloadsDir, 'NepaliCalendar-Setup.zip');
 
 try {
   const files = fs.readdirSync(distDir);
@@ -60,9 +60,12 @@ try {
   
   if (setupExe) {
     const sourceExe = path.join(distDir, setupExe);
-    console.log(`\nCopying Installer to public downloads: ${sourceExe} -> ${destExe}`);
-    fs.copyFileSync(sourceExe, destExe);
-    console.log("\nInstaller copied successfully to public/downloads/NepaliCalendar-Setup.exe!");
+    console.log(`\nCompressing Installer to public downloads: ${sourceExe} -> ${destZip}`);
+    
+    // Use PowerShell to zip the file on Windows
+    execSync(`powershell -NoProfile -Command "Compress-Archive -Path '${sourceExe}' -DestinationPath '${destZip}' -Force"`, { stdio: 'inherit' });
+    
+    console.log("\nInstaller successfully compressed to public/downloads/NepaliCalendar-Setup.zip!");
   } else {
     console.error("Could not find the generated Setup .exe in dist folder.");
     process.exit(1);

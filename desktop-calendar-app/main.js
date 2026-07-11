@@ -89,37 +89,46 @@ function createTray() {
   });
 }
 
+let widgetWindow;
+
+function createWidgetWindow() {
+  widgetWindow = new BrowserWindow({
+    width: 320,
+    height: 85,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    show: false,
+    skipTaskbar: true,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  });
+  widgetWindow.loadFile('widget.html');
+  widgetWindow.on('closed', () => {
+    widgetWindow = null;
+  });
+}
+
 function toggleWindowMode(widgetMode) {
   if (!mainWindow) return;
   isWidgetMode = widgetMode;
 
-  mainWindow.hide();
-  
-  // Re-configure window based on mode
   if (isWidgetMode) {
-    mainWindow.setSize(350, 480);
-    mainWindow.setResizable(false);
-    mainWindow.setMaximizable(false);
-    
-    // In widget mode, make it frameless & transparent
-    // Wait, on runtime we cannot change 'frame' option, but we can fake it or recreate window if necessary.
-    // Instead of recreating window which resets state, let's keep it simple: we can make it a frameless window from the start, and custom-style the title bar in HTML!
-    // Yes! Frameless windows with custom HTML title bars look 10x more premium and let us customize the close/minimize button designs to match our theme!
-    // Let's use custom titlebars for both Widget and Dashboard mode! This allows toggling frame styles on the fly!
+    mainWindow.hide();
+    if (!widgetWindow) createWidgetWindow();
+    widgetWindow.show();
   } else {
-    mainWindow.setSize(980, 660);
-    mainWindow.setResizable(true);
-    mainWindow.setMaximizable(true);
+    if (widgetWindow) widgetWindow.hide();
+    mainWindow.show();
   }
-
-  // Notify renderer of the mode change
-  mainWindow.webContents.send('window-mode-changed', isWidgetMode);
-  mainWindow.show();
 }
 
 app.whenReady().then(() => {
   // We'll generate a dummy blank icon if missing
   createMainWindow();
+  createWidgetWindow();
   createTray();
 
   app.on('activate', () => {
@@ -139,16 +148,20 @@ ipcMain.on('minimize-window', () => {
 });
 
 ipcMain.on('close-window', () => {
-  // If we close, just hide to tray unless quitting
-  if (process.platform === 'darwin') {
-    mainWindow.hide();
-  } else {
-    mainWindow.hide(); // Hide to tray instead of quitting
-  }
+  // If we close, just hide to tray instead of quitting
+  if (mainWindow) mainWindow.hide();
 });
 
 ipcMain.on('toggle-widget-mode', (event, targetMode) => {
   toggleWindowMode(targetMode);
+});
+
+ipcMain.on('close-widget', () => {
+  if (widgetWindow) widgetWindow.hide();
+});
+
+ipcMain.on('open-dashboard', () => {
+  toggleWindowMode(false);
 });
 
 ipcMain.on('set-always-on-top', (event, alwaysTop) => {

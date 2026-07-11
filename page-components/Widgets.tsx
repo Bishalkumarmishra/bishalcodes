@@ -176,7 +176,7 @@ export default function Widgets() {
                   Want the Nepali Calendar directly on your Windows desktop? Download our standalone app featuring system tray widget integration and offline support.
                 </p>
                 <a
-                  href="/downloads/NepaliCalendar-Setup.exe"
+                  href="/downloads/NepaliCalendar-Setup.zip"
                   download
                   className="inline-flex w-full items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-lg text-[10px] uppercase tracking-wider transition-all active:scale-98 shadow-sm"
                 >

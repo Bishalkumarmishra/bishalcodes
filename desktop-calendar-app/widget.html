@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Nepali Calendar Widget</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: transparent;
+      user-select: none;
+      -webkit-app-region: drag; /* Makes the entire widget draggable */
+    }
+
+    #widget-container {
+      background: #009900; /* Green background matching the screenshot */
+      color: white;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      height: 100vh;
+      box-sizing: border-box;
+      border: 1px solid #007700;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    
+    /* Close button on hover */
+    #widget-container:hover .close-btn, #widget-container:hover .dash-btn {
+      opacity: 1;
+    }
+    
+    .close-btn {
+      position: absolute;
+      top: 2px;
+      right: 4px;
+      color: white;
+      font-size: 10px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+      -webkit-app-region: no-drag;
+    }
+
+    .dash-btn {
+      position: absolute;
+      top: 2px;
+      left: 4px;
+      color: white;
+      font-size: 10px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+      -webkit-app-region: no-drag;
+    }
+
+    .close-btn:hover, .dash-btn:hover {
+      color: #ffcccc;
+    }
+
+    #np-date {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 2px;
+      white-space: nowrap;
+    }
+
+    #en-date {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+      white-space: nowrap;
+    }
+
+    #tithi {
+      font-size: 13px;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div id="widget-container">
+    <div class="dash-btn" id="dash-btn" title="Open Full Dashboard">⚙</div>
+    <div class="close-btn" id="close-btn" title="Close Widget">✖</div>
+    <div id="np-date">Loading...</div>
+    <div id="en-date">Loading...</div>
+    <div id="tithi">Loading...</div>
+  </div>
+  
+  <script src="widget.js"></script>
+</body>
+</html>

@@ -354,7 +354,7 @@ body {
 }
 
 .calendar-cell {
-  aspect-ratio: 1.1;
+  min-height: 52px;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
