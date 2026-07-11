@@ -1518,15 +1518,24 @@ END:VCALENDAR`;
               </div>
             </div>
 
-            {/* Embed widgets discoverability promo banner */}
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/10 text-center">
+            {/* Embed widgets & Desktop App discoverability promo banner */}
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/10 flex flex-col sm:flex-row gap-3 items-center justify-around">
               <button
                 onClick={() => navigate('widgets')}
                 className="text-[11px] font-bold text-[#9c3e1b] hover:text-[#7d2f12] dark:text-[#ebd6cc] dark:hover:text-[#f3e6e0] transition-colors cursor-pointer inline-flex items-center gap-1.5"
               >
                 <Code size={13} />
-                <span>Want to display this calendar on your site? Get free widgets &lt;/&gt;</span>
+                <span>Get Free Widgets &lt;/&gt;</span>
               </button>
+              <div className="hidden sm:block text-slate-300 dark:text-slate-700 text-xs">|</div>
+              <a
+                href="/downloads/NepaliCalendar-Setup.exe"
+                download
+                className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors cursor-pointer inline-flex items-center gap-1.5"
+              >
+                <span className="text-sm">💻</span>
+                <span>Download Desktop App (Win 10/11)</span>
+              </a>
             </div>
 
             {/* Popover Hover Card */}

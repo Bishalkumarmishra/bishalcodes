@@ -1,0 +1,36 @@
+{
+  "name": "nepali-desktop-calendar",
+  "version": "1.0.0",
+  "description": "Premium offline Nepali Calendar and Date Converter widget for Windows",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.bishal.nepalicalendar",
+    "productName": "Nepali Calendar",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Nepali Calendar"
+    }
+  },
+  "dependencies": {
+    "nepali-date-converter": "^3.4.0"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}

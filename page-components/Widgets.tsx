@@ -165,6 +165,26 @@ export default function Widgets() {
               </p>
             </div>
 
+            {/* Standalone Desktop App Section */}
+            <div className="border-t border-slate-100 dark:border-slate-800/80 pt-5 space-y-3">
+              <h4 className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold">Standalone Version</h4>
+              <div className="p-4 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 rounded-xl space-y-2">
+                <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
+                  <span className="text-base">💻</span> Standalone Windows App
+                </span>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-normal">
+                  Want the Nepali Calendar directly on your Windows desktop? Download our standalone app featuring system tray widget integration and offline support.
+                </p>
+                <a
+                  href="/downloads/NepaliCalendar-Setup.exe"
+                  download
+                  className="inline-flex w-full items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-lg text-[10px] uppercase tracking-wider transition-all active:scale-98 shadow-sm"
+                >
+                  Download for Windows 10/11
+                </a>
+              </div>
+            </div>
+
           </div>
 
           {/* Right Block - Live Interactive Preview */}

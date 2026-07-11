@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>नेपाली क्यालेन्डर - Desktop Widget</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark">
+  <div class="window-container">
+    
+    <!-- Titlebar -->
+    <header class="titlebar">
+      <div class="titlebar-drag-region">
+        <img src="logo-icon.png" class="app-icon" id="titlebar-icon" onerror="this.style.display='none'">
+        <span class="app-title">नेपाली क्यालेन्डर</span>
+      </div>
+      <div class="titlebar-controls">
+        <button class="titlebar-btn" id="always-on-top-btn" title="Always on Top">📌</button>
+        <button class="titlebar-btn" id="widget-toggle-btn" title="Widget Mode">📱</button>
+        <button class="titlebar-btn" id="min-btn">➖</button>
+        <button class="titlebar-btn" id="close-btn">❌</button>
+      </div>
+    </header>
+
+    <!-- App Content Wrapper -->
+    <div class="app-body">
+      
+      <!-- Side Navigation (Hidden in Widget Mode) -->
+      <nav class="sidebar" id="sidebar-nav">
+        <div class="logo-section">
+          <h2>Bishal Codes</h2>
+          <span class="logo-subtitle">Desktop Utility</span>
+        </div>
+        <ul class="nav-links">
+          <li class="active" data-tab="calendar-tab">📅 क्यालेन्डर (Calendar)</li>
+          <li data-tab="converter-tab">🔄 रुपान्तरण (Converter)</li>
+          <li data-tab="notes-tab">📝 टिप्पणीहरू (Notes)</li>
+          <li data-tab="settings-tab">⚙️ सेटिंग्स (Settings)</li>
+        </ul>
+        <div class="sidebar-footer">
+          <a href="https://bishalcodes.com" target="_blank">bishalcodes.com</a>
+        </div>
+      </nav>
+
+      <!-- Main Content Area -->
+      <main class="main-content">
+        
+        <!-- Tab 1: Calendar View -->
+        <section class="tab-content active-content" id="calendar-tab">
+          <div class="calendar-layout">
+            
+            <!-- Calendar Card -->
+            <div class="card calendar-card-panel">
+              <div class="calendar-header-actions">
+                <button class="icon-btn" id="prev-month">◀</button>
+                <div class="month-year-display">
+                  <h3 id="current-month-display">वैशाख २०८३</h3>
+                  <span id="sub-month-display">Apr-May 2026</span>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-sm btn-outline" id="cal-lang-toggle">Show English</button>
+                  <button class="icon-btn" id="next-month">▶</button>
+                </div>
+              </div>
+
+              <!-- Day Headers -->
+              <div class="weekday-grid">
+                <div>आइत</div>
+                <div>सोम</div>
+                <div>मङ्गल</div>
+                <div>बुध</div>
+                <div>बिही</div>
+                <div>शुक्र</div>
+                <div class="saturday">शनि</div>
+              </div>
+
+              <!-- Calendar Grid -->
+              <div class="calendar-days-grid" id="calendar-days-container"></div>
+            </div>
+
+            <!-- Sidebar Details for selected date -->
+            <div class="calendar-detail-panel">
+              <div class="card date-detail-card">
+                <h4 class="section-title">आजको विवरण (Details)</h4>
+                <div class="selected-day-details">
+                  <h1 id="details-day-nepali">२५</h1>
+                  <div class="details-text-group">
+                    <p class="nepali-date-bold" id="details-full-nepali">चैत्र २५ गते बुधबार</p>
+                    <p class="gregorian-date-sub" id="details-full-gregorian">2021 April 07 Wednesday</p>
+                    <p class="tithi-display" id="details-tithi">चैत्र कृष्ण एकादशी</p>
+                  </div>
+                </div>
+                
+                <div class="divider"></div>
+
+                <!-- Event/Holiday display -->
+                <div class="detail-event-box" id="details-event-container">
+                  <span class="event-badge holiday-badge" id="details-event-badge">बिदा</span>
+                  <p class="event-title-text" id="details-event-title">नयाँ वर्ष</p>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Day notes list -->
+                <div class="day-notes-section">
+                  <h5>टिप्पणी / रिमाइन्डर</h5>
+                  <div id="day-notes-list" class="notes-mini-list">
+                    <p class="empty-notes-text">कुनै टिप्पणी थपिएको छैन।</p>
+                  </div>
+                  <button class="btn btn-sm btn-outline mt-2" id="add-note-trigger">📝 थप्नुहोस् (Add Note)</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Tab 2: Date Converter -->
+        <section class="tab-content" id="converter-tab">
+          <div class="card converter-card">
+            <h3 class="section-title-large">मिति रुपान्तरण (Date Converter)</h3>
+            <p class="section-subtitle">Convert dates between Gregorian (AD) and Bikram Sambat (BS)</p>
+            
+            <div class="converter-toggle-row">
+              <button class="btn-toggle active" id="mode-bs-ad">BS to AD (विक्रम संवत् ➔ ईस्वी संवत्)</button>
+              <button class="btn-toggle" id="mode-ad-bs">AD to BS (ईस्वी संवत् ➔ विक्रम संवत्)</button>
+            </div>
+
+            <div class="converter-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="conv-year">वर्ष (Year)</label>
+                  <select id="conv-year" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                  <label for="conv-month">महिना (Month)</label>
+                  <select id="conv-month" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                  <label for="conv-day">दिन (Day)</label>
+                  <select id="conv-day" class="form-control"></select>
+                </div>
+              </div>
+
+              <button class="btn btn-primary w-full mt-4" id="convert-btn">🔄 रुपान्तरण गर्नुहोस् (Convert)</button>
+            </div>
+
+            <div class="converter-result-box" id="converter-result" style="display: none;">
+              <span class="result-label">रुपान्तरित मिति (Converted Date)</span>
+              <h2 id="result-main-text">-</h2>
+              <p id="result-sub-text">-</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 3: Notes Manager -->
+        <section class="tab-content" id="notes-tab">
+          <div class="card notes-manager-card">
+            <div class="notes-header">
+              <div>
+                <h3 class="section-title-large">व्यक्तिगत टिप्पणीहरू (Personal Notes)</h3>
+                <p class="section-subtitle">Manage all your saved desktop reminders and calendar notes</p>
+              </div>
+            </div>
+            
+            <div class="notes-manager-list" id="notes-manager-list-container">
+              <p class="empty-state">अहिलेसम्म कुनै टिप्पणीहरू रेकर्ड गरिएका छैनन्।</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 4: Settings -->
+        <section class="tab-content" id="settings-tab">
+          <div class="card settings-card">
+            <h3 class="section-title-large">सेटिङहरू (Settings)</h3>
+            <p class="section-subtitle">Customize your desktop calendar app experience</p>
+
+            <div class="divider"></div>
+
+            <div class="settings-list">
+              <div class="settings-item">
+                <div class="settings-text">
+                  <span class="settings-label">सधैं माथि राख्नुहोस् (Always on Top)</span>
+                  <p class="settings-desc">Keep the calendar window above all other applications.</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="settings-always-top">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+
+              <div class="settings-item">
+                <div class="settings-text">
+                  <span class="settings-label">विजेट मोड (Widget Mode)</span>
+                  <p class="settings-desc">Switch to a tiny, elegant widget floating on your desktop.</p>
+                </div>
+                <button class="btn btn-sm btn-outline" id="settings-toggle-widget">Toggle Widget</button>
+              </div>
+
+              <div class="settings-item">
+                <div class="settings-text">
+                  <span class="settings-label">रंग थिम (Theme)</span>
+                  <p class="settings-desc">Switch between light and dark theme mode.</p>
+                </div>
+                <div class="theme-buttons">
+                  <button class="btn btn-sm btn-theme active" id="theme-dark-btn">Dark</button>
+                  <button class="btn btn-sm btn-theme" id="theme-light-btn">Light</button>
+                </div>
+              </div>
+
+              <div class="settings-item">
+                <div class="settings-text">
+                  <span class="settings-label">स्टार्टअपमा सुरु गर्नुहोस् (Run on Startup)</span>
+                  <p class="settings-desc">Launch the calendar automatically when you turn on Windows.</p>
+                </div>
+                <div class="text-mute text-xs">Supported via Windows Startup Folder</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- Modal for adding notes -->
+    <div class="modal" id="note-modal">
+      <div class="modal-content card animate-slide-up">
+        <div class="modal-header">
+          <h4 id="note-modal-title">नयाँ टिप्पणी थप्नुहोस्</h4>
+          <button class="close-modal-btn" id="close-modal-x">✖</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="note-target-date">
+          <div class="form-group">
+            <label for="note-text">टिप्पणी विवरण (Note Text)</label>
+            <textarea id="note-text" class="form-control" rows="3" placeholder="यहाँ टिप्पणी लेख्नुहोस्..."></textarea>
+          </div>
+          <div class="form-group mt-3">
+            <label>रंग श्रेणी (Color Category)</label>
+            <div class="color-options-row">
+              <div class="color-dot-opt active" data-color="default" style="background-color: #64748b;"></div>
+              <div class="color-dot-opt" data-color="red" style="background-color: #ef4444;"></div>
+              <div class="color-dot-opt" data-color="blue" style="background-color: #3b82f6;"></div>
+              <div class="color-dot-opt" data-color="green" style="background-color: #10b981;"></div>
+              <div class="color-dot-opt" data-color="yellow" style="background-color: #eab308;"></div>
+              <div class="color-dot-opt" data-color="purple" style="background-color: #a855f7;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" id="cancel-note-btn">रद्द गर्नुहोस् (Cancel)</button>
+          <button class="btn btn-primary" id="save-note-btn">बचत गर्नुहोस् (Save)</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

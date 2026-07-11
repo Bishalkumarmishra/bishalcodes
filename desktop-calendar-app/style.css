@@ -1,0 +1,1089 @@
+/* Modern Custom styling with premium color palettes */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Mukta:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* Dark Theme variables */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-active: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --accent-color: #9c3e1b;
+  --accent-hover: #7d2f12;
+  --border-color: #334155;
+  --holiday-color: #f87171;
+  --holiday-bg: rgba(248, 113, 113, 0.1);
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+body.light {
+  /* Light Theme variables */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-active: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --accent-color: #9c3e1b;
+  --accent-hover: #7d2f12;
+  --border-color: #e2e8f0;
+  --holiday-color: #ef4444;
+  --holiday-bg: rgba(239, 68, 68, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --shadow-color: rgba(148, 163, 184, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Outfit', 'Inter', 'Mukta', sans-serif;
+  user-select: none;
+}
+
+body {
+  background: transparent;
+  color: var(--text-primary);
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.window-container {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Custom Titlebar */
+.titlebar {
+  height: 38px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 14px;
+}
+
+.titlebar-drag-region {
+  flex-grow: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  -webkit-app-region: drag;
+}
+
+.app-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.app-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+}
+
+.titlebar-controls {
+  display: flex;
+  gap: 6px;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  width: 28px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.titlebar-btn:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+#close-btn:hover {
+  background: #ef4444;
+  color: white;
+}
+
+/* App Body Structure */
+.app-body {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Sidebar navigation */
+.sidebar {
+  width: 220px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  padding: 24px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+}
+
+.logo-section {
+  margin-bottom: 30px;
+  padding-left: 10px;
+}
+
+.logo-section h2 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent-color);
+  letter-spacing: -0.5px;
+}
+
+.logo-subtitle {
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 1px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.nav-links li {
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-links li:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+.nav-links li.active {
+  background: var(--accent-color);
+  color: white;
+}
+
+.sidebar-footer {
+  text-align: center;
+}
+
+.sidebar-footer a {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.sidebar-footer a:hover {
+  color: var(--accent-color);
+}
+
+/* Main Content Area */
+.main-content {
+  flex-grow: 1;
+  padding: 24px;
+  overflow-y: auto;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Custom Scrollbar */
+.main-content::-webkit-scrollbar,
+.notes-mini-list::-webkit-scrollbar,
+.notes-manager-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.main-content::-webkit-scrollbar-thumb,
+.notes-mini-list::-webkit-scrollbar-thumb,
+.notes-manager-list::-webkit-scrollbar-thumb {
+  background: var(--bg-active);
+  border-radius: 10px;
+}
+
+/* Tab Switching visibility */
+.tab-content {
+  display: none;
+  animation: fadeIn 0.3s ease;
+  height: 100%;
+}
+
+.tab-content.active-content {
+  display: block;
+}
+
+/* Cards & Styling components */
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px var(--shadow-color);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 16px 0;
+}
+
+/* Tab 1: Calendar Layout */
+.calendar-layout {
+  display: grid;
+  grid-template-cols: 1.6fr 1fr;
+  gap: 20px;
+  height: 100%;
+}
+
+.calendar-card-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.calendar-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.month-year-display {
+  text-align: center;
+}
+
+.month-year-display h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.sub-month-display {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.icon-btn {
+  background: var(--bg-active);
+  border: none;
+  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: var(--accent-color);
+  color: white;
+  transform: scale(1.05);
+}
+
+.icon-btn:active {
+  transform: scale(0.95);
+}
+
+/* Weekdays Row */
+.weekday-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: bold;
+  font-size: 11px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.weekday-grid .saturday {
+  color: var(--holiday-color);
+}
+
+/* Calendar Days Grid */
+.calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-cell {
+  aspect-ratio: 1.1;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.calendar-cell:hover {
+  background: var(--bg-active);
+  border-color: var(--border-color);
+}
+
+.calendar-cell-empty {
+  opacity: 0.15;
+}
+
+.calendar-cell .day-num-nepali {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.calendar-cell .day-num-gregorian {
+  font-size: 8.5px;
+  font-weight: bold;
+  color: var(--text-secondary);
+  align-self: flex-end;
+}
+
+/* Event Dot or note indicator */
+.day-event-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.day-event-dot.holiday-dot {
+  background-color: var(--holiday-color);
+}
+
+.day-event-dot.note-dot {
+  background-color: #3b82f6; /* default note color */
+}
+
+/* Cell States */
+.calendar-cell.saturday .day-num-nepali {
+  color: var(--holiday-color);
+}
+
+.calendar-cell.is-today {
+  background: var(--accent-color) !important;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+
+.calendar-cell.is-today .day-num-nepali,
+.calendar-cell.is-today .day-num-gregorian {
+  color: white !important;
+}
+
+.calendar-cell.is-selected {
+  border: 2px solid var(--accent-color);
+}
+
+.calendar-cell.has-holiday {
+  background: var(--holiday-bg);
+}
+
+/* Calendar Date details side card */
+.selected-day-details {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.selected-day-details h1 {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--accent-color);
+  line-height: 1;
+}
+
+.details-text-group p {
+  line-height: 1.3;
+}
+
+.nepali-date-bold {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.gregorian-date-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.tithi-display {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.detail-event-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.event-badge {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.event-badge.holiday-badge {
+  background: #fca5a5;
+  color: #7f1d1d;
+}
+
+.event-title-text {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.day-notes-section h5 {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.notes-mini-list {
+  max-h: 90px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.empty-notes-text {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.mini-note-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 6px;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.mini-note-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mini-note-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+
+/* Tab 2: Converter Form */
+.converter-card {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.section-title-large {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+}
+
+.section-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.converter-toggle-row {
+  display: flex;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+
+.btn-toggle {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: bold;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-toggle.active {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-control {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: bold;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: var(--accent-color);
+}
+
+.btn {
+  background: var(--accent-color);
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn:hover {
+  background: var(--accent-hover);
+  transform: scale(1.01);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 11px;
+  border-radius: 6px;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.btn-outline:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+.w-full {
+  width: 100%;
+}
+
+.mt-4 {
+  margin-top: 16px;
+}
+
+.mt-2 {
+  margin-top: 8px;
+}
+
+.converter-result-box {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.result-label {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+#result-main-text {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+#result-sub-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* Tab 3: Notes Manager */
+.notes-manager-list {
+  max-height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.note-manager-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+}
+
+.note-manager-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.note-manager-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.note-manager-text-group {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.note-manager-date {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--accent-color);
+  text-transform: uppercase;
+}
+
+.note-manager-body {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-delete-note {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.btn-delete-note:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-style: italic;
+  padding: 40px 0;
+}
+
+/* Tab 4: Settings Styling */
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+.settings-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-label {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.settings-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.theme-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-theme.active {
+  background: var(--accent-color);
+  color: white;
+}
+
+/* Switch Slider component */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  transition: .3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--text-secondary);
+  transition: .3s;
+}
+
+input:checked + .slider {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+  background-color: white;
+}
+
+.slider.round {
+  border-radius: 24px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Modals */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal.active-modal {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 400px;
+  margin: 0;
+  transform: translateY(20px);
+  transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.modal.active-modal .modal-content {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-header h4 {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.close-modal-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.close-modal-btn:hover {
+  color: var(--text-primary);
+}
+
+.color-options-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.color-dot-opt {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s ease;
+}
+
+.color-dot-opt:hover {
+  transform: scale(1.1);
+}
+
+.color-dot-opt.active {
+  border-color: white;
+  transform: scale(1.15);
+  box-shadow: 0 0 8px rgba(0,0,0,0.3);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 14px;
+}
+
+
+/* ────────────────────────────────────────── */
+/* WIDGET MODE (Activated on body.widget-mode) */
+/* ────────────────────────────────────────── */
+body.widget-mode .window-container {
+  border-radius: 12px;
+}
+
+body.widget-mode .sidebar {
+  display: none;
+}
+
+body.widget-mode .main-content {
+  padding: 10px;
+}
+
+body.widget-mode .tab-content {
+  display: none;
+}
+
+body.widget-mode #calendar-tab {
+  display: block;
+  animation: none;
+}
+
+body.widget-mode .calendar-layout {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+body.widget-mode .calendar-card-panel {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+body.widget-mode .calendar-detail-panel {
+  display: none;
+}
+
+body.widget-mode .calendar-header-actions {
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+body.widget-mode .month-year-display h3 {
+  font-size: 14px;
+}
+
+body.widget-mode .sub-month-display {
+  font-size: 8px;
+}
+
+body.widget-mode .icon-btn {
+  width: 26px;
+  height: 26px;
+  font-size: 8px;
+  border-radius: 6px;
+}
+
+body.widget-mode .weekday-grid {
+  font-size: 9px;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+}
+
+body.widget-mode .calendar-cell {
+  padding: 4px;
+  aspect-ratio: 1.05;
+}
+
+body.widget-mode .calendar-cell .day-num-nepali {
+  font-size: 11.5px;
+}
+
+body.widget-mode .calendar-cell .day-num-gregorian {
+  font-size: 7.5px;
+}
+
+body.widget-mode .day-event-dot {
+  width: 3.5px;
+  height: 3.5px;
+  bottom: 4px;
+}
+
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); }
+  to { transform: translateY(0); }
+}
