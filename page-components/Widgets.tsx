@@ -182,6 +182,9 @@ export default function Widgets() {
                 >
                   Download for Windows 10/11
                 </a>
+                <p className="text-[9px] text-center text-slate-400 dark:text-slate-500 pt-1 leading-tight">
+                  Note: If your browser flags the download as uncommon, you can safely select <br className="hidden sm:block" /> <b>"Keep"</b> or <b>"Run anyway"</b>.
+                </p>
               </div>
             </div>
 

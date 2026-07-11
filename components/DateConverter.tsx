@@ -1528,14 +1528,17 @@ END:VCALENDAR`;
                 <span>Get Free Widgets &lt;/&gt;</span>
               </button>
               <div className="hidden sm:block text-slate-300 dark:text-slate-700 text-xs">|</div>
-              <a
-                href="/downloads/NepaliCalendar-Setup.exe"
-                download
-                className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors cursor-pointer inline-flex items-center gap-1.5"
-              >
-                <span className="text-sm">💻</span>
-                <span>Download Desktop App (Win 10/11)</span>
-              </a>
+              <div className="flex flex-col items-center gap-0.5">
+                <a
+                  href="/downloads/NepaliCalendar-Setup.exe"
+                  download
+                  className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <span className="text-sm">💻</span>
+                  <span>Download Desktop App (Win 10/11)</span>
+                </a>
+                <span className="text-[8px] text-slate-400 dark:text-slate-500 font-medium">If blocked by browser, select "Keep"</span>
+              </div>
             </div>
 
             {/* Popover Hover Card */}
