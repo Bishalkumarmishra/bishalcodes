@@ -635,6 +635,10 @@ tabLinks.forEach(link => {
 
     if (targetTab === 'notes-tab') {
       renderAllNotesInManager();
+    } else if (targetTab === 'notifications-tab') {
+      renderAnnouncementsList();
+    } else if (targetTab === 'tools-tab') {
+      closeToolIframe(); // Reset tool view on open
     }
   });
 });
@@ -933,6 +937,10 @@ colorDotOpts.forEach(dot => {
 // --- Window Titlebar Controls ---
 minBtn.addEventListener('click', () => ipcRenderer.send('minimize-window'));
 closeBtn.addEventListener('click', () => ipcRenderer.send('close-window'));
+const maxBtn = document.getElementById('max-btn');
+if (maxBtn) {
+  maxBtn.addEventListener('click', () => ipcRenderer.send('maximize-window'));
+}
 
 
 // --- Month Shifts Navigation ---
@@ -1338,17 +1346,24 @@ async function syncHolidaysFromFirestore() {
 // Firestore Custom Notifications Poller Client
 async function checkFirestoreNotifications() {
   try {
-    const response = await fetch('https://firestore.googleapis.com/v1/projects/bishal-mishra-3c559/databases/(default)/documents/notifications?pageSize=10');
+    const response = await fetch('https://firestore.googleapis.com/v1/projects/bishal-mishra-3c559/databases/(default)/documents/notifications?orderBy=timestamp%20desc&pageSize=10');
     if (!response.ok) return;
     const data = await response.json();
     if (data.documents) {
       let shownNotifs = [];
+      let savedLogs = [];
       try {
         const saved = localStorage.getItem('desktop_calendar_shown_notifications');
         if (saved) shownNotifs = JSON.parse(saved);
       } catch(e) {}
       
+      try {
+        const savedL = localStorage.getItem('desktop_calendar_notifications_log');
+        if (savedL) savedLogs = JSON.parse(savedL);
+      } catch(e) {}
+      
       let updatedShown = [...shownNotifs];
+      let updatedLogs = [...savedLogs];
       let newNotifFound = false;
 
       data.documents.forEach(doc => {
@@ -1358,11 +1373,16 @@ async function checkFirestoreNotifications() {
           if (fields && fields.title && fields.body) {
             const title = fields.title.stringValue || '';
             const body = fields.body.stringValue || '';
+            const timestamp = fields.timestamp && fields.timestamp.integerValue ? parseInt(fields.timestamp.integerValue) : Date.now();
             
             // Show push notification!
             ipcRenderer.send('show-notification', { title, body });
             
             updatedShown.push(docId);
+            
+            if (!updatedLogs.some(n => n.id === docId)) {
+              updatedLogs.unshift({ id: docId, title, body, timestamp });
+            }
             newNotifFound = true;
           }
         }
@@ -1370,6 +1390,8 @@ async function checkFirestoreNotifications() {
 
       if (newNotifFound) {
         localStorage.setItem('desktop_calendar_shown_notifications', JSON.stringify(updatedShown));
+        localStorage.setItem('desktop_calendar_notifications_log', JSON.stringify(updatedLogs));
+        renderAnnouncementsList();
       }
     }
   } catch (e) {
@@ -1539,9 +1561,9 @@ updateConnectionUI();
 checkDailyReminders();
 updateDynamicTrayIcon(selectedDay);
 
-// Query custom admin notifications on startup and every 5 minutes
+// Query custom admin notifications on startup and every 10 seconds (for instant alert delivery)
 checkFirestoreNotifications();
-setInterval(checkFirestoreNotifications, 5 * 60 * 1000);
+setInterval(checkFirestoreNotifications, 10 * 1000);
 
 // Setup calendar language toggle
 const calLangToggleBtn = document.getElementById('cal-lang-toggle');
@@ -1552,3 +1574,76 @@ if (calLangToggleBtn) {
     renderCalendar();
   });
 }
+
+// Announcements Log List Renderer
+function renderAnnouncementsList() {
+  const listContainer = document.getElementById('desktop-notifications-list');
+  if (!listContainer) return;
+  
+  let logs = [];
+  try {
+    const saved = localStorage.getItem('desktop_calendar_notifications_log');
+    if (saved) logs = JSON.parse(saved);
+  } catch(e) {}
+  
+  if (logs.length === 0) {
+    listContainer.innerHTML = '<p class="empty-state">कुनै सूचनाहरू उपलब्ध छैनन्। (No announcements available)</p>';
+    return;
+  }
+  
+  listContainer.innerHTML = logs.map(notif => {
+    const dateStr = new Date(notif.timestamp).toLocaleString();
+    return `
+      <div class="card" style="padding: 14px; border-left: 4px solid var(--accent-color); background: var(--bg-secondary); border-radius: 8px; margin-bottom: 2px; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+        <div style="display: flex; justify-content: space-between; align-items: start; gap: 8px;">
+          <strong style="color: var(--text-primary); font-size: 13px;">${notif.title}</strong>
+          <span style="font-size: 9px; color: var(--text-secondary); white-space: nowrap;">${dateStr}</span>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 11px; margin-top: 6px; line-height: 1.4; font-weight: normal;">${notif.body}</p>
+      </div>
+    `;
+  }).join('');
+}
+
+// Clear all announcements handler
+const clearNotificationsBtn = document.getElementById('clear-notifications-btn');
+if (clearNotificationsBtn) {
+  clearNotificationsBtn.addEventListener('click', () => {
+    localStorage.setItem('desktop_calendar_notifications_log', JSON.stringify([]));
+    renderAnnouncementsList();
+  });
+}
+
+// More Tools embedding iframe logic
+function loadToolIframe(tool) {
+  const selectionGrid = document.getElementById('tools-selection-grid');
+  const iframeContainer = document.getElementById('tools-iframe-container');
+  const iframe = document.getElementById('tools-iframe');
+  
+  if (selectionGrid && iframeContainer && iframe) {
+    selectionGrid.style.display = 'none';
+    iframeContainer.style.display = 'block';
+    iframe.src = `https://www.bishalcodes.com/${tool}`;
+  }
+}
+
+function closeToolIframe() {
+  const selectionGrid = document.getElementById('tools-selection-grid');
+  const iframeContainer = document.getElementById('tools-iframe-container');
+  const iframe = document.getElementById('tools-iframe');
+  
+  if (selectionGrid && iframeContainer && iframe) {
+    selectionGrid.style.display = 'grid';
+    iframeContainer.style.display = 'none';
+    iframe.src = 'about:blank';
+  }
+}
+
+document.getElementById('tool-btn-compressor')?.addEventListener('click', () => loadToolIframe('image-compressor'));
+document.getElementById('tool-btn-merge')?.addEventListener('click', () => loadToolIframe('merge-pdf'));
+document.getElementById('tool-btn-jpg2pdf')?.addEventListener('click', () => loadToolIframe('jpg-to-pdf'));
+document.getElementById('tool-btn-qr')?.addEventListener('click', () => loadToolIframe('qr-studio'));
+document.getElementById('tool-btn-converter')?.addEventListener('click', () => loadToolIframe('date-converter'));
+document.getElementById('tool-btn-translator')?.addEventListener('click', () => loadToolIframe('translator'));
+document.getElementById('close-tools-iframe-btn')?.addEventListener('click', closeToolIframe);
+

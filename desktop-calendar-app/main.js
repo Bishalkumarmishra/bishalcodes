@@ -172,6 +172,16 @@ ipcMain.on('minimize-window', () => {
   if (mainWindow) mainWindow.minimize();
 });
 
+ipcMain.on('maximize-window', () => {
+  if (mainWindow) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  }
+});
+
 ipcMain.on('close-window', () => {
   // If we close, just hide to tray instead of quitting
   if (mainWindow) mainWindow.hide();

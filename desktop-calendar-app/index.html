@@ -16,10 +16,21 @@
         <span class="app-title">नेपाली क्यालेन्डर</span>
       </div>
       <div class="titlebar-controls">
-        <button class="titlebar-btn" id="always-on-top-btn" title="Always on Top">📌</button>
-        <button class="titlebar-btn" id="widget-toggle-btn" title="Widget Mode">📱</button>
-        <button class="titlebar-btn" id="min-btn">➖</button>
-        <button class="titlebar-btn" id="close-btn">❌</button>
+        <button class="titlebar-btn" id="always-on-top-btn" title="Always on Top">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="14" y2="3"></line><line x1="21" y1="3" x2="14" y2="10"></line><path d="M12 12a5 5 0 0 0-5 5v4h10v-4a5 5 0 0 0-5-5z"></path></svg>
+        </button>
+        <button class="titlebar-btn" id="widget-toggle-btn" title="Widget Mode">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+        </button>
+        <button class="titlebar-btn" id="min-btn" title="Minimize">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <button class="titlebar-btn" id="max-btn" title="Maximize">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+        </button>
+        <button class="titlebar-btn" id="close-btn" title="Close">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
       </div>
     </header>
 
@@ -30,13 +41,34 @@
       <nav class="sidebar" id="sidebar-nav">
         <div class="logo-section">
           <h2>Bishal Codes</h2>
-          <span class="logo-subtitle">Desktop Utility</span>
+          <div class="logo-subtitle">DESKTOP UTILITY</div>
+          <div class="logo-version" style="font-size: 9px; font-weight: bold; color: var(--text-secondary); opacity: 0.6; margin-top: 4px;">v1.2.0 (Latest)</div>
         </div>
         <ul class="nav-links">
-          <li class="active" data-tab="calendar-tab">📅 क्यालेन्डर (Calendar)</li>
-          <li data-tab="converter-tab">🔄 रुपान्तरण (Converter)</li>
-          <li data-tab="notes-tab">📝 टिप्पणीहरू (Notes)</li>
-          <li data-tab="settings-tab">⚙️ सेटिंग्स (Settings)</li>
+          <li class="active" data-tab="calendar-tab">
+            <svg class="nav-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span>क्यालेन्डर (Calendar)</span>
+          </li>
+          <li data-tab="converter-tab">
+            <svg class="nav-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+            <span>रुपान्तरण (Converter)</span>
+          </li>
+          <li data-tab="notes-tab">
+            <svg class="nav-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            <span>टिप्पणीहरू (Notes)</span>
+          </li>
+          <li data-tab="notifications-tab">
+            <svg class="nav-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span>सूचनाहरू (Announcements)</span>
+          </li>
+          <li data-tab="tools-tab">
+            <svg class="nav-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+            <span>थप उपकरणहरू (More Tools)</span>
+          </li>
+          <li data-tab="settings-tab">
+            <svg class="nav-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>सेटिङ्स (Settings)</span>
+          </li>
         </ul>
         <div class="sidebar-footer">
           <a href="https://bishalcodes.com" target="_blank">bishalcodes.com</a>
@@ -232,12 +264,18 @@
                   <span class="settings-label">Google Calendar Synchronization</span>
                   <p class="settings-desc">Connect and sync your scheduled events to Google Calendar.</p>
                 </div>
+                <div style="font-size: 10px; color: var(--text-secondary); line-height: 1.4; background: rgba(0,0,0,0.02); padding: 8px; border-radius: 6px; border-left: 2px solid var(--accent-color); width: 100%;">
+                  <strong>Connection Guide:</strong> Open Google Cloud Console ➔ Create a project ➔ Enable Google Calendar API ➔ Configure OAuth Consent Screen ➔ Create Credentials (OAuth Client ID) with redirect URL <code>http://localhost:48281/google-callback</code> ➔ Paste client ID and secret below ➔ Connect.
+                </div>
                 <div class="sync-credentials-grid" style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">
                   <input type="text" id="google-client-id" class="form-control text-xs" placeholder="Google Client ID" style="flex: 1;">
                   <input type="password" id="google-client-secret" class="form-control text-xs" placeholder="Google Client Secret" style="flex: 1;">
                 </div>
                 <div style="display: flex; gap: 8px; margin-top: 4px;">
-                  <button class="btn btn-sm btn-outline" id="connect-google-btn">🔌 Connect Google</button>
+                  <button class="btn btn-sm btn-outline" id="connect-google-btn" style="display: inline-flex; align-items: center; gap: 6px;">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    <span>Connect Google</span>
+                  </button>
                   <button class="btn btn-sm btn-primary" id="sync-google-now-btn" disabled>Sync Now</button>
                   <span id="google-status-text" class="text-xs" style="align-self: center; color: var(--text-secondary);">Disconnected</span>
                 </div>
@@ -249,16 +287,78 @@
                   <span class="settings-label">Microsoft Outlook Sync</span>
                   <p class="settings-desc">Connect and sync your scheduled events to Microsoft Outlook.</p>
                 </div>
+                <div style="font-size: 10px; color: var(--text-secondary); line-height: 1.4; background: rgba(0,0,0,0.02); padding: 8px; border-radius: 6px; border-left: 2px solid var(--accent-color); width: 100%;">
+                  <strong>Connection Guide:</strong> Go to Microsoft Azure Portal ➔ App Registrations ➔ Register App (Select multi-tenant and personal account option) ➔ Add redirect URI <code>http://localhost:48281/outlook-callback</code> (Web) ➔ Create Client Secret ➔ Paste details below ➔ Connect.
+                </div>
                 <div class="sync-credentials-grid" style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">
                   <input type="text" id="outlook-client-id" class="form-control text-xs" placeholder="Outlook Client ID" style="flex: 1;">
                   <input type="password" id="outlook-client-secret" class="form-control text-xs" placeholder="Outlook Client Secret" style="flex: 1;">
                 </div>
                 <div style="display: flex; gap: 8px; margin-top: 4px;">
-                  <button class="btn btn-sm btn-outline" id="connect-outlook-btn">🔌 Connect Outlook</button>
+                  <button class="btn btn-sm btn-outline" id="connect-outlook-btn" style="display: inline-flex; align-items: center; gap: 6px;">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    <span>Connect Outlook</span>
+                  </button>
                   <button class="btn btn-sm btn-primary" id="sync-outlook-now-btn" disabled>Sync Now</button>
                   <span id="outlook-status-text" class="text-xs" style="align-self: center; color: var(--text-secondary);">Disconnected</span>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 5: Announcements / Notifications Center -->
+        <section class="tab-content" id="notifications-tab">
+          <div class="card notifications-card" style="display: flex; flex-direction: column; height: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px;">
+              <div>
+                <h3 class="section-title-large">सूचनाहरू (Announcements)</h3>
+                <p class="section-subtitle">Real-time alerts and announcements broadcasted from the dashboard.</p>
+              </div>
+              <button class="btn btn-sm btn-outline" id="clear-notifications-btn">Clear All</button>
+            </div>
+            <div id="desktop-notifications-list" class="notifications-manager-list" style="display: flex; flex-direction: column; gap: 12px; overflow-y: auto; flex-grow: 1; padding-right: 4px;">
+              <p class="empty-state">कुनै सूचनाहरू उपलब्ध छैनन्। (No announcements available)</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 6: More Tools (Web Iframe Integration) -->
+        <section class="tab-content" id="tools-tab" style="height: 100%;">
+          <div class="card tools-card" style="display: flex; flex-direction: column; height: 100%; min-height: 500px; padding: 16px;">
+            <h3 class="section-title-large">थप उपकरणहरू (More Tools)</h3>
+            <p class="section-subtitle" style="margin-bottom: 12px;">Access online utility engines directly within your desktop widget.</p>
+            
+            <div id="tools-selection-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 12px;">
+              <button class="btn btn-outline text-xs text-left" id="tool-btn-compressor" style="display: flex; flex-direction: column; gap: 4px; padding: 10px;">
+                <span class="text-lg">🖼️</span>
+                <strong>Image Compressor</strong>
+              </button>
+              <button class="btn btn-outline text-xs text-left" id="tool-btn-merge" style="display: flex; flex-direction: column; gap: 4px; padding: 10px;">
+                <span class="text-lg">📂</span>
+                <strong>Merge PDF</strong>
+              </button>
+              <button class="btn btn-outline text-xs text-left" id="tool-btn-jpg2pdf" style="display: flex; flex-direction: column; gap: 4px; padding: 10px;">
+                <span class="text-lg">📄</span>
+                <strong>JPG to PDF</strong>
+              </button>
+              <button class="btn btn-outline text-xs text-left" id="tool-btn-qr" style="display: flex; flex-direction: column; gap: 4px; padding: 10px;">
+                <span class="text-lg">🔳</span>
+                <strong>QR Code Studio</strong>
+              </button>
+              <button class="btn btn-outline text-xs text-left" id="tool-btn-converter" style="display: flex; flex-direction: column; gap: 4px; padding: 10px;">
+                <span class="text-lg">📅</span>
+                <strong>Date Converter</strong>
+              </button>
+              <button class="btn btn-outline text-xs text-left" id="tool-btn-translator" style="display: flex; flex-direction: column; gap: 4px; padding: 10px;">
+                <span class="text-lg">🌐</span>
+                <strong>Translator</strong>
+              </button>
+            </div>
+            
+            <div id="tools-iframe-container" style="flex-grow: 1; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: none; position: relative;">
+              <button class="btn btn-sm btn-outline" id="close-tools-iframe-btn" style="position: absolute; top: 8px; right: 8px; z-index: 10; background: var(--bg-primary);">Back to List</button>
+              <iframe id="tools-iframe" style="width: 100%; height: 100%; border: none; background: white;" src="about:blank"></iframe>
             </div>
           </div>
         </section>

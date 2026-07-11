@@ -525,6 +525,7 @@ const Admin: React.FC = () => {
   const [notificationTitle, setNotificationTitle] = useState('');
   const [notificationBody, setNotificationBody] = useState('');
   const [sendingNotification, setSendingNotification] = useState(false);
+  const [notificationsHistory, setNotificationsHistory] = useState<any[]>([]);
   const [legalForm, setLegalForm] = useState<LegalPageType>({
     id: '',
     title: 'Privacy Policy',
@@ -894,6 +895,9 @@ const Admin: React.FC = () => {
 
           const fSnap = await getDocs(query(collection(db, 'desktop_app_feedback'), orderBy('timestamp', 'desc')));
           setDesktopFeedback(fSnap.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) })));
+
+          const nSnap = await getDocs(query(collection(db, 'notifications'), orderBy('timestamp', 'desc')));
+          setNotificationsHistory(nSnap.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) })));
         } catch(err) {
           console.error(err);
         }
@@ -949,18 +953,36 @@ const Admin: React.FC = () => {
     }
     setSendingNotification(true);
     try {
-      await addDoc(collection(db, 'notifications'), {
+      const docRef = await addDoc(collection(db, 'notifications'), {
         title: notificationTitle.trim(),
         body: notificationBody.trim(),
         timestamp: Date.now()
       });
       alert("Notification published successfully! Desktop users will receive it shortly.");
+      const newDoc = {
+        id: docRef.id,
+        title: notificationTitle.trim(),
+        body: notificationBody.trim(),
+        timestamp: Date.now()
+      };
+      setNotificationsHistory(prev => [newDoc, ...prev]);
       setNotificationTitle('');
       setNotificationBody('');
     } catch (err: any) {
       alert("Failed to send notification: " + (err.message || err));
     } finally {
       setSendingNotification(false);
+    }
+  };
+
+  const handleDeleteNotification = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this notification? It will be removed from the history log.")) return;
+    try {
+      await deleteDoc(doc(db, 'notifications', id));
+      setNotificationsHistory(prev => prev.filter(n => n.id !== id));
+      alert("Notification deleted successfully.");
+    } catch (err: any) {
+      alert("Failed to delete notification: " + (err.message || err));
     }
   };
 
@@ -4728,6 +4750,42 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                       {sendingNotification ? 'Publishing...' : 'Publish Notification'}
                     </button>
                   </div>
+                </div>
+
+                {/* Broadcast History Log */}
+                <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                      <Send size={16} className="text-indigo-600" /> Broadcast History
+                    </h3>
+                    <p className="text-slate-500 text-[10px] font-normal">Review and manage previously broadcasted push notifications.</p>
+                  </div>
+                  {notificationsHistory.length === 0 ? (
+                    <div className="text-xs text-slate-500 italic">No broadcast history found.</div>
+                  ) : (
+                    <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+                      {notificationsHistory.map((notif) => (
+                        <div key={notif.id} className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 flex justify-between items-start gap-4">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">{notif.title}</span>
+                              <span className="text-[9px] text-slate-400 font-normal">
+                                {new Date(notif.timestamp).toLocaleString()}
+                              </span>
+                            </div>
+                            <p className="text-slate-600 dark:text-slate-400 text-xs leading-normal font-normal">{notif.body}</p>
+                          </div>
+                          <button 
+                            onClick={() => handleDeleteNotification(notif.id)}
+                            className="text-slate-400 hover:text-red-500 transition-colors p-1.5 hover:bg-red-50 rounded-lg"
+                            title="Delete Notification"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-8">
