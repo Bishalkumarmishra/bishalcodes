@@ -193,18 +193,28 @@ export default function Widgets() {
                   <span className="text-base">💻</span> Standalone Windows App
                 </span>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-normal">
-                  Want the Nepali Calendar directly on your Windows desktop? Download our standalone app featuring system tray widget integration and offline support.
+                  Want the Nepali Calendar directly on your Windows desktop? Download our desktop app with system tray widget integration, notifications, and offline support.
                 </p>
-                <a
-                  href="/downloads/NepaliCalendar-Setup-v1.3.0.zip"
-                  download
-                  onClick={handleDownloadDesktopApp}
-                  className="inline-flex w-full items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-lg text-[10px] uppercase tracking-wider transition-all active:scale-98 shadow-sm"
-                >
-                  Download for Windows 10/11
-                </a>
-                <p className="text-[9px] text-center text-slate-400 dark:text-slate-500 pt-1 leading-tight">
-                  Note: If your browser flags the download as uncommon, you can safely select <br className="hidden sm:block" /> <b>"Keep"</b> or <b>"Run anyway"</b>.
+                <div className="flex flex-col gap-2.5">
+                  <a
+                    href="https://apps.microsoft.com/detail/9PJVV2J32KNP"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex w-full items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-lg text-[10px] uppercase tracking-wider transition-all active:scale-98 shadow-sm cursor-pointer"
+                  >
+                    🛍️ Get from Microsoft Store
+                  </a>
+                  <a
+                    href="/downloads/NepaliCalendar-Setup-v1.3.0.zip"
+                    download
+                    onClick={handleDownloadDesktopApp}
+                    className="inline-flex w-full items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-800 hover:bg-slate-55 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 font-semibold py-2 px-4 rounded-lg text-[9px] uppercase tracking-wider transition-all active:scale-98 cursor-pointer text-center"
+                  >
+                    💾 Alternative Direct ZIP Installer
+                  </a>
+                </div>
+                <p className="text-[8px] text-center text-slate-400 dark:text-slate-500 pt-1 leading-tight">
+                  Downloading via the Microsoft Store ensures automatic background updates and a clean installation.
                 </p>
               </div>
             </div>

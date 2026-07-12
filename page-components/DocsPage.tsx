@@ -555,9 +555,9 @@ The Nepali Calendar Desktop App is a premium, offline-first calendar and date co
 
 ### Installation & Configuration Guide
 
-1. Visit the [Date Converter & Calendar](/tools/date-converter) page on the web app.
-2. Click **Download Desktop App (Win 10/11)** to download the latest setup archive (\`NepaliCalendar-Setup-v1.3.0.zip\`).
-3. Extract and run the installer setup. If Windows SmartScreen displays a warning, select **More Info** ➔ **Run Anyway** to finish installation.
+1. Download from the [Microsoft Store page](https://apps.microsoft.com/detail/9PJVV2J32KNP) and click **Get**.
+2. Alternatively, visit the [Date Converter & Calendar](/tools/date-converter) page and click **Alternative Direct ZIP Installer** to download the legacy archive (`NepaliCalendar-Setup-v1.3.0.zip`).
+3. For the manual ZIP installer: extract and run the setup. If Windows SmartScreen shows a warning, select **More Info** ➔ **Run Anyway** to complete the installation.
 4. **Google & Outlook Setup**: Navigate to the App Settings tab, enter your custom OAuth credentials (Client ID & Secret), and click **Connect** to link your calendars.
 
 ---

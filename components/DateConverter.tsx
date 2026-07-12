@@ -1553,15 +1553,15 @@ END:VCALENDAR`;
               <div className="hidden sm:block text-slate-300 dark:text-slate-700 text-xs">|</div>
               <div className="flex flex-col items-center gap-0.5">
                 <a
-                  href="/downloads/NepaliCalendar-Setup-v1.3.0.zip"
-                  download
-                  onClick={handleDownloadDesktopApp}
+                  href="https://apps.microsoft.com/detail/9PJVV2J32KNP"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors cursor-pointer inline-flex items-center gap-1.5"
                 >
-                  <span className="text-sm">💻</span>
-                  <span>Download Desktop App (Win 10/11)</span>
+                  <span className="text-sm">🛍️</span>
+                  <span>Get Nepali Calendar on Microsoft Store</span>
                 </a>
-                <span className="text-[8px] text-slate-400 dark:text-slate-500 font-medium">If blocked by browser, select "Keep"</span>
+                <span className="text-[8px] text-slate-400 dark:text-slate-500 font-medium">Safe background updates & easy installation</span>
               </div>
             </div>
 
