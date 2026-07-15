@@ -2218,15 +2218,23 @@ function renderMonthlyEvents() {
 
 function updateKathmanduClock() {
   const clockEl = document.getElementById('nepal-clock');
+  const labelEl = document.getElementById('sidebar-clock-label');
   if (!clockEl) return;
   
+  // Auto-detect timezone location
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (labelEl && tz) {
+      const parts = tz.split('/');
+      const loc = parts[parts.length - 1].replace('_', ' ').toUpperCase();
+      labelEl.innerText = `${loc} TIME`;
+    }
+  } catch (_) {}
+
   const d = new Date();
-  const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
-  const ktmTime = new Date(utc + (3600000 * 5.75));
-  
-  let hours = ktmTime.getHours();
-  let minutes = ktmTime.getMinutes();
-  let seconds = ktmTime.getSeconds();
+  let hours = d.getHours();
+  let minutes = d.getMinutes();
+  let seconds = d.getSeconds();
   const ampm = hours >= 12 ? 'PM' : 'AM';
   
   hours = hours % 12;
@@ -2298,144 +2306,396 @@ function updateSidebarThemeIcon() {
   }
 }
 
-function initNewFrontPageWidgets() {
-  // Theme Sync listeners
-  updateSidebarThemeIcon();
-  if (themeDarkBtn) themeDarkBtn.addEventListener('click', updateSidebarThemeIcon);
-  if (themeLightBtn) themeLightBtn.addEventListener('click', updateSidebarThemeIcon);
-  
-  const sidebarThemeBtn = document.getElementById('sidebar-theme-toggle');
-  if (sidebarThemeBtn) {
-    sidebarThemeBtn.addEventListener('click', () => {
-      const isDark = document.body.classList.contains('dark') || document.body.className === 'dark';
-      if (isDark) {
-        if (themeLightBtn) themeLightBtn.click();
-      } else {
-        if (themeDarkBtn) themeDarkBtn.click();
-      }
-      updateSidebarThemeIcon();
-    });
-  }
+// Import romonisednepali for the fully offline high-quality Romanized-to-Nepali transliterator
+const romonisedCore = require('romonisednepali/core.js');
 
-  // Kathmandu Clock timer
-  setInterval(updateKathmanduClock, 1000);
-  updateKathmanduClock();
-
-  // BS Year Progress
-  updateBSYearProgress();
-  
-  // Extra Tools Tab switcher
-  const tabProverbsBtn = document.getElementById('tool-tab-proverbs');
-  const tabUnicodeBtn = document.getElementById('tool-tab-unicode');
-  const contentProverbs = document.getElementById('tool-content-proverbs');
-  const contentUnicode = document.getElementById('tool-content-unicode');
-
-  if (tabProverbsBtn && tabUnicodeBtn && contentProverbs && contentUnicode) {
-    tabProverbsBtn.addEventListener('click', () => {
-      tabProverbsBtn.classList.add('active');
-      tabUnicodeBtn.classList.remove('active');
-      tabProverbsBtn.style.color = 'var(--accent-color)';
-      tabProverbsBtn.style.borderBottom = '2px solid var(--accent-color)';
-      tabUnicodeBtn.style.color = 'var(--text-secondary)';
-      tabUnicodeBtn.style.borderBottom = 'none';
-      
-      contentProverbs.style.display = 'block';
-      contentUnicode.style.display = 'none';
-    });
-    
-    tabUnicodeBtn.addEventListener('click', () => {
-      tabUnicodeBtn.classList.add('active');
-      tabProverbsBtn.classList.remove('active');
-      tabUnicodeBtn.style.color = 'var(--accent-color)';
-      tabUnicodeBtn.style.borderBottom = '2px solid var(--accent-color)';
-      tabProverbsBtn.style.color = 'var(--text-secondary)';
-      tabProverbsBtn.style.borderBottom = 'none';
-      
-      contentUnicode.style.display = 'block';
-      contentProverbs.style.display = 'none';
-    });
-  }
-  
-  // Proverbs listeners
-  const proverbShuffleBtn = document.getElementById('proverb-shuffle-btn');
-  const proverbCopyBtn = document.getElementById('proverb-copy-btn');
-  if (proverbShuffleBtn) proverbShuffleBtn.addEventListener('click', shuffleProverb);
-  if (proverbCopyBtn) proverbCopyBtn.addEventListener('click', copyProverb);
-  shuffleProverb(); // load initial proverb
-
-  // Unicode Converter listener
-  const unicodeInput = document.getElementById('unicode-input');
-  if (unicodeInput) {
-    unicodeInput.addEventListener('keydown', (e) => {
-      const triggers = [' ', 'Enter', '.', ',', '?', '!', ';', ':'];
-      if (triggers.includes(e.key)) {
-        const val = e.target.value;
-        const pos = e.target.selectionStart;
-        const textBefore = val.substring(0, pos);
-        const textAfter = val.substring(pos);
-        
-        const match = textBefore.match(/[a-zA-Z]+$/);
-        if (match) {
-          const romanWord = match[0];
-          const nepaliWord = transliterateRomanToNepali(romanWord);
-          
-          const newTextBefore = textBefore.substring(0, textBefore.length - romanWord.length) + nepaliWord;
-          e.preventDefault();
-          
-          const appendChar = e.key === 'Enter' ? '\n' : e.key;
-          e.target.value = newTextBefore + appendChar + textAfter;
-          
-          const newPos = newTextBefore.length + appendChar.length;
-          e.target.setSelectionRange(newPos, newPos);
+function convertRomanToNepali(raw, smartConvert = true) {
+  try {
+    const charactersUnicode = romonisedCore.translate(raw, smartConvert).split("#");
+    let convertedCharacters = "";
+    charactersUnicode.forEach(element => {
+      if (element) {
+        const charCode = parseInt(element.replace("¬", ""), 10);
+        if (!isNaN(charCode)) {
+          convertedCharacters += String.fromCharCode(charCode);
         }
       }
     });
+    return convertedCharacters;
+  } catch (e) {
+    console.error("Transliteration error:", e);
+    return raw;
+  }
+}
+
+// Global News Media Houses Configurations
+const newsSources = [
+  { name: 'Onlinekhabar', domain: 'onlinekhabar.com', rss: 'https://www.onlinekhabar.com/feed', icon: 'https://www.onlinekhabar.com/favicon.ico' },
+  { name: 'Ekantipur', domain: 'ekantipur.com', rss: 'https://ekantipur.com/rss', icon: 'https://ekantipur.com/favicon.ico' },
+  { name: 'Ratopati', domain: 'ratopati.com', rss: 'https://ratopati.com/feed', icon: 'https://ratopati.com/favicon.ico' },
+  { name: 'Setopati', domain: 'setopati.com', rss: 'https://setopati.com/feed', icon: 'https://setopati.com/favicon.ico' },
+  { name: 'Ujyaalo Online', domain: 'ujyaaloonline.com', rss: 'https://ujyaaloonline.com/feed', icon: 'https://ujyaaloonline.com/favicon.ico' },
+  { name: 'BBC Nepali', domain: 'bbc.com/nepali', rss: 'https://feeds.bbci.co.uk/nepali/rss.xml', icon: 'https://www.bbc.com/favicon.ico' },
+  { name: 'Himal Khabar', domain: 'himalkhabar.com', rss: 'https://www.himalkhabar.com/feed', icon: 'https://www.himalkhabar.com/favicon.ico' },
+  { name: 'Gorkhapatra', domain: 'gorkhapatraonline.com', rss: 'https://gorkhapatraonline.com/feed', icon: 'https://gorkhapatraonline.com/favicon.ico' },
+  { name: 'Khabarhub', domain: 'khabarhub.com', rss: 'https://khabarhub.com/feed', icon: 'https://khabarhub.com/favicon.ico' },
+  { name: 'NepalNews', domain: 'nepalnews.com', rss: 'https://nepalnews.com/feed', icon: 'https://nepalnews.com/favicon.ico' }
+];
+
+let selectedNewsSource = newsSources[0];
+
+// Node-based CORS-bypassing RSS request
+function fetchRssFeed(url) {
+  const https = require('https');
+  return new Promise((resolve, reject) => {
+    https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } }, (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => resolve(data));
+    }).on('error', (err) => reject(err));
+  });
+}
+
+// Render the 10 popular news media buttons inside news-tab
+function initNewsTabSection() {
+  const mediaListContainer = document.getElementById('news-media-list');
+  if (!mediaListContainer) return;
+  
+  mediaListContainer.innerHTML = '';
+  
+  newsSources.forEach((src, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'news-source-btn';
+    btn.style.cssText = 'display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); cursor: pointer; text-align: left; font-size: 11.5px; font-weight: bold; margin-bottom: 2px;';
+    btn.innerHTML = `
+      <img src="${src.icon}" style="width: 16px; height: 16px; border-radius: 3px;" onerror="this.src='tray-icon.png'">
+      <span style="font-size: 11.5px; color: var(--text-primary); font-weight: bold;">${src.name}</span>
+    `;
+    
+    if (src.name === selectedNewsSource.name) {
+      btn.classList.add('active');
+    }
+    
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.news-source-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedNewsSource = src;
+      closeNewsArticle();
+      loadNewsSource(src);
+    });
+    
+    mediaListContainer.appendChild(btn);
+  });
+  
+  // Close article back buttons
+  const closeBtn = document.getElementById('close-news-article-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeNewsArticle);
   }
   
-  const unicodeCopyBtn = document.getElementById('unicode-copy-btn');
-  if (unicodeCopyBtn && unicodeInput) {
-    unicodeCopyBtn.addEventListener('click', () => {
-      const text = unicodeInput.value;
-      if (!text) return;
-      navigator.clipboard.writeText(text);
-      const originalText = unicodeCopyBtn.innerText;
-      unicodeCopyBtn.innerText = "✓ Copied!";
-      setTimeout(() => { unicodeCopyBtn.innerText = originalText; }, 1500);
+  // Initial load
+  loadNewsSource(selectedNewsSource);
+}
+
+async function loadNewsSource(source) {
+  const titleEl = document.getElementById('news-source-title');
+  if (titleEl) titleEl.innerText = source.name;
+
+  const feedsList = document.getElementById('news-feeds-list');
+  if (!feedsList) return;
+
+  feedsList.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 120px; font-size: 11px; color: var(--text-secondary);">Loading feeds, please wait...</div>';
+
+  try {
+    const xmlText = await fetchRssFeed(source.rss);
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    const items = xmlDoc.getElementsByTagName("item");
+    
+    feedsList.innerHTML = '';
+    
+    if (!items || items.length === 0) {
+      feedsList.innerHTML = '<div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 11px;">No news feeds found.</div>';
+      return;
+    }
+    
+    Array.from(items).slice(0, 15).forEach(item => {
+      const title = item.getElementsByTagName("title")[0]?.textContent || '';
+      const link = item.getElementsByTagName("link")[0]?.textContent || '';
+      const pubDate = item.getElementsByTagName("pubDate")[0]?.textContent || '';
+      let description = item.getElementsByTagName("description")[0]?.textContent || '';
+      
+      description = description.replace(/<[^>]*>/g, '').substring(0, 120) + '...';
+
+      const feedItem = document.createElement('div');
+      feedItem.style.cssText = 'padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-primary); cursor: pointer; transition: all 0.2s;';
+      feedItem.innerHTML = `
+        <h4 style="font-size: 12.5px; font-weight: 800; color: var(--text-primary); margin: 0 0 4px 0;">${title}</h4>
+        <p style="font-size: 10.5px; color: var(--text-secondary); margin: 0 0 6px 0; line-height: 1.4;">${description}</p>
+        <span style="font-size: 8.5px; color: var(--text-secondary); opacity: 0.7;">${pubDate}</span>
+      `;
+
+      feedItem.addEventListener('click', () => {
+        openNewsArticle(title, link);
+      });
+
+      feedItem.addEventListener('mouseenter', () => {
+        feedItem.style.borderColor = 'var(--accent-color)';
+        feedItem.style.background = 'var(--bg-active)';
+      });
+      feedItem.addEventListener('mouseleave', () => {
+        feedItem.style.borderColor = 'var(--border-color)';
+        feedItem.style.background = 'var(--bg-primary)';
+      });
+
+      feedsList.appendChild(feedItem);
     });
+  } catch (err) {
+    console.error("RSS fetch error:", err);
+    feedsList.innerHTML = `<div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 11px;">Error loading news feeds: ${err.message}</div>`;
   }
+}
+
+function openNewsArticle(title, link) {
+  const feedsContainer = document.getElementById('news-feeds-container');
+  const articleContainer = document.getElementById('news-article-container');
+  const articleTitle = document.getElementById('news-article-title');
+  const webview = document.getElementById('news-webview');
+  
+  if (feedsContainer && articleContainer && articleTitle && webview) {
+    feedsContainer.style.display = 'none';
+    articleContainer.style.display = 'flex';
+    articleTitle.innerText = title;
+    webview.src = link;
+    
+    // Inject CSS once loaded to hide headers/footers
+    webview.addEventListener('did-finish-load', injectNewsSiteCSS);
+  }
+}
+
+function closeNewsArticle() {
+  const feedsContainer = document.getElementById('news-feeds-container');
+  const articleContainer = document.getElementById('news-article-container');
+  const webview = document.getElementById('news-webview');
+  
+  if (feedsContainer && articleContainer && webview) {
+    feedsContainer.style.display = 'flex';
+    articleContainer.style.display = 'none';
+    webview.src = 'about:blank';
+    webview.removeEventListener('did-finish-load', injectNewsSiteCSS);
+  }
+}
+
+function injectNewsSiteCSS() {
+  const webview = document.getElementById('news-webview');
+  if (!webview) return;
+  
+  const css = `
+    header, footer, .header, .footer, #header, #footer, .navbar, .navigation, .site-header, .site-footer, .site-navigation, #site-header, #site-footer, .top-bar, .main-header, .footer-bottom, .bottom-footer, .nav-bar, .menu-bar, nav, [role="navigation"] {
+      display: none !important;
+    }
+  `;
+  try {
+    webview.insertCSS(css);
+  } catch (e) {
+    console.error("Failed to inject CSS in webview:", e);
+  }
+}
+
+function initNewFrontPageWidgets() {
+  // Theme Sync listeners
+  try {
+    updateSidebarThemeIcon();
+    if (themeDarkBtn) themeDarkBtn.addEventListener('click', updateSidebarThemeIcon);
+    if (themeLightBtn) themeLightBtn.addEventListener('click', updateSidebarThemeIcon);
+    
+    const sidebarThemeBtn = document.getElementById('sidebar-theme-toggle');
+    if (sidebarThemeBtn) {
+      sidebarThemeBtn.addEventListener('click', () => {
+        const isDark = document.body.classList.contains('dark') || document.body.className === 'dark';
+        if (isDark) {
+          if (themeLightBtn) themeLightBtn.click();
+        } else {
+          if (themeDarkBtn) themeDarkBtn.click();
+        }
+        updateSidebarThemeIcon();
+      });
+    }
+  } catch (e) { console.error("Theme sync init failed:", e); }
+
+  // Kathmandu/Local Clock timer
+  try {
+    setInterval(updateKathmanduClock, 1000);
+    updateKathmanduClock();
+  } catch (e) { console.error("Local clock init failed:", e); }
+
+  // BS Year Progress
+  try {
+    updateBSYearProgress();
+  } catch (e) { console.error("Year progress init failed:", e); }
+  
+  // Extra Tools Tab switcher
+  try {
+    const tabProverbsBtn = document.getElementById('tool-tab-proverbs');
+    const tabUnicodeBtn = document.getElementById('tool-tab-unicode');
+    const contentProverbs = document.getElementById('tool-content-proverbs');
+    const contentUnicode = document.getElementById('tool-content-unicode');
+
+    if (tabProverbsBtn && tabUnicodeBtn && contentProverbs && contentUnicode) {
+      tabProverbsBtn.addEventListener('click', () => {
+        tabProverbsBtn.classList.add('active');
+        tabUnicodeBtn.classList.remove('active');
+        tabProverbsBtn.style.color = 'var(--accent-color)';
+        tabProverbsBtn.style.borderBottom = '2px solid var(--accent-color)';
+        tabUnicodeBtn.style.color = 'var(--text-secondary)';
+        tabUnicodeBtn.style.borderBottom = 'none';
+        contentProverbs.style.display = 'block';
+        contentUnicode.style.display = 'none';
+      });
+      
+      tabUnicodeBtn.addEventListener('click', () => {
+        tabUnicodeBtn.classList.add('active');
+        tabProverbsBtn.classList.remove('active');
+        tabUnicodeBtn.style.color = 'var(--accent-color)';
+        tabUnicodeBtn.style.borderBottom = '2px solid var(--accent-color)';
+        tabProverbsBtn.style.color = 'var(--text-secondary)';
+        tabProverbsBtn.style.borderBottom = 'none';
+        contentUnicode.style.display = 'block';
+        contentProverbs.style.display = 'none';
+      });
+    }
+  } catch (e) { console.error("Tab switcher init failed:", e); }
+  
+  // Proverbs listeners
+  try {
+    const proverbShuffleBtn = document.getElementById('proverb-shuffle-btn');
+    const proverbCopyBtn = document.getElementById('proverb-copy-btn');
+    if (proverbShuffleBtn) proverbShuffleBtn.addEventListener('click', shuffleProverb);
+    if (proverbCopyBtn) proverbCopyBtn.addEventListener('click', copyProverb);
+    shuffleProverb(); // load initial proverb
+  } catch (e) { console.error("Proverbs init failed:", e); }
+
+  // Unicode Converter listener
+  try {
+    const unicodeInput = document.getElementById('unicode-input');
+    if (unicodeInput) {
+      unicodeInput.addEventListener('keydown', (e) => {
+        const triggers = [' ', 'Enter', '.', ',', '?', '!', ';', ':'];
+        if (triggers.includes(e.key)) {
+          const val = e.target.value;
+          const pos = e.target.selectionStart;
+          const textBefore = val.substring(0, pos);
+          const textAfter = val.substring(pos);
+          
+          const match = textBefore.match(/[a-zA-Z]+$/);
+          if (match) {
+            const romanWord = match[0];
+            const nepaliWord = convertRomanToNepali(romanWord);
+            
+            const newTextBefore = textBefore.substring(0, textBefore.length - romanWord.length) + nepaliWord;
+            e.preventDefault();
+            
+            const appendChar = e.key === 'Enter' ? '\n' : e.key;
+            e.target.value = newTextBefore + appendChar + textAfter;
+            
+            const newPos = newTextBefore.length + appendChar.length;
+            e.target.setSelectionRange(newPos, newPos);
+          }
+        }
+      });
+    }
+    
+    const unicodeCopyBtn = document.getElementById('unicode-copy-btn');
+    if (unicodeCopyBtn && unicodeInput) {
+      unicodeCopyBtn.addEventListener('click', () => {
+        const text = unicodeInput.value;
+        if (!text) return;
+        navigator.clipboard.writeText(text);
+        const originalText = unicodeCopyBtn.innerText;
+        unicodeCopyBtn.innerText = "✓ Copied!";
+        setTimeout(() => { unicodeCopyBtn.innerText = originalText; }, 1500);
+      });
+    }
+  } catch (e) { console.error("Unicode converter init failed:", e); }
 
   // Dashboard Header redirects
-  const headerBell = document.getElementById('header-bell-btn');
-  if (headerBell) {
-    headerBell.addEventListener('click', () => {
-      const annLink = document.querySelector('[data-tab="notifications-tab"]');
-      if (annLink) annLink.click();
-    });
-  }
-  const headerAccount = document.getElementById('header-account-btn');
-  if (headerAccount) {
-    headerAccount.addEventListener('click', () => {
-      const accLink = document.querySelector('[data-tab="account-tab"]');
-      if (accLink) accLink.click();
-    });
-  }
+  try {
+    const headerBell = document.getElementById('header-bell-btn');
+    if (headerBell) {
+      headerBell.addEventListener('click', () => {
+        const annLink = document.querySelector('[data-tab="notifications-tab"]');
+        if (annLink) annLink.click();
+      });
+    }
+    const headerAccount = document.getElementById('header-account-btn');
+    if (headerAccount) {
+      headerAccount.addEventListener('click', () => {
+        const accLink = document.querySelector('[data-tab="account-tab"]');
+        if (accLink) accLink.click();
+      });
+    }
+  } catch (e) { console.error("Header click redirects failed:", e); }
 
   // Dynamic greeting
-  updateHeaderGreeting();
-  setInterval(updateHeaderGreeting, 60000);
+  try {
+    updateHeaderGreeting();
+    setInterval(updateHeaderGreeting, 60000);
+  } catch (e) { console.error("Header greeting init failed:", e); }
 
   // Date Diff calculator
-  setupDateCalcInputs();
-  const calcDiffBtn = document.getElementById('calculate-diff-btn');
-  if (calcDiffBtn) {
-    calcDiffBtn.addEventListener('click', runDateDifferenceCalc);
-  }
+  try {
+    setupDateCalcInputs();
+    const calcDiffBtn = document.getElementById('calculate-diff-btn');
+    if (calcDiffBtn) {
+      calcDiffBtn.addEventListener('click', runDateDifferenceCalc);
+    }
+  } catch (e) { console.error("Date difference calculator init failed:", e); }
 
   // Onboarding slideshow
-  initOnboardingFlow();
+  try {
+    initOnboardingFlow();
+  } catch (e) { console.error("Onboarding flow init failed:", e); }
+
+  // More Tools iframe dynamic binders
+  try {
+    const toolBinds = [
+      { id: 'date-converter', btn: 'tool-btn-converter' },
+      { id: 'translator', btn: 'tool-btn-translator' },
+      { id: 'currency-converter', btn: 'tool-btn-currency' },
+      { id: 'jpg-to-pdf', btn: 'tool-btn-jpg2pdf' },
+      { id: 'merge-pdf', btn: 'tool-btn-merge' },
+      { id: 'add-page-numbers', btn: 'tool-btn-pagenum' },
+      { id: 'pdf-to-image', btn: 'tool-btn-pdf2img' },
+      { id: 'ai-summarizer', btn: 'tool-btn-summarizer' },
+      { id: 'image-compressor', btn: 'tool-btn-compressor' },
+      { id: 'emi-calculator', btn: 'tool-btn-emi' },
+      { id: 'qr-studio', btn: 'tool-btn-qr' },
+      { id: 'json-formatter', btn: 'tool-btn-json' },
+      { id: 'diff-checker', btn: 'tool-btn-diff' },
+      { id: 'code-runner', btn: 'tool-btn-coderun' },
+      { id: 'file-transfer', btn: 'tool-btn-filetrans' },
+      { id: 'screenshot-studio', btn: 'tool-btn-screenshot' },
+      { id: 'secure-vault', btn: 'tool-btn-vault' },
+      { id: 'dev-card-studio', btn: 'tool-btn-devcard' },
+      { id: 'font-downloader', btn: 'tool-btn-font' },
+      { id: 'ocr-converter', btn: 'tool-btn-ocr' },
+      { id: 'bg-remover', btn: 'tool-btn-bgremove' },
+      { id: 'scan-pdf', btn: 'tool-btn-scan' }
+    ];
+    toolBinds.forEach(t => {
+      document.getElementById(t.btn)?.addEventListener('click', () => loadToolIframe(t.id));
+    });
+  } catch (e) { console.error("More tools button binders failed:", e); }
+
+  // Nepali News Reader Tab Section
+  try {
+    initNewsTabSection();
+  } catch (e) { console.error("Nepali news tab init failed:", e); }
   
   // Render monthly events immediately
-  renderMonthlyEvents();
+  try {
+    renderMonthlyEvents();
+  } catch (e) { console.error("Monthly events render failed:", e); }
 }
 
 // ─── PHASE 2 WIDGETS FUNCTIONALITY ───────────────────────────────────────────

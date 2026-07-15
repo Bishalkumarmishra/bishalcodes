@@ -1251,5 +1251,41 @@ body.widget-mode .content-header {
   animation: fadeIn 0.3s ease;
 }
 
+/* Hide News Tab in Floating Widget Mode */
+body.widget-mode #news-tab {
+  display: none !important;
+}
+
+/* News source sidebar button custom states */
+.news-source-btn {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--border-color) !important;
+}
+.news-source-btn:hover {
+  background: var(--bg-active) !important;
+  border-color: var(--accent-color) !important;
+  transform: translateX(4px);
+}
+.news-source-btn.active {
+  background: var(--accent-color) !important;
+  color: white !important;
+  border-color: var(--accent-color) !important;
+}
+.news-source-btn.active span {
+  color: white !important;
+}
+
+/* Custom scrollbar for news feed list */
+#news-feeds-list::-webkit-scrollbar,
+.news-media-card::-webkit-scrollbar {
+  width: 6px;
+}
+#news-feeds-list::-webkit-scrollbar-thumb,
+.news-media-card::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+
 
 
