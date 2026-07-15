@@ -368,31 +368,30 @@ const ServicesPage: React.FC = () => {
                 e.preventDefault();
                 navigate('services', 'dev-card-studio');
               }}
-              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-6 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[280px] hover:border-indigo-500 dark:hover:border-indigo-400 block"
+              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-4 sm:p-5 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[200px] sm:min-h-[220px] hover:border-indigo-500 dark:hover:border-indigo-400 block"
             >
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{ background: 'radial-gradient(ellipse at top left, rgba(99,102,241,0.07) 0%, transparent 60%)' }} />
-              <div className="space-y-4 w-full relative z-10">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-800/40">
+              <div className="space-y-3 w-full relative z-10">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-800/40">
                   🪪
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Developer Card Studio</h3>
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">NEW</span>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Developer Card Studio</h3>
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">NEW</span>
                   </div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                  <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-[13px] leading-relaxed font-medium">
                     Design customized developer profile cards and OpenGraph preview banners. Export as PNG images or copy copyable SVG/React vector markups.
                   </p>
                 </div>
               </div>
-              <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 transition-colors relative z-10">
+              <div className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 transition-colors relative z-10">
                 <span>Open Tool</span>
-                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
               </div>
             </a>
 
-            {/* ── Hardcoded: File Transfer (always visible) ── */}
             {/* ── Hardcoded: Secure Vault ── */}
             <a
               href="/tools/secure-vault"
@@ -400,27 +399,27 @@ const ServicesPage: React.FC = () => {
                 e.preventDefault();
                 navigate('services', 'secure-vault');
               }}
-              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-6 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[280px] hover:border-indigo-500 dark:hover:border-indigo-400 block"
+              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-4 sm:p-5 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[200px] sm:min-h-[220px] hover:border-indigo-500 dark:hover:border-indigo-400 block"
             >
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{ background: 'radial-gradient(ellipse at top left, rgba(99,102,241,0.07) 0%, transparent 60%)' }} />
-              <div className="space-y-4 w-full relative z-10">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-800/40">
+              <div className="space-y-3 w-full relative z-10">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-800/40">
                   🔐
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Secure Vault</h3>
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">NEW</span>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Secure Vault</h3>
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">NEW</span>
                   </div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                  <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-[13px] leading-relaxed font-medium">
                     Protect any file — image, PDF, video, or document — with AES-256 encryption. Share a password-protected link or QR code. Only those with the password can access it.
                   </p>
                 </div>
               </div>
-              <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 transition-colors relative z-10">
+              <div className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 transition-colors relative z-10">
                 <span>Open Tool</span>
-                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
               </div>
             </a>
 
@@ -431,27 +430,27 @@ const ServicesPage: React.FC = () => {
                 e.preventDefault();
                 navigate('services', 'file-transfer');
               }}
-              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-6 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[280px] hover:border-emerald-500 dark:hover:border-emerald-450 block"
+              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-4 sm:p-5 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[200px] sm:min-h-[220px] hover:border-emerald-500 dark:hover:border-emerald-450 block"
             >
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{ background: 'radial-gradient(ellipse at top left, rgba(16,185,129,0.06) 0%, transparent 60%)' }} />
-              <div className="space-y-4 w-full relative z-10">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-800/40">
+              <div className="space-y-3 w-full relative z-10">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-800/40">
                   🚀
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">File Transfer</h3>
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">NEW</span>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">File Transfer</h3>
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">NEW</span>
                   </div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                  <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-[13px] leading-relaxed font-medium">
                     Send any file or folder up to 100 GB. Get an instant shareable download link or email it — free, no account needed.
                   </p>
                 </div>
               </div>
-              <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 transition-colors relative z-10">
+              <div className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 transition-colors relative z-10">
                 <span>Open Tool</span>
-                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
               </div>
             </a>
 
@@ -462,27 +461,27 @@ const ServicesPage: React.FC = () => {
                 e.preventDefault();
                 navigate('services', 'screenshot-studio');
               }}
-              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-6 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[280px] hover:border-purple-500 dark:hover:border-purple-450 block"
+              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-4 sm:p-5 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[200px] sm:min-h-[220px] hover:border-purple-500 dark:hover:border-purple-450 block"
             >
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{ background: 'radial-gradient(ellipse at top left, rgba(168,85,247,0.06) 0%, transparent 60%)' }} />
-              <div className="space-y-4 w-full relative z-10">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-800/40">
+              <div className="space-y-3 w-full relative z-10">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-lg bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-800/40">
                   📸
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Screenshot Studio</h3>
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300">NEW</span>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Screenshot Studio</h3>
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300">NEW</span>
                   </div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                  <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-[13px] leading-relaxed font-medium">
                     Capture high-resolution screenshots of any website. Customize resolution, emulate mobile/desktop devices, capture full scrolling pages, and download instantly.
                   </p>
                 </div>
               </div>
-              <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 group-hover:text-purple-700 transition-colors relative z-10">
+              <div className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 group-hover:text-purple-700 transition-colors relative z-10">
                 <span>Open Tool</span>
-                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
               </div>
             </a>
 
@@ -493,27 +492,27 @@ const ServicesPage: React.FC = () => {
                 e.preventDefault();
                 navigate('services', 'font-downloader');
               }}
-              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-6 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[280px] hover:border-amber-500 dark:hover:border-amber-450 block"
+              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-4 sm:p-5 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[200px] sm:min-h-[220px] hover:border-amber-500 dark:hover:border-amber-450 block"
             >
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{ background: 'radial-gradient(ellipse at top left, rgba(245,158,11,0.07) 0%, transparent 60%)' }} />
-              <div className="space-y-4 w-full relative z-10">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-800/40">
+              <div className="space-y-3 w-full relative z-10">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-800/40">
                   🔤
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">System Fonts Downloader</h3>
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">NEW</span>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">System Fonts Downloader</h3>
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">NEW</span>
                   </div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                  <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-[13px] leading-relaxed font-medium">
                     Browse, preview and batch download 1100+ real Nepali and English fonts. Includes Preeti, Kantipur, Mangal, Kalimati, Roboto, Inter and more — install directly on your computer.
                   </p>
                 </div>
               </div>
-              <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 group-hover:text-amber-700 transition-colors relative z-10">
+              <div className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 group-hover:text-amber-700 transition-colors relative z-10">
                 <span>Open Tool</span>
-                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
               </div>
             </a>
 
@@ -524,27 +523,27 @@ const ServicesPage: React.FC = () => {
                 e.preventDefault();
                 navigate('services', 'ocr-converter');
               }}
-              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-6 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[280px] hover:border-indigo-600 dark:hover:border-indigo-500 block"
+              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-4 sm:p-5 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[200px] sm:min-h-[220px] hover:border-indigo-600 dark:hover:border-indigo-500 block"
             >
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{ background: 'radial-gradient(ellipse at top left, rgba(99,102,241,0.06) 0%, transparent 60%)' }} />
-              <div className="space-y-4 w-full relative z-10">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-900/30">
+              <div className="space-y-3 w-full relative z-10">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-900/30">
                   📝
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">AI OCR Converter</h3>
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">FREE AI</span>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">AI OCR Converter</h3>
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">FREE AI</span>
                   </div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                  <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-[13px] leading-relaxed font-medium">
                     Extract text instantly from scanned documents, receipts, screenshots, and photos. Runs completely in your browser — 100% free and private.
                   </p>
                 </div>
               </div>
-              <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 transition-colors relative z-10">
+              <div className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 transition-colors relative z-10">
                 <span>Open Tool</span>
-                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
               </div>
             </a>
 
@@ -555,20 +554,20 @@ const ServicesPage: React.FC = () => {
                 e.preventDefault();
                 navigate('services', 'bg-remover');
               }}
-              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-6 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[280px] hover:border-emerald-600 dark:hover:border-emerald-500 block"
+              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-4 sm:p-5 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[200px] sm:min-h-[220px] hover:border-emerald-600 dark:hover:border-emerald-500 block"
             >
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{ background: 'radial-gradient(ellipse at top left, rgba(16,185,129,0.06) 0%, transparent 60%)' }} />
-              <div className="space-y-4 w-full relative z-10">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-900/30">
+              <div className="space-y-3 w-full relative z-10">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-900/30">
                   ✂️
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Background Remover</h3>
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">FREE AI</span>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-450 transition-colors">Background Remover</h3>
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">FREE AI</span>
                   </div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                  <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-[13px] leading-relaxed font-medium">
                     Remove image backgrounds automatically in seconds. Runs entirely on your browser for absolute data privacy and zero quality limits.
                   </p>
                 </div>
@@ -586,27 +585,27 @@ const ServicesPage: React.FC = () => {
                 e.preventDefault();
                 navigate('services', 'scan-pdf');
               }}
-              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-6 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[280px] hover:border-indigo-600 dark:hover:border-indigo-500 block"
+              className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-4 sm:p-5 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[200px] sm:min-h-[220px] hover:border-indigo-600 dark:hover:border-indigo-500 block"
             >
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{ background: 'radial-gradient(ellipse at top left, rgba(99,102,241,0.06) 0%, transparent 60%)' }} />
-              <div className="space-y-4 w-full relative z-10">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-900/30">
+              <div className="space-y-3 w-full relative z-10">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-900/30">
                   📷
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Scan-to-PDF CamScanner</h3>
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">REAL TIME</span>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Scan-to-PDF CamScanner</h3>
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">REAL TIME</span>
                   </div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                  <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-[13px] leading-relaxed font-medium">
                     Scan documents using your phone camera, apply magic color enhancement filters, and compile pages into a clean PDF directly in your browser.
                   </p>
                 </div>
               </div>
-              <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 transition-colors relative z-10">
+              <div className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 transition-colors relative z-10">
                 <span>Open Tool</span>
-                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
               </div>
             </a>
 
@@ -619,7 +618,7 @@ const ServicesPage: React.FC = () => {
                   e.preventDefault();
                   navigate('services', service.linkUrl);
                 }}
-                className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-6 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[280px] hover:border-indigo-600 dark:hover:border-indigo-500 block"
+                className="group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-4 sm:p-5 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden min-h-[200px] sm:min-h-[220px] hover:border-indigo-600 dark:hover:border-indigo-500 block"
               >
                 {/* Dynamic Background Image overlay */}
                 {service.bgImageUrl && (
@@ -629,33 +628,33 @@ const ServicesPage: React.FC = () => {
                   />
                 )}
 
-                <div className="space-y-4 w-full relative z-10">
-                  <div className="w-10 h-10 bg-slate-50 dark:bg-slate-800 rounded-lg flex items-center justify-center overflow-hidden p-2 border border-slate-100 dark:border-slate-700">
+                <div className="space-y-3 w-full relative z-10">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 bg-slate-50 dark:bg-slate-800 rounded-lg flex items-center justify-center overflow-hidden p-2 border border-slate-100 dark:border-slate-700">
                     {service.iconUrl ? (
                       <img src={service.iconUrl} alt={service.title} className="w-full h-full object-contain drop-shadow-sm" />
                     ) : (
                       <div className="w-full h-full bg-slate-200 rounded" />
                     )}
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                         {service.title}
                       </h3>
                       {service.badge && (
-                        <span className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
+                        <span className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full">
                           {service.badge}
                         </span>
                       )}
                     </div>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                    <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-[13px] leading-relaxed font-medium">
                       {service.description}
                     </p>
                   </div>
                 </div>
-                <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors relative z-10">
+                <div className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors relative z-10">
                   <span>Open Tool</span>
-                  <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                  <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
                 </div>
               </a>
             ))}

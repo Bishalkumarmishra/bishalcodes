@@ -147,11 +147,23 @@ function toggleWindowMode(widgetMode) {
 }
 
 app.whenReady().then(() => {
-  // Auto start logic
-  app.setLoginItemSettings({
-    openAtLogin: true,
-    args: ['--hidden']
-  });
+  // Auto start logic (only enable when packaged, disable in development to avoid launching rogue default Electron window)
+  try {
+    if (app.isPackaged) {
+      app.setLoginItemSettings({
+        openAtLogin: true,
+        path: app.getPath('exe'),
+        args: ['--hidden']
+      });
+    } else {
+      app.setLoginItemSettings({
+        openAtLogin: false,
+        path: app.getPath('exe')
+      });
+    }
+  } catch (err) {
+    console.error("Failed to set login item settings:", err);
+  }
 
   createMainWindow();
   createWidgetWindow();

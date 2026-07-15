@@ -1646,7 +1646,7 @@ async function checkAppUpdates() {
     if (!response.ok) return;
     const data = await response.json();
     
-    const currentVersion = '1.5.0'; // Local desktop version (new compiled setup)
+    const currentVersion = '1.6.0'; // Local desktop version (new compiled setup)
     const latestVersion = data.version;
     
     if (isNewerVersion(latestVersion, currentVersion)) {
