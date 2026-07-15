@@ -205,7 +205,7 @@ export default function Widgets() {
                     🛍️ Get from Microsoft Store
                   </a>
                   <a
-                    href="/downloads/NepaliCalendar-Setup-v1.4.0.zip"
+                    href="/downloads/NepaliCalendar-Setup-v1.5.0.zip"
                     download
                     onClick={handleDownloadDesktopApp}
                     className="inline-flex w-full items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-800 hover:bg-slate-55 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 font-semibold py-2 px-4 rounded-lg text-[9px] uppercase tracking-wider transition-all active:scale-98 cursor-pointer text-center"
