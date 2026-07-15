@@ -8,8 +8,8 @@
   --bg-active: #334155;
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
-  --accent-color: #9c3e1b;
-  --accent-hover: #7d2f12;
+  --accent-color: #D2042D; /* Crimson red logo color */
+  --accent-hover: #a50322; /* Darker crimson hover state */
   --border-color: #334155;
   --holiday-color: #f87171;
   --holiday-bg: rgba(248, 113, 113, 0.1);
@@ -24,8 +24,8 @@ body.light {
   --bg-active: #f1f5f9;
   --text-primary: #0f172a;
   --text-secondary: #475569;
-  --accent-color: #9c3e1b;
-  --accent-hover: #7d2f12;
+  --accent-color: #D2042D; /* Crimson red logo color */
+  --accent-hover: #a50322; /* Darker crimson hover state */
   --border-color: #e2e8f0;
   --holiday-color: #ef4444;
   --holiday-bg: rgba(239, 68, 68, 0.08);
