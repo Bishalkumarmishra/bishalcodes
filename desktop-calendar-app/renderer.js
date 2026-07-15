@@ -1566,30 +1566,7 @@ if (syncFirestoreBtn) {
   syncFirestoreBtn.addEventListener('click', syncHolidaysFromFirestore);
 }
 
-// --- App Start Initializing ---
-setupConverterInputs();
-updateSelectedDayDetails();
-renderCalendar();
-renderAllNotesInManager();
-updateConnectionUI();
-checkDailyReminders();
-updateDynamicTrayIcon(selectedDay);
-initNewFrontPageWidgets();
 
-// Query custom admin notifications on startup and every 10 seconds (for instant alert delivery)
-checkFirestoreNotifications();
-setInterval(checkFirestoreNotifications, 10 * 1000);
-checkAppUpdates();
-
-// Setup calendar language toggle
-const calLangToggleBtn = document.getElementById('cal-lang-toggle');
-if (calLangToggleBtn) {
-  calLangToggleBtn.addEventListener('click', () => {
-    calViewType = calViewType === 'BS' ? 'AD' : 'BS';
-    calLangToggleBtn.innerText = calViewType === 'BS' ? 'Show English' : 'Show Nepali';
-    renderCalendar();
-  });
-}
 
 // Announcements Log List Renderer
 function renderAnnouncementsList() {
@@ -2925,4 +2902,27 @@ function runDateDifferenceCalc() {
   }
 }
 
+// --- App Start Initializing ---
+setupConverterInputs();
+updateSelectedDayDetails();
+renderCalendar();
+renderAllNotesInManager();
+updateConnectionUI();
+checkDailyReminders();
+updateDynamicTrayIcon(selectedDay);
+initNewFrontPageWidgets();
 
+// Query custom admin notifications on startup and every 10 seconds (for instant alert delivery)
+checkFirestoreNotifications();
+setInterval(checkFirestoreNotifications, 10 * 1000);
+checkAppUpdates();
+
+// Setup calendar language toggle
+const calLangToggleBtn = document.getElementById('cal-lang-toggle');
+if (calLangToggleBtn) {
+  calLangToggleBtn.addEventListener('click', () => {
+    calViewType = calViewType === 'BS' ? 'AD' : 'BS';
+    calLangToggleBtn.innerText = calViewType === 'BS' ? 'Show English' : 'Show Nepali';
+    renderCalendar();
+  });
+}
