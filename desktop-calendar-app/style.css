@@ -539,8 +539,7 @@ body {
 
 /* Tab 2: Converter Form */
 .converter-card {
-  max-width: 500px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .section-title-large {
@@ -1113,4 +1112,144 @@ body.widget-mode .day-event-dot {
 #close-btn:hover svg {
   stroke: white;
 }
+
+/* ────────────────────────────────────────── */
+/* NEW WIDGETS LAYOUT & COMPONENT STYLINGS    */
+/* ────────────────────────────────────────── */
+
+/* Grid Column wraps for calendar screen */
+.calendar-grid-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.calendar-detail-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Monthly events list custom scrollbar */
+.monthly-events-list::-webkit-scrollbar {
+  width: 5px;
+}
+.monthly-events-list::-webkit-scrollbar-thumb {
+  background: var(--bg-active);
+  border-radius: 10px;
+}
+
+/* Monthly event item row stylings */
+.monthly-event-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.monthly-event-item:hover {
+  background: var(--bg-active);
+  border-color: var(--accent-color);
+  transform: translateX(3px);
+}
+
+.monthly-event-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monthly-event-title-text {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.monthly-event-date-text {
+  font-size: 9px;
+  font-weight: bold;
+  color: var(--text-secondary);
+}
+
+/* Extra Tools Tab switches hover styles */
+.tool-tab-btn:hover {
+  color: var(--accent-color) !important;
+}
+
+/* Real-time Year Progress transition animation */
+#year-progress-bar {
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hide new front page widgets in floating widget mode */
+body.widget-mode .sidebar-widget-card,
+body.widget-mode .monthly-events-card,
+body.widget-mode .extra-tools-card,
+body.widget-mode .content-header {
+  display: none !important;
+}
+
+/* ────────────────────────────────────────── */
+/* PHASE 2 DESIGN UPDATES                     */
+/* ────────────────────────────────────────── */
+
+/* Content Header Buttons hover styles */
+.content-header .titlebar-btn {
+  transition: all 0.2s ease;
+}
+.content-header .titlebar-btn:hover {
+  background: var(--bg-active) !important;
+}
+.content-header .titlebar-btn svg {
+  transition: stroke 0.2s ease;
+}
+.content-header .titlebar-btn:hover svg {
+  stroke: var(--text-primary) !important;
+}
+
+/* Onboarding indicator dots */
+.onboarding-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border-color);
+  display: inline-block;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.onboarding-dot.active-dot {
+  background: var(--accent-color) !important;
+  width: 16px !important;
+  border-radius: 3px !important;
+}
+
+/* More Tools Premium card styling */
+.tool-card-btn {
+  box-shadow: 0 4px 15px var(--shadow-color);
+}
+.tool-card-btn:hover {
+  border-color: var(--accent-color) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px var(--shadow-color);
+}
+.tool-card-btn svg {
+  transition: transform 0.25s ease;
+}
+.tool-card-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* Date Calculator output result box transitions */
+#calc-result-box {
+  animation: fadeIn 0.3s ease;
+}
+
+
 

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Outer Rounded Rectangle (Main Icon Body) - Brown Background -->
+  <rect x="36" y="36" width="440" height="440" rx="90" ry="90" fill="#D2042D" />
+
+  <!-- Calendar Binder Rings -->
+  <rect x="160" y="55" width="16" height="45" rx="8" ry="8" fill="#ffffff" />
+  <rect x="336" y="55" width="16" height="45" rx="8" ry="8" fill="#ffffff" />
+
+  <!-- Main Calendar Page Card (Inside the brown card - Taller height 255 to prevent bottom grid overlap) -->
+  <rect x="96" y="80" width="320" height="255" rx="16" ry="16" fill="none" stroke="#ffffff" stroke-width="8" />
+
+  <!-- Header Separator Line -->
+  <line x1="96" y1="150" x2="416" y2="150" stroke="#ffffff" stroke-width="8" />
+
+  <!-- Header Background (White fill inside the top rounded area of the calendar page) -->
+  <path d="M 96 150 L 96 96 A 16 16 0 0 1 112 80 L 400 80 A 16 16 0 0 1 416 96 L 416 150 Z" fill="#ffffff" />
+
+  <!-- Header Text (बैशाख) -->
+  <text x="256" y="125" font-family="'Nirmala UI', 'Mukta', 'Noto Sans Devanagari', 'system-ui', sans-serif" font-size="44" font-weight="900" fill="#000000" text-anchor="middle">बैशाख</text>
+
+  <!-- B.S 2083 in Nepali (वि.सं. २०८३) -->
+  <text x="256" y="192" font-family="'Nirmala UI', 'Mukta', 'Noto Sans Devanagari', 'system-ui', sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">वि.सं. २०८३</text>
+
+  <!-- Grid Cells -->
+  <rect x="211" y="215" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="243" y="215" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="275" y="215" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="307" y="215" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="339" y="215" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="147" y="236" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="179" y="236" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="211" y="236" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="243" y="236" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="275" y="236" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="307" y="236" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="339" y="236" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="147" y="257" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="179" y="257" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="211" y="257" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="243" y="257" width="26" height="15" rx="3" ry="3" fill="#ffffff" stroke="#ffffff" stroke-width="2.5" />
+  <text x="256" y="265.5" font-family="'Nirmala UI', 'Mukta', 'Noto Sans Devanagari', 'system-ui', sans-serif" font-size="12" font-weight="900" fill="#000000" text-anchor="middle" dominant-baseline="central">१४</text>
+  <rect x="275" y="257" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="307" y="257" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="339" y="257" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="147" y="278" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="179" y="278" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="211" y="278" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="243" y="278" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="275" y="278" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="307" y="278" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="339" y="278" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="147" y="299" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="179" y="299" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="211" y="299" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <rect x="243" y="299" width="26" height="15" rx="3" ry="3" fill="none" stroke="#ffffff" stroke-width="2.5" />
+
+
+  <!-- Bottom Labels (Fully inside the brown card) -->
+  <text x="256" y="390" font-family="'Nirmala UI', 'Mukta', 'Noto Sans Devanagari', 'system-ui', sans-serif" font-size="34" font-weight="900" fill="#ffffff" text-anchor="middle">नेपाली पात्रो</text>
+  <text x="256" y="428" font-family="'Nirmala UI', 'Segoe UI', 'system-ui', sans-serif" font-size="18" font-weight="700" fill="#ffffff" text-anchor="middle">Nepali Calendar</text>
+</svg>

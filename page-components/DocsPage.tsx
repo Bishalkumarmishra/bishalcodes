@@ -556,7 +556,7 @@ The Nepali Calendar Desktop App is a premium, offline-first calendar and date co
 ### Installation & Configuration Guide
 
 1. Download from the [Microsoft Store page](https://apps.microsoft.com/detail/9PJVV2J32KNP) and click **Get**.
-2. Alternatively, visit the [Date Converter & Calendar](/tools/date-converter) page and click **Alternative Direct ZIP Installer** to download the legacy archive (\`NepaliCalendar-Setup-v1.3.0.zip\`).
+2. Alternatively, visit the [Date Converter & Calendar](/tools/date-converter) page and click **Alternative Direct ZIP Installer** to download the legacy archive (\`NepaliCalendar-Setup-v1.4.0.zip\`).
 3. For the manual ZIP installer: extract and run the setup. If Windows SmartScreen shows a warning, select **More Info** ➔ **Run Anyway** to complete the installation.
 4. **Google & Outlook Setup**: Navigate to the App Settings tab, enter your custom OAuth credentials (Client ID & Secret), and click **Connect** to link your calendars.
 
@@ -595,36 +595,36 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
       try {
         const querySnapshot = await getDocs(collection(db, 'docs'));
         if (!querySnapshot.empty && isMounted) {
-            const list: DocSection[] = [];
-            querySnapshot.forEach(docSnap => {
-              const data = docSnap.data();
-              list.push({
-                id: docSnap.id,
-                title: data.title || '',
-                category: data.category || '',
-                keywords: data.keywords || [],
-                content: data.content || ''
-              });
+          const list: DocSection[] = [];
+          querySnapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            list.push({
+              id: docSnap.id,
+              title: data.title || '',
+              category: data.category || '',
+              keywords: data.keywords || [],
+              content: data.content || ''
             });
-            // Auto-seed missing sections newly added to code
-            initialDocSections.forEach(async (item) => {
-              if (!list.some(d => d.id === item.id)) {
-                try {
-                  await setDoc(doc(db, 'docs', item.id), {
-                    title: item.title,
-                    category: item.category,
-                    keywords: item.keywords,
-                    content: item.content
-                  });
-                  if (isMounted) {
-                    setDocSections(prev => [...prev, item]);
-                  }
-                } catch (err) {
-                  console.warn(`Failed to seed doc ${item.id}:`, err);
+          });
+          // Auto-seed missing sections newly added to code
+          initialDocSections.forEach(async (item) => {
+            if (!list.some(d => d.id === item.id)) {
+              try {
+                await setDoc(doc(db, 'docs', item.id), {
+                  title: item.title,
+                  category: item.category,
+                  keywords: item.keywords,
+                  content: item.content
+                });
+                if (isMounted) {
+                  setDocSections(prev => [...prev, item]);
                 }
+              } catch (err) {
+                console.warn(`Failed to seed doc ${item.id}:`, err);
               }
-            });
-            setDocSections(list);
+            }
+          });
+          setDocSections(list);
         } else if (isMounted) {
           setDocSections(initialDocSections);
           initialDocSections.forEach(async (item) => {
@@ -653,7 +653,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
 
   const handleInlineSave = async (docId: string, field: 'title' | 'content', value: string) => {
     window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saving' }));
-    
+
     setDocSections(prev => prev.map(item => {
       if (item.id === docId) {
         return { ...item, [field]: value };
@@ -670,7 +670,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
       console.error("Error saving doc change:", err);
     }
   };
-  
+
   // Set default section to 'getting-started' if none or invalid provided
   const activeSectionId = useMemo(() => {
     if (!sectionId) return 'getting-started';
@@ -685,7 +685,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
   // Set page headers for SEO dynamically
   useEffect(() => {
     document.title = `${activeSection.title} | Documentation | Bishal Codes`;
-    
+
     let metaDescriptionTag = document.querySelector('meta[name="description"]');
     if (!metaDescriptionTag) {
       metaDescriptionTag = document.createElement('meta');
@@ -693,7 +693,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
       document.head.appendChild(metaDescriptionTag);
     }
     metaDescriptionTag.setAttribute(
-      'content', 
+      'content',
       `Bishal Codes Documentation: Learn about ${activeSection.title}. Detailed developer guides, client portal usage, and service overviews.`
     );
 
@@ -735,7 +735,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
       const defaultDesc = document.querySelector('meta[name="description"]');
       if (defaultDesc) {
         defaultDesc.setAttribute(
-          'content', 
+          'content',
           "Bishal Mishra is a premium Full-Stack Developer specializing in high-performance 3D visuals, Next.js architecture, and custom enterprise web applications."
         );
       }
@@ -750,7 +750,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
   const filteredSections = useMemo(() => {
     if (!searchQuery.trim()) return docSections;
     const query = searchQuery.toLowerCase().trim();
-    return docSections.filter(section => 
+    return docSections.filter(section =>
       section.title.toLowerCase().includes(query) ||
       section.category.toLowerCase().includes(query) ||
       section.content.toLowerCase().includes(query) ||
@@ -791,14 +791,14 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
 
       <main className="pt-28 pb-20">
         <div className="w-full px-[5vw] mx-auto">
-          
+
           {/* Main layout grid */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            
+
             {/* Sidebar Column - Hidden on mobile, visible on desktop */}
             <aside className="hidden lg:block lg:col-span-1">
               <div className="bg-white rounded-lg border border-slate-200 p-4 sticky top-24 shadow-sm space-y-5">
-                
+
                 {/* Search box */}
                 <div className="relative">
                   <input
@@ -833,18 +833,16 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                                 <button
                                   id={`docs-nav-link-${sec.id}`}
                                   onClick={() => handleSectionSelect(sec.id)}
-                                  className={`w-full text-left px-2 py-1.5 rounded-md text-xs font-medium transition-all flex items-center justify-between group ${
-                                    isActive
+                                  className={`w-full text-left px-2 py-1.5 rounded-md text-xs font-medium transition-all flex items-center justify-between group ${isActive
                                       ? 'bg-slate-100 text-indigo-600 font-semibold'
                                       : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                                  }`}
+                                    }`}
                                 >
                                   <span>{sec.title}</span>
-                                  <ChevronRight 
-                                    size={12} 
-                                    className={`opacity-0 group-hover:opacity-100 transition-opacity ${
-                                      isActive ? 'text-indigo-600 opacity-100' : 'text-slate-400'
-                                    }`} 
+                                  <ChevronRight
+                                    size={12}
+                                    className={`opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'text-indigo-600 opacity-100' : 'text-slate-400'
+                                      }`}
                                   />
                                 </button>
                               </li>
@@ -861,7 +859,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
             {/* Content Column */}
             <div className="lg:col-span-3">
               <div className="bg-white rounded-lg border border-slate-200 p-6 sm:p-8 shadow-sm">
-                
+
                 {/* Mobile Navigation Header Trigger */}
                 <div className="lg:hidden mb-6 flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg p-3 shadow-sm">
                   <div className="flex items-center gap-2">
@@ -888,7 +886,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                 </div>
 
                 {/* Main Heading */}
-                <h1 
+                <h1
                   contentEditable={isEditMode}
                   suppressContentEditableWarning
                   onBlur={(e) => handleInlineSave(activeSection.id, 'title', e.currentTarget.textContent || '')}
@@ -909,7 +907,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                       className="w-full min-h-[400px] p-4 bg-slate-50 border-2 border-slate-200 rounded-xl font-mono text-xs text-slate-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none resize-y"
                     />
                   ) : (
-                    <ReactMarkdown 
+                    <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       components={{
                         blockquote: ({ children }) => (
@@ -934,7 +932,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                     <p className="text-slate-500 text-xs font-normal leading-relaxed">
                       If your query requires dedicated technical attention or if you need a customized service scope, please submit a message via our contact portal.
                     </p>
-                    <button 
+                    <button
                       onClick={() => navigate('contact')}
                       className="text-indigo-600 hover:text-indigo-700 font-semibold text-xs transition-colors inline-flex items-center gap-1 mt-1.5"
                     >
@@ -954,7 +952,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
       <div className={`fixed inset-0 z-[120] lg:hidden transition-all duration-300 ${isMobileSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         {/* Backdrop */}
         <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsMobileSidebarOpen(false)} />
-        
+
         {/* Drawer Content */}
         <div className={`absolute top-[72px] left-0 bottom-0 w-[280px] bg-white border-r border-slate-200 p-4 flex flex-col space-y-4 transition-transform duration-300 shadow-xl ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
@@ -999,11 +997,10 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                               handleSectionSelect(sec.id);
                               setIsMobileSidebarOpen(false);
                             }}
-                            className={`w-full text-left px-2 py-1.5 rounded-md text-xs font-medium transition-all flex items-center justify-between ${
-                              isActive
+                            className={`w-full text-left px-2 py-1.5 rounded-md text-xs font-medium transition-all flex items-center justify-between ${isActive
                                 ? 'bg-slate-100 text-indigo-600 font-semibold'
                                 : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                            }`}
+                              }`}
                           >
                             <span>{sec.title}</span>
                             <ChevronRight size={12} className={isActive ? 'text-indigo-600' : 'text-slate-400'} />

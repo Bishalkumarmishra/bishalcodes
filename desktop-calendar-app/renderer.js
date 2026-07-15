@@ -381,6 +381,10 @@ function renderCalendar() {
 
     calendarDaysContainer.appendChild(cell);
   }
+  
+  if (typeof renderMonthlyEvents === 'function') {
+    renderMonthlyEvents();
+  }
 }
 
 function getDotColorHex(colorName) {
@@ -1570,6 +1574,7 @@ renderAllNotesInManager();
 updateConnectionUI();
 checkDailyReminders();
 updateDynamicTrayIcon(selectedDay);
+initNewFrontPageWidgets();
 
 // Query custom admin notifications on startup and every 10 seconds (for instant alert delivery)
 checkFirestoreNotifications();
@@ -1664,7 +1669,7 @@ async function checkAppUpdates() {
     if (!response.ok) return;
     const data = await response.json();
     
-    const currentVersion = '1.3.0'; // Local desktop version (new compiled setup)
+    const currentVersion = '1.4.0'; // Local desktop version (new compiled setup)
     const latestVersion = data.version;
     
     if (isNewerVersion(latestVersion, currentVersion)) {
@@ -1965,4 +1970,699 @@ function updateLocalEvents(events) {
     uploadLocalNotesToCloud(currentUser.uid);
   }
 }
+
+// ─── NEW FRONT PAGE WIDGETS FUNCTIONALITY ────────────────────────────────────
+
+const NEPALI_PROVERBS = [
+  { np: "लोभले लाभ, लाभले विलाप", en: "Greed leads to gain, gain leads to pain." },
+  { np: "हुने बिरुवाको चिलो पात", en: "A promising plant has smooth leaves (Morning shows the day)." },
+  { np: "नाच्न जान्दैन आँगन टेडो", en: "A bad workman blames his tools." },
+  { np: "नमच्चिने पिङको सय झट्का", en: "Empty vessels make the most noise." },
+  { np: "काम गर्ने कालु, मकै खाने भालु", en: "One does the work, another gets the reward." },
+  { np: "मुखमा रामराम, बगलीमा छुरा", en: "A wolf in sheep's clothing." },
+  { np: "बाँदरको हातमा नरिबल", en: "Giving a precious thing to someone who doesn't appreciate it." },
+  { np: "रात रहे अग्राख पलाउँछ", en: "Delays breed complications." },
+  { np: "एक थुकी सुकी, सय थुकी नदी", en: "Unity is strength." },
+  { np: "आफ्नो आङको भैंसी नदेख्ने, अर्काको आङको जुम्रा देख्ने", en: "To see a mote in another's eye but not a beam in one's own." },
+  { np: "हतारको काम लतारपतार", en: "Haste makes waste." },
+  { np: "घरको बाघ, वनको स्याल", en: "A tiger at home, a jackal in the forest (Fake bravery)." },
+  { np: "बाँदरको पुच्छर लौरो न हतियार", en: "A monkey's tail is neither a stick nor a weapon (Useless asset)." },
+  { np: "जुन गोरुको सिङ छैन उसैको नाम तिखे", en: "The cow without horns is named Sharp-horns (Hypocrisy)." },
+  { np: "खोक्रे वैद्यको सुखदुःख", en: "An unqualified doctor brings pain (Quack doctor's advice)." }
+];
+
+let currentProverbIndex = 0;
+
+function shuffleProverb() {
+  let nextIdx = currentProverbIndex;
+  while (nextIdx === currentProverbIndex) {
+    nextIdx = Math.floor(Math.random() * NEPALI_PROVERBS.length);
+  }
+  currentProverbIndex = nextIdx;
+  const p = NEPALI_PROVERBS[currentProverbIndex];
+  const npEl = document.getElementById('proverb-np');
+  const enEl = document.getElementById('proverb-en');
+  if (npEl) npEl.innerText = p.np;
+  if (enEl) enEl.innerText = p.en;
+}
+
+function copyProverb() {
+  const p = NEPALI_PROVERBS[currentProverbIndex];
+  const textToCopy = `नेपाली उखान: ${p.np}\nEnglish: ${p.en}`;
+  navigator.clipboard.writeText(textToCopy);
+  
+  const copyBtn = document.getElementById('proverb-copy-btn');
+  if (copyBtn) {
+    const originalText = copyBtn.innerText;
+    copyBtn.innerText = "✓ Copied!";
+    setTimeout(() => { copyBtn.innerText = originalText; }, 1500);
+  }
+}
+
+function transliterateRomanToNepali(text) {
+  const CONSONANTS = {
+    'k': 'क्', 'kh': 'ख्', 'g': 'ग्', 'gh': 'घ्',
+    'ch': 'च्', 'chh': 'छ्', 'j': 'ज्', 'jh': 'झ्',
+    'T': 'ट्', 'Th': 'ठ्', 'D': 'ड्', 'Dh': 'ढ्', 'N': 'ण्',
+    't': 'त्', 'th': 'थ्', 'd': 'द्', 'dh': 'ध्', 'n': 'न्',
+    'p': 'प्', 'ph': 'फ्', 'b': 'ब्', 'bh': 'भ्', 'm': 'म्',
+    'y': 'य्', 'r': 'र्', 'l': 'ल्', 'v': 'व्', 'w': 'व्',
+    'sh': 'श्', 'shh': 'ष्', 's': 'स्', 'h': 'ह्',
+    'gy': 'ज्ञ्', 'ksh': 'क्ष्'
+  };
+
+  const VOWELS = {
+    'a': '', 'aa': 'ा', 'i': 'ि', 'ee': 'ी', 'u': 'ु', 'oo': 'ू',
+    'e': 'े', 'ai': 'ै', 'o': 'ो', 'au': 'ौ', 'ri': 'ृ'
+  };
+
+  const STANDALONE_VOWELS = {
+    'a': 'अ', 'aa': 'आ', 'i': 'इ', 'ee': 'ई', 'u': 'उ', 'oo': 'ऊ',
+    'e': 'ए', 'ai': 'ऐ', 'o': 'ओ', 'au': 'औ', 'ri': 'ऋ'
+  };
+
+  let result = "";
+  let i = 0;
+  let activeConsonant = "";
+
+  while (i < text.length) {
+    let char = text[i];
+    
+    if (char === ' ' || char === '\n' || /[.,!?-]/.test(char)) {
+      if (activeConsonant) {
+        result += activeConsonant.replace('्', '');
+        activeConsonant = "";
+      }
+      result += char;
+      i++;
+      continue;
+    }
+
+    let matchedConsonant = "";
+    let matchLen = 0;
+    
+    if (i + 2 < text.length) {
+      let threeChars = text.substr(i, 3);
+      if (CONSONANTS[threeChars]) {
+        matchedConsonant = CONSONANTS[threeChars];
+        matchLen = 3;
+      }
+    }
+    if (!matchedConsonant && i + 1 < text.length) {
+      let twoChars = text.substr(i, 2);
+      if (CONSONANTS[twoChars]) {
+        matchedConsonant = CONSONANTS[twoChars];
+        matchLen = 2;
+      }
+    }
+    if (!matchedConsonant && CONSONANTS[char]) {
+      matchedConsonant = CONSONANTS[char];
+      matchLen = 1;
+    }
+
+    if (matchedConsonant) {
+      if (activeConsonant) {
+        result += activeConsonant;
+      }
+      activeConsonant = matchedConsonant;
+      i += matchLen;
+      continue;
+    }
+
+    let matchedVowel = "";
+    let vowelLen = 0;
+    
+    if (i + 1 < text.length) {
+      let twoChars = text.substr(i, 2);
+      if (VOWELS[twoChars]) {
+        matchedVowel = twoChars;
+        vowelLen = 2;
+      }
+    }
+    if (!matchedVowel && VOWELS[char]) {
+      matchedVowel = char;
+      vowelLen = 1;
+    }
+
+    if (matchedVowel) {
+      if (activeConsonant) {
+        result += activeConsonant.replace('्', '') + VOWELS[matchedVowel];
+        activeConsonant = "";
+      } else {
+        result += STANDALONE_VOWELS[matchedVowel] || matchedVowel;
+      }
+      i += vowelLen;
+      continue;
+    }
+
+    if (activeConsonant) {
+      result += activeConsonant.replace('्', '');
+      activeConsonant = "";
+    }
+    result += char;
+    i++;
+  }
+
+  if (activeConsonant) {
+    result += activeConsonant.replace('्', '');
+  }
+
+  return result;
+}
+
+function renderMonthlyEvents() {
+  const listEl = document.getElementById('monthly-events-list');
+  if (!listEl) return;
+  
+  listEl.innerHTML = '';
+  
+  const monthHolidays = NE_MONTHS_EVENTS[calMonth] || {};
+  const holidayEntries = Object.entries(monthHolidays);
+  
+  const monthScheduled = scheduledEvents.filter(e => {
+    if (e.type === 'once') return e.year === calYear && e.month === calMonth;
+    if (e.type === 'bs-yearly') return e.month === calMonth;
+    return false;
+  });
+  
+  const daysWithEvents = {};
+  
+  holidayEntries.forEach(([dStr, event]) => {
+    const d = parseInt(dStr);
+    daysWithEvents[d] = {
+      day: d,
+      title: event.title,
+      isHoliday: event.isHoliday
+    };
+  });
+  
+  monthScheduled.forEach(e => {
+    const d = e.day;
+    if (!daysWithEvents[d]) {
+      daysWithEvents[d] = {
+        day: d,
+        title: e.title,
+        isHoliday: false,
+        isCustomNote: true,
+        color: e.color
+      };
+    }
+  });
+  
+  const sortedDays = Object.values(daysWithEvents).sort((a, b) => a.day - b.day);
+  
+  if (sortedDays.length === 0) {
+    listEl.innerHTML = `
+      <p class="empty-notes-text" style="font-size: 11px; font-style: italic; color: var(--text-secondary); text-align: center; padding: 12px 0;">
+        यस महिनामा कुनै मुख्य दिनहरू छैनन्।
+      </p>
+    `;
+    return;
+  }
+  
+  sortedDays.forEach(evt => {
+    const item = document.createElement('div');
+    item.className = 'monthly-event-item';
+    
+    const sec = getSecondaryDay(calYear, calMonth, evt.day);
+    const dateSubText = sec ? `${toNepaliStr(evt.day)} गते (${sec.monthEN} ${sec.day})` : `${toNepaliStr(evt.day)} गते`;
+    
+    let badgeMarkup = '';
+    if (evt.isHoliday) {
+      badgeMarkup = `<span class="event-badge holiday-badge" style="font-size: 8px; padding: 1px 4px;">बिदा</span>`;
+    } else if (evt.isCustomNote) {
+      badgeMarkup = `<span class="event-badge" style="font-size: 8px; padding: 1px 4px; background: ${getDotColorHex(evt.color)}; color: white;">नोट</span>`;
+    } else {
+      badgeMarkup = `<span class="event-badge" style="font-size: 8px; padding: 1px 4px; background: var(--bg-active); color: var(--text-primary);">दिवस</span>`;
+    }
+    
+    item.innerHTML = `
+      <div class="monthly-event-left">
+        <span class="monthly-event-title-text">${evt.title}</span>
+        <span class="monthly-event-date-text">${dateSubText}</span>
+      </div>
+      ${badgeMarkup}
+    `;
+    
+    item.addEventListener('click', () => {
+      selectedYear = calYear;
+      selectedMonth = calMonth;
+      selectedDay = evt.day;
+      updateSelectedDayDetails();
+      renderCalendar();
+    });
+    
+    listEl.appendChild(item);
+  });
+}
+
+function updateKathmanduClock() {
+  const clockEl = document.getElementById('nepal-clock');
+  if (!clockEl) return;
+  
+  const d = new Date();
+  const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+  const ktmTime = new Date(utc + (3600000 * 5.75));
+  
+  let hours = ktmTime.getHours();
+  let minutes = ktmTime.getMinutes();
+  let seconds = ktmTime.getSeconds();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  
+  const hrsStr = String(hours).padStart(2, '0');
+  const minsStr = String(minutes).padStart(2, '0');
+  const secsStr = String(seconds).padStart(2, '0');
+  
+  clockEl.innerText = `${hrsStr}:${minsStr}:${secsStr} ${ampm}`;
+}
+
+function updateBSYearProgress() {
+  const percentEl = document.getElementById('year-progress-percent');
+  const barEl = document.getElementById('year-progress-bar');
+  const yearValEl = document.getElementById('year-progress-val');
+  if (!percentEl || !barEl) return;
+  
+  try {
+    const todayNp = new NepaliDate();
+    const currentYr = todayNp.getYear();
+    
+    if (yearValEl) {
+      yearValEl.innerText = toNepaliStr(currentYr);
+    }
+    
+    let totalDays = 0;
+    for (let m = 0; m < 12; m++) {
+      totalDays += getDaysInMonth(currentYr, m);
+    }
+    
+    let currentDayIndex = 0;
+    const curMonth = todayNp.getMonth();
+    const curDay = todayNp.getDate();
+    for (let m = 0; m < curMonth; m++) {
+      currentDayIndex += getDaysInMonth(currentYr, m);
+    }
+    currentDayIndex += curDay;
+    
+    const percent = ((currentDayIndex / totalDays) * 100).toFixed(1);
+    percentEl.innerText = `${toNepaliStr(percent)}%`;
+    barEl.style.width = `${percent}%`;
+  } catch (e) {
+    console.error("Year progress calc error:", e);
+  }
+}
+
+function updateSidebarThemeIcon() {
+  const iconEl = document.getElementById('sidebar-theme-icon');
+  if (!iconEl) return;
+  
+  const isDark = document.body.classList.contains('dark') || document.body.className === 'dark';
+  if (isDark) {
+    iconEl.innerHTML = `
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    `;
+  } else {
+    iconEl.innerHTML = `
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    `;
+  }
+}
+
+function initNewFrontPageWidgets() {
+  // Theme Sync listeners
+  updateSidebarThemeIcon();
+  if (themeDarkBtn) themeDarkBtn.addEventListener('click', updateSidebarThemeIcon);
+  if (themeLightBtn) themeLightBtn.addEventListener('click', updateSidebarThemeIcon);
+  
+  const sidebarThemeBtn = document.getElementById('sidebar-theme-toggle');
+  if (sidebarThemeBtn) {
+    sidebarThemeBtn.addEventListener('click', () => {
+      const isDark = document.body.classList.contains('dark') || document.body.className === 'dark';
+      if (isDark) {
+        if (themeLightBtn) themeLightBtn.click();
+      } else {
+        if (themeDarkBtn) themeDarkBtn.click();
+      }
+      updateSidebarThemeIcon();
+    });
+  }
+
+  // Kathmandu Clock timer
+  setInterval(updateKathmanduClock, 1000);
+  updateKathmanduClock();
+
+  // BS Year Progress
+  updateBSYearProgress();
+  
+  // Extra Tools Tab switcher
+  const tabProverbsBtn = document.getElementById('tool-tab-proverbs');
+  const tabUnicodeBtn = document.getElementById('tool-tab-unicode');
+  const contentProverbs = document.getElementById('tool-content-proverbs');
+  const contentUnicode = document.getElementById('tool-content-unicode');
+
+  if (tabProverbsBtn && tabUnicodeBtn && contentProverbs && contentUnicode) {
+    tabProverbsBtn.addEventListener('click', () => {
+      tabProverbsBtn.classList.add('active');
+      tabUnicodeBtn.classList.remove('active');
+      tabProverbsBtn.style.color = 'var(--accent-color)';
+      tabProverbsBtn.style.borderBottom = '2px solid var(--accent-color)';
+      tabUnicodeBtn.style.color = 'var(--text-secondary)';
+      tabUnicodeBtn.style.borderBottom = 'none';
+      
+      contentProverbs.style.display = 'block';
+      contentUnicode.style.display = 'none';
+    });
+    
+    tabUnicodeBtn.addEventListener('click', () => {
+      tabUnicodeBtn.classList.add('active');
+      tabProverbsBtn.classList.remove('active');
+      tabUnicodeBtn.style.color = 'var(--accent-color)';
+      tabUnicodeBtn.style.borderBottom = '2px solid var(--accent-color)';
+      tabProverbsBtn.style.color = 'var(--text-secondary)';
+      tabProverbsBtn.style.borderBottom = 'none';
+      
+      contentUnicode.style.display = 'block';
+      contentProverbs.style.display = 'none';
+    });
+  }
+  
+  // Proverbs listeners
+  const proverbShuffleBtn = document.getElementById('proverb-shuffle-btn');
+  const proverbCopyBtn = document.getElementById('proverb-copy-btn');
+  if (proverbShuffleBtn) proverbShuffleBtn.addEventListener('click', shuffleProverb);
+  if (proverbCopyBtn) proverbCopyBtn.addEventListener('click', copyProverb);
+  shuffleProverb(); // load initial proverb
+
+  // Unicode Converter listener
+  const unicodeInput = document.getElementById('unicode-input');
+  if (unicodeInput) {
+    unicodeInput.addEventListener('keydown', (e) => {
+      const triggers = [' ', 'Enter', '.', ',', '?', '!', ';', ':'];
+      if (triggers.includes(e.key)) {
+        const val = e.target.value;
+        const pos = e.target.selectionStart;
+        const textBefore = val.substring(0, pos);
+        const textAfter = val.substring(pos);
+        
+        const match = textBefore.match(/[a-zA-Z]+$/);
+        if (match) {
+          const romanWord = match[0];
+          const nepaliWord = transliterateRomanToNepali(romanWord);
+          
+          const newTextBefore = textBefore.substring(0, textBefore.length - romanWord.length) + nepaliWord;
+          e.preventDefault();
+          
+          const appendChar = e.key === 'Enter' ? '\n' : e.key;
+          e.target.value = newTextBefore + appendChar + textAfter;
+          
+          const newPos = newTextBefore.length + appendChar.length;
+          e.target.setSelectionRange(newPos, newPos);
+        }
+      }
+    });
+  }
+  
+  const unicodeCopyBtn = document.getElementById('unicode-copy-btn');
+  if (unicodeCopyBtn && unicodeInput) {
+    unicodeCopyBtn.addEventListener('click', () => {
+      const text = unicodeInput.value;
+      if (!text) return;
+      navigator.clipboard.writeText(text);
+      const originalText = unicodeCopyBtn.innerText;
+      unicodeCopyBtn.innerText = "✓ Copied!";
+      setTimeout(() => { unicodeCopyBtn.innerText = originalText; }, 1500);
+    });
+  }
+
+  // Dashboard Header redirects
+  const headerBell = document.getElementById('header-bell-btn');
+  if (headerBell) {
+    headerBell.addEventListener('click', () => {
+      const annLink = document.querySelector('[data-tab="notifications-tab"]');
+      if (annLink) annLink.click();
+    });
+  }
+  const headerAccount = document.getElementById('header-account-btn');
+  if (headerAccount) {
+    headerAccount.addEventListener('click', () => {
+      const accLink = document.querySelector('[data-tab="account-tab"]');
+      if (accLink) accLink.click();
+    });
+  }
+
+  // Dynamic greeting
+  updateHeaderGreeting();
+  setInterval(updateHeaderGreeting, 60000);
+
+  // Date Diff calculator
+  setupDateCalcInputs();
+  const calcDiffBtn = document.getElementById('calculate-diff-btn');
+  if (calcDiffBtn) {
+    calcDiffBtn.addEventListener('click', runDateDifferenceCalc);
+  }
+
+  // Onboarding slideshow
+  initOnboardingFlow();
+  
+  // Render monthly events immediately
+  renderMonthlyEvents();
+}
+
+// ─── PHASE 2 WIDGETS FUNCTIONALITY ───────────────────────────────────────────
+
+function updateHeaderGreeting() {
+  const greetingEl = document.getElementById('header-greeting');
+  if (!greetingEl) return;
+  const hr = new Date().getHours();
+  let greet = "Good Day";
+  if (hr < 12) greet = "Good Morning";
+  else if (hr < 17) greet = "Good Afternoon";
+  else greet = "Good Evening";
+  greetingEl.innerText = `${greet}, Welcome!`;
+}
+
+// Onboarding slideshow controls
+let currentOnboardingSlide = 0;
+const totalOnboardingSlides = 4;
+
+function updateOnboardingSlidesUI() {
+  const slides = document.querySelectorAll('.onboarding-slide');
+  const dots = document.querySelectorAll('.onboarding-dot');
+  const prevBtn = document.getElementById('onboarding-prev-btn');
+  const nextBtn = document.getElementById('onboarding-next-btn');
+  
+  slides.forEach((slide, idx) => {
+    slide.style.display = idx === currentOnboardingSlide ? 'block' : 'none';
+  });
+  
+  dots.forEach((dot, idx) => {
+    if (idx === currentOnboardingSlide) {
+      dot.classList.add('active-dot');
+    } else {
+      dot.classList.remove('active-dot');
+    }
+  });
+  
+  if (prevBtn) {
+    prevBtn.style.visibility = currentOnboardingSlide === 0 ? 'hidden' : 'visible';
+  }
+  
+  if (nextBtn) {
+    if (currentOnboardingSlide === totalOnboardingSlides - 1) {
+      nextBtn.innerText = 'Finish';
+    } else {
+      nextBtn.innerText = 'Next';
+    }
+  }
+}
+
+function closeOnboarding() {
+  localStorage.setItem('nepali_calendar_onboarded', 'true');
+  const modal = document.getElementById('onboarding-modal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('active-modal');
+  }
+}
+
+function initOnboardingFlow() {
+  const modal = document.getElementById('onboarding-modal');
+  if (!modal) return;
+  
+  const hasSeen = localStorage.getItem('nepali_calendar_onboarded');
+  if (hasSeen !== 'true') {
+    modal.style.display = 'flex';
+    modal.classList.add('active-modal');
+  }
+  
+  const skipBtn = document.getElementById('onboarding-skip-top');
+  const prevBtn = document.getElementById('onboarding-prev-btn');
+  const nextBtn = document.getElementById('onboarding-next-btn');
+  
+  if (skipBtn) skipBtn.addEventListener('click', closeOnboarding);
+  
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      if (currentOnboardingSlide > 0) {
+        currentOnboardingSlide--;
+        updateOnboardingSlidesUI();
+      }
+    });
+  }
+  
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      if (currentOnboardingSlide < totalOnboardingSlides - 1) {
+        currentOnboardingSlide++;
+        updateOnboardingSlidesUI();
+      } else {
+        closeOnboarding();
+      }
+    });
+  }
+  
+  updateOnboardingSlidesUI();
+}
+
+// Date difference calculator dropdown populate & computation logic
+function setupDateCalcInputs() {
+  const startY = document.getElementById('calc-start-year');
+  const startM = document.getElementById('calc-start-month');
+  const startD = document.getElementById('calc-start-day');
+  const endY = document.getElementById('calc-end-year');
+  const endM = document.getElementById('calc-end-month');
+  const endD = document.getElementById('calc-end-day');
+  
+  if (!startY || !startM || !startD || !endY || !endM || !endD) return;
+  
+  startY.innerHTML = '';
+  startM.innerHTML = '';
+  startD.innerHTML = '';
+  endY.innerHTML = '';
+  endM.innerHTML = '';
+  endD.innerHTML = '';
+  
+  // Populate BS Year select dropdowns (2000 - 2095)
+  for (let y = 2000; y <= 2095; y++) {
+    const opt1 = document.createElement('option');
+    opt1.value = y;
+    opt1.innerText = y;
+    if (y === 2083) opt1.selected = true;
+    startY.appendChild(opt1);
+    
+    const opt2 = document.createElement('option');
+    opt2.value = y;
+    opt2.innerText = y;
+    if (y === 2083) opt2.selected = true;
+    endY.appendChild(opt2);
+  }
+  
+  // Populate BS Month dropdowns
+  NEPALI_MONTHS_EN.forEach((name, index) => {
+    const opt1 = document.createElement('option');
+    opt1.value = index;
+    opt1.innerText = `${name} (${NEPALI_MONTHS_NE[index]})`;
+    if (index === 2) opt1.selected = true; // Ashadh
+    startM.appendChild(opt1);
+    
+    const opt2 = document.createElement('option');
+    opt2.value = index;
+    opt2.innerText = `${name} (${NEPALI_MONTHS_NE[index]})`;
+    if (index === 2) opt2.selected = true; // Ashadh
+    endM.appendChild(opt2);
+  });
+  
+  updateDateCalcDaysDropdown('start');
+  updateDateCalcDaysDropdown('end');
+  
+  startY.addEventListener('change', () => updateDateCalcDaysDropdown('start'));
+  startM.addEventListener('change', () => updateDateCalcDaysDropdown('start'));
+  endY.addEventListener('change', () => updateDateCalcDaysDropdown('end'));
+  endM.addEventListener('change', () => updateDateCalcDaysDropdown('end'));
+}
+
+function updateDateCalcDaysDropdown(type) {
+  const yearSel = document.getElementById(`calc-${type}-year`);
+  const monthSel = document.getElementById(`calc-${type}-month`);
+  const daySel = document.getElementById(`calc-${type}-day`);
+  if (!yearSel || !monthSel || !daySel) return;
+  
+  daySel.innerHTML = '';
+  const year = parseInt(yearSel.value);
+  const month = parseInt(monthSel.value);
+  
+  const daysCount = getDaysInMonth(year, month);
+  for (let d = 1; d <= daysCount; d++) {
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.innerText = d;
+    if (d === 7) opt.selected = true;
+    daySel.appendChild(opt);
+  }
+}
+
+function runDateDifferenceCalc() {
+  const sy = parseInt(document.getElementById('calc-start-year').value);
+  const sm = parseInt(document.getElementById('calc-start-month').value);
+  const sd = parseInt(document.getElementById('calc-start-day').value);
+  
+  const ey = parseInt(document.getElementById('calc-end-year').value);
+  const em = parseInt(document.getElementById('calc-end-month').value);
+  const ed = parseInt(document.getElementById('calc-end-day').value);
+  
+  try {
+    const startDate = new NepaliDate(sy, sm, sd);
+    const endDate = new NepaliDate(ey, em, ed);
+    
+    const jsStart = startDate.toJsDate();
+    const jsEnd = endDate.toJsDate();
+    
+    let diffMs = jsEnd.getTime() - jsStart.getTime();
+    if (diffMs < 0) {
+      document.getElementById('calc-result-main').innerText = "अन्तिम मिति शुरुको मितिभन्दा पछि हुनुपर्छ।";
+      document.getElementById('calc-result-sub').innerText = "End date must be after start date.";
+      document.getElementById('calc-result-box').style.display = 'block';
+      return;
+    }
+    
+    const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    // Calculate calendar difference (years, months, days)
+    let years = jsEnd.getFullYear() - jsStart.getFullYear();
+    let months = jsEnd.getMonth() - jsStart.getMonth();
+    let days = jsEnd.getDate() - jsStart.getDate();
+    
+    if (days < 0) {
+      months--;
+      const prevMonth = new Date(jsEnd.getFullYear(), jsEnd.getMonth(), 0);
+      days += prevMonth.getDate();
+    }
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+    
+    const resultMain = `${toNepaliStr(years)} वर्ष, ${toNepaliStr(months)} महिना, ${toNepaliStr(days)} दिन`;
+    const resultSub = `Total Duration: ${toNepaliStr(totalDays)} Days (${years} Years, ${months} Months, ${days} Days)`;
+    
+    document.getElementById('calc-result-main').innerText = resultMain;
+    document.getElementById('calc-result-sub').innerText = resultSub;
+    document.getElementById('calc-result-box').style.display = 'block';
+  } catch (err) {
+    document.getElementById('calc-result-main').innerText = "त्रुटि (Error)";
+    document.getElementById('calc-result-sub').innerText = err.message || "Invalid dates";
+    document.getElementById('calc-result-box').style.display = 'block';
+  }
+}
+
 

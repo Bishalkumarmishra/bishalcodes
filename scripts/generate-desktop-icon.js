@@ -58,7 +58,7 @@ function generateSvg() {
   return `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <!-- Outer Rounded Rectangle (Main Icon Body) - Brown Background -->
-  <rect x="36" y="36" width="440" height="440" rx="90" ry="90" fill="#2a170e" />
+  <rect x="36" y="36" width="440" height="440" rx="90" ry="90" fill="#D2042D" />
 
   <!-- Calendar Binder Rings -->
   <rect x="160" y="55" width="16" height="45" rx="8" ry="8" fill="#ffffff" />
