@@ -30,7 +30,9 @@ function createMainWindow() {
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
-    mainWindow.webContents.openDevTools();
+    if (!app.isPackaged) {
+      mainWindow.webContents.openDevTools();
+    }
   });
 
   mainWindow.on('closed', () => {
@@ -55,7 +57,6 @@ if (!gotTheLock) {
       widgetWindow.focus();
     }
   });
-}
 
 function createTray() {
   // Use a fallback built-in tray icon or blank if icon is missing
@@ -145,13 +146,13 @@ function toggleWindowMode(widgetMode) {
   }
 }
 
-// Auto start logic
-app.setLoginItemSettings({
-  openAtLogin: true,
-  args: ['--hidden']
-});
-
 app.whenReady().then(() => {
+  // Auto start logic
+  app.setLoginItemSettings({
+    openAtLogin: true,
+    args: ['--hidden']
+  });
+
   createMainWindow();
   createWidgetWindow();
   createTray();
@@ -411,3 +412,4 @@ ipcMain.handle('remove-config-key', (event, key) => {
   writeConfig(config);
   return true;
 });
+}
