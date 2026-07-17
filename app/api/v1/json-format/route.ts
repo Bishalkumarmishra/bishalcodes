@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { validateApiKey } from '../auth';
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = validateApiKey(request);
+    if (!authResult.isValid) return authResult.errorResponse!;
+
     const body = await request.json();
     const { json, action = 'format', space = 2 } = body;
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { validateApiKey } from '../auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +36,9 @@ async function fetchRate(symbol: string): Promise<{ code: string; rate: number }
 
 export async function GET(request: NextRequest) {
   try {
+    const authResult = validateApiKey(request);
+    if (!authResult.isValid) return authResult.errorResponse!;
+
     const { searchParams } = new URL(request.url);
     const base = (searchParams.get('base') || 'USD').toUpperCase();
 

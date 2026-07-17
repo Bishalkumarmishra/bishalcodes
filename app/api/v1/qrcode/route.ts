@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import QRCode from 'qrcode';
+import { validateApiKey } from '../auth';
 
 export async function GET(request: NextRequest) {
   try {
+    const authResult = validateApiKey(request);
+    if (!authResult.isValid) return authResult.errorResponse!;
+
     const { searchParams } = new URL(request.url);
     const text = searchParams.get('text');
     const size = parseInt(searchParams.get('size') || '250', 10);

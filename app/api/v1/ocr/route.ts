@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
+import { validateApiKey } from '../auth';
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = validateApiKey(request);
+    if (!authResult.isValid) return authResult.errorResponse!;
+
     const body = await request.json();
     const { image, mimeType = 'image/jpeg' } = body;
 

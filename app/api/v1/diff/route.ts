@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { validateApiKey } from '../auth';
 
 interface DiffLine {
   type: 'added' | 'removed' | 'unchanged';
@@ -7,6 +8,9 @@ interface DiffLine {
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = validateApiKey(request);
+    if (!authResult.isValid) return authResult.errorResponse!;
+
     const body = await request.json();
     const { source, target } = body;
 
