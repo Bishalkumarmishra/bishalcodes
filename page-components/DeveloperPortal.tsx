@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import Navbar from '../sections/Navbar';
 import Footer from '../sections/Footer';
+import { useNavigation } from '../context/NavigationContext';
 
 // Define the API structure
 interface ApiParam {
@@ -181,6 +182,7 @@ const API_ENDPOINTS: ApiEndpoint[] = [
 ];
 
 const DeveloperPortal: React.FC<{ apiId?: string | null }> = ({ apiId }) => {
+  const { navigate } = useNavigation();
   const [selectedApi, setSelectedApi] = useState<ApiEndpoint>(API_ENDPOINTS[0]);
   const [activeTab, setActiveTab] = useState<'docs' | 'playground' | 'snippets'>('docs');
   const [snippetLang, setSnippetLang] = useState<'js' | 'python' | 'curl' | 'go'>('js');
@@ -625,6 +627,34 @@ func main() {
                     <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed font-normal">{selectedApi.description}</p>
                   </div>
 
+                  {/* Visual Architecture Diagram */}
+                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-900 bg-slate-50/50 dark:bg-slate-950/20">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                      <Terminal size={12} className="text-indigo-650 dark:text-indigo-400" />
+                      Request Flow & API Key Authentication Check
+                    </p>
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-center">
+                      <div className="flex-grow p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm w-full md:w-auto">
+                        <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Client Request</div>
+                        <div className="text-xs font-extrabold text-slate-800 dark:text-white mt-1 font-mono">{selectedApi.method} {selectedApi.path}</div>
+                      </div>
+                      <div className="text-slate-400 dark:text-slate-600 text-xs font-bold leading-none select-none hidden md:block">➔</div>
+                      <div className="text-slate-400 dark:text-slate-600 text-xs font-bold leading-none select-none md:hidden">▼</div>
+                      <div className="flex-grow p-3 rounded-lg border border-indigo-200 dark:border-indigo-950 bg-indigo-50/30 dark:bg-indigo-950/10 w-full md:w-auto">
+                        <div className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Auth Gate (validateApiKey)</div>
+                        <div className="text-xs font-bold text-slate-650 dark:text-slate-350 mt-1">Checks origin / bc_prod_ key</div>
+                      </div>
+                      <div className="text-slate-400 dark:text-slate-600 text-xs font-bold leading-none select-none hidden md:block">➔</div>
+                      <div className="text-slate-400 dark:text-slate-600 text-xs font-bold leading-none select-none md:hidden">▼</div>
+                      <div className="flex-grow p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm w-full md:w-auto">
+                        <div className="text-[10px] font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider">Target Resolver</div>
+                        <div className="text-xs font-extrabold text-slate-800 dark:text-white mt-1">
+                          {selectedApi.id === 'ocr' || selectedApi.id === 'summarize' ? 'Gemini 2.5 Flash Model' : selectedApi.id === 'currency' ? 'Yahoo Finance API' : selectedApi.id === 'screenshot' ? 'Microlink Engine' : 'Local Server Thread'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Dark block for path is highly visible & standard in both modes */}
                   <div className="flex items-center gap-3 bg-slate-950 border border-slate-900 rounded-xl p-3 sm:p-4">
                     <span className={`px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-wider text-white ${
@@ -927,7 +957,10 @@ func main() {
                   </li>
                 </ul>
               </div>
-              <button className="mt-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-sm transition-colors">
+              <button 
+                onClick={() => navigate('checkout', 'pro')}
+                className="mt-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-sm transition-colors cursor-pointer"
+              >
                 Upgrade to Pro
               </button>
             </div>
@@ -959,7 +992,10 @@ func main() {
                   </li>
                 </ul>
               </div>
-              <button className="mt-8 w-full bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-850 dark:text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider border border-slate-200 dark:border-slate-800">
+              <button 
+                onClick={() => navigate('checkout', 'enterprise')}
+                className="mt-8 w-full bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-850 dark:text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider border border-slate-200 dark:border-slate-800 cursor-pointer"
+              >
                 Contact Sales
               </button>
             </div>

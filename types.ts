@@ -106,4 +106,4 @@ export interface PaymentRequest {
 }
 
 
-export type PathPage = 'home' | 'about' | 'skills' | 'projects' | 'experience' | 'services' | 'blog' | 'blog-post' | 'contact' | 'login' | 'admin' | 'legal-page' | 'ai-studio' | 'docs' | 'transfer' | 'screenshot-studio' | 'vault' | 'widgets' | 'widget-date-converter' | 'widget-calendar' | 'not-found' | 'user-dashboard' | 'developers';
+export type PathPage = 'home' | 'about' | 'skills' | 'projects' | 'experience' | 'services' | 'blog' | 'blog-post' | 'contact' | 'login' | 'admin' | 'legal-page' | 'ai-studio' | 'docs' | 'transfer' | 'screenshot-studio' | 'vault' | 'widgets' | 'widget-date-converter' | 'widget-calendar' | 'not-found' | 'user-dashboard' | 'developers' | 'checkout';

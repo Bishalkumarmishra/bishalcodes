@@ -4,7 +4,7 @@ import Footer from '../sections/Footer';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useNavigation } from '../context/NavigationContext';
-import { Search, BookOpen, User, Briefcase, Cpu, HelpCircle, AlertCircle, ChevronRight, ExternalLink, X } from 'lucide-react';
+import { Search, BookOpen, User, Briefcase, Cpu, HelpCircle, AlertCircle, ChevronRight, ExternalLink, X, Terminal } from 'lucide-react';
 // @ts-ignore
 import { getDoc, doc, updateDoc, setDoc, getDocs, collection } from 'firebase/firestore';
 import { db } from '../services/firebase';
@@ -18,6 +18,111 @@ interface DocSection {
 }
 
 const initialDocSections: DocSection[] = [
+  {
+    id: 'developer-apis',
+    title: 'Developer Core Utility APIs',
+    category: 'Developer APIs & Integration',
+    keywords: ['api', 'rest', 'endpoints', 'screenshot api', 'qr code api', 'ocr api', 'summarize api', 'diff api', 'json format api', 'currency api', 'authentication', 'pricing', 'webhook'],
+    content: `
+Welcome to the official **Bishal Codes Developer API Suite**. We offer a collection of high-performance, robust, and production-level REST endpoints for core developer utilities. 
+
+### API Architecture Flow Diagram
+
+Below is the visual layout representing how requests flow through our API platform:
+
+\`\`\`
+[Navbar / Client] ➔ [API Portal UI] ➔ [Request /api/v1/*] ➔ [Auth Check (validateApiKey)] 
+                                                                     │
+     ┌──────────────────────┬──────────────────────┬─────────────────┴───────┬──────────────┐
+     ▼                      ▼                      ▼                         ▼              ▼
+[QR Code API]        [Diff Checker]         [JSON Formatter]          [Currency API]     [AI OCR/Summarizer]
+(qrcode/route.ts)   (diff/route.ts)       (json-format/route.ts)    (currency/route.ts) (Gemini Models)
+\`\`\`
+
+---
+
+### Authentication
+
+All API endpoints require authentication using the \`X-API-Key\` header or \`apiKey\` query parameter.
+
+- **Sandbox API Keys (\`bc_live_xxx\`)**: Free keys. These keys are **restricted to requests originating from bishalcodes.com or localhost**. If called from external servers, cURL, or Postman, the server will return a \`403 Forbidden\` block.
+- **Production API Keys (\`bc_prod_xxx\`)**: Unrestricted. These keys are issued upon subscribing to a paid tier (Pro or Enterprise) and can be integrated into any external backend (Node, Python, Go, cURL, PHP, Ruby, etc.) globally.
+
+To get your Sandbox API Key, navigate to the [APIs Developer Hub](/developers).
+
+---
+
+### API Endpoints Catalog
+
+#### 1. Website Screenshot API
+- **Endpoint**: \`GET /api/v1/screenshot\`
+- **Description**: Captures high-res website rendering viewports.
+- **Parameters**:
+  - \`url\` (string, Required): Target site URL.
+  - \`width\` (number, Optional, default 1280): Viewport width in pixels.
+  - \`height\` (number, Optional, default 800): Viewport height in pixels.
+  - \`fullPage\` (boolean, Optional, default false): Capture full scroll length.
+  - \`format\` (string, Optional, default png): PNG or JPEG format.
+
+#### 2. QR Code Generator API
+- **Endpoint**: \`GET /api/v1/qrcode\`
+- **Description**: Generates styled vector QR code images.
+- **Parameters**:
+  - \`text\` (string, Required): Value payload to encode.
+  - \`size\` (number, Optional, default 250): QR box dimension in pixels.
+  - \`color\` (string, Optional, default #000000): Foreground module color (hex).
+  - \`bg\` (string, Optional, default #ffffff): Background color (hex).
+  - \`format\` (string, Optional, default image): "image" (returns binary PNG) or "json" (returns base64 dataUrl).
+
+#### 3. AI OCR Text Extraction API
+- **Endpoint**: \`POST /api/v1/ocr\`
+- **Description**: High-accuracy text OCR using Gemini 2.5 Flash.
+- **Request Body (JSON)**:
+  - \`image\` (string, Required): The base64-encoded image string data.
+  - \`mimeType\` (string, Optional, default image/jpeg): The mime type of the image (e.g. image/png, image/jpeg).
+- **Response**:
+  \`\`\`json
+  {
+    "success": true,
+    "text": "EXTRACTED DOCUMENT TEXT HERE..."
+  }
+  \`\`\`
+
+#### 4. AI Document Summarizer API
+- **Endpoint**: \`POST /api/v1/summarize\`
+- **Description**: Generates markdown summary abstracts of long text content.
+- **Request Body (JSON)**:
+  - \`text\` (string, Required): Document raw text string.
+- **Response**:
+  \`\`\`json
+  {
+    "success": true,
+    "summary": "### Purpose and scope\\nThis document details..."
+  }
+  \`\`\`
+
+#### 5. Diff Checker API
+- **Endpoint**: \`POST /api/v1/diff\`
+- **Description**: Computes line-by-line differences using LCS algorithm.
+- **Request Body (JSON)**:
+  - \`source\` (string, Required): Reference original text.
+  - \`target\` (string, Required): Modified target text.
+
+#### 6. JSON Formatter & Validator API
+- **Endpoint**: \`POST /api/v1/json-format\`
+- **Description**: Formats, minifies, or validates JSON text templates.
+- **Request Body (JSON)**:
+  - \`json\` (string, Required): Raw JSON string input.
+  - \`action\` (string, Optional, default "format"): "format", "minify", or "validate".
+  - \`space\` (number, Optional, default 2): Tab spacing size.
+
+#### 7. Live Currency Exchange API
+- **Endpoint**: \`GET /api/v1/currency\`
+- **Description**: Retrieves live currency exchange rates cached from financial markets.
+- **Parameters**:
+  - \`base\` (string, Optional, default "USD"): Base target currency code.
+`
+  },
   {
     id: 'developer-utilities',
     title: 'Developer Utilities & Browser Tools',
@@ -777,6 +882,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
       case 'Features': return <Cpu size={14} className="text-slate-400" />;
       case 'Client Area': return <User size={14} className="text-slate-400" />;
       case 'AI Crawlers & SEO': return <Search size={14} className="text-slate-400" />;
+      case 'Developer APIs & Integration': return <Terminal size={14} className="text-slate-400" />;
       default: return <HelpCircle size={14} className="text-slate-400" />;
     }
   };
@@ -897,6 +1003,33 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-6 mb-6">
                   Category: {activeSection.category}
                 </p>
+
+                {activeSection.id === 'developer-apis' && (
+                  <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 mb-8 shadow-sm">
+                    <p className="text-[10px] font-bold text-slate-555 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                      <Terminal size={12} className="text-indigo-600" />
+                      API Platform Architecture Flow Diagram
+                    </p>
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-center">
+                      <div className="flex-grow p-3 bg-white border border-slate-200 rounded-lg shadow-sm w-full md:w-auto">
+                        <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Client Request</div>
+                        <div className="text-[11px] font-extrabold text-slate-800 mt-1 font-mono">GET/POST /api/v1/*</div>
+                      </div>
+                      <div className="text-slate-400 text-xs font-bold leading-none select-none hidden md:block">➔</div>
+                      <div className="text-slate-400 text-xs font-bold leading-none select-none md:hidden">▼</div>
+                      <div className="flex-grow p-3 bg-indigo-50 border border-indigo-200 rounded-lg w-full md:w-auto">
+                        <div className="text-[9px] font-bold text-indigo-600 uppercase tracking-wider">Auth Gate (validateApiKey)</div>
+                        <div className="text-[11px] font-bold text-slate-700 mt-1">Checks origin / bc_prod_ key</div>
+                      </div>
+                      <div className="text-slate-400 text-xs font-bold leading-none select-none hidden md:block">➔</div>
+                      <div className="text-slate-400 text-xs font-bold leading-none select-none md:hidden">▼</div>
+                      <div className="flex-grow p-3 bg-white border border-slate-200 rounded-lg shadow-sm w-full md:w-auto">
+                        <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Target API Core Resolver</div>
+                        <div className="text-[11px] font-bold text-slate-700 mt-1">Executes script / Gemini models</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Markdown content rendering */}
                 <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed text-sm sm:text-base font-normal">

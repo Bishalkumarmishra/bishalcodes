@@ -24,6 +24,7 @@ import NotFoundPage from './page-components/NotFoundPage';
 // @ts-ignore
 import UserDashboard from './page-components/UserDashboard';
 import DeveloperPortal from './page-components/DeveloperPortal';
+import CheckoutPage from './page-components/CheckoutPage';
 import { PathPage } from './types'; // Import PathPage type
 import { NavigationContext } from './context/NavigationContext'; // Correctly import the centralized context
 import { logDailyVisit, logToolClick } from './services/analytics';
@@ -59,6 +60,7 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
       case 'vault': return { page: 'vault', id: id };
       case 'dashboard': return { page: 'user-dashboard', id: null };
       case 'developers': return { page: 'developers', id: id };
+      case 'checkout': return { page: 'checkout', id: id };
       case 'widgets': {
         if (id === 'date-converter') return { page: 'widget-date-converter', id: null };
         if (id === 'calendar') return { page: 'widget-calendar', id: null };
@@ -147,6 +149,7 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
       case 'vault': path = id ? `/vault/${id}` : '/vault'; break;
       case 'user-dashboard': path = '/dashboard'; break;
       case 'developers': path = id ? `/developers/${id}` : '/developers'; break;
+      case 'checkout': path = id ? `/checkout/${id}` : '/checkout'; break;
       case 'widgets': path = '/widgets'; break;
       case 'widget-date-converter': path = '/widgets/date-converter'; break;
       case 'widget-calendar': path = '/widgets/calendar'; break;
@@ -191,6 +194,7 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
       case 'vault': return <SecureVaultView vaultId={selectedId} />;
       case 'user-dashboard': return <UserDashboard />;
       case 'developers': return <DeveloperPortal apiId={selectedId} />;
+      case 'checkout': return <CheckoutPage planId={selectedId} />;
       case 'widgets': return <Widgets />;
       case 'widget-date-converter': return <WidgetDateConverter />;
       case 'widget-calendar': return <WidgetCalendar />;
