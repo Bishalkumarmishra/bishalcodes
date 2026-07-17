@@ -503,50 +503,17 @@ func main() {
 
       {/* Hero section */}
       <div className="pt-28 pb-12 w-full px-[5vw] relative z-10 border-b border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950/60 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-8">
-          <div>
-            <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1 rounded-full mb-3 text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider text-[9px]">
-              <Terminal size={12} />
-              API Store & Developer Hub
-            </div>
-            <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-none animate-none">
-              Developer APIs For Core Utilities
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base leading-relaxed mt-3 max-w-2xl font-normal">
-              Integrate robust, production-level, and lightning-fast developer utility endpoints. Instantly test requests via the Live Playground and get ready-to-use code snippets.
-            </p>
+        <div className="max-w-7xl mx-auto">
+          <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1 rounded-full mb-3 text-indigo-650 dark:text-indigo-400 font-bold uppercase tracking-wider text-[9px]">
+            <Terminal size={12} />
+            API Store & Developer Hub
           </div>
-
-          {/* API Key management widget */}
-          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 backdrop-blur-sm md:w-[380px] shrink-0">
-            <div className="flex items-center justify-between mb-3.5 border-b border-slate-100 dark:border-slate-800/80 pb-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">
-                <Key size={14} className="text-indigo-600 dark:text-indigo-400" />
-                Your Sandbox API Key
-              </div>
-              <button 
-                onClick={generateNewKey} 
-                className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors uppercase tracking-wider"
-              >
-                Regenerate
-              </button>
-            </div>
-            <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl p-1">
-              <code className="text-[10px] sm:text-xs font-mono font-bold text-indigo-600 dark:text-indigo-300 px-3 truncate select-all flex-grow">
-                {apiKey}
-              </code>
-              <button 
-                onClick={() => copyToClipboard(apiKey, setCopiedKey)}
-                className="p-2 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg bg-slate-100 dark:bg-slate-900 transition-colors cursor-pointer shrink-0"
-              >
-                {copiedKey ? <Check size={14} className="text-emerald-555 dark:text-emerald-400" /> : <Copy size={14} />}
-              </button>
-            </div>
-            <div className="flex items-center gap-1.5 mt-2.5 text-[9px] text-slate-500 font-medium leading-none">
-              <Info size={10} />
-              Key auto-authenticates queries run in the local playground.
-            </div>
-          </div>
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-none animate-none">
+            Developer APIs For Core Utilities
+          </h1>
+          <p className="text-[#475569] dark:text-slate-400 text-sm sm:text-base leading-relaxed mt-3 max-w-2xl font-normal">
+            Integrate robust, production-level, and lightning-fast developer utility endpoints. Instantly test requests via the Live Playground and get ready-to-use code snippets.
+          </p>
         </div>
       </div>
 
@@ -556,7 +523,7 @@ func main() {
           
           {/* Sidebar - API Switcher */}
           <div className="lg:col-span-1 space-y-2">
-            <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[9px] px-3 mb-2">Available APIs</p>
+            <p className="text-[#475569] dark:text-slate-400 font-bold uppercase tracking-wider text-[9px] px-3 mb-2">Available APIs</p>
             {API_ENDPOINTS.map(api => {
               const isSelected = selectedApi.id === api.id;
               return (
@@ -566,17 +533,17 @@ func main() {
                   className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl border text-left font-bold transition-all ${
                     isSelected 
                       ? 'bg-slate-900 dark:bg-indigo-600 border-slate-900 dark:border-indigo-500/60 text-white shadow-md' 
-                      : 'bg-white dark:bg-transparent border-slate-200 dark:border-slate-900 hover:border-slate-300 dark:hover:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/30 text-slate-650 dark:text-slate-400 hover:text-slate-850 dark:hover:text-slate-200'
+                      : 'bg-white dark:bg-transparent border-slate-200 dark:border-slate-900 hover:border-slate-300 dark:hover:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/30 text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200'
                   }`}
                 >
                   <span className={`p-1.5 rounded-lg border transition-colors ${
-                    isSelected ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400' : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-550 dark:text-slate-400'
+                    isSelected ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400' : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-[#475569] dark:text-slate-400'
                   }`}>
                     {api.icon}
                   </span>
                   <div className="truncate flex-grow leading-tight">
-                    <span className={`text-[11px] sm:text-xs block font-bold ${isSelected ? 'text-white' : 'text-slate-800 dark:text-slate-200'}`}>{api.name}</span>
-                    <span className={`text-[8px] sm:text-[9px] font-mono block uppercase tracking-wider mt-0.5 ${isSelected ? 'text-indigo-200 dark:text-indigo-300' : 'text-slate-500'}`}>{api.method} {api.path.split('/v1')[1]}</span>
+                    <span className={`text-[11px] sm:text-xs block font-bold ${isSelected ? 'text-white' : 'text-[#0f172a] dark:text-slate-200'}`}>{api.name}</span>
+                    <span className={`text-[8px] sm:text-[9px] font-mono block uppercase tracking-wider mt-0.5 ${isSelected ? 'text-indigo-200 dark:text-indigo-300' : 'text-[#475569] dark:text-slate-550'}`}>{api.method} {api.path.split('/v1')[1]}</span>
                   </div>
                 </button>
               );
@@ -590,7 +557,7 @@ func main() {
               <button
                 onClick={() => setActiveTab('docs')}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === 'docs' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  activeTab === 'docs' ? 'bg-white dark:bg-slate-900 text-[#0f172a] dark:text-white border border-slate-200 dark:border-slate-800 shadow-sm' : 'text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200'
                 }`}
               >
                 <BookOpen size={14} />
@@ -599,7 +566,7 @@ func main() {
               <button
                 onClick={() => setActiveTab('playground')}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === 'playground' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  activeTab === 'playground' ? 'bg-white dark:bg-slate-900 text-[#0f172a] dark:text-white border border-slate-200 dark:border-slate-800 shadow-sm' : 'text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200'
                 }`}
               >
                 <Play size={14} />
@@ -608,7 +575,7 @@ func main() {
               <button
                 onClick={() => setActiveTab('snippets')}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === 'snippets' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  activeTab === 'snippets' ? 'bg-white dark:bg-slate-900 text-[#0f172a] dark:text-white border border-slate-200 dark:border-slate-800 shadow-sm' : 'text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200'
                 }`}
               >
                 <Code size={14} />
@@ -623,32 +590,32 @@ func main() {
               {activeTab === 'docs' && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2">{selectedApi.name}</h2>
-                    <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed font-normal">{selectedApi.description}</p>
+                    <h2 className="text-xl font-extrabold text-[#0f172a] dark:text-white mb-2">{selectedApi.name}</h2>
+                    <p className="text-[#475569] dark:text-slate-400 text-xs sm:text-sm leading-relaxed font-normal">{selectedApi.description}</p>
                   </div>
 
                   {/* Visual Architecture Diagram */}
                   <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-900 bg-slate-50/50 dark:bg-slate-950/20">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                      <Terminal size={12} className="text-indigo-650 dark:text-indigo-400" />
+                    <p className="text-[10px] font-bold text-[#475569] dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                      <Terminal size={12} className="text-indigo-600 dark:text-indigo-400" />
                       Request Flow & API Key Authentication Check
                     </p>
                     <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-center">
                       <div className="flex-grow p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm w-full md:w-auto">
-                        <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Client Request</div>
-                        <div className="text-xs font-extrabold text-slate-800 dark:text-white mt-1 font-mono">{selectedApi.method} {selectedApi.path}</div>
+                        <div className="text-[10px] font-bold text-[#475569] dark:text-slate-400 uppercase tracking-wider">Client Request</div>
+                        <div className="text-xs font-extrabold text-[#0f172a] dark:text-white mt-1 font-mono">{selectedApi.method} {selectedApi.path}</div>
                       </div>
-                      <div className="text-slate-400 dark:text-slate-600 text-xs font-bold leading-none select-none hidden md:block">➔</div>
-                      <div className="text-slate-400 dark:text-slate-600 text-xs font-bold leading-none select-none md:hidden">▼</div>
+                      <div className="text-[#475569] dark:text-slate-600 text-xs font-bold leading-none select-none hidden md:block">➔</div>
+                      <div className="text-[#475569] dark:text-slate-600 text-xs font-bold leading-none select-none md:hidden">▼</div>
                       <div className="flex-grow p-3 rounded-lg border border-indigo-200 dark:border-indigo-950 bg-indigo-50/30 dark:bg-indigo-950/10 w-full md:w-auto">
                         <div className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Auth Gate (validateApiKey)</div>
-                        <div className="text-xs font-bold text-slate-650 dark:text-slate-350 mt-1">Checks origin / bc_prod_ key</div>
+                        <div className="text-xs font-bold text-[#334155] dark:text-slate-350 mt-1">Checks origin / bc_prod_ key</div>
                       </div>
-                      <div className="text-slate-400 dark:text-slate-600 text-xs font-bold leading-none select-none hidden md:block">➔</div>
-                      <div className="text-slate-400 dark:text-slate-600 text-xs font-bold leading-none select-none md:hidden">▼</div>
+                      <div className="text-[#475569] dark:text-slate-600 text-xs font-bold leading-none select-none hidden md:block">➔</div>
+                      <div className="text-[#475569] dark:text-slate-600 text-xs font-bold leading-none select-none md:hidden">▼</div>
                       <div className="flex-grow p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm w-full md:w-auto">
-                        <div className="text-[10px] font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider">Target Resolver</div>
-                        <div className="text-xs font-extrabold text-slate-800 dark:text-white mt-1">
+                        <div className="text-[10px] font-bold text-[#475569] dark:text-slate-400 uppercase tracking-wider">Target Resolver</div>
+                        <div className="text-xs font-extrabold text-[#0f172a] dark:text-white mt-1">
                           {selectedApi.id === 'ocr' || selectedApi.id === 'summarize' ? 'Gemini 2.5 Flash Model' : selectedApi.id === 'currency' ? 'Yahoo Finance API' : selectedApi.id === 'screenshot' ? 'Microlink Engine' : 'Local Server Thread'}
                         </div>
                       </div>
@@ -669,11 +636,11 @@ func main() {
 
                   {/* Headers section */}
                   <div>
-                    <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-3">Required Request Headers</h3>
+                    <h3 className="text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider mb-3">Required Request Headers</h3>
                     <div className="border border-slate-200 dark:border-slate-900 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-950/40">
                       <table className="w-full text-[10px] sm:text-xs text-left">
                         <thead>
-                          <tr className="border-b border-slate-200 dark:border-slate-900 bg-slate-100/50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-455 font-bold uppercase tracking-wider text-[9px]">
+                          <tr className="border-b border-slate-200 dark:border-slate-900 bg-slate-100/50 dark:bg-slate-900/50 text-[#475569] dark:text-slate-400 font-bold uppercase tracking-wider text-[9px]">
                             <th className="px-4 py-3">Header</th>
                             <th className="px-4 py-3">Value / Type</th>
                             <th className="px-4 py-3">Description</th>
@@ -681,15 +648,15 @@ func main() {
                         </thead>
                         <tbody className="divide-y divide-slate-200 dark:divide-slate-900 font-medium">
                           <tr>
-                            <td className="px-4 py-3 font-mono font-bold text-indigo-600 dark:text-indigo-450">X-API-Key</td>
-                            <td className="px-4 py-3 font-mono text-slate-700 dark:text-slate-300">string (Required)</td>
-                            <td className="px-4 py-3 text-slate-600 dark:text-slate-500">Your Sandbox or Live API Authentication key.</td>
+                            <td className="px-4 py-3 font-mono font-bold text-[#4f46e5] dark:text-indigo-400">X-API-Key</td>
+                            <td className="px-4 py-3 font-mono text-[#334155] dark:text-[#cbd5e1]">string (Required)</td>
+                            <td className="px-4 py-3 text-[#475569] dark:text-slate-500">Your Sandbox or Live API Authentication key.</td>
                           </tr>
                           {selectedApi.method === 'POST' && (
                             <tr>
-                              <td className="px-4 py-3 font-mono font-bold text-indigo-600 dark:text-indigo-450">Content-Type</td>
-                              <td className="px-4 py-3 font-mono text-slate-700 dark:text-slate-300">application/json</td>
-                              <td className="px-4 py-3 text-slate-600 dark:text-slate-500">Required payload Content Type for POST.</td>
+                              <td className="px-4 py-3 font-mono font-bold text-[#4f46e5] dark:text-indigo-400">Content-Type</td>
+                              <td className="px-4 py-3 font-mono text-[#334155] dark:text-[#cbd5e1]">application/json</td>
+                              <td className="px-4 py-3 text-[#475569] dark:text-slate-500">Required payload Content Type for POST.</td>
                             </tr>
                           )}
                         </tbody>
@@ -699,13 +666,13 @@ func main() {
 
                   {/* Query Parameters / Body section */}
                   <div>
-                    <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-3">
+                    <h3 className="text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider mb-3">
                       {selectedApi.method === 'GET' ? 'Query Parameters' : 'Request Body Schema'}
                     </h3>
                     <div className="border border-slate-200 dark:border-slate-900 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-950/40">
                       <table className="w-full text-[10px] sm:text-xs text-left">
                         <thead>
-                          <tr className="border-b border-slate-200 dark:border-slate-900 bg-slate-100/50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-455 font-bold uppercase tracking-wider text-[9px]">
+                          <tr className="border-b border-slate-200 dark:border-slate-900 bg-slate-100/50 dark:bg-slate-900/50 text-[#475569] dark:text-slate-400 font-bold uppercase tracking-wider text-[9px]">
                             <th className="px-4 py-3">Field</th>
                             <th className="px-4 py-3">Type</th>
                             <th className="px-4 py-3">Requirement</th>
@@ -716,17 +683,17 @@ func main() {
                         <tbody className="divide-y divide-slate-200 dark:divide-slate-900 font-medium">
                           {selectedApi.params.map(p => (
                             <tr key={p.name}>
-                              <td className="px-4 py-3 font-mono font-bold text-indigo-600 dark:text-indigo-450">{p.name}</td>
-                              <td className="px-4 py-3 font-mono text-slate-700 dark:text-slate-300">{p.type}</td>
+                              <td className="px-4 py-3 font-mono font-bold text-[#4f46e5] dark:text-[#818cf8]">{p.name}</td>
+                              <td className="px-4 py-3 font-mono text-[#334155] dark:text-[#cbd5e1]">{p.type}</td>
                               <td className="px-4 py-3">
                                 {p.required ? (
-                                  <span className="text-rose-600 dark:text-rose-500 font-semibold uppercase tracking-wider text-[9px]">Required</span>
+                                  <span className="text-[#e11d48] dark:text-[#fb7185] font-semibold uppercase tracking-wider text-[9px]">Required</span>
                                 ) : (
-                                  <span className="text-slate-500 dark:text-slate-450">Optional</span>
+                                  <span className="text-[#475569] dark:text-slate-400">Optional</span>
                                 )}
                               </td>
-                              <td className="px-4 py-3 font-mono text-slate-600 dark:text-slate-400">{p.defaultVal || '-'}</td>
-                              <td className="px-4 py-3 text-slate-600 dark:text-slate-500 font-normal">{p.desc}</td>
+                              <td className="px-4 py-3 font-mono text-[#475569] dark:text-slate-400">{p.defaultVal || '-'}</td>
+                              <td className="px-4 py-3 text-[#475569] dark:text-slate-500 font-normal">{p.desc}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -736,7 +703,7 @@ func main() {
 
                   {/* Response example */}
                   <div>
-                    <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-3">Example API Response</h3>
+                    <h3 className="text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider mb-3">Example API Response</h3>
                     <pre className="p-4 rounded-xl bg-slate-950 border border-slate-900 font-mono text-[10px] sm:text-xs text-emerald-450 overflow-x-auto whitespace-pre-wrap leading-relaxed">
                       {selectedApi.responseExample}
                     </pre>
@@ -751,16 +718,16 @@ func main() {
                   {/* Left Column: Config Panel */}
                   <div className="space-y-4">
                     <div>
-                      <h2 className="text-xs font-bold text-slate-850 dark:text-white uppercase tracking-wider mb-2">Request Parameters</h2>
-                      <p className="text-[10px] text-slate-500">Enter parameters below to build and run the query.</p>
+                      <h2 className="text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider mb-2">Request Parameters</h2>
+                      <p className="text-[10px] text-[#475569] dark:text-slate-550">Enter parameters below to build and run the query.</p>
                     </div>
 
                     <div className="space-y-3.5">
                       {selectedApi.params.map(p => (
                         <div key={p.name}>
-                          <label className="flex items-center justify-between text-[10px] sm:text-xs font-bold mb-1.5 text-slate-700 dark:text-slate-300">
-                            <span>{p.name} {p.required && <span className="text-rose-650 dark:text-rose-550">*</span>}</span>
-                            <span className="text-[9px] font-mono text-slate-450 dark:text-slate-600">{p.type}</span>
+                          <label className="flex items-center justify-between text-[10px] sm:text-xs font-bold mb-1.5 text-[#334155] dark:text-slate-300">
+                            <span>{p.name} {p.required && <span className="text-[#e11d48] dark:text-[#fb7185]">*</span>}</span>
+                            <span className="text-[9px] font-mono text-[#475569] dark:text-slate-500">{p.type}</span>
                           </label>
 
                           {/* Specific input components for different types */}
@@ -769,14 +736,14 @@ func main() {
                               value={playgroundParams[p.name] || ''}
                               onChange={(e) => handleParamChange(p.name, e.target.value)}
                               rows={selectedApi.id === 'ocr' || selectedApi.id === 'diff' ? 4 : 3}
-                              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-850 dark:text-white outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors font-mono resize-none leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-700"
+                              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-[#0f172a] dark:text-white outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors font-mono resize-none leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-700"
                               placeholder={p.desc}
                             />
                           ) : p.type === 'boolean' ? (
                             <select
                               value={playgroundParams[p.name] || 'false'}
                               onChange={(e) => handleParamChange(p.name, e.target.value)}
-                              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-850 dark:text-white outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors cursor-pointer"
+                              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-[#0f172a] dark:text-white outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors cursor-pointer"
                             >
                               <option value="false">false</option>
                               <option value="true">true</option>
@@ -786,7 +753,7 @@ func main() {
                               type="text"
                               value={playgroundParams[p.name] || ''}
                               onChange={(e) => handleParamChange(p.name, e.target.value)}
-                              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-850 dark:text-white outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors font-mono"
+                              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-[#0f172a] dark:text-white outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors font-mono"
                               placeholder={p.defaultVal || p.desc}
                             />
                           )}
@@ -816,9 +783,9 @@ func main() {
                   {/* Right Column: Response Panel */}
                   <div className="flex flex-col h-full min-h-[300px]">
                     <div className="flex items-center justify-between mb-2">
-                      <h2 className="text-xs font-bold text-slate-850 dark:text-white uppercase tracking-wider">Server Response</h2>
+                      <h2 className="text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider">Server Response</h2>
                       {executionTime !== null && (
-                        <span className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded leading-none border border-emerald-500/20">
+                        <span className="text-[9px] font-mono text-emerald-600 dark:text-emerald-450 bg-emerald-500/10 px-2 py-0.5 rounded leading-none border border-emerald-500/20">
                           {executionTime}ms
                         </span>
                       )}
@@ -831,7 +798,7 @@ func main() {
                           alt="Playground API Result" 
                           className="max-w-full max-h-[280px] object-contain rounded-lg border border-slate-200 dark:border-slate-800 shadow-md bg-white dark:bg-slate-900" 
                         />
-                        <span className="text-[10px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider mt-3">Raw Render Output</span>
+                        <span className="text-[10px] text-[#475569] dark:text-slate-400 font-bold uppercase tracking-wider mt-3">Raw Render Output</span>
                       </div>
                     ) : (
                       <pre className="flex-grow p-4 rounded-xl bg-slate-950 border border-slate-900 font-mono text-[9px] sm:text-xs text-indigo-300 overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-[400px]">
@@ -846,8 +813,8 @@ func main() {
               {activeTab === 'snippets' && (
                 <div className="space-y-5">
                   <div>
-                    <h2 className="text-xs font-bold text-slate-850 dark:text-white uppercase tracking-wider mb-2">Copy Integration Snippet</h2>
-                    <p className="text-[10px] text-slate-500">Pick your favorite language stack. Code is updated in real-time based on current playground values.</p>
+                    <h2 className="text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider mb-2">Copy Integration Snippet</h2>
+                    <p className="text-[10px] text-[#475569] dark:text-slate-550">Pick your favorite language stack. Code is updated in real-time based on current playground values.</p>
                   </div>
 
                   {/* Language Selector */}
@@ -857,7 +824,7 @@ func main() {
                         key={lang}
                         onClick={() => setSnippetLang(lang)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider ${
-                          snippetLang === lang ? 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-650 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/25' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-350'
+                          snippetLang === lang ? 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-650 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/25' : 'text-[#475569] hover:text-[#0f172a] dark:hover:text-slate-300'
                         }`}
                       >
                         {lang === 'js' ? 'Javascript' : lang === 'python' ? 'Python' : lang === 'curl' ? 'cURL' : 'Go'}
@@ -890,10 +857,10 @@ func main() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-xl mx-auto mb-12">
             <p className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider text-[10px] mb-2">API Pricing Models</p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-none">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0f172a] dark:text-white tracking-tight leading-none">
               Choose A Plan That Fits Your Scale
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-3 leading-relaxed font-normal">
+            <p className="text-[#475569] dark:text-slate-400 text-xs sm:text-sm mt-3 leading-relaxed font-normal">
               Unlock live endpoints with higher rate limits, high availability SLA, and dedicated engineering consultation support.
             </p>
           </div>
@@ -902,22 +869,22 @@ func main() {
             {/* Free Sandbox */}
             <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 flex flex-col justify-between h-full">
               <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Developer Sandbox</p>
-                <div className="flex items-baseline gap-1 text-slate-850 dark:text-white mb-4">
+                <p className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-2">Developer Sandbox</p>
+                <div className="flex items-baseline gap-1 text-[#0f172a] dark:text-white mb-4">
                   <span className="text-3xl font-black">$0</span>
                   <span className="text-xs text-slate-500 font-normal">/ free sandbox</span>
                 </div>
-                <ul className="space-y-3 text-xs text-slate-600 dark:text-slate-350 font-medium border-t border-slate-200 dark:border-slate-900 pt-4">
+                <ul className="space-y-3 text-xs text-[#334155] dark:text-slate-300 font-medium border-t border-slate-200 dark:border-slate-900 pt-4">
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-550 dark:text-indigo-400 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
                     100 API Requests / day
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-550 dark:text-indigo-400 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
                     Unlimited local playground queries
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-550 dark:text-indigo-400 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
                     Access to all 7 API endpoints
                   </li>
                 </ul>
@@ -933,26 +900,26 @@ func main() {
                 POPULAR
               </span>
               <div>
-                <p className="text-xs font-bold text-indigo-650 dark:text-indigo-400 uppercase tracking-wider mb-2">Commercial Pro</p>
-                <div className="flex items-baseline gap-1 text-slate-900 dark:text-white mb-4">
+                <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-2">Commercial Pro</p>
+                <div className="flex items-baseline gap-1 text-[#0f172a] dark:text-white mb-4">
                   <span className="text-3xl font-black">$29</span>
                   <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">/ month</span>
                 </div>
-                <ul className="space-y-3 text-xs text-slate-650 dark:text-slate-300 font-medium border-t border-slate-200 dark:border-slate-800/80 pt-4">
+                <ul className="space-y-3 text-xs text-[#334155] dark:text-slate-350 font-medium border-t border-slate-200 dark:border-slate-800/80 pt-4">
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-550 dark:text-indigo-400 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-450 shrink-0" />
                     50,000 API Requests / month
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-550 dark:text-indigo-400 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-450 shrink-0" />
                     Rate limit: 60 req / minute
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-550 dark:text-indigo-400 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-450 shrink-0" />
                     Dedicated HTTPS live production key
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-550 dark:text-indigo-400 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-455 shrink-0" />
                     99.9% Server uptime SLA
                   </li>
                 </ul>
@@ -968,33 +935,33 @@ func main() {
             {/* Enterprise Tier */}
             <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 flex flex-col justify-between h-full">
               <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Custom Integration</p>
-                <div className="flex items-baseline gap-1 text-slate-850 dark:text-white mb-4">
+                <p className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-2">Custom Integration</p>
+                <div className="flex items-baseline gap-1 text-[#0f172a] dark:text-white mb-4">
                   <span className="text-3xl font-black">$149</span>
                   <span className="text-xs text-slate-500 font-normal">/ month starting</span>
                 </div>
-                <ul className="space-y-3 text-xs text-slate-650 dark:text-slate-300 font-medium border-t border-slate-200 dark:border-slate-900 pt-4">
+                <ul className="space-y-3 text-xs text-[#334155] dark:text-slate-350 font-medium border-t border-slate-200 dark:border-slate-900 pt-4">
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-550 dark:text-indigo-400 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
                     Unlimited Requests (Custom contract)
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-550 dark:text-indigo-400 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
                     Rate limit: 500 req / minute
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-550 dark:text-indigo-400 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
                     Zero-throttling hosting cluster scaling
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-550 dark:text-indigo-400 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
                     Email, slack, and call developer support
                   </li>
                 </ul>
               </div>
               <button 
                 onClick={() => navigate('checkout', 'enterprise')}
-                className="mt-8 w-full bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-850 dark:text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider border border-slate-200 dark:border-slate-800 cursor-pointer"
+                className="mt-8 w-full bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider border border-slate-200 dark:border-slate-800 cursor-pointer"
               >
                 Contact Sales
               </button>

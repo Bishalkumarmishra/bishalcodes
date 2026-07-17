@@ -940,8 +940,8 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                                   id={`docs-nav-link-${sec.id}`}
                                   onClick={() => handleSectionSelect(sec.id)}
                                   className={`w-full text-left px-2 py-1.5 rounded-md text-xs font-medium transition-all flex items-center justify-between group ${isActive
-                                      ? 'bg-slate-100 text-indigo-600 font-semibold'
-                                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                      ? 'bg-slate-100 dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 font-semibold'
+                                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/40 hover:text-slate-900 dark:hover:text-slate-200'
                                     }`}
                                 >
                                   <span>{sec.title}</span>
@@ -1131,8 +1131,8 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                               setIsMobileSidebarOpen(false);
                             }}
                             className={`w-full text-left px-2 py-1.5 rounded-md text-xs font-medium transition-all flex items-center justify-between ${isActive
-                                ? 'bg-slate-100 text-indigo-600 font-semibold'
-                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                ? 'bg-slate-100 dark:bg-slate-900 text-indigo-650 dark:text-indigo-400 font-semibold'
+                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/40 hover:text-slate-900 dark:hover:text-slate-205'
                               }`}
                           >
                             <span>{sec.title}</span>
