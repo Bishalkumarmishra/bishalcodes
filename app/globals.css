@@ -110,6 +110,46 @@ body {
   padding: 0; 
   overflow-x: hidden !important; 
   transition: background-color 0.3s ease, color 0.3s ease;
+  position: relative;
+}
+
+/* ── imgi_67 Background Overlay ──
+   Uses mix-blend-mode to punch THROUGH solid bg-white / bg-slate-50 sections.
+   Light mode: multiply → white becomes transparent, red shapes stay visible.
+   Dark mode:  screen   → black becomes transparent, red shapes stay visible.
+   pointer-events:none so it never blocks clicks.
+   z-index: 9999 keeps it above sections but below modals/navbars.
+──────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('/imgi_67_background.svg');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+}
+
+/* Dark mode: flip to screen blend so shapes show on black backgrounds */
+@media (prefers-color-scheme: dark) {
+  body:not(.light)::before {
+    mix-blend-mode: screen;
+    opacity: 0.45;
+  }
+}
+:root.dark body::before {
+  mix-blend-mode: screen;
+  opacity: 0.45;
+}
+:root.light body::before {
+  mix-blend-mode: multiply;
+  opacity: 0.35;
 }
 html {
   background-color: var(--html-bg) !important;
