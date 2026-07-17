@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, LogOut, Home, FileText, Settings, User, Briefcase, Mail, Facebook, Instagram, Linkedin, Github, BookOpen, Sun, Moon, Calendar } from 'lucide-react';
+import { Menu, X, LogOut, Home, FileText, Settings, User, Briefcase, Mail, Facebook, Instagram, Linkedin, Github, BookOpen, Sun, Moon, Calendar, Terminal } from 'lucide-react';
 import { auth } from '../services/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigation } from '../context/NavigationContext';
@@ -73,6 +73,7 @@ const Navbar: React.FC = () => {
     { name: 'Services', id: 'services', icon: <Calendar size={16} /> },
     { name: 'Blogs', id: 'blog', icon: <FileText size={16} /> },
     { name: 'Docs', id: 'docs', icon: <BookOpen size={16} /> },
+    { name: 'APIs', id: 'developers', icon: <Terminal size={16} /> },
     { name: 'Contact', id: 'contact', icon: <Mail size={16} /> },
   ];
 

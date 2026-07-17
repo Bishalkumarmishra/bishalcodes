@@ -864,6 +864,38 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
       };
     }
 
+    // Developers Page / API Portal
+    if (firstSlug === 'developers') {
+      const subpage = slugArr[1] || '';
+      let pageTitle = "Core Utility Developer APIs | Live Playground & Integration | Bishal Codes";
+      let pageDesc = "Integrate fast, robust, and real utility developer APIs: Website Screenshot Capture, QR Code Generator, AI Document Summarizer, AI OCR, JSON Formatter, and Diff Checker.";
+      let canonUrl = "https://bishalcodes.com/developers";
+
+      if (subpage) {
+        const cleanSub = subpage.charAt(0).toUpperCase() + subpage.slice(1).replace('-', ' ');
+        pageTitle = `${cleanSub} API | Interactive Playground & Integration Docs | Bishal Codes`;
+        pageDesc = `Free, production-level, and lightning-fast developer ${cleanSub} API. Test requests in our interactive playground and copy clean Node.js, Python, or Go snippets.`;
+        canonUrl = `https://bishalcodes.com/developers/${subpage}`;
+      }
+
+      return {
+        title: pageTitle,
+        description: pageDesc,
+        keywords: "developer apis, free utility apis, screenshot api, qr code api, ocr api, summarize api, json format api, diff checker api, bishal codes apis",
+        alternates: {
+          canonical: canonUrl,
+        },
+        openGraph: {
+          title: pageTitle,
+          description: pageDesc,
+          url: canonUrl,
+          type: "website",
+          images: DEFAULT_OG_IMAGES
+        },
+        twitter: DEFAULT_TWITTER_CONFIG
+      };
+    }
+
     // About Page
     if (firstSlug === 'about') {
       return {
