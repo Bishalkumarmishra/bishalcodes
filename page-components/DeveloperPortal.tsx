@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Key, Terminal, Send, Copy, Check, BookOpen, Play, Code, Zap, Cpu,
-  Camera, QrCode, GitCompare, Coins, Braces, FileText, ArrowRight, CheckCircle, Info
+  Camera, QrCode, GitCompare, Coins, Braces, FileText, ArrowRight, CheckCircle, Info, Lock
 } from 'lucide-react';
+// @ts-ignore
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth, db } from '../services/firebase';
+// @ts-ignore
+import { doc, getDoc } from 'firebase/firestore';
 import Navbar from '../sections/Navbar';
 import Footer from '../sections/Footer';
 import { useNavigation } from '../context/NavigationContext';
@@ -146,7 +151,7 @@ const API_ENDPOINTS: ApiEndpoint[] = [
       { name: 'space', type: 'number', required: false, defaultVal: '2', desc: 'Indentation spacing (number of spaces, default 2).' }
     ],
     requestBodyExample: `{
-  "json": "{\\"name\\":\\"John\\",\\"age\\":30}",
+  "json": "{\"name\\":\\"John\\",\\"age\\":30}",
   "action": "format",
   "space": 4
 }`,
@@ -184,10 +189,17 @@ const API_ENDPOINTS: ApiEndpoint[] = [
 const DeveloperPortal: React.FC<{ apiId?: string | null }> = ({ apiId }) => {
   const { navigate } = useNavigation();
   const [selectedApi, setSelectedApi] = useState<ApiEndpoint>(API_ENDPOINTS[0]);
-  const [activeTab, setActiveTab] = useState<'docs' | 'playground' | 'snippets'>('docs');
+  const [activeTab, setActiveTab] = useState<'docs' | 'playground' | 'snippets' | 'keys'>('docs');
   const [snippetLang, setSnippetLang] = useState<'js' | 'python' | 'curl' | 'go'>('js');
-  const [apiKey, setApiKey] = useState<string>('');
+  
+  // Auth and database credentials state
+  const [user, setUser] = useState<User | null>(null);
+  const [apiKey, setApiKey] = useState<string>(''); // Sandbox key
+  const [prodApiKey, setProdApiKey] = useState<string>(''); // Live production key
+  const [apiPlan, setApiPlan] = useState<string>('');
+  
   const [copiedKey, setCopiedKey] = useState(false);
+  const [copiedProdKey, setCopiedProdKey] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
 
   // Playground form states
@@ -216,6 +228,33 @@ const DeveloperPortal: React.FC<{ apiId?: string | null }> = ({ apiId }) => {
     } else {
       generateNewKey();
     }
+  }, []);
+
+  // Listen to Auth changes to fetch live key from Firestore
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      setUser(u);
+      if (u) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', u.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            if (data.api_production_key) {
+              setProdApiKey(data.api_production_key);
+            }
+            if (data.api_plan) {
+              setApiPlan(data.api_plan);
+            }
+          }
+        } catch (err) {
+          console.warn("Could not load production API key from Firestore:", err);
+        }
+      } else {
+        setProdApiKey('');
+        setApiPlan('');
+      }
+    });
+    return () => unsub();
   }, []);
 
   // Update playground inputs when API changes
@@ -274,6 +313,7 @@ const DeveloperPortal: React.FC<{ apiId?: string | null }> = ({ apiId }) => {
     setPlaygroundResult('');
     setImageUrlResult('');
     const startTime = performance.now();
+    const activeKey = prodApiKey || apiKey;
 
     try {
       if (selectedApi.method === 'GET') {
@@ -282,7 +322,7 @@ const DeveloperPortal: React.FC<{ apiId?: string | null }> = ({ apiId }) => {
         Object.entries(playgroundParams).forEach(([k, v]) => {
           if (v) queryParams.append(k, v);
         });
-        queryParams.append('apiKey', apiKey);
+        queryParams.append('apiKey', activeKey);
 
         const targetUrl = `${selectedApi.path}?${queryParams.toString()}`;
 
@@ -325,7 +365,7 @@ const DeveloperPortal: React.FC<{ apiId?: string | null }> = ({ apiId }) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-API-Key': apiKey
+            'X-API-Key': activeKey
           },
           body: JSON.stringify(payload)
         });
@@ -346,6 +386,7 @@ const DeveloperPortal: React.FC<{ apiId?: string | null }> = ({ apiId }) => {
   const generateCodeSnippet = () => {
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bishalcodes.com';
     const baseUrl = `${origin}${selectedApi.path}`;
+    const activeKey = prodApiKey || apiKey;
     
     // Construct values dictionary
     const values: Record<string, string> = {};
@@ -357,10 +398,10 @@ const DeveloperPortal: React.FC<{ apiId?: string | null }> = ({ apiId }) => {
       if (selectedApi.method === 'GET') {
         const queryParams = new URLSearchParams(values).toString();
         const fullUrl = queryParams ? `${baseUrl}?${queryParams}` : baseUrl;
-        return `curl -X GET "${fullUrl}" \\\n  -H "X-API-Key: ${apiKey}"`;
+        return `curl -X GET "${fullUrl}" \\\n  -H "X-API-Key: ${activeKey}"`;
       } else {
         const jsonBody = JSON.stringify(values, null, 2).replace(/\n/g, '\n  ');
-        return `curl -X POST "${baseUrl}" \\\n  -H "X-API-Key: ${apiKey}" \\\n  -H "Content-Type: application/json" \\\n  -d '${jsonBody}'`;
+        return `curl -X POST "${baseUrl}" \\\n  -H "X-API-Key: ${activeKey}" \\\n  -H "Content-Type: application/json" \\\n  -d '${jsonBody}'`;
       }
     }
 
@@ -371,7 +412,7 @@ const DeveloperPortal: React.FC<{ apiId?: string | null }> = ({ apiId }) => {
         return `// Integration Example inside Javascript/Node.js
 fetch("${fullUrl}", {
   headers: {
-    "X-API-Key": "${apiKey}"
+    "X-API-Key": "${activeKey}"
   }
 })
 .then(res => ${selectedApi.id === 'screenshot' || (selectedApi.id === 'qrcode' && values['format'] !== 'json') ? 'res.blob()' : 'res.json()'})
@@ -387,7 +428,7 @@ fetch("${baseUrl}", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    "X-API-Key": "${apiKey}"
+    "X-API-Key": "${activeKey}"
   },
   body: JSON.stringify(payload)
 })
@@ -407,7 +448,7 @@ fetch("${baseUrl}", {
 url = "${baseUrl}"
 params = ${JSON.stringify(values, null, 4).replace(/\n/g, '\n')}
 headers = {
-    "X-API-Key": "${apiKey}"
+    "X-API-Key": "${activeKey}"
 }
 
 response = requests.get(url, params=params, headers=headers)
@@ -422,7 +463,7 @@ else:
 url = "${baseUrl}"
 headers = {
     "Content-Type": "application/json",
-    "X-API-Key": "${apiKey}"
+    "X-API-Key": "${activeKey}"
 }
 payload = ${JSON.stringify(values, null, 4).replace(/\n/g, '\n')}
 
@@ -449,7 +490,7 @@ import (
 
 func main() {
 	req, _ := http.NewRequest("GET", "${fullUrl}", nil)
-	req.Header.Set("X-API-Key", "${apiKey}")
+	req.Header.Set("X-API-Key", "${activeKey}")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -478,7 +519,7 @@ func main() {
 	payload := []byte(\`${payloadStr}\`)
 	req, _ := http.NewRequest("POST", "${baseUrl}", bytes.NewBuffer(payload))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-API-Key", "${apiKey}")
+	req.Header.Set("X-API-Key", "${activeKey}")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -502,9 +543,9 @@ func main() {
       <Navbar />
 
       {/* Hero section */}
-      <div className="pt-28 pb-12 w-full px-[5vw] relative z-10 border-b border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950/60 backdrop-blur-md">
+      <div className="pt-28 pb-12 w-full px-[5vw] relative z-10 border-b border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-955/60 backdrop-blur-md">
         <div className="max-w-7xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1 rounded-full mb-3 text-indigo-650 dark:text-indigo-400 font-bold uppercase tracking-wider text-[9px]">
+          <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1 rounded-full mb-3 text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider text-[9px]">
             <Terminal size={12} />
             API Store & Developer Hub
           </div>
@@ -532,7 +573,7 @@ func main() {
                   onClick={() => setSelectedApi(api)}
                   className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl border text-left font-bold transition-all ${
                     isSelected 
-                      ? 'bg-slate-900 dark:bg-indigo-600 border-slate-900 dark:border-indigo-500/60 text-white shadow-md' 
+                      ? 'bg-slate-900 dark:bg-indigo-600 border-slate-900 dark:border-indigo-500/60 text-white shadow-md font-bold' 
                       : 'bg-white dark:bg-transparent border-slate-200 dark:border-slate-900 hover:border-slate-300 dark:hover:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/30 text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200'
                   }`}
                 >
@@ -542,8 +583,8 @@ func main() {
                     {api.icon}
                   </span>
                   <div className="truncate flex-grow leading-tight">
-                    <span className={`text-[11px] sm:text-xs block font-bold ${isSelected ? 'text-white' : 'text-[#0f172a] dark:text-slate-200'}`}>{api.name}</span>
-                    <span className={`text-[8px] sm:text-[9px] font-mono block uppercase tracking-wider mt-0.5 ${isSelected ? 'text-indigo-200 dark:text-indigo-300' : 'text-[#475569] dark:text-slate-550'}`}>{api.method} {api.path.split('/v1')[1]}</span>
+                    <span className={`text-[11px] sm:text-xs block font-bold ${isSelected ? 'text-white font-bold' : 'text-[#0f172a] dark:text-slate-200'}`}>{api.name}</span>
+                    <span className={`text-[8px] sm:text-[9px] font-mono block uppercase tracking-wider mt-0.5 ${isSelected ? 'text-indigo-200 dark:text-indigo-300' : 'text-[#475569] dark:text-slate-500'}`}>{api.method} {api.path.split('/v1')[1]}</span>
                   </div>
                 </button>
               );
@@ -581,6 +622,15 @@ func main() {
                 <Code size={14} />
                 Integrations
               </button>
+              <button
+                onClick={() => setActiveTab('keys')}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === 'keys' ? 'bg-white dark:bg-slate-900 text-[#0f172a] dark:text-white border border-slate-200 dark:border-slate-800 shadow-sm' : 'text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200'
+                }`}
+              >
+                <Key size={14} />
+                API Keys
+              </button>
             </div>
 
             {/* TAB CONTENTS */}
@@ -595,7 +645,7 @@ func main() {
                   </div>
 
                   {/* Visual Architecture Diagram */}
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-900 bg-slate-50/50 dark:bg-slate-950/20">
+                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-900 bg-slate-50/50 dark:bg-slate-955/20">
                     <p className="text-[10px] font-bold text-[#475569] dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                       <Terminal size={12} className="text-indigo-600 dark:text-indigo-400" />
                       Request Flow & API Key Authentication Check
@@ -607,9 +657,9 @@ func main() {
                       </div>
                       <div className="text-[#475569] dark:text-slate-600 text-xs font-bold leading-none select-none hidden md:block">➔</div>
                       <div className="text-[#475569] dark:text-slate-600 text-xs font-bold leading-none select-none md:hidden">▼</div>
-                      <div className="flex-grow p-3 rounded-lg border border-indigo-200 dark:border-indigo-950 bg-indigo-50/30 dark:bg-indigo-950/10 w-full md:w-auto">
+                      <div className="flex-grow p-3 rounded-lg border border-indigo-200 dark:border-indigo-950 bg-indigo-50/30 dark:bg-indigo-955/10 w-full md:w-auto">
                         <div className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Auth Gate (validateApiKey)</div>
-                        <div className="text-xs font-bold text-[#334155] dark:text-slate-350 mt-1">Checks origin / bc_prod_ key</div>
+                        <div className="text-xs font-bold text-[#334155] dark:text-slate-355 mt-1">Checks origin / bc_prod_ key</div>
                       </div>
                       <div className="text-[#475569] dark:text-slate-600 text-xs font-bold leading-none select-none hidden md:block">➔</div>
                       <div className="text-[#475569] dark:text-slate-600 text-xs font-bold leading-none select-none md:hidden">▼</div>
@@ -719,7 +769,7 @@ func main() {
                   <div className="space-y-4">
                     <div>
                       <h2 className="text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider mb-2">Request Parameters</h2>
-                      <p className="text-[10px] text-[#475569] dark:text-slate-550">Enter parameters below to build and run the query.</p>
+                      <p className="text-[10px] text-[#475569] dark:text-slate-555">Enter parameters below to build and run the query.</p>
                     </div>
 
                     <div className="space-y-3.5">
@@ -743,7 +793,7 @@ func main() {
                             <select
                               value={playgroundParams[p.name] || 'false'}
                               onChange={(e) => handleParamChange(p.name, e.target.value)}
-                              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-[#0f172a] dark:text-white outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors cursor-pointer"
+                              className="w-full bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-[#0f172a] dark:text-white outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors cursor-pointer"
                             >
                               <option value="false">false</option>
                               <option value="true">true</option>
@@ -814,7 +864,7 @@ func main() {
                 <div className="space-y-5">
                   <div>
                     <h2 className="text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider mb-2">Copy Integration Snippet</h2>
-                    <p className="text-[10px] text-[#475569] dark:text-slate-550">Pick your favorite language stack. Code is updated in real-time based on current playground values.</p>
+                    <p className="text-[10px] text-[#475569] dark:text-slate-555">Pick your favorite language stack. Code is updated in real-time based on current playground values.</p>
                   </div>
 
                   {/* Language Selector */}
@@ -847,13 +897,133 @@ func main() {
                 </div>
               )}
 
+              {/* API KEYS TAB */}
+              {activeTab === 'keys' && (
+                <div className="space-y-6 animate-none">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-[#0f172a] dark:text-white mb-2">API Authentication Keys</h2>
+                    <p className="text-[#475569] dark:text-slate-400 text-xs sm:text-sm leading-relaxed font-normal">
+                      Manage your sandbox testing keys and active live commercial credentials.
+                    </p>
+                  </div>
+
+                  {/* Keys Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Sandbox Key Card */}
+                    <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-900 bg-slate-50/50 dark:bg-slate-950/20">
+                      <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+                        <div className="flex items-center gap-2 text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider">
+                          <Key size={14} className="text-slate-500" />
+                          Developer Sandbox Key
+                        </div>
+                        <button 
+                          onClick={generateNewKey} 
+                          className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-750 dark:hover:text-indigo-300 transition-colors uppercase tracking-wider"
+                        >
+                          Regenerate
+                        </button>
+                      </div>
+                      
+                      <div className="flex items-center gap-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl p-1">
+                        <code className="text-[10px] sm:text-xs font-mono font-bold text-[#4f46e5] dark:text-indigo-300 px-3 truncate select-all flex-grow">
+                          {apiKey}
+                        </code>
+                        <button 
+                          onClick={() => copyToClipboard(apiKey, setCopiedKey)}
+                          className="p-2 text-slate-400 hover:text-[#0f172a] dark:hover:text-white rounded-lg bg-slate-50 dark:bg-slate-900 transition-colors cursor-pointer shrink-0"
+                        >
+                          {copiedKey ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 mt-3 text-[9px] text-slate-500 font-medium">
+                        <Info size={10} />
+                        Sandbox key has a limit of 100 requests per day.
+                      </div>
+                    </div>
+
+                    {/* Production Key Card */}
+                    <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-900/30 flex flex-col justify-between">
+                      {user ? (
+                        <>
+                          <div>
+                            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+                              <div className="flex items-center gap-2 text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider">
+                                <Zap size={14} className="text-amber-500" />
+                                Live Production Key
+                              </div>
+                              {prodApiKey && (
+                                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-450 bg-emerald-500/10 px-2 py-0.5 rounded uppercase tracking-wider leading-none">
+                                  {apiPlan === 'pro' ? 'Pro' : 'Enterprise'}
+                                </span>
+                              )}
+                            </div>
+
+                            {prodApiKey ? (
+                              <div className="space-y-3">
+                                <div className="flex items-center gap-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl p-1">
+                                  <code className="text-[10px] sm:text-xs font-mono font-bold text-amber-600 dark:text-amber-400 px-3 truncate select-all flex-grow">
+                                    {prodApiKey}
+                                  </code>
+                                  <button 
+                                    onClick={() => copyToClipboard(prodApiKey, setCopiedProdKey)}
+                                    className="p-2 text-slate-400 hover:text-[#0f172a] dark:hover:text-white rounded-lg bg-slate-50 dark:bg-slate-900 transition-colors cursor-pointer shrink-0"
+                                  >
+                                    {copiedProdKey ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                                  </button>
+                                </div>
+                                <div className="text-[10px] text-[#475569] dark:text-slate-400 space-y-1">
+                                  <p>• <strong>Rate Limit</strong>: {apiPlan === 'pro' ? '60 req/min' : '500 req/min'}</p>
+                                  <p>• <strong>Monthly Quota</strong>: {apiPlan === 'pro' ? '50,000 requests' : 'Unlimited'}</p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-center py-2">
+                                <p className="text-[11px] text-[#475569] dark:text-slate-400 mb-3 font-normal">
+                                  No active live commercial key associated with this account.
+                                </p>
+                                <button 
+                                  onClick={() => {
+                                    const pricingEl = document.getElementById('api-pricing-section');
+                                    if (pricingEl) {
+                                      pricingEl.scrollIntoView({ behavior: 'smooth' });
+                                    }
+                                  }}
+                                  className="inline-flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider cursor-pointer shadow-sm transition-colors"
+                                >
+                                  Get Live Key
+                                  <ArrowRight size={10} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-center py-6 flex flex-col items-center justify-center h-full">
+                          <Lock size={20} className="text-slate-400 mb-2" />
+                          <p className="text-xs text-[#475569] dark:text-slate-400 mb-3 font-medium">
+                            Log in to retrieve or manage your live keys.
+                          </p>
+                          <button 
+                            onClick={() => navigate('login')}
+                            className="bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                          >
+                            Sign In / Register
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
         </div>
       </div>
 
       {/* Pricing packages section for commercial intent */}
-      <div className="py-16 w-full border-t border-slate-200 dark:border-slate-900 bg-slate-100/50 dark:bg-slate-900/10 px-[5vw] relative z-10">
+      <div id="api-pricing-section" className="py-16 w-full border-t border-slate-200 dark:border-slate-900 bg-slate-100/50 dark:bg-slate-900/10 px-[5vw] relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-xl mx-auto mb-12">
             <p className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider text-[10px] mb-2">API Pricing Models</p>
@@ -869,7 +1039,7 @@ func main() {
             {/* Free Sandbox */}
             <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 flex flex-col justify-between h-full">
               <div>
-                <p className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-2">Developer Sandbox</p>
+                <p className="text-xs font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-2">Developer Sandbox</p>
                 <div className="flex items-baseline gap-1 text-[#0f172a] dark:text-white mb-4">
                   <span className="text-3xl font-black">$0</span>
                   <span className="text-xs text-slate-500 font-normal">/ free sandbox</span>
@@ -907,15 +1077,15 @@ func main() {
                 </div>
                 <ul className="space-y-3 text-xs text-[#334155] dark:text-slate-350 font-medium border-t border-slate-200 dark:border-slate-800/80 pt-4">
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-450 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-455 shrink-0" />
                     50,000 API Requests / month
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-450 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-455 shrink-0" />
                     Rate limit: 60 req / minute
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-450 shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-455 shrink-0" />
                     Dedicated HTTPS live production key
                   </li>
                   <li className="flex items-center gap-2">
@@ -940,7 +1110,7 @@ func main() {
                   <span className="text-3xl font-black">$149</span>
                   <span className="text-xs text-slate-500 font-normal">/ month starting</span>
                 </div>
-                <ul className="space-y-3 text-xs text-[#334155] dark:text-slate-350 font-medium border-t border-slate-200 dark:border-slate-900 pt-4">
+                <ul className="space-y-3 text-xs text-[#334155] dark:text-slate-355 font-medium border-t border-slate-200 dark:border-slate-900 pt-4">
                   <li className="flex items-center gap-2">
                     <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
                     Unlimited Requests (Custom contract)
