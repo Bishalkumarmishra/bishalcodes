@@ -754,7 +754,7 @@ func main() {
                   {/* Response example */}
                   <div>
                     <h3 className="text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider mb-3">Example API Response</h3>
-                    <pre className="p-4 rounded-xl bg-slate-950 border border-slate-900 font-mono text-[10px] sm:text-xs text-emerald-450 overflow-x-auto whitespace-pre-wrap leading-relaxed">
+                    <pre className="p-4 rounded-xl bg-slate-950 border border-slate-900 font-mono text-[10px] sm:text-xs text-emerald-400 overflow-x-auto whitespace-pre-wrap leading-relaxed" style={{color: '#34d399'}}>
                       {selectedApi.responseExample}
                     </pre>
                   </div>
