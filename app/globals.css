@@ -132,7 +132,7 @@ body::before {
   background-repeat: no-repeat;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.35;
+  opacity: 0.10;
   mix-blend-mode: multiply;
 }
 
@@ -140,16 +140,16 @@ body::before {
 @media (prefers-color-scheme: dark) {
   body:not(.light)::before {
     mix-blend-mode: screen;
-    opacity: 0.45;
+    opacity: 0.15;
   }
 }
 :root.dark body::before {
   mix-blend-mode: screen;
-  opacity: 0.45;
+  opacity: 0.15;
 }
 :root.light body::before {
   mix-blend-mode: multiply;
-  opacity: 0.35;
+  opacity: 0.10;
 }
 html.hide-bg-svg body::before {
   display: none !important;
