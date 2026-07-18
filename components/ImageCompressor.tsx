@@ -19,6 +19,7 @@ import {
   HardDrive
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 import JSZip from 'jszip';
 
 interface CompressionResult {
@@ -1282,6 +1283,8 @@ export const ImageCompressor: React.FC = () => {
         )}
 
       </div>
+
+      <SeoGuideSection toolId="image-compressor" />
 
     </div>
   );

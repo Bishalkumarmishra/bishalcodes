@@ -51,9 +51,14 @@ export const CodeRunner: React.FC = () => {
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [editorWidth, setEditorWidth] = useState<number>(50);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const consoleEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Load selected template
   useEffect(() => {
@@ -355,8 +360,8 @@ export const CodeRunner: React.FC = () => {
           
           {/* Editor Workspace Panel */}
           <div 
-            className="w-full lg:shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col"
-            style={{ width: typeof window !== 'undefined' && window.innerWidth >= 1024 ? `calc(${editorWidth}% - 12px)` : '100%' }}
+            className="w-full lg:w-[calc(50%-12px)] lg:shrink-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col"
+            style={isMounted && window.innerWidth >= 1024 ? { width: `calc(${editorWidth}% - 12px)` } : undefined}
           >
             
             {/* Editor Headers and Tab Switchers */}
@@ -457,8 +462,8 @@ export const CodeRunner: React.FC = () => {
 
           {/* Interactive Live Preview & Console Output */}
           <div 
-            className="w-full lg:shrink-0 space-y-6 flex flex-col"
-            style={{ width: typeof window !== 'undefined' && window.innerWidth >= 1024 ? `calc(${100 - editorWidth}% - 12px)` : '100%' }}
+            className="w-full lg:w-[calc(50%-12px)] lg:shrink-0 space-y-6 flex flex-col"
+            style={isMounted && window.innerWidth >= 1024 ? { width: `calc(${100 - editorWidth}% - 12px)` } : undefined}
           >
             
             {/* Live Canvas Preview Panel */}

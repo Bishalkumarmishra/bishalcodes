@@ -5,7 +5,315 @@ import { allFontsDB } from '../../components/fontData';
 
 export default async function CatchAllPage(props: PageProps) {
   const { slug } = await props.params;
-  return <ClientApp initialSlug={slug || []} />;
+  const slugArr = slug || [];
+  const schemas: any[] = [];
+
+  // Generate metadata dynamically to reuse titles, descriptions, and canonical URLs for JSON-LD schemas
+  const metadata = await generateMetadata(props).catch(() => ({}) as Metadata);
+  const titleStr = typeof metadata.title === 'string' 
+    ? metadata.title 
+    : (metadata.title && 'absolute' in metadata.title ? (metadata.title.absolute || '') : '');
+  const descStr = metadata.description || '';
+  const canonUrl = metadata.alternates?.canonical 
+    ? (typeof metadata.alternates.canonical === 'string' ? metadata.alternates.canonical : String(metadata.alternates.canonical))
+    : '';
+
+  // 1. Tool Pages (slugArr[0] === 'tools' && slugArr[1])
+  if (slugArr[0] === 'tools') {
+    const subpage = slugArr[1] || '';
+    if (subpage) {
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": titleStr.split('|')[0].trim() || subpage,
+        "url": canonUrl || `https://bishalcodes.com/tools/${subpage}`,
+        "description": descStr,
+        "applicationCategory": subpage === 'currency-calculator' || subpage === 'emi-calculator' ? "FinancialApplication" : "UtilityApplication",
+        "operatingSystem": "All"
+      });
+
+      // FAQ database for all developer tools
+      const toolFaqs: Record<string, Array<{ q: string; a: string }>> = {
+        'date-converter': [
+          {
+            q: "What is Bikram Sambat (BS) calendar system?",
+            a: "Bikram Sambat (BS) is the official calendar system of Nepal. It is a solar calendar based on ancient Hindu calendar systems and is approximately 56 years and 8.5 months ahead of the Gregorian calendar (AD)."
+          },
+          {
+            q: "How to convert English (AD) date to Nepali (BS) date?",
+            a: "To convert AD to BS, input the Gregorian year, month, and day into our date converter tool. It will dynamically calculate the corresponding Bikram Sambat date based on the solar calendar transit rules."
+          },
+          {
+            q: "Why do Nepali month lengths vary between 29 to 32 days?",
+            a: "In the Bikram Sambat calendar, the length of each month is determined by the actual time the sun stays in each zodiac sign (solar transit). Therefore, the number of days in each month is not fixed and varies from 29 to 32 days year by year."
+          }
+        ],
+        'file-transfer': [
+          {
+            q: "How does P2P WebRTC file sharing work?",
+            a: "WebRTC peer-to-peer (P2P) file sharing establishes a direct data channel between the sender's and recipient's browsers. The files are split into small chunks and streamed directly, without saving any copy to intermediate cloud servers."
+          },
+          {
+            q: "What is the maximum file size limit for transfer?",
+            a: "Our P2P file transfer tool allows you to send large files and folders up to 100 GB. Since it runs direct client-side stream compression, there is no server upload wait time."
+          },
+          {
+            q: "Are my files secure during peer-to-peer sharing?",
+            a: "Yes, WebRTC connections are fully encrypted end-to-end using DTLS/SRTP protocols. Since files bypass intermediate servers, nobody else can access your shared data."
+          }
+        ],
+        'currency-converter': [
+          {
+            q: "What are mid-market exchange rates?",
+            a: "The mid-market rate is the real exchange rate at which banks buy and sell currency from each other. It is the midpoint between the buy and sell prices on the global currency markets."
+          },
+          {
+            q: "How often are the exchange rates updated?",
+            a: "Our system pulls fresh live rate updates every single hour to ensure accuracy for top pairs like USD/NPR, USD/INR, and USD/EUR."
+          },
+          {
+            q: "Why do bank rates differ from online rates?",
+            a: "Retail banks and money transfer services add a margin or commission to the mid-market rate to cover operational costs and gain profit, meaning their actual rate is typically 1-3% less favorable than the live interbank rate."
+          }
+        ],
+        'ai-summarizer': [
+          {
+            q: "How does the AI Document Summarizer work?",
+            a: "The tool parses the text contents of uploaded PDF documents in your browser and securely calls the Google Gemini 1.5 Flash API to generate structural highlights, executive summaries, and bulleted takeaways."
+          },
+          {
+            q: "Is my uploaded PDF stored on your servers?",
+            a: "No, your PDF files are parsed entirely in the client-side browser memory. The text content is only sent to the AI api to generate the summary and is never saved or persisted on our servers."
+          },
+          {
+            q: "Are there any file type or size limits?",
+            a: "The tool supports PDF files and scanned images up to 50MB. Text extractions are processed locally using PDF.js and Tesseract.js."
+          }
+        ],
+        'translator': [
+          {
+            q: "How does the online language translator work?",
+            a: "The translator uses API integrations powered by Google Translate to translate text instantly between English, Nepali, and 100+ other major global languages."
+          },
+          {
+            q: "Does it support text-to-speech voice audio?",
+            a: "Yes, you can click the audio icon to listen to the spoken pronunciation of the translated text."
+          }
+        ],
+        'pdf-to-image': [
+          {
+            q: "Can I convert PDF pages to JPG for free?",
+            a: "Yes, you can select any PDF file and convert its pages to high-quality JPG or PNG images entirely inside your browser for free."
+          }
+        ],
+        'image-compressor': [
+          {
+            q: "Is the image compression private and secure?",
+            a: "Yes. The compression runs entirely on your local device using client-side canvas APIs. None of your photos are ever uploaded to any servers."
+          }
+        ],
+        'emi-calculator': [
+          {
+            q: "How is the monthly EMI calculated?",
+            a: "The EMI is calculated using standard financial amortization formulas based on your principal loan amount, annual interest rate, and tenure."
+          }
+        ],
+        'qr-studio': [
+          {
+            q: "Can I create custom QR codes with logos?",
+            a: "Yes, you can customize the colors, dots, corner styles, and upload a central logo icon to generate high-resolution SVG or PNG QR codes."
+          }
+        ],
+        'json-formatter': [
+          {
+            q: "How does the JSON Formatter validate syntax?",
+            a: "It parses the input JSON string using local parser rules, highlights any syntax errors with exact line numbers, and formats it with custom tab indentations."
+          }
+        ],
+        'diff-checker': [
+          {
+            q: "Can I compare two code files offline?",
+            a: "Yes. The diff checker computes line-by-line and character-by-character differences locally using the Myers diff algorithm."
+          }
+        ],
+        'code-runner': [
+          {
+            q: "What programming languages can I compile online?",
+            a: "You can write and run Javascript, HTML/CSS, Python, and other scripts inside our interactive sandbox IDE runner."
+          }
+        ],
+        'screenshot-studio': [
+          {
+            q: "How does the website screenshot utility capture pages?",
+            a: "It sends a request to our high-performance headless browser rendering engine to capture the full page or viewport screenshot of any public website url."
+          }
+        ],
+        'secure-vault': [
+          {
+            q: "Is the browser vault safe to store secrets?",
+            a: "Yes. All data stored in the secure vault is encrypted client-side using military-grade AES-256-GCM encryption with a password key that never leaves your device."
+          }
+        ],
+        'ocr-converter': [
+          {
+            q: "How does online image OCR text extraction work?",
+            a: "It uses local Tesseract.js engines and advanced layout-recognition AI to read and extract text from images, scans, and PDFs in real-time."
+          }
+        ],
+        'bg-remover': [
+          {
+            q: "How can I remove image backgrounds online?",
+            a: "Our tool utilizes local machine learning segmentation models in the browser to detect the subject and make the background fully transparent without uploading your file."
+          }
+        ],
+        'scan-pdf': [
+          {
+            q: "Can I scan paper documents to PDF using my webcam?",
+            a: "Yes, the tool accesses your device camera, auto-detects document edges, performs perspective correction, and saves it as a multi-page PDF."
+          }
+        ],
+        'font-downloader': [
+          {
+            q: "Where can I download Nepali fonts like Preeti or Kantipur?",
+            a: "You can browse, preview, and download over 1100+ standard Nepali and English fonts in TTF format for free from our font downloader tool."
+          }
+        ]
+      };
+
+      const faqs = toolFaqs[subpage] || [
+        {
+          q: "Is this developer tool free to use?",
+          a: "Yes! All developer tools and utilities on Bishal Codes are 100% free, fast, and require no account registration or downloads."
+        },
+        {
+          q: "Does this utility tool upload my files or data to a server?",
+          a: "No. Most tools on our site run completely client-side in your browser's sandboxed environment, ensuring complete security and data privacy."
+        }
+      ];
+
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(f => ({
+          "@type": "Question",
+          "name": f.q,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": f.a
+          }
+        }))
+      });
+    }
+  }
+
+  // 2. Blog Single Post Page (slugArr[0] === 'blog' && slugArr[1])
+  if (slugArr[0] === 'blog' && slugArr[1]) {
+    const blogId = slugArr[1];
+    try {
+      const res = await fetch(`https://firestore.googleapis.com/v1/projects/bishal-mishra-3c559/databases/(default)/documents/blog/${blogId}`, {
+        next: { revalidate: 300 }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const title = data.fields?.title?.stringValue || "Bishal Codes Blog";
+        const excerpt = data.fields?.excerpt?.stringValue || "Read this article on Bishal Codes.";
+        const publishedTime = data.createTime || new Date().toISOString();
+        const rawImageUrl = data.fields?.imageUrl?.stringValue || "";
+        const imageUrl = getSocialPreviewImage(rawImageUrl);
+
+        schemas.push({
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          "headline": title,
+          "description": excerpt,
+          "image": imageUrl,
+          "datePublished": publishedTime,
+          "author": {
+            "@type": "Person",
+            "name": "Bishal Mishra",
+            "url": "https://bishalcodes.com/"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Bishal Codes",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://ik.imagekit.io/bishalc/desktop.png"
+            }
+          },
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": canonUrl || `https://bishalcodes.com/blog/${blogId}`
+          }
+        });
+      }
+    } catch (err) {
+      console.warn("Schema fetch failed for blog post:", err);
+    }
+  }
+
+  // 3. Blog Listing / Index Page (slugArr[0] === 'blog' && !slugArr[1])
+  if (slugArr[0] === 'blog' && !slugArr[1]) {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Bishal Codes Blog",
+      "url": canonUrl || "https://bishalcodes.com/blog",
+      "description": descStr || "Read our latest developer tips, programming guides, and thoughts on React, JavaScript, Next.js, and modern full-stack web engineering."
+    });
+  }
+
+  // 4. Other Standard Pages (About, Contact, Projects, Experience, Skills, AI Studio, Docs)
+  if (slugArr[0] && slugArr[0] !== 'tools' && slugArr[0] !== 'blog') {
+    const firstSlug = slugArr[0];
+    
+    if (firstSlug === 'about') {
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        "name": "About Bishal Mishra",
+        "url": canonUrl || "https://bishalcodes.com/about",
+        "description": descStr
+      });
+    } else if (firstSlug === 'contact') {
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "ContactPage",
+        "name": "Contact Bishal Mishra",
+        "url": canonUrl || "https://bishalcodes.com/contact",
+        "description": descStr
+      });
+    } else if (firstSlug === 'projects') {
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Projects Portfolio",
+        "url": canonUrl || "https://bishalcodes.com/projects",
+        "description": descStr
+      });
+    } else {
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": titleStr.split('|')[0].trim() || firstSlug,
+        "url": canonUrl || `https://bishalcodes.com/${firstSlug}`,
+        "description": descStr
+      });
+    }
+  }
+
+  return (
+    <>
+      {schemas.map((schema, index) => (
+        <script
+          key={index}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
+      <ClientApp initialSlug={slugArr} />
+    </>
+  );
 }
 
 // Next.js 15: params is a Promise, so we must await it!

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { FilePlus, FileImage, Download, X, AlertCircle, Image as ImageIcon } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 import JSZip from 'jszip';
 
 export const PdfToImageConverter: React.FC = () => {
@@ -289,6 +290,9 @@ export const PdfToImageConverter: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <SeoGuideSection toolId="pdf-to-image" />
+
     </div>
   );
 };

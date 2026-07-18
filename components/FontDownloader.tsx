@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import JSZip from 'jszip';
 import { Download, Search, CheckSquare, Square, Loader2, Type, Info, FileDown, ArrowLeft } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 
 import { allFontsDB, FontItem } from './fontData';
 
@@ -412,6 +413,9 @@ export default function FontDownloader() {
           <p>• <strong>Installing:</strong> Unzip → double-click a <code>.ttf</code> → click <em>Install Font</em> on Windows/macOS.</p>
         </div>
       </div>
+
+      <SeoGuideSection toolId="font-downloader" />
+
     </div>
   );
 }

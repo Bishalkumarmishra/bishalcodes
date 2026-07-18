@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Upload, FileText, X, Download, Trash2, AlertCircle, FilePlus } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 import { PDFDocument } from 'pdf-lib';
 
 interface PdfData {
@@ -317,6 +318,9 @@ export const PdfMerger: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <SeoGuideSection toolId="merge-pdf" />
+
     </div>
   );
 };

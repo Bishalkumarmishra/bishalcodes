@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Upload, Image as ImageIcon, FileText, X, Download, Trash2, AlertCircle } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 import { jsPDF } from 'jspdf';
 
 interface ImageData {
@@ -331,6 +332,9 @@ export const JpgToPdfConverter: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <SeoGuideSection toolId="jpg-to-pdf" />
+
     </div>
   );
 };

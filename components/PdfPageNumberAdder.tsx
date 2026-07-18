@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { FilePlus, FileText, Download, X, AlertCircle, Hash, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
 export const PdfPageNumberAdder: React.FC = () => {
@@ -287,6 +288,9 @@ export const PdfPageNumberAdder: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <SeoGuideSection toolId="add-page-numbers" />
+
     </div>
   );
 };

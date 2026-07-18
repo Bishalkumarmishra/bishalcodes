@@ -128,6 +128,19 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
     }
   }, [currentPage]);
 
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const isFileTransfer = currentPage === 'transfer' || (currentPage === 'services' && selectedId === 'file-transfer');
+      const isCalendarTool = currentPage === 'widget-calendar' || currentPage === 'widget-date-converter' || (currentPage === 'services' && selectedId === 'date-converter');
+      
+      if (isFileTransfer || isCalendarTool) {
+        document.documentElement.classList.add('hide-bg-svg');
+      } else {
+        document.documentElement.classList.remove('hide-bg-svg');
+      }
+    }
+  }, [currentPage, selectedId]);
+
   const navigate = (page: PathPage, id?: string, queryParams?: Record<string, string>) => {
     let path = '';
     switch (page) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Braces, Clipboard, Check, Code, Network, AlertCircle, FileCode } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 
 // Recursive Tree Node Component
 interface JsonNodeProps {
@@ -385,6 +386,8 @@ export const JsonFormatter: React.FC = () => {
         </div>
 
       </div>
+
+      <SeoGuideSection toolId="json-formatter" />
 
     </div>
   );

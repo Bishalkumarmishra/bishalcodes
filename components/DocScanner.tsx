@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 import QRCode from 'qrcode';
 import { jsPDF } from 'jspdf';
 import { doc, onSnapshot, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
@@ -917,6 +918,9 @@ export default function DocScanner() {
         </div>
 
       </div>
+
+      <SeoGuideSection toolId="scan-pdf" />
+
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fadeIn {
           from { opacity: 0; transform: scale(0.97); }

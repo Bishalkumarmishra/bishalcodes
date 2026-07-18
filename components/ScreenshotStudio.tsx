@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 import { 
   ArrowLeft, Camera, Download, ExternalLink, Copy, Check, 
   Loader2, AlertCircle, Monitor, Tablet, Smartphone, Settings 
@@ -547,6 +548,9 @@ export const ScreenshotStudio: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <SeoGuideSection toolId="screenshot-studio" />
+
     </div>
   );
 };

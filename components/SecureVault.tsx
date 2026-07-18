@@ -8,6 +8,7 @@ import {
   FileImage, FileText, Film, Music, Archive, Globe, Key, Zap
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 
@@ -746,6 +747,9 @@ const SecureVault: React.FC = () => {
           </div>
         )}
       </main>
+
+      <SeoGuideSection toolId="secure-vault" />
+
     </div>
   );
 };

@@ -151,6 +151,9 @@ body::before {
   mix-blend-mode: multiply;
   opacity: 0.35;
 }
+html.hide-bg-svg body::before {
+  display: none !important;
+}
 html {
   background-color: var(--html-bg) !important;
 }

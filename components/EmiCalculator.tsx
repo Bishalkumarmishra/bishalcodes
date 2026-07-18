@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Landmark, DollarSign, Calendar, Percent, Printer, FileText } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 
 interface AmortizationYearly {
   year: number;
@@ -468,6 +469,8 @@ export const EmiCalculator: React.FC = () => {
         </div>
 
       </div>
+
+      <SeoGuideSection toolId="emi-calculator" />
 
     </div>
   );

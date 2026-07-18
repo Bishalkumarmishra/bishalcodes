@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, QrCode, Scan, Download, Upload, Copy, Check, Link as LinkIcon, Camera, Wifi, User, Globe, Trash2, CameraOff, Eye, EyeOff, Smartphone, KeyRound } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 import QRCode from 'qrcode';
 import jsQR from 'jsqr';
 
@@ -1047,6 +1048,8 @@ export const QrCodeStudio: React.FC = () => {
         )}
 
       </div>
+
+      <SeoGuideSection toolId="qr-studio" />
 
     </div>
   );

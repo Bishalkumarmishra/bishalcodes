@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 import { createWorker } from 'tesseract.js';
 import { 
   ArrowLeft, FileText, Upload, Copy, Check, 
@@ -330,6 +331,9 @@ export default function AiOcrConverter() {
         </div>
 
       </div>
+
+      <SeoGuideSection toolId="ocr-converter" />
+
     </div>
   );
 }

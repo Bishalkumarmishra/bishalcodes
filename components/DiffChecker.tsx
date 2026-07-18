@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Diff, Columns, AlignJustify, ArrowLeftRight, Trash2, Clipboard, Check } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 
 interface DiffLine {
   type: 'added' | 'removed' | 'unchanged';
@@ -418,6 +419,8 @@ export const DiffChecker: React.FC = () => {
         )}
 
       </div>
+
+      <SeoGuideSection toolId="diff-checker" />
 
     </div>
   );

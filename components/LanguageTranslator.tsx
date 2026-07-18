@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowRightLeft, Copy, Check, Share2, Volume2, Trash2, Loader2 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 
 const LANGUAGES = [
   { name: 'English', code: 'en', locale: 'en-US' },
@@ -346,6 +347,8 @@ export const LanguageTranslator: React.FC = () => {
         </div>
 
       </div>
+
+      <SeoGuideSection toolId="translator" />
 
     </div>
   );

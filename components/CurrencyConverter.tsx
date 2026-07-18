@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { RefreshCw, AlertCircle, ArrowRightLeft, Clock, TrendingUp, TrendingDown } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 
 const ALL_CURRENCIES = [
   { code: 'NPR', name: 'Nepali Rupee',       flag: '🇳🇵' },
@@ -187,6 +188,7 @@ export const CurrencyConverter: React.FC = () => {
   const [chartRange, setChartRange] = useState<Range>('1mo');
   const [chartLoading, setChartLoading] = useState(false);
   const [chartError, setChartError] = useState<string | null>(null);
+  const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(null);
 
   // Fetch live rates
   const fetchRates = useCallback(async (isManual = false) => {
@@ -505,6 +507,9 @@ export const CurrencyConverter: React.FC = () => {
             , the same source used by Google Finance. Actual bank/remittance rates differ. Not for binding financial decisions.
           </p>
         </div>
+
+        <SeoGuideSection toolId="currency-converter" />
+
       </div>
     </div>
   );

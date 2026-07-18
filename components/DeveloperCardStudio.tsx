@@ -8,6 +8,7 @@ import {
   Twitter, Linkedin, Youtube, Instagram, MessageSquare, Mail
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 import html2canvas from 'html2canvas';
 
 type PresetType = 'og-image' | 'github-banner' | 'business-card' | 'linkedin-banner' | 'twitter-header' | 'youtube-banner' | 'instagram-post';
@@ -445,6 +446,9 @@ export const DevCard = () => {
       <div className="flex flex-wrap gap-2 mt-6">
         ${tags.map(tag => `        <span className="bg-slate-900 border border-slate-800 text-slate-300 text-xs px-2.5 py-1 rounded-md font-medium">${tag}</span>`).join('\n')}
       </div>
+
+      <SeoGuideSection toolId="dev-card-studio" />
+
     </div>
   );
 };`;
@@ -2181,6 +2185,8 @@ export const DevCard = () => {
 
         </div>
       </div>
+
+      <SeoGuideSection toolId="dev-card-studio" />
 
     </div>
   );

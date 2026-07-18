@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { FilePlus, FileText, Sparkles, AlertCircle, X, Loader2, Copy, Download, Check } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 import ReactMarkdown from 'react-markdown';
 import { jsPDF } from "jspdf";
 
@@ -13,6 +14,7 @@ export const AiSummarizer: React.FC = () => {
   const [summary, setSummary] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -242,7 +244,7 @@ export const AiSummarizer: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 w-full overflow-hidden flex flex-col">
+      <div className={`flex-grow w-full flex flex-col ${!pdf ? 'overflow-y-auto' : 'overflow-hidden'}`}>
         {error && (
           <div className="m-4 flex items-start gap-3 bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-800/60 rounded-lg p-4 text-sm text-red-700 dark:text-red-400 shrink-0">
             <AlertCircle size={16} className="shrink-0 mt-0.5" />
@@ -251,36 +253,41 @@ export const AiSummarizer: React.FC = () => {
         )}
 
         {!pdf ? (
-          /* Upload State */
-          <div className="flex-1 w-full max-w-2xl mx-auto p-4 md:p-8 flex items-center justify-center">
-            <div 
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-              onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
-              onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleFiles(e.dataTransfer.files); }}
-              className={`w-full border-2 border-dashed rounded-xl p-8 md:p-12 text-center flex flex-col items-center justify-center transition-all duration-200 ${
-                isDragging 
-                  ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/10' 
-                  : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900'
-              }`}
-            >
-              <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400 dark:text-slate-500">
-                <FilePlus size={28} strokeWidth={1.5} />
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
-                Select PDF file
-              </h3>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 max-w-sm">
-                Drop your PDF here or browse your computer to begin AI summarization.
-              </p>
-              
-              <input type="file" ref={fileInputRef} onChange={(e) => handleFiles(e.target.files)} accept="application/pdf" className="hidden" />
-              <button 
-                onClick={() => fileInputRef.current?.click()} 
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-6 rounded-md transition-colors cursor-pointer"
+          /* Upload State & SEO Guide */
+          <div className="w-full flex flex-col items-center">
+            <div className="w-full max-w-2xl p-4 md:p-8">
+              <div 
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
+                onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleFiles(e.dataTransfer.files); }}
+                className={`w-full border-2 border-dashed rounded-xl p-8 md:p-12 text-center flex flex-col items-center justify-center transition-all duration-200 ${
+                  isDragging 
+                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/10' 
+                    : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900'
+                }`}
               >
-                Browse Files
-              </button>
+                <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400 dark:text-slate-500">
+                  <FilePlus size={28} strokeWidth={1.5} />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                  Select PDF file
+                </h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 max-w-sm">
+                  Drop your PDF here or browse your computer to begin AI summarization.
+                </p>
+                
+                <input type="file" ref={fileInputRef} onChange={(e) => handleFiles(e.target.files)} accept="application/pdf" className="hidden" />
+                <button 
+                  onClick={() => fileInputRef.current?.click()} 
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-6 rounded-md transition-colors cursor-pointer"
+                >
+                  Browse Files
+                </button>
+              </div>
             </div>
+
+            <SeoGuideSection toolId="ai-summarizer" />
+
           </div>
         ) : (
           /* Split View State */

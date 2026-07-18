@@ -263,6 +263,7 @@ const FileTransfer: React.FC = () => {
   const [history, setHistory] = useState<SavedTransfer[]>([]);
   const [reactivatingTransfer, setReactivatingTransfer] = useState<SavedTransfer | null>(null);
   const [reactivatingId, setReactivatingId] = useState<string | null>(null);
+  const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(null);
 
   useEffect(() => {
     setHistory(getTransferHistory());
@@ -1793,6 +1794,96 @@ const FileTransfer: React.FC = () => {
           </div>
         )}
 
+      </div>
+
+      {/* Peer-to-Peer File Transfer SEO Guide & FAQ Section */}
+      <div className="w-full max-w-6xl px-6 py-16 border-t border-slate-900 mt-16 space-y-12 text-left z-20 text-slate-400">
+        <div className="space-y-4 text-center max-w-3xl mx-auto">
+          <h2 className="text-3xl font-extrabold tracking-tight text-white font-heading">
+            P2P File Transfer Guide &amp; WebRTC Technology
+          </h2>
+          <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
+            Discover how zero-knowledge direct browser sharing works, why peer-to-peer WebRTC file transfers are highly secure, and how you can share files up to 100 GB.
+          </p>
+        </div>
+
+        {/* Guide Columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 text-sm leading-relaxed">
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-white font-heading flex items-center gap-2">
+              <span>🚀</span> How WebRTC P2P Sharing Works
+            </h3>
+            <p>
+              Traditional file sharing sites require you to first upload a file to their central cloud servers, wait for the upload to complete, and then send a link to the receiver. The receiver then has to download the file from that cloud storage.
+            </p>
+            <p>
+              <strong>Bishal Transfer</strong> uses <strong>WebRTC (Web Real-Time Communication)</strong> technology to establish a direct, peer-to-peer data tunnel between your browser and the recipient's browser. Files are compressed client-side and stream directly from your device to theirs.
+            </p>
+            <p>
+              Because it bypasses the cloud entirely, there is no waiting time for uploads, and the speed is only limited by the physical bandwidth of the two connections.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-white font-heading flex items-center gap-2">
+              <span>🔒</span> Zero-Knowledge &amp; Absolute Privacy
+            </h3>
+            <p>
+              When you send sensitive documents, designs, or personal data, the last thing you want is for a copy to reside on a third-party server.
+            </p>
+            <p>
+              Our WebRTC data channels are encrypted end-to-end using standard <strong>DTLS</strong> (Datagram Transport Layer Security) and <strong>SRTP</strong> (Secure Real-time Transport Protocol). The signaling server only handles the initial discovery handshake and is completely blind to your file data.
+            </p>
+            <p>
+              Once connected, the transfer is direct, private, and leaves no digital footprint on the internet.
+            </p>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="border-t border-slate-900 pt-12 max-w-4xl mx-auto space-y-6">
+          <h3 className="text-2xl font-bold text-center text-white font-heading">
+            Frequently Asked Questions (FAQ)
+          </h3>
+          
+          <div className="space-y-4">
+            {[
+              {
+                q: "Do I need to keep the sender browser tab open during transfer?",
+                a: "Yes. Since WebRTC relies on a direct peer-to-peer link between the two browsers, you must keep the sender tab open and active until the receiver finishes downloading the files."
+              },
+              {
+                q: "What is the maximum file size limit?",
+                a: "You can send single files or entire folders up to 100 GB. For folders, the files are zipped dynamically in your browser using local client-side workers before transmission."
+              },
+              {
+                q: "Are my files stored on your server?",
+                a: "No, files are never stored on any server. The data streams directly from the sender's hard drive to the receiver's memory/cache, ensuring total file privacy."
+              },
+              {
+                q: "What ports or setup are required for WebRTC?",
+                a: "No downloads, extensions, or registration are needed. WebRTC runs natively in all modern web browsers (Chrome, Safari, Firefox, Edge) and works behind NAT firewalls using STUN/TURN servers."
+              }
+            ].map((faq, i) => (
+              <div key={i} className="border border-slate-800 rounded-xl overflow-hidden bg-slate-900/20 transition-colors">
+                <button
+                  onClick={() => setOpenFaqIdx(openFaqIdx === i ? null : i)}
+                  className="w-full flex items-center justify-between p-4 font-semibold text-white text-sm sm:text-base hover:bg-slate-900/60 text-left transition-colors cursor-pointer"
+                >
+                  <span>{faq.q}</span>
+                  <span className="text-[#03df7a] font-bold ml-4">
+                    {openFaqIdx === i ? '−' : '+'}
+                  </span>
+                </button>
+                {openFaqIdx === i && (
+                  <div className="p-4 bg-slate-950/40 border-t border-slate-900 text-slate-400 text-sm leading-relaxed animate-fade-in">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

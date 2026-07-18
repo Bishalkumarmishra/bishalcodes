@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { useNavigation } from '../context/NavigationContext';
+import { SeoGuideSection } from './SeoGuideSection';
 import { 
   ArrowLeft, Upload, FileImage, Download, AlertCircle, 
   Loader2, Sparkles, Trash2, Eye, ShieldCheck
@@ -299,6 +300,8 @@ export default function BgRemover() {
         </div>
 
       </div>
+
+      <SeoGuideSection toolId="bg-remover" />
 
       <style dangerouslySetInnerHTML={{ __html: `
         .transparent-checkerboard {
