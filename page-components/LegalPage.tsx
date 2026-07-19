@@ -602,12 +602,44 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
             document.head.appendChild(metaTag);
           }
           metaTag.setAttribute('content', data.seoDescription || data.content.substring(0, 160) + '...');
+        } else if (FALLBACK_CONTENT[slug]) {
+          const data: LegalPageType = {
+            id: slug,
+            slug: slug,
+            title: slug === 'terms-and-conditions' ? 'Terms and Conditions' :
+                   slug === 'privacy-policy' ? 'Privacy Policy' :
+                   slug === 'cookies-policy' ? 'Cookie Policy' :
+                   slug === 'refund-policy' ? 'Refund Policy' :
+                   slug === 'data-deletion-request' ? 'Data Deletion Request' : 'Legal Document',
+            content: FALLBACK_CONTENT[slug],
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+          } as any;
+          setLegalDoc(data);
+          document.title = data.title + ' | Bishal Codes';
         } else {
           setError(`Legal document "${slug}" not found.`);
         }
       } catch (err) {
         console.warn('Error fetching legal document:', err);
-        setError('Failed to load legal document. Please try again later.');
+        if (FALLBACK_CONTENT[slug]) {
+          const data: LegalPageType = {
+            id: slug,
+            slug: slug,
+            title: slug === 'terms-and-conditions' ? 'Terms and Conditions' :
+                   slug === 'privacy-policy' ? 'Privacy Policy' :
+                   slug === 'cookies-policy' ? 'Cookie Policy' :
+                   slug === 'refund-policy' ? 'Refund Policy' :
+                   slug === 'data-deletion-request' ? 'Data Deletion Request' : 'Legal Document',
+            content: FALLBACK_CONTENT[slug],
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+          } as any;
+          setLegalDoc(data);
+          document.title = data.title + ' | Bishal Codes';
+        } else {
+          setError('Failed to load legal document. Please try again later.');
+        }
       } finally {
         setLoading(false);
       }
