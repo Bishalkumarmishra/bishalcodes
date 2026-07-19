@@ -305,25 +305,33 @@ const Footer: React.FC = () => {
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {legalPages.map(page => (
-                  <button
+                  <a
                     key={page.id}
-                    onClick={() => navigate('legal-page', page.slug)}
-                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '13.5px', color: '#5a6478', textAlign: 'left', transition: 'color 0.15s' }}
+                    href={`/legal/${page.slug}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate('legal-page', page.slug);
+                    }}
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '13.5px', color: '#5a6478', textAlign: 'left', transition: 'color 0.15s', textDecoration: 'none', display: 'inline-block' }}
                     onMouseEnter={e => (e.currentTarget.style.color = '#c8d0dc')}
                     onMouseLeave={e => (e.currentTarget.style.color = '#5a6478')}
                   >
                     {page.title}
-                  </button>
+                  </a>
                 ))}
                 {!legalPages.some(p => p.slug === 'refund-policy') && (
-                  <button
-                    onClick={() => navigate('legal-page', 'refund-policy')}
-                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '13.5px', color: '#5a6478', textAlign: 'left', transition: 'color 0.15s' }}
+                  <a
+                    href="/legal/refund-policy"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate('legal-page', 'refund-policy');
+                    }}
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '13.5px', color: '#5a6478', textAlign: 'left', transition: 'color 0.15s', textDecoration: 'none', display: 'inline-block' }}
                     onMouseEnter={e => (e.currentTarget.style.color = '#c8d0dc')}
                     onMouseLeave={e => (e.currentTarget.style.color = '#5a6478')}
                   >
                     Refund Policy
-                  </button>
+                  </a>
                 )}
                 <button
                   onClick={() => setIsReportOpen(true)}
