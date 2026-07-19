@@ -59,6 +59,14 @@ const PAGE_CONFIGS: Record<string, {
     badgeBg: 'bg-red-50 dark:bg-red-950/40',
     badgeText: 'text-red-600 dark:text-red-400',
   },
+  'refund-policy': {
+    icon: <Scale size={28} />,
+    badge: 'Refund Policy',
+    accentFrom: '#10b981',
+    accentTo: '#059669',
+    badgeBg: 'bg-emerald-50 dark:bg-emerald-950/40',
+    badgeText: 'text-emerald-600 dark:text-emerald-400',
+  },
 };
 
 const DEFAULT_CONFIG = {
@@ -95,6 +103,12 @@ const PAGE_HIGHLIGHTS: Record<string, { icon: React.ReactNode; label: string; de
     { icon: <CheckCircle size={16} />, label: 'Verification', desc: 'Identity Check Required' },
     { icon: <Mail size={16} />, label: 'Contact', desc: 'developer@bishalcodes.com' },
   ],
+  'refund-policy': [
+    { icon: <Clock size={16} />, label: 'Refund Period', desc: '14-Day Refund Guarantee' },
+    { icon: <CheckCircle size={16} />, label: 'Process', desc: 'Auto-Credit to Source' },
+    { icon: <Globe size={16} />, label: 'Applicability', desc: 'All SaaS Plans' },
+    { icon: <Mail size={16} />, label: 'Contact', desc: 'developer@bishalcodes.com' },
+  ],
 };
 
 function extractHeadings(markdown: string): { id: string; text: string; level: number }[] {
@@ -117,6 +131,44 @@ function extractHeadings(markdown: string): { id: string; text: string; level: n
 // Used when Firebase doc is empty. Fully compliant with:
 //   Nepal Electronic Transaction Act 2063 | Individual Privacy Act 2075 | GDPR | Google AdSense Policies
 const FALLBACK_CONTENT: Record<string, string> = {
+
+  'refund-policy': `
+## Overview
+
+At Bishal Codes, we strive to provide high-quality developer utility tools and APIs. Because our products are digital services delivered instantly upon subscription, we want to ensure a fair and transparent refund and cancellation experience.
+
+This Refund and Cancellation Policy governs all purchases made through **bishalcodes.com** (processed securely via our Merchant of Record, Paddle Billing).
+
+## 1. 14-Day Money-Back Guarantee
+
+We offer a **14-day money-back guarantee** on all our premium subscription plans (Commercial Pro and Custom Enterprise):
+
+* If you are unsatisfied with our services for any reason, you can request a full refund within **14 days** of your initial purchase date.
+* Refund requests made after 14 days from the purchase date are generally not eligible for a refund, except under special circumstances or as required by applicable laws in Nepal or your local jurisdiction.
+
+## 2. How to Request a Refund
+
+To request a refund:
+1. Send an email to **developer@bishalcodes.com** or call us at **+977 9828701575**.
+2. Provide your account email address and your Paddle transaction/invoice receipt ID.
+3. Our support team will process your refund request within **24-48 hours**. Once approved, the funds will be credited back to your original payment method (Credit/Debit Card or PayPal) within 5 to 10 business days, depending on your bank's processing times.
+
+## 3. Subscriptions and Cancellations
+
+* **Cancellation:** You may cancel your subscription at any time. Once cancelled, your premium access will remain active until the end of your current billing period, and you will not be charged again.
+* **Auto-Renewal:** All plans are set to auto-renew on a monthly billing cycle. To avoid being charged for the next period, please cancel your subscription at least 24 hours before the renewal date.
+
+## 4. Refund Abuse Policy
+
+We reserve the right to refuse refund requests if we detect clear evidence of refund abuse (e.g., repeatedly subscribing and requesting refunds after downloading extensive data or using high volumes of API quotas).
+
+## 5. Contact Us
+
+If you have any questions, concerns, or feedback regarding our refund and cancellation policies, please feel free to reach out to us:
+* **Email:** developer@bishalcodes.com
+* **Phone:** +977 9828701575
+* **Website:** https://bishalcodes.com
+`,
 
   'terms-and-conditions': `
 ## Overview
@@ -669,6 +721,7 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
     { slug: 'terms-and-conditions', label: 'Terms and Conditions' },
     { slug: 'privacy-policy', label: 'Privacy Policy' },
     { slug: 'cookies-policy', label: 'Cookie Policy' },
+    { slug: 'refund-policy', label: 'Refund Policy' },
     { slug: 'data-deletion-request', label: 'Data Deletion Request' },
   ].filter(p => p.slug !== slug);
 
