@@ -315,6 +315,16 @@ const Footer: React.FC = () => {
                     {page.title}
                   </button>
                 ))}
+                {!legalPages.some(p => p.slug === 'refund-policy') && (
+                  <button
+                    onClick={() => navigate('legal-page', 'refund-policy')}
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '13.5px', color: '#5a6478', textAlign: 'left', transition: 'color 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#c8d0dc')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#5a6478')}
+                  >
+                    Refund Policy
+                  </button>
+                )}
                 <button
                   onClick={() => setIsReportOpen(true)}
                   style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '13px', color: '#e05252', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 500 }}
