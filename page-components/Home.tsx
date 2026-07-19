@@ -22,15 +22,9 @@ const Home: React.FC = () => {
       <Navbar />
       <Hero />
       <Overview />
-      <About />
-      <Skills />
-      <Services />
       <ServiceTools />
       <AIStudioTeaser />
-      <Timeline />
       <Pricing />
-      <Blog />
-      <Testimonials />
       <FAQ />
       <Contact />
       <Footer />

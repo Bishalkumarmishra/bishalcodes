@@ -68,10 +68,7 @@ const Navbar: React.FC = () => {
 
   const navLinks: { name: string; id: PathPage; icon: React.ReactNode }[] = [
     { name: 'Home', id: 'home', icon: <Home size={16} /> },
-    { name: 'About', id: 'about', icon: <User size={16} /> },
-    { name: 'Work', id: 'projects', icon: <Briefcase size={16} /> },
-    { name: 'Services', id: 'services', icon: <Calendar size={16} /> },
-    { name: 'Blogs', id: 'blog', icon: <FileText size={16} /> },
+    { name: 'Products', id: 'services', icon: <Calendar size={16} /> },
     { name: 'Docs', id: 'docs', icon: <BookOpen size={16} /> },
     { name: 'APIs', id: 'developers', icon: <Terminal size={16} /> },
     { name: 'Contact', id: 'contact', icon: <Mail size={16} /> },

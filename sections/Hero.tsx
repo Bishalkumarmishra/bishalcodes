@@ -128,100 +128,44 @@ const Hero: React.FC = () => {
   });
 
   useEffect(() => {
-    const fetchHeroData = async () => {
-      try {
-        const snap = await getDoc(doc(db, 'settings', 'hero'));
-        if (snap.exists()) {
-          const data = snap.data();
-          const rawSlides =
-            data.slides && data.slides.length > 0 ? data.slides : defaultSlides;
-
-          let didModify = false;
-          const mappedSlides = rawSlides.map((slide: any, index: number) => {
-            const globalTitle = data.title || "Hey, I'm Bishal Mishra";
-            const globalSubtitle =
-              data.subtitle || 'Full-Stack Developer & Web Architect';
-            const globalDesc =
-              data.description ||
-              "I write code, design interfaces, and ship products that actually work.";
-
-            if (typeof slide === 'string') return buildDefaultSlide(slide, index);
-
-            let title = slide.title || globalTitle;
-            // Auto convert all-caps titles to Title/Mixed Case
-            if (title && title.length > 3 && title === title.toUpperCase() && !title.includes('<')) {
-              title = title
-                .toLowerCase()
-                .split(' ')
-                .map((word: string) => {
-                  if (word === 'i' || word === "i'm") return word.charAt(0).toUpperCase() + word.slice(1);
-                  if (word === 'ui' || word === 'ux' || word === 'ai') return word.toUpperCase();
-                  return word.charAt(0).toUpperCase() + word.slice(1);
-                })
-                .join(' ');
-              didModify = true;
-            }
-
-            return {
-              imageUrl: slide.imageUrl || '',
-              title: title,
-              subtitle: slide.subtitle || globalSubtitle,
-              description: slide.description || globalDesc,
-              primaryBtnText: slide.primaryBtnText || 'See My Work',
-              primaryBtnLink: slide.primaryBtnLink || 'projects',
-              primaryBtnColor: slide.primaryBtnColor || '#111827',
-              secondaryBtnText: slide.secondaryBtnText || "Let's Talk",
-              secondaryBtnLink: slide.secondaryBtnLink || 'contact',
-              secondaryBtnColor: slide.secondaryBtnColor || 'transparent',
-              titleColor: slide.titleColor || '#ffffff',
-              subtitleColor: slide.subtitleColor || '#d1d5db',
-              descriptionColor: slide.descriptionColor || '#e5e7eb',
-              mobileImageUrl: slide.mobileImageUrl || slide.imageUrl || '',
-              titleSizeMobile:
-                slide.titleSizeMobile !== undefined ? Number(slide.titleSizeMobile) : 2.1,
-              titleSizeDesktop:
-                slide.titleSizeDesktop !== undefined ? Number(slide.titleSizeDesktop) : 4.25,
-              subtitleSizeMobile:
-                slide.subtitleSizeMobile !== undefined ? Number(slide.subtitleSizeMobile) : 1.05,
-              subtitleSizeDesktop:
-                slide.subtitleSizeDesktop !== undefined ? Number(slide.subtitleSizeDesktop) : 1.35,
-              descSizeMobile:
-                slide.descSizeMobile !== undefined ? Number(slide.descSizeMobile) : 0.9,
-              descSizeDesktop:
-                slide.descSizeDesktop !== undefined ? Number(slide.descSizeDesktop) : 1.05,
-            };
-          });
-
-          setHeroData({
-            title: data.title || "Hey, I'm Bishal Mishra",
-            subtitle: data.subtitle || 'Full-Stack Developer & Web Architect',
-            description:
-              data.description ||
-              "I write code, design interfaces, and ship products that actually work.",
-            slides: mappedSlides,
-            stats: data.stats && data.stats.length > 0 ? data.stats : [
-              { num: '30+', label: 'Projects shipped' },
-              { num: '3+', label: 'Years coding' },
-              { num: '100%', label: 'Client satisfaction' },
-            ],
-            sliderHeightMobile:
-              data.sliderHeightMobile !== undefined ? Number(data.sliderHeightMobile) : 50,
-            sliderHeightDesktop:
-              data.sliderHeightDesktop !== undefined ? Number(data.sliderHeightDesktop) : 100,
-          });
-
-          // Save converted slides back to Firestore to permanently fix slide 2 and 3 fonts
-          if (didModify) {
-            updateDoc(doc(db, 'settings', 'hero'), {
-              slides: mappedSlides
-            }).catch(err => console.warn("Failed to auto-update slides in firestore:", err));
-          }
-        }
-      } catch (err) {
-        console.warn('Error fetching hero settings:', err);
+    const saasSlides: HeroSlide[] = [
+      {
+        imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1920',
+        title: "Developer APIs & Utility Platform",
+        subtitle: "Bishal Codes — Professional Developer Suite",
+        description: "Instantly access powerful developer APIs and web utilities. Tools include Nepali Date Converter, live Currency Converter, peer-to-peer File Transfer, PDF utilities, and AI document summarization.",
+        primaryBtnText: 'View Pricing',
+        primaryBtnLink: 'pricing',
+        primaryBtnColor: '#111827',
+        secondaryBtnText: "Explore Tools",
+        secondaryBtnLink: 'services',
+        secondaryBtnColor: 'transparent',
+        titleColor: '#ffffff',
+        subtitleColor: '#d1d5db',
+        descriptionColor: '#e5e7eb',
+        mobileImageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1920',
+        titleSizeMobile: 2.1,
+        titleSizeDesktop: 4.25,
+        subtitleSizeMobile: 1.05,
+        subtitleSizeDesktop: 1.35,
+        descSizeMobile: 0.9,
+        descSizeDesktop: 1.05,
       }
-    };
-    fetchHeroData();
+    ];
+
+    setHeroData({
+      title: "Developer APIs & Utility Platform",
+      subtitle: "Bishal Codes — Professional Developer Suite",
+      description: "Instantly access powerful developer APIs and web utilities. Tools include Nepali Date Converter, live Currency Converter, peer-to-peer File Transfer, PDF utilities, and AI document summarization.",
+      slides: saasSlides,
+      stats: [
+        { num: '15k+', label: 'Active developers' },
+        { num: '20+', label: 'Developer utilities' },
+        { num: '99.9%', label: 'API Uptime' },
+      ],
+      sliderHeightMobile: 50,
+      sliderHeightDesktop: 100,
+    });
   }, []);
 
   useEffect(() => {

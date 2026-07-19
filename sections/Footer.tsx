@@ -150,11 +150,7 @@ const Footer: React.FC = () => {
   }, []);
 
   const quickLinks: { label: string; id: PathPage }[] = [
-    { label: 'About me',    id: 'about' },
-    { label: 'My work',     id: 'projects' },
-    { label: 'Experience',  id: 'experience' },
-    { label: 'Services',    id: 'services' },
-    { label: 'Blog',        id: 'blog' },
+    { label: 'Products',    id: 'services' },
     { label: 'Docs',        id: 'docs' },
     { label: 'Say hello',   id: 'contact' },
   ];
