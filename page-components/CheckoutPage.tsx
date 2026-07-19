@@ -7,6 +7,7 @@ import Navbar from '../sections/Navbar';
 import Footer from '../sections/Footer';
 import { useNavigation } from '../context/NavigationContext';
 import { useUser } from '../hooks/useUser';
+import { usePaddle } from '../hooks/usePaddle';
 // @ts-ignore
 import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
@@ -49,6 +50,7 @@ const PLANS = [
 const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
   const { navigate } = useNavigation();
   const { user, userProfile } = useUser();
+  const paddle = usePaddle();
 
   // Find active plan based on query path
   const activePlan = PLANS.find(p => p.id === planId) || PLANS[0];
@@ -80,6 +82,23 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
     }
   }, [user]);
 
+  useEffect(() => {
+    const handlePaddleEvent = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const event = customEvent.detail;
+      if (event && event.name === 'checkout.completed') {
+        console.log('Paddle checkout complete:', event.data);
+        setGeneratedProdKey('Pending activation via webhook...');
+        setSuccess(true);
+      }
+    };
+
+    window.addEventListener('paddle-event', handlePaddleEvent);
+    return () => {
+      window.removeEventListener('paddle-event', handlePaddleEvent);
+    };
+  }, []);
+
   const generateProductionKey = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let salt = '';
@@ -95,46 +114,43 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
       alert('Please fill out your email address.');
       return;
     }
-    if (cardNumber.replace(/\s/g, '').length < 16) {
-      alert('Please enter a valid 16-digit credit card number.');
+
+    const pricePro = process.env.NEXT_PUBLIC_PADDLE_PRICE_PRO;
+    const priceEnterprise = process.env.NEXT_PUBLIC_PADDLE_PRICE_ENTERPRISE;
+    const priceId = activePlan.id === 'pro' ? pricePro : priceEnterprise;
+
+    if (!priceId) {
+      alert(`Paddle Price ID is not set for plan: ${activePlan.name}. Please set NEXT_PUBLIC_PADDLE_PRICE_PRO or NEXT_PUBLIC_PADDLE_PRICE_ENTERPRISE in your .env.local file.`);
       return;
     }
-    
+
+    if (!paddle) {
+      alert('Paddle is initializing, please wait a moment or check if NEXT_PUBLIC_PADDLE_CLIENT_TOKEN is configured in .env.local.');
+      return;
+    }
+
     setLoading(true);
 
-    const prodKey = generateProductionKey();
-    const paymentRecord = {
-      userId: user?.uid || 'guest_checkout',
-      userEmail: email,
-      planId: activePlan.id,
-      amountPaid: activePlan.price,
-      currency: 'USD',
-      paymentMethod: 'Stripe Credit Card',
-      cardNumberMasked: `**** **** **** ${cardNumber.slice(-4)}`,
-      cardholderName: cardName,
-      status: 'completed',
-      generatedApiKey: prodKey,
-      timestamp: Date.now()
-    };
-
     try {
-      // Write payment log to Firestore
-      await addDoc(collection(db, 'payments'), paymentRecord);
-
-      // If user is logged in, link api key to their user account profile
-      if (user?.uid) {
-        await setDoc(doc(db, 'users', user.uid), {
-          api_production_key: prodKey,
-          api_plan: activePlan.id,
-          api_limit: activePlan.id === 'pro' ? 50000 : 999999
-        }, { merge: true });
-      }
-
-      setGeneratedProdKey(prodKey);
-      setSuccess(true);
+      paddle.Checkout.open({
+        items: [{ priceId, quantity: 1 }],
+        customer: {
+          email: email
+        },
+        customData: {
+          userId: user?.uid || 'guest_checkout',
+          planId: activePlan.id,
+          userEmail: email
+        },
+        settings: {
+          displayMode: 'overlay',
+          theme: 'light',
+          locale: 'en'
+        }
+      });
     } catch (err) {
-      console.error('Failed to log card transaction:', err);
-      alert('Payment processing error. Please try again.');
+      console.error('Failed to launch Paddle checkout:', err);
+      alert('Failed to launch secure checkout. Check the browser console for details.');
     } finally {
       setLoading(false);
     }
@@ -356,7 +372,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                   }`}
                 >
                   <CreditCard size={18} />
-                  Stripe Card
+                  Card (Paddle)
                 </button>
                 
                 <button
@@ -405,76 +421,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
-                      Cardholder Name
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={cardName}
-                      onChange={(e) => setCardName(e.target.value)}
-                      placeholder="Bishal Mishra"
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
-                      Card Number
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        required
-                        maxLength={19}
-                        value={cardNumber}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim();
-                          setCardNumber(val);
-                        }}
-                        placeholder="4242 4242 4242 4242"
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono"
-                      />
-                      <CreditCard size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
-                        Expiry Date
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        maxLength={5}
-                        value={cardExpiry}
-                        onChange={(e) => {
-                          let val = e.target.value.replace(/\D/g, '');
-                          if (val.length > 2) {
-                            val = val.substring(0,2) + '/' + val.substring(2,4);
-                          }
-                          setCardExpiry(val);
-                        }}
-                        placeholder="MM/YY"
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono text-center"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
-                        CVV / CVC
-                      </label>
-                      <input
-                        type="password"
-                        required
-                        maxLength={3}
-                        value={cardCvv}
-                        onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ''))}
-                        placeholder="123"
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono text-center"
-                      />
-                    </div>
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-xs text-slate-550 dark:text-slate-400 leading-relaxed font-normal">
+                    <span className="font-bold text-slate-800 dark:text-white block mb-1">💳 Secure Checkout via Paddle</span>
+                    Payments are handled securely by **Paddle** (Merchant of Record). You will be able to pay with Credit Card, Google Pay, Apple Pay or PayPal inside their secure overlay.
                   </div>
 
                   <button
@@ -485,7 +434,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                     {loading ? (
                       <>
                         <Loader2 className="animate-spin" size={14} />
-                        Authorizing Transaction...
+                        Initializing Secure Checkout...
                       </>
                     ) : (
                       <>
