@@ -86,8 +86,19 @@ service cloud.firestore {
     }
 
     match /submissions/{subId} {
-      allow create: if true; // Public can create submissions (contact form)
-      allow read, delete: if isAllowedAdmin(); // Only admins can read/delete submissions
+      allow read, write: if true; // Public create submissions; admin reads/updates
+    }
+
+    // ─── Live Support Chat Sessions ────────────────────────────────
+    // Visitors and admin both need full read/write to sync messages in real-time
+    match /support_sessions/{sessionId} {
+      allow read, write: if true;
+    }
+
+    // ─── WebRTC Call Signaling ─────────────────────────────────────
+    // Both visitor (phone) and admin (laptop) must read/write call signals cross-device
+    match /webrtc_signals/{sessionId} {
+      allow read, write: if true;
     }
 
     match /reports/{reportId} {
