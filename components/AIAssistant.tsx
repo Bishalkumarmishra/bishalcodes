@@ -9,7 +9,7 @@ import { useNavigation } from '../context/NavigationContext';
 import WebVoiceCallModal, { WebCallState } from './WebVoiceCallModal';
 import { webRtcService } from '../services/webRtcCall';
 import { db } from '../services/firebase';
-import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, setDoc, addDoc, onSnapshot } from 'firebase/firestore';
 
 // Customer Service Headset + Speech Bubble Icon (matching Vecteezy Customer Support Chat design)
 const CustomerSupportChatIcon: React.FC<{ size?: number; className?: string }> = ({ size = 24, className = "" }) => (
@@ -824,12 +824,40 @@ const AIAssistant: React.FC = () => {
       unreadAdminCount: 1
     };
 
-    // 1. Sync to Firebase Firestore
+    // 1. Sync to Firebase Firestore support_sessions
     try {
       await setDoc(doc(db, 'support_sessions', newLead.sessionId), newSession, { merge: true });
     } catch (err) {
-      console.error("Failed to save lead session to Firebase Firestore:", err);
+      console.error("Failed to save lead session to Firebase Firestore support_sessions:", err);
     }
+
+    // 2. ALSO save to Firebase Firestore submissions collection (Guaranteed permitted in Firebase Rules)
+    try {
+      await addDoc(collection(db, 'submissions'), {
+        name: newLead.name,
+        email: newLead.email,
+        phone: newLead.phone,
+        message: 'Live Support Desk Chat Ticket Created',
+        type: 'chat_lead',
+        status: 'new',
+        timestamp: Date.now()
+      });
+    } catch (err) {
+      console.error("Failed to save lead to submissions collection:", err);
+    }
+
+    // 3. Email Alert Notification to Bishal
+    try {
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: 'bishalmishra9000@gmail.com',
+          subject: `🚨 New Live Support Chat Lead: ${newLead.name}`,
+          message: `New customer registered on live chat support!\nName: ${newLead.name}\nEmail: ${newLead.email}\nPhone: ${newLead.phone}`
+        })
+      }).catch(() => {});
+    } catch (e) {}
 
     // 2. Sync to localStorage
     try {

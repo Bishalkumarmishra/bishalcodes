@@ -3,7 +3,7 @@ import { Search, Send, User, Mail, Phone, PhoneCall, MessageSquare, ExternalLink
 import WebVoiceCallModal, { WebCallState } from './WebVoiceCallModal';
 import { webRtcService } from '../services/webRtcCall';
 import { db } from '../services/firebase';
-import { collection, doc, setDoc, deleteDoc, onSnapshot, query } from 'firebase/firestore';
+import { collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, query } from 'firebase/firestore';
 
 export interface UserLeadInfo {
   name: string;
@@ -179,19 +179,79 @@ const AdminLiveChat: React.FC = () => {
     }
   }, []);
 
-  // Load sessions from localStorage as immediate fallback
-  const loadSessions = () => {
+  // Fetch sessions from Firestore (support_sessions + submissions) and localStorage
+  const loadSessions = async () => {
+    const combinedSessions: SupportSession[] = [];
+    const emailsSeen = new Set<string>();
+
+    // 1. Fetch from support_sessions collection
+    try {
+      const snap = await getDocs(collection(db, 'support_sessions'));
+      snap.forEach(docSnap => {
+        const d = docSnap.data() as SupportSession;
+        if (d && d.lead && d.lead.email) {
+          emailsSeen.add(d.lead.email);
+          combinedSessions.push(d);
+        }
+      });
+    } catch (e) {
+      console.warn("Could not fetch support_sessions from Firestore:", e);
+    }
+
+    // 2. Fetch from submissions collection (Contact form entries & Chat leads)
+    try {
+      const subSnap = await getDocs(collection(db, 'submissions'));
+      subSnap.forEach(docSnap => {
+        const d = docSnap.data();
+        if (d && d.email && !emailsSeen.has(d.email)) {
+          emailsSeen.add(d.email);
+          const sId = 'sub_' + docSnap.id;
+          combinedSessions.push({
+            lead: {
+              name: d.name || 'Anonymous Lead',
+              email: d.email,
+              phone: d.phone || d.mobile || '+977 9827801575',
+              sessionId: sId,
+              createdAt: new Date(d.timestamp || Date.now()).toISOString()
+            },
+            messages: [
+              {
+                id: 'msg_' + docSnap.id,
+                sessionId: sId,
+                sender: 'user',
+                text: d.message || 'Submitted customer lead inquiry',
+                timestamp: new Date(d.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              }
+            ],
+            lastUpdated: new Date(d.timestamp || Date.now()).toISOString(),
+            unreadAdminCount: d.status === 'new' ? 1 : 0
+          });
+        }
+      });
+    } catch (e) {
+      console.warn("Could not fetch submissions from Firestore:", e);
+    }
+
+    // 3. Fallback from localStorage
     try {
       const stored = localStorage.getItem(STORAGE_KEY_SESSIONS);
       if (stored) {
         const parsed: SupportSession[] = JSON.parse(stored);
-        setSessions(parsed);
-        if (!activeSessionId && parsed.length > 0) {
-          setActiveSessionId(parsed[0].lead.sessionId);
-        }
+        parsed.forEach(p => {
+          if (p.lead && p.lead.email && !emailsSeen.has(p.lead.email)) {
+            emailsSeen.add(p.lead.email);
+            combinedSessions.push(p);
+          }
+        });
       }
-    } catch (e) {
-      console.error("Failed to load live chat support sessions:", e);
+    } catch (e) {}
+
+    // Sort by last updated descending
+    combinedSessions.sort((a, b) => new Date(b.lastUpdated || 0).getTime() - new Date(a.lastUpdated || 0).getTime());
+
+    if (combinedSessions.length > 0) {
+      setSessions(combinedSessions);
+      setActiveSessionId(prev => prev || combinedSessions[0].lead.sessionId);
     }
   };
 
