@@ -19,7 +19,6 @@ const HD_AUDIO_CONSTRAINTS: MediaTrackConstraints = {
   sampleRate: 48000,             // 48kHz — high fidelity audio
   sampleSize: 16,                // 16-bit audio depth
   channelCount: 1,               // Mono — better for voice calls (less noise)
-  latency: 0,                    // Request lowest possible latency
 };
 
 // ─── WebRTC ICE servers (STUN + TURN for cross-network traversal) ─────────────
