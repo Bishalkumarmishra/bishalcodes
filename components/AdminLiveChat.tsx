@@ -46,6 +46,7 @@ const AdminLiveChat: React.FC = () => {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [replyText, setReplyText] = useState('');
+  const [mobileChatOpen, setMobileChatOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // In-App Voice Call State
@@ -412,7 +413,8 @@ const AdminLiveChat: React.FC = () => {
     <div className="h-[calc(100vh-120px)] bg-white border border-slate-200 rounded-2xl flex overflow-hidden shadow-sm text-slate-800 font-sans">
       
       {/* Left Sidebar: Customer Leads & Chat Sessions */}
-      <div className="w-80 sm:w-96 border-r border-slate-200 bg-slate-50/70 flex flex-col shrink-0">
+      {/* On mobile: hidden when chat is open. On desktop: always visible */}
+      <div className={`${mobileChatOpen ? 'hidden' : 'flex'} md:flex w-full md:w-80 lg:w-96 border-r border-slate-200 bg-slate-50/70 flex-col shrink-0`}>
         
         {/* Sidebar Header */}
         <div className="p-4 border-b border-slate-200 bg-white flex flex-col gap-3">
@@ -464,7 +466,7 @@ const AdminLiveChat: React.FC = () => {
               return (
                 <div
                   key={s.lead.sessionId}
-                  onClick={() => setActiveSessionId(s.lead.sessionId)}
+                  onClick={() => { setActiveSessionId(s.lead.sessionId); setMobileChatOpen(true); }}
                   className={`p-3.5 cursor-pointer transition-all flex items-start gap-3 relative hover:bg-slate-100/80 ${isSelected ? 'bg-indigo-50/90 border-l-4 border-indigo-600' : ''}`}
                 >
                   <div className="w-10 h-10 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center shrink-0 text-xs shadow-xs">
@@ -516,81 +518,87 @@ const AdminLiveChat: React.FC = () => {
       </div>
 
       {/* Right Chat Pane */}
-      <div className="flex-1 flex flex-col bg-white">
+      {/* On mobile: only shown when mobileChatOpen. On desktop: always shown */}
+      <div className={`${mobileChatOpen ? 'flex' : 'hidden'} md:flex flex-1 flex-col bg-white`}>
         {activeSession ? (
           <>
             {/* Active Lead Header */}
-            <div className="p-3.5 bg-white border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3 shrink-0 shadow-xs">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center shrink-0 text-xs shadow-xs">
+            <div className="p-3 bg-white border-b border-slate-200 flex flex-col gap-2 shrink-0 shadow-xs">
+              {/* Row 1: Back (mobile) + Avatar + Name */}
+              <div className="flex items-center gap-2 min-w-0">
+                {/* Back button — mobile only */}
+                <button
+                  onClick={() => setMobileChatOpen(false)}
+                  className="md:hidden p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 shrink-0"
+                  aria-label="Back to list"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <div className="w-9 h-9 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center shrink-0 text-xs shadow-xs">
                   {activeSession.lead.name.substring(0, 2).toUpperCase()}
                 </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-bold text-sm text-slate-900 truncate">{activeSession.lead.name}</h3>
                     <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-bold rounded-full uppercase tracking-wider shrink-0">
                       Verified Lead
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-slate-500 mt-0.5 font-medium">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-slate-500 mt-0.5 font-medium">
                     <span className="flex items-center gap-1 truncate">
-                      <Mail size={11} className="text-indigo-600 shrink-0" /> {activeSession.lead.email}
+                      <Mail size={10} className="text-indigo-600 shrink-0" /> {activeSession.lead.email}
                     </span>
-                    <span className="hidden sm:inline">•</span>
                     <span className="flex items-center gap-1 shrink-0">
-                      <Phone size={11} className="text-emerald-600 shrink-0" /> {activeSession.lead.phone}
+                      <Phone size={10} className="text-emerald-600 shrink-0" /> {activeSession.lead.phone}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Header Action Buttons */}
-              <div className="flex items-center gap-2 shrink-0 flex-wrap">
+
+              {/* Row 2: Action Buttons */}
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <button
                   onClick={initiateAdminCall}
-                  className="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors shadow-xs"
+                  className="flex-1 min-w-[100px] px-2 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] rounded-lg flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                   title="Make direct in-app voice call to customer"
                 >
-                  <PhoneCall size={13} /> <span>Live Web Call</span>
+                  <PhoneCall size={12} /> <span>Live Call</span>
                 </button>
 
                 <a
                   href={`https://wa.me/${activeSession.lead.phone.replace(/[^0-9]/g, '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors shadow-xs"
+                  className="flex-1 min-w-[100px] px-2 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                 >
-                  <MessageSquare size={13} /> <span>WhatsApp Direct</span>
+                  <MessageSquare size={12} /> <span>WhatsApp</span>
                 </a>
 
                 <a
                   href={`tel:${activeSession.lead.phone}`}
-                  className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors border border-slate-200"
+                  className="px-2 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-[11px] rounded-lg flex items-center gap-1.5 transition-colors border border-slate-200"
                 >
-                  <Phone size={13} /> <span>Call Phone</span>
+                  <Phone size={12} />
                 </a>
 
                 <button
                   onClick={() => handleDeleteSession(activeSession.lead.sessionId)}
-                  className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-colors border border-rose-200"
+                  className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-200"
                   title="Delete Lead Session"
                 >
-                  <Trash2 size={15} />
+                  <Trash2 size={13} />
                 </button>
               </div>
             </div>
 
             {/* AI vs Live Mode Banner */}
-            <div className="px-4 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2 text-slate-700 font-medium">
-                <Sparkles size={14} className="text-indigo-600" />
-                <span>
-                  Status: <strong className="text-slate-900">{activeSession.adminHandled ? "Admin Live Agent Active" : "AI Auto-Responder Standby"}</strong>
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 font-medium">
-                {activeSession.adminHandled ? "Your messages take instant priority" : "If admin doesn't reply, AI automatically assists customer"}
-              </p>
+            <div className="px-3 py-1.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2 text-xs flex-wrap">
+              <Sparkles size={12} className="text-indigo-600 shrink-0" />
+              <span className="text-slate-700 font-medium text-[11px]">
+                <strong className="text-slate-900">{activeSession.adminHandled ? "Admin Live" : "AI Standby"}</strong>
+                {' — '}{activeSession.adminHandled ? "Your replies take priority" : "AI assists if admin is away"}
+              </span>
             </div>
 
             {/* Chat Stream */}
@@ -666,21 +674,21 @@ const AdminLiveChat: React.FC = () => {
             </div>
 
             {/* Admin Input Bar */}
-            <div className="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+            <div className="p-2.5 bg-white border-t border-slate-200 flex items-center gap-2">
               <input
                 type="text"
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendAdminReply()}
-                placeholder={`Reply directly to ${activeSession.lead.name}...`}
-                className="flex-1 px-4 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-indigo-600 focus:bg-white transition-all font-medium"
+                placeholder={`Reply to ${activeSession.lead.name}...`}
+                className="flex-1 px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-indigo-600 focus:bg-white transition-all font-medium"
               />
               <button
                 onClick={() => handleSendAdminReply()}
                 disabled={!replyText.trim()}
-                className="px-4 py-2.5 bg-slate-900 hover:bg-indigo-600 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all disabled:opacity-40 shrink-0 shadow-xs"
+                className="p-2.5 bg-slate-900 hover:bg-indigo-600 text-white font-bold rounded-xl flex items-center gap-1 transition-all disabled:opacity-40 shrink-0 shadow-xs"
               >
-                <Send size={14} /> Send Reply
+                <Send size={14} />
               </button>
             </div>
           </>
