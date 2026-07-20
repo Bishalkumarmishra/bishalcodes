@@ -11,24 +11,11 @@ import { getAnalytics, isSupported } from 'firebase/analytics';
 // Removed: import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 
-const getAuthDomain = () => {
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    // Only use the custom domain in production if it matches your verified custom domain
-    if (hostname === 'bishalcodes.com' || hostname === 'www.bishalcodes.com') {
-      return hostname;
-    }
-    // Fall back to default Firebase subdomain for localhost, preview domains, or staging
-    return "bishal-mishra-3c559.firebaseapp.com";
-  }
-  return "bishal-mishra-3c559.firebaseapp.com";
-};
-
 const firebaseConfig = {
   // NOTE: This apiKey is for Firebase services (Authentication, Firestore), NOT for Google Gemini API.
   // The Gemini API key needs to be provided via `process.env.API_KEY` for AI features.
   apiKey: "AIzaSyBVmSAxOR4nZxvzMZZS1uH4II_sdoJSQ1g",
-  authDomain: getAuthDomain(),
+  authDomain: "bishal-mishra-3c559.firebaseapp.com",
   projectId: "bishal-mishra-3c559",
   storageBucket: "bishal-mishra-3c559.firebasestorage.app", // Keep for config, but not actively used
   messagingSenderId: "459193835216",
