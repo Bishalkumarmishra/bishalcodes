@@ -1329,21 +1329,14 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                 <div>
                   <div className="flex items-center gap-1.5">
                     <h3 className="font-bold text-xs tracking-tight text-white">Bishal Mishra</h3>
-                    {isAdmin ? (
-                      <span className="bg-indigo-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider flex items-center gap-1 shadow-xs">
-                        <Shield size={10} />
-                        Admin Mode
-                      </span>
-                    ) : (
-                      <span className="bg-emerald-500/20 text-emerald-300 text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider flex items-center gap-1">
-                        <CustomerSupportChatIcon size={10} className="text-emerald-400" />
-                        Support
-                      </span>
-                    )}
+                    <span className="bg-emerald-500/20 text-emerald-300 text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider flex items-center gap-1">
+                      <CustomerSupportChatIcon size={10} className="text-emerald-400" />
+                      Support
+                    </span>
                   </div>
                   <p className="text-[10px] text-slate-300 font-medium flex items-center gap-1 mt-0.5">
                     <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                    {isAdmin ? "Admin Console Active" : "Online • Replies instantly"}
+                    Online • Replies instantly
                   </p>
                 </div>
               </div>
@@ -1375,44 +1368,29 @@ If you generate code snippets, enclose them in markdown block code syntax so the
               </div>
             </div>
 
-            {/* Quick Contact & Admin Command Sub-Bar */}
-            {isAdmin ? (
-              <div className="bg-indigo-950 text-indigo-100 px-3 py-1.5 border-b border-indigo-800 flex items-center justify-between text-[10px] font-semibold">
-                <span className="flex items-center gap-1 text-indigo-300">
-                  <Shield size={11} className="text-indigo-400" /> Admin Command Center
-                </span>
-                <button
-                  onClick={() => navigate('admin')}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-0.5 rounded-md text-[9.5px] font-bold flex items-center gap-1 transition-all shadow-xs"
+            {/* Quick Contact & Info Sub-Bar */}
+            <div className="bg-slate-100/90 dark:bg-slate-900 px-3 py-1.5 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-[10px] font-medium text-slate-600 dark:text-slate-300">
+              <span className="flex items-center gap-1">
+                <HelpCircle size={11} className="text-indigo-600 dark:text-indigo-400" /> Support Desk
+              </span>
+              <div className="flex items-center gap-2">
+                <a
+                  href={`tel:${SITE_KNOWLEDGE.contact.phone}`}
+                  className="text-indigo-700 dark:text-indigo-400 hover:underline font-semibold flex items-center gap-0.5"
                 >
-                  <span>Open Admin Console</span>
-                  <ArrowRight size={10} />
-                </button>
+                  <Phone size={9} /> Call (+977 9827801575)
+                </a>
+                <span>•</span>
+                <a
+                  href={SITE_KNOWLEDGE.contact.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold flex items-center gap-0.5"
+                >
+                  <MessageCircle size={9} /> WhatsApp
+                </a>
               </div>
-            ) : (
-              <div className="bg-slate-100/90 dark:bg-slate-900 px-3 py-1.5 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-[10px] font-medium text-slate-600 dark:text-slate-300">
-                <span className="flex items-center gap-1">
-                  <HelpCircle size={11} className="text-indigo-600 dark:text-indigo-400" /> Support Desk
-                </span>
-                <div className="flex items-center gap-2">
-                  <a
-                    href={`tel:${SITE_KNOWLEDGE.contact.phone}`}
-                    className="text-indigo-700 dark:text-indigo-400 hover:underline font-semibold flex items-center gap-0.5"
-                  >
-                    <Phone size={9} /> Call (+977 9827801575)
-                  </a>
-                  <span>•</span>
-                  <a
-                    href={SITE_KNOWLEDGE.contact.whatsapp}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold flex items-center gap-0.5"
-                  >
-                    <MessageCircle size={9} /> WhatsApp
-                  </a>
-                </div>
-              </div>
-            )}
+            </div>
 
             {!leadUser ? (
               /* First-Time User Lead Capture Form */
@@ -1590,50 +1568,33 @@ If you generate code snippets, enclose them in markdown block code syntax so the
               )}
             </div>
 
-            {/* Quick Prompt / Admin Command Suggestions Bar */}
-            {isAdmin ? (
-              <div className="px-2.5 py-1.5 bg-indigo-950/90 border-t border-indigo-900 overflow-x-auto flex gap-1.5 scrollbar-hide shrink-0">
-                <button
-                  onClick={() => navigate('admin')}
-                  className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[9.5px] font-bold shrink-0 transition-all flex items-center gap-1 shadow-xs"
-                >
-                  <Shield size={10} /> Live Support Console
-                </button>
-                <button
-                  onClick={initiateUserCall}
-                  className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[9.5px] font-bold shrink-0 transition-all flex items-center gap-1 shadow-xs"
-                >
-                  <PhoneCall size={10} /> Web Call Test
-                </button>
-              </div>
-            ) : (
-              <div className="px-2.5 py-1.5 bg-slate-100/90 dark:bg-slate-950 border-t border-slate-200/70 dark:border-slate-800 overflow-x-auto flex gap-1 scrollbar-hide shrink-0">
-                <button
-                  onClick={() => handleSend("What are your pricing plans?")}
-                  className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
-                >
-                  <DollarSign size={9} /> Pricing
-                </button>
-                <button
-                  onClick={() => handleSend("What free tools are available and how to use them?")}
-                  className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
-                >
-                  <Wrench size={9} /> Tools Guide
-                </button>
-                <button
-                  onClick={() => handleSend("What web development services do you offer?")}
-                  className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
-                >
-                  <User size={9} /> Services
-                </button>
-                <button
-                  onClick={() => handleSend("Tell me about Developer Portal and APIs")}
-                  className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
-                >
-                  <Key size={9} /> APIs & Docs
-                </button>
-              </div>
-            )}
+            {/* Quick Prompt Suggestions Bar */}
+            <div className="px-2.5 py-1.5 bg-slate-100/90 dark:bg-slate-950 border-t border-slate-200/70 dark:border-slate-800 overflow-x-auto flex gap-1 scrollbar-hide shrink-0">
+              <button
+                onClick={() => handleSend("What are your pricing plans?")}
+                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
+              >
+                <DollarSign size={9} /> Pricing
+              </button>
+              <button
+                onClick={() => handleSend("What free tools are available and how to use them?")}
+                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
+              >
+                <Wrench size={9} /> Tools Guide
+              </button>
+              <button
+                onClick={() => handleSend("What web development services do you offer?")}
+                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
+              >
+                <User size={9} /> Services
+              </button>
+              <button
+                onClick={() => handleSend("Tell me about Developer Portal and APIs")}
+                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
+              >
+                <Key size={9} /> APIs & Docs
+              </button>
+            </div>
 
             {/* Attachment Preview Bar */}
             {attachedFile && (
