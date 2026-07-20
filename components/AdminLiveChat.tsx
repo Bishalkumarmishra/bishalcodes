@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, Send, User, Mail, Phone, PhoneCall, MessageSquare, ExternalLink, Clock, ShieldCheck, CheckCheck, RefreshCw, Paperclip, Bot, Sparkles, AlertCircle, Trash2 } from 'lucide-react';
 import WebVoiceCallModal, { WebCallState } from './WebVoiceCallModal';
 import { webRtcService } from '../services/webRtcCall';
+import { db } from '../services/firebase';
+import { collection, doc, setDoc, deleteDoc, onSnapshot, query } from 'firebase/firestore';
 
 export interface UserLeadInfo {
   name: string;
@@ -145,7 +147,39 @@ const AdminLiveChat: React.FC = () => {
     setCallDuration(0);
   };
 
-  // Load sessions from localStorage
+  // Real-time Firebase Firestore Subscription for Live Customer Sessions
+  useEffect(() => {
+    try {
+      const q = query(collection(db, 'support_sessions'));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const liveSessions: SupportSession[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data() as SupportSession;
+          if (data && data.lead) {
+            liveSessions.push(data);
+          }
+        });
+
+        // Sort by last updated timestamp descending
+        liveSessions.sort((a, b) => new Date(b.lastUpdated || 0).getTime() - new Date(a.lastUpdated || 0).getTime());
+
+        if (liveSessions.length > 0) {
+          setSessions(liveSessions);
+          localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(liveSessions));
+
+          setActiveSessionId(prev => prev || liveSessions[0].lead.sessionId);
+        }
+      }, (error) => {
+        console.warn("Firestore support_sessions subscription warning:", error);
+      });
+
+      return () => unsubscribe();
+    } catch (err) {
+      console.error("Failed to connect to Firebase Firestore live support sessions:", err);
+    }
+  }, []);
+
+  // Load sessions from localStorage as immediate fallback
   const loadSessions = () => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY_SESSIONS);
@@ -213,7 +247,7 @@ const AdminLiveChat: React.FC = () => {
   }, [activeSessionId]);
 
   // Send admin reply
-  const handleSendAdminReply = (textToSend?: string) => {
+  const handleSendAdminReply = async (textToSend?: string) => {
     const content = textToSend || replyText;
     if (!content.trim() || !activeSessionId) return;
 
@@ -225,23 +259,36 @@ const AdminLiveChat: React.FC = () => {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    const updatedSessions = sessions.map(s => {
-      if (s.lead.sessionId === activeSessionId) {
-        return {
-          ...s,
-          messages: [...s.messages, newMsg],
-          lastUpdated: new Date().toISOString(),
-          adminHandled: true
-        };
-      }
-      return s;
-    });
+    const targetSession = sessions.find(s => s.lead.sessionId === activeSessionId);
+    if (!targetSession) return;
 
-    setSessions(updatedSessions);
-    localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(updatedSessions));
+    const updatedMessages = [...(targetSession.messages || []), newMsg];
+    const updatedSessionObj = {
+      ...targetSession,
+      messages: updatedMessages,
+      lastUpdated: new Date().toISOString(),
+      adminHandled: true,
+      unreadAdminCount: 0
+    };
+
+    // Optimistic UI state update
+    setSessions(prev => prev.map(s => s.lead.sessionId === activeSessionId ? updatedSessionObj : s));
     setReplyText('');
 
-    // Broadcast to user chat window
+    // 1. Sync to Firebase Firestore
+    try {
+      await setDoc(doc(db, 'support_sessions', activeSessionId), updatedSessionObj, { merge: true });
+    } catch (e) {
+      console.error("Failed to sync admin reply to Firestore:", e);
+    }
+
+    // 2. Sync to localStorage
+    try {
+      const updatedSessions = sessions.map(s => s.lead.sessionId === activeSessionId ? updatedSessionObj : s);
+      localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(updatedSessions));
+    } catch (e) {}
+
+    // 3. Broadcast to user chat window
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
       const bc = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
       bc.postMessage({
@@ -254,8 +301,17 @@ const AdminLiveChat: React.FC = () => {
   };
 
   // Delete session
-  const handleDeleteSession = (sessionId: string) => {
+  const handleDeleteSession = async (sessionId: string) => {
     if (!window.confirm("Are you sure you want to delete this customer chat lead?")) return;
+
+    // 1. Delete from Firestore
+    try {
+      await deleteDoc(doc(db, 'support_sessions', sessionId));
+    } catch (e) {
+      console.error("Failed to delete session from Firestore:", e);
+    }
+
+    // 2. Delete from local state & storage
     const filtered = sessions.filter(s => s.lead.sessionId !== sessionId);
     setSessions(filtered);
     localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(filtered));

@@ -8,6 +8,8 @@ import ApiKeyModal from './ApiKeyModal';
 import { useNavigation } from '../context/NavigationContext';
 import WebVoiceCallModal, { WebCallState } from './WebVoiceCallModal';
 import { webRtcService } from '../services/webRtcCall';
+import { db } from '../services/firebase';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 
 // Customer Service Headset + Speech Bubble Icon (matching Vecteezy Customer Support Chat design)
 const CustomerSupportChatIcon: React.FC<{ size?: number; className?: string }> = ({ size = 24, className = "" }) => (
@@ -792,7 +794,7 @@ const AIAssistant: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Submit Lead Form for First-Time Users
-  const handleLeadSubmit = (e: React.FormEvent) => {
+  const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!leadName.trim() || !leadEmail.trim() || !leadPhone.trim()) return;
 
@@ -822,6 +824,14 @@ const AIAssistant: React.FC = () => {
       unreadAdminCount: 1
     };
 
+    // 1. Sync to Firebase Firestore
+    try {
+      await setDoc(doc(db, 'support_sessions', newLead.sessionId), newSession, { merge: true });
+    } catch (err) {
+      console.error("Failed to save lead session to Firebase Firestore:", err);
+    }
+
+    // 2. Sync to localStorage
     try {
       const existing = JSON.parse(localStorage.getItem('bishal_live_support_sessions') || '[]');
       const updated = [newSession, ...existing.filter((s: any) => s.lead?.email !== newLead.email)];
@@ -833,7 +843,7 @@ const AIAssistant: React.FC = () => {
         bc.close();
       }
     } catch (err) {
-      console.error("Failed to register lead session:", err);
+      console.error("Failed to register lead session in localStorage:", err);
     }
 
     setMessages([
@@ -850,10 +860,36 @@ const AIAssistant: React.FC = () => {
     ]);
   };
 
-  // Real-time Sync of Admin Replies and Sessions
+  // Real-time Firestore & Storage Sync of Admin Replies and Sessions
   useEffect(() => {
     if (!leadUser) return;
 
+    // 1. Listen to Firebase Firestore document in real-time
+    let unsubscribe: () => void = () => {};
+    try {
+      const docRef = doc(db, 'support_sessions', leadUser.sessionId);
+      unsubscribe = onSnapshot(docRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const mySession = docSnap.data();
+          if (mySession && mySession.messages && mySession.messages.length > 0) {
+            const formatted: ChatMessage[] = mySession.messages.map((m: any) => ({
+              role: m.sender === 'user' ? 'user' : 'bot',
+              text: m.text,
+              image: m.image,
+              fileName: m.fileName,
+              senderType: m.sender
+            }));
+            setMessages(formatted);
+          }
+        }
+      }, (err) => {
+        console.warn("Firestore customer session listener error:", err);
+      });
+    } catch (e) {
+      console.error("Failed to attach Firestore session listener:", e);
+    }
+
+    // 2. Fallback to localStorage & BroadcastChannel
     const syncMessagesFromStorage = () => {
       try {
         const stored = localStorage.getItem('bishal_live_support_sessions');
@@ -876,8 +912,6 @@ const AIAssistant: React.FC = () => {
       }
     };
 
-    syncMessagesFromStorage();
-
     let bc: BroadcastChannel | null = null;
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
       bc = new BroadcastChannel('bishal_live_chat_channel');
@@ -899,6 +933,7 @@ const AIAssistant: React.FC = () => {
     return () => {
       window.removeEventListener('storage', handleStorage);
       if (bc) bc.close();
+      unsubscribe();
     };
   }, [leadUser]);
 
@@ -958,46 +993,57 @@ const AIAssistant: React.FC = () => {
     e.target.value = '';
   };
 
-  const syncUserMessageToSessions = (userMsgText: string, imgData?: string, docName?: string) => {
+  const syncUserMessageToSessions = async (userMsgText: string, imgData?: string, docName?: string) => {
     if (!leadUser) return;
+    const msgObj = {
+      id: 'usr_' + Date.now(),
+      sessionId: leadUser.sessionId,
+      sender: 'user',
+      text: userMsgText,
+      image: imgData,
+      fileName: docName,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
     try {
       const stored = localStorage.getItem('bishal_live_support_sessions');
       const sessions = stored ? JSON.parse(stored) : [];
-      const msgObj = {
-        id: 'usr_' + Date.now(),
-        sessionId: leadUser.sessionId,
-        sender: 'user',
-        text: userMsgText,
-        image: imgData,
-        fileName: docName,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
       let sessionFound = false;
+      let targetSessionObj: any = null;
+
       const updated = sessions.map((s: any) => {
         if (s.lead?.sessionId === leadUser.sessionId || s.lead?.email === leadUser.email) {
           sessionFound = true;
-          return {
+          targetSessionObj = {
             ...s,
             lead: leadUser,
-            messages: [...s.messages, msgObj],
+            messages: [...(s.messages || []), msgObj],
             lastUpdated: new Date().toISOString(),
             unreadAdminCount: (s.unreadAdminCount || 0) + 1
           };
+          return targetSessionObj;
         }
         return s;
       });
 
       if (!sessionFound) {
-        updated.unshift({
+        targetSessionObj = {
           lead: leadUser,
           messages: [msgObj],
           lastUpdated: new Date().toISOString(),
           unreadAdminCount: 1
-        });
+        };
+        updated.unshift(targetSessionObj);
       }
 
       localStorage.setItem('bishal_live_support_sessions', JSON.stringify(updated));
+
+      // 1. Sync User Message to Firebase Firestore
+      try {
+        await setDoc(doc(db, 'support_sessions', leadUser.sessionId), targetSessionObj, { merge: true });
+      } catch (e) {
+        console.error("Failed to sync user message to Firestore:", e);
+      }
 
       if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
         const bc = new BroadcastChannel('bishal_live_chat_channel');
@@ -1009,32 +1055,44 @@ const AIAssistant: React.FC = () => {
     }
   };
 
-  const syncBotMessageToSessions = (botMsgText: string) => {
+  const syncBotMessageToSessions = async (botMsgText: string) => {
     if (!leadUser) return;
+    const msgObj = {
+      id: 'bot_' + Date.now(),
+      sessionId: leadUser.sessionId,
+      sender: 'bot',
+      text: botMsgText,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
     try {
       const stored = localStorage.getItem('bishal_live_support_sessions');
       if (!stored) return;
       const sessions = JSON.parse(stored);
-      const msgObj = {
-        id: 'bot_' + Date.now(),
-        sessionId: leadUser.sessionId,
-        sender: 'bot',
-        text: botMsgText,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
+      let targetSessionObj: any = null;
 
       const updated = sessions.map((s: any) => {
         if (s.lead?.sessionId === leadUser.sessionId || s.lead?.email === leadUser.email) {
-          return {
+          targetSessionObj = {
             ...s,
-            messages: [...s.messages, msgObj],
+            messages: [...(s.messages || []), msgObj],
             lastUpdated: new Date().toISOString()
           };
+          return targetSessionObj;
         }
         return s;
       });
 
       localStorage.setItem('bishal_live_support_sessions', JSON.stringify(updated));
+
+      // 1. Sync Bot Message to Firebase Firestore
+      if (targetSessionObj) {
+        try {
+          await setDoc(doc(db, 'support_sessions', leadUser.sessionId), targetSessionObj, { merge: true });
+        } catch (e) {
+          console.error("Failed to sync bot message to Firestore:", e);
+        }
+      }
 
       if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
         const bc = new BroadcastChannel('bishal_live_chat_channel');
