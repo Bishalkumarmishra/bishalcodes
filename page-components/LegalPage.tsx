@@ -149,7 +149,7 @@ We offer a **14-day money-back guarantee** on all our premium subscription plans
 ## 2. How to Request a Refund
 
 To request a refund:
-1. Send an email to **developer@bishalcodes.com** or call us at **+977 9828701575**.
+1. Send an email to **developer@bishalcodes.com** or call us at **+977 9827801575**.
 2. Provide your account email address and your Paddle transaction/invoice receipt ID.
 3. Our support team will process your refund request within **24-48 hours**. Once approved, the funds will be credited back to your original payment method (Credit/Debit Card or PayPal) within 5 to 10 business days, depending on your bank's processing times.
 
@@ -166,7 +166,7 @@ We reserve the right to refuse refund requests if we detect clear evidence of re
 
 If you have any questions, concerns, or feedback regarding our refund and cancellation policies, please feel free to reach out to us:
 * **Email:** developer@bishalcodes.com
-* **Phone:** +977 9828701575
+* **Phone:** +977 9827801575
 * **Website:** https://bishalcodes.com
 `,
 
@@ -187,7 +187,7 @@ Our platform provides free developer tools — including a Nepali Date Converter
 - **Owner:** Bishal Kumar Mishra
 - **Country:** Nepal
 - **Email:** developer@bishalcodes.com
-- **Phone:** +977 9828701575
+- **Phone:** +977 9827801575
 - **Website:** https://bishalcodes.com
 
 ## 1. Acceptance of Terms
@@ -254,7 +254,7 @@ We may update these Terms at any time. When we make significant changes, we will
 ## 9. Contact Us
 
 - **Email:** developer@bishalcodes.com
-- **Phone:** +977 9828701575
+- **Phone:** +977 9827801575
 - **Address:** Nepal
 - **Business Hours:** Sunday – Friday, 9:00 AM – 6:00 PM (Nepal Standard Time, NPT UTC+5:45)
 `,
@@ -276,7 +276,7 @@ As the data controller for bishalcodes.com, we are responsible for the personal 
 
 - **Data Controller:** Bishal Kumar Mishra (Bishal Codes)
 - **Email:** developer@bishalcodes.com
-- **Phone:** +977 9828701575
+- **Phone:** +977 9827801575
 - **Country:** Nepal
 
 ## 1. What Information We Collect
@@ -369,7 +369,7 @@ We may update this Privacy Policy from time to time. The **"Last Updated"** date
 ## 9. Contact Us
 
 - **Email:** developer@bishalcodes.com
-- **Phone:** +977 9828701575
+- **Phone:** +977 9827801575
 - **Address:** Nepal
 - **Response Time:** Within 30 days of receiving your request
 `,
@@ -462,7 +462,7 @@ We may update this Cookie Policy from time to time. When we do, we will update t
 ## 6. Contact Us
 
 - **Email:** developer@bishalcodes.com
-- **Phone:** +977 9828701575
+- **Phone:** +977 9827801575
 - **Address:** Nepal
 `,
 
@@ -481,7 +481,7 @@ Bishal Codes is a web development and digital tools platform operated by **Bisha
 
 - **Data Controller:** Bishal Kumar Mishra (Bishal Codes)
 - **Email:** developer@bishalcodes.com
-- **Phone:** +977 9828701575
+- **Phone:** +977 9827801575
 - **Response Time:** Within 30 days
 
 ## 1. What Data Can Be Deleted?
@@ -514,7 +514,7 @@ Please include your full name as provided to us, the email address associated wi
 
 ### Method 2: Phone Request
 
-Call us at **+977 9828701575** (Sunday – Friday, 9:00 AM – 6:00 PM Nepal Standard Time) and request a Data Deletion. We will guide you through the verification process.
+Call us at **+977 9827801575** (Sunday – Friday, 9:00 AM – 6:00 PM Nepal Standard Time) and request a Data Deletion. We will guide you through the verification process.
 
 ## 3. Verification Process
 
@@ -558,7 +558,7 @@ Under the **Nepal Individual Privacy Act, 2075** and **GDPR Article 17**, you ha
 ## 8. Contact Us
 
 - **Email:** developer@bishalcodes.com *(Fastest response)*
-- **Phone:** +977 9828701575
+- **Phone:** +977 9827801575
 - **Business Hours:** Sunday – Friday, 9:00 AM – 6:00 PM (Nepal Standard Time)
 - **Response Guarantee:** We will acknowledge your request within 5 business days and complete processing within 30 days.
 `,
@@ -855,8 +855,8 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
                 <a href="mailto:developer@bishalcodes.com" className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline mb-1.5">
                   <Mail size={11} /> developer@bishalcodes.com
                 </a>
-                <a href="tel:+9779828701575" className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline mb-1.5">
-                  <Phone size={11} /> +977 9828701575
+                <a href="tel:+9779827801575" className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline mb-1.5">
+                  <Phone size={11} /> +977 9827801575
                 </a>
                 <p className="flex items-start gap-1.5 text-xs text-slate-500 dark:text-slate-500">
                   <MapPin size={11} className="mt-0.5 flex-shrink-0" />
@@ -1032,8 +1032,8 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
                   <a href="mailto:developer@bishalcodes.com" className="flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
                     <Mail size={12} /> developer@bishalcodes.com
                   </a>
-                  <a href="tel:+9779828701575" className="flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
-                    <Phone size={12} /> +977 9828701575
+                  <a href="tel:+9779827801575" className="flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                    <Phone size={12} /> +977 9827801575
                   </a>
                   <p className="flex items-start gap-2 text-xs text-slate-500 dark:text-slate-500">
                     <MapPin size={12} className="mt-0.5 flex-shrink-0" />

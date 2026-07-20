@@ -64,13 +64,14 @@ const buildDefaultSlide = (slide: string, index: number): HeroSlide => ({
 });
 
 // Typing animation hook
-const useTyping = (words: string[], speed = 80, pause = 2000) => {
+const useTyping = (words: string[], speed = 80, pause = 2000, active = true) => {
   const [display, setDisplay] = useState('');
   const [wordIdx, setWordIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
+    if (!active) return;
     let timer: NodeJS.Timeout;
     const currentWord = words[wordIdx];
 
@@ -92,7 +93,7 @@ const useTyping = (words: string[], speed = 80, pause = 2000) => {
     }
 
     return () => clearTimeout(timer);
-  }, [charIdx, deleting, wordIdx, words, speed, pause]);
+  }, [charIdx, deleting, wordIdx, words, speed, pause, active]);
 
   return display;
 };
@@ -308,7 +309,8 @@ const Hero: React.FC = () => {
   const typedText = useTyping(
     ['Full-Stack Developer', 'Web Architect', 'UI/UX Thinker', 'Problem Solver'],
     75,
-    2200
+    2200,
+    !isEditMode
   );
 
   return (
@@ -410,7 +412,7 @@ const Hero: React.FC = () => {
 
       <section
         id="hero-section"
-        className="relative w-full flex items-center justify-center bg-black overflow-hidden select-none"
+        className={`relative w-full flex items-center justify-center bg-black overflow-hidden ${isEditMode ? 'select-text' : 'select-none'}`}
         style={{ width: '100vw', maxWidth: '100%' }}
         aria-label="Hero — Bishal Mishra, Full-Stack Developer"
       >

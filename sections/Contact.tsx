@@ -75,20 +75,20 @@ const Contact: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
           <div className="w-full lg:w-1/2 flex flex-col justify-center">
             <div className="flex items-center gap-2 mb-3 text-left">
-              <p className="text-slate-900 dark:text-white font-semibold text-xs uppercase tracking-wider">
+              <div className="text-slate-900 dark:text-white font-semibold text-xs uppercase tracking-wider">
                 <EditableText collection="settings" document="contact" field="tag" fallback="Contact" />
-              </p>
+              </div>
             </div>
             <h2 className="text-slate-900 text-3xl sm:text-4xl font-bold tracking-tight mb-4 text-left">
               <EditableText collection="settings" document="contact" field="title" fallback="Get in Touch" />
             </h2>
-            <p className="text-slate-600 text-base sm:text-lg font-normal leading-relaxed mb-8 max-w-lg text-left">
+            <div className="text-slate-600 text-base sm:text-lg font-normal leading-relaxed mb-8 max-w-lg text-left">
               <EditableText collection="settings" document="contact" field="description" fallback="If you have a project idea, business inquiry, or technical question, feel free to send a message or reach out via WhatsApp." isTextArea />
-            </p>
+            </div>
             
-            <a href="https://wa.me/9779828701575" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 mb-8 group w-fit">
+            <a href="https://wa.me/9779827801575" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 mb-8 group w-fit">
               <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center shadow-sm group-hover:scale-105 transition-all"><MessageSquare className="text-white fill-white" size={20} /></div>
-              <span className="text-slate-800 text-xl sm:text-2xl font-bold tracking-tight hover:text-slate-950 dark:hover:text-white transition-colors">+977 9828701575</span>
+              <span className="text-slate-800 text-xl sm:text-2xl font-bold tracking-tight hover:text-slate-950 dark:hover:text-white transition-colors">+977 9827801575</span>
             </a>
             
             <div>

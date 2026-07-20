@@ -188,12 +188,12 @@ const createEmailTemplate = (title: string, subtitle: string, badge: string, con
             <div class="socials">
               <a href="https://bishalcodes.com" class="social-link">Website</a>
               <a href="https://github.com/Bishalkumarmishra" class="social-link">GitHub</a>
-              <a href="https://wa.me/9779828701575" class="social-link">WhatsApp</a>
+              <a href="https://wa.me/9779827801575" class="social-link">WhatsApp</a>
               <a href="mailto:developer@bishalcodes.com" class="social-link">Contact Email</a>
             </div>
             <div class="contact-info">
               Bishal Codes &copy; ${new Date().getFullYear()} &bull; World-Class Web Engineering<br>
-              Kathmandu, Nepal &bull; Phone: +977 9828701575
+              Kathmandu, Nepal &bull; Phone: +977 9827801575
             </div>
             <div class="unsubscribe">
               You are receiving this because you contacted us or subscribed to updates.

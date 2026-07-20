@@ -14,7 +14,7 @@ const Skills: React.FC = () => {
   const [aboutData, setAboutData] = useState({
     experience: '3+ Years',
     bio: 'I design and build tailored web applications that combine clean code with intuitive user experiences to solve real business challenges.',
-    whatsappUrl: 'https://wa.me/9779828701575'
+    whatsappUrl: 'https://wa.me/9779827801575'
   });
 
   const [skillsData, setSkillsData] = useState({
@@ -58,7 +58,7 @@ const Skills: React.FC = () => {
           setAboutData({
             experience: data.experience || '3+ Years',
             bio: data.bio || 'I design and build tailored web applications that combine clean code with intuitive user experiences to solve real business challenges.',
-            whatsappUrl: data.whatsappUrl || 'https://wa.me/9779828701575'
+            whatsappUrl: (data.whatsappUrl && data.whatsappUrl.includes('9828701575')) ? 'https://wa.me/9779827801575' : (data.whatsappUrl || 'https://wa.me/9779827801575')
           });
         }
       } catch (err) {

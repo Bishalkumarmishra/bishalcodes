@@ -189,8 +189,9 @@ html, body {
   touch-action: pan-x pan-y !important;
 }
 
-/* Allow text selection in admin mode (even on mobile) */
-html.admin-mode, html.admin-mode body {
+/* Allow text selection in admin mode or live edit mode (even on mobile) */
+html.admin-mode, html.admin-mode body,
+html.live-edit-mode, html.live-edit-mode body {
   -webkit-touch-callout: default !important;
   -webkit-user-select: text !important;
   -khtml-user-select: text !important;
@@ -740,3 +741,19 @@ footer .footer-inner {
     padding: 64px 48px 0 !important;
   }
 }
+
+/* ═══════════════════════════════════════════════
+   CONTENTEDITABLE SELECTION OVERRIDES
+   Ensures active editable text elements are selectable
+   and editable even if wrapped inside select-none blocks.
+   ═══════════════════════════════════════════════ */
+[contenteditable="true"],
+[contenteditable="true"] *,
+[contenteditable=""],
+[contenteditable=""] * {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
+

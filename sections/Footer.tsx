@@ -288,13 +288,13 @@ const Footer: React.FC = () => {
                   developer@bishalcodes.com
                 </a>
                 <a
-                  href="tel:+9779828701575"
+                  href="tel:+9779827801575"
                   style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#5a6478', textDecoration: 'none', transition: 'color 0.15s' }}
                   onMouseEnter={e => (e.currentTarget.style.color = '#c8d0dc')}
                   onMouseLeave={e => (e.currentTarget.style.color = '#5a6478')}
                 >
                   <Phone size={13} style={{ flexShrink: 0, color: '#3d4a5c' }} />
-                  +977 9828701575
+                  +977 9827801575
                 </a>
               </div>
             </div>

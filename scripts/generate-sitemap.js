@@ -60,7 +60,8 @@ async function run() {
     { path: '/developers/currency', priority: '0.8', changefreq: 'weekly' },
     { path: '/widgets', priority: '0.8', changefreq: 'weekly' },
     { path: '/widgets/calendar', priority: '0.7', changefreq: 'weekly' },
-    { path: '/widgets/date-converter', priority: '0.7', changefreq: 'weekly' }
+    { path: '/widgets/date-converter', priority: '0.7', changefreq: 'weekly' },
+    { path: '/login', priority: '0.6', changefreq: 'monthly' }
   ];
 
   staticPages.forEach(page => {

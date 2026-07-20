@@ -242,6 +242,15 @@ The Developer Services dashboard hosts a comprehensive suite of high-performance
   - **PDF Compilation**: Compiles all scanned pages into a proper A4 PDF document using jsPDF library for one-click download.
 - **Security**: 100% private. Captured images are stored temporarily in a secure Firestore session node for instant browser-to-browser transfer, and are cleared automatically per session. No cloud file server storage.
 
+#### 18. Online Typing Studio
+- **Engine**: Local JavaScript game loop and physical keyboard listener.
+- **Capabilities**:
+  - Speed testing with live standardized WPM (Words Per Minute) and raw WPM calculations.
+  - Live accuracy tracking with detailed key error breakdown to analyze typing weaknesses.
+  - Multiple modes: Easy Words, Medium Words, Multi-Language Code Snippets (JavaScript, Python, C++, HTML/CSS) for developer training, and Custom Text Practice.
+  - Interactive QWERTY keyboard visualizer that lights up matching keys pressed on your physical keyboard.
+- **Security**: 100% offline-capable, runs entirely locally, and doesn't log or transmit any keystrokes or text inputs.
+
 ---
 
 ### PDF Manipulation Suite
@@ -317,6 +326,15 @@ To help you get the most out of our tools, here is a detailed breakdown of how t
   - Multi-page document workspace and A4 PDF compilation
   - Also works by uploading local photos directly on desktop (auto-detects and crops)
 * **What is NOT**: Does not require installing any apps. Does not support printing directly (download PDF and print). Each session generates a fresh sync ID (cannot be resumed after closing).
+
+#### 9. Online Typing Studio
+* **How to Use**:
+  1. Open the Typing Studio at [bishalcodes.com/tools/typing-practice](https://bishalcodes.com/tools/typing-practice).
+  2. Select your practice configuration: select a mode (Easy Words, Medium Words, Code Snippets, or Custom Block) and choose a duration (15s, 30s, 60s, or 120s).
+  3. Click inside the visual container to activate the keyboard listener, and start typing.
+  4. Once completed, analyze your speed metrics (WPM), accuracy, and error key breakdowns.
+* **What is There**: Live WPM calculator, live accuracy, error count, time tracking, dynamic visual keyboard overlay, error breakdowns, and offline encryption sandbox notices.
+* **What is NOT**: No server-side keystroke logging or logging telemetry. Does not support non-QWERTY layouts visually.
 
 ---
 

@@ -37,9 +37,9 @@ const FAQItem: React.FC<FAQItemProps> = ({ question, answer, isOpen, toggle, ind
         className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[300px] opacity-100 pb-5' : 'max-h-0 opacity-0'}`}
       >
         <div className="pl-11 pr-4">
-          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal border-l border-slate-200 pl-4 text-left">
+          <div className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal border-l border-slate-200 pl-4 text-left">
             <EditableText collection="settings" document="faq" field={`faq_a_${index}`} fallback={answer} isTextArea />
-          </p>
+          </div>
         </div>
       </div>
     </div>
@@ -79,9 +79,9 @@ const FAQ: React.FC = () => {
           <h2 className="text-slate-900 text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
             <EditableText collection="settings" document="faq" field="title" fallback="Frequently Asked Questions" />
           </h2>
-          <p className="text-slate-500 text-sm sm:text-base mt-2 font-normal">
+          <div className="text-slate-500 text-sm sm:text-base mt-2 font-normal">
             <EditableText collection="settings" document="faq" field="description" fallback="Information about development timelines, processes, and tools." />
-          </p>
+          </div>
         </div>
 
         <div className="max-w-3xl mx-auto bg-white rounded-xl border border-slate-200 p-4 sm:p-6 shadow-sm">

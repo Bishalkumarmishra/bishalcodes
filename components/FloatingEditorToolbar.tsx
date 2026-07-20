@@ -194,8 +194,10 @@ export const FloatingEditorToolbar: React.FC = () => {
       const el = (e as CustomEvent).detail as HTMLElement;
       if (el && el.isContentEditable) {
         if (activeElRef.current !== el) {
-          setActiveEl(el);
-          loadElementStyles(el);
+          setTimeout(() => {
+            setActiveEl(el);
+            loadElementStyles(el);
+          }, 0);
         }
         setTimeout(() => updatePosition(el), 30);
       }
@@ -235,14 +237,18 @@ export const FloatingEditorToolbar: React.FC = () => {
 
       if (editableEl && editableEl.isContentEditable) {
         if (activeElRef.current !== editableEl) {
-          setActiveEl(editableEl);
-          loadElementStyles(editableEl);
+          setTimeout(() => {
+            setActiveEl(editableEl!);
+            loadElementStyles(editableEl!);
+          }, 0);
         }
         setTimeout(() => updatePosition(editableEl!), 30);
       } else {
         // Clicked outside any editable elements and outside the toolbar -> hide the toolbar
-        setActiveEl(null);
-        setActivePopover(null);
+        setTimeout(() => {
+          setActiveEl(null);
+          setActivePopover(null);
+        }, 0);
       }
     };
 

@@ -164,7 +164,7 @@ const Timeline: React.FC = () => {
             </h2>
           </div>
           <a 
-            href="https://wa.me/9779828701575" 
+            href="https://wa.me/9779827801575" 
             className="inline-flex items-center justify-center gap-1.5 bg-slate-900 text-white px-4 py-2 rounded-lg font-medium text-xs hover:bg-slate-800 transition-colors shadow-sm shrink-0"
           >
             <span>WhatsApp Me</span> <MessageSquare size={14} className="fill-current" />
@@ -257,7 +257,7 @@ const Timeline: React.FC = () => {
                     </div>
 
                     <div className="hidden sm:block shrink-0">
-                        <a href="https://wa.me/9779828701575" className={`w-9 h-9 rounded-lg border flex items-center justify-center transition-all ${
+                        <a href="https://wa.me/9779827801575" className={`w-9 h-9 rounded-lg border flex items-center justify-center transition-all ${
                           exp.isHighlighted 
                           ? 'bg-slate-950 border-slate-950 text-white hover:bg-slate-800' 
                           : 'border-slate-200 text-slate-400 hover:border-slate-950 hover:text-slate-950 hover:bg-slate-50'

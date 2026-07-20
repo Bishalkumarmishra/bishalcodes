@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   ArrowLeft, Download, Image as ImageIcon, Copy, Check, 
   User, Globe, Github, Plus, Trash2, Layout, Palette, FileCode,
-  Type, Settings as SettingsIcon, Sliders, RefreshCw, Move,
+  Type, Settings as SettingsIcon, Sliders, RefreshCw, Move, Pencil,
   Twitter, Linkedin, Youtube, Instagram, MessageSquare, Mail
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
@@ -2037,7 +2037,7 @@ export const DevCard = () => {
                     <div className="space-y-4 pt-3 border-t border-slate-100 dark:border-slate-800/80">
                       <div className="flex items-center justify-between">
                         <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                          <Move size={14} className="text-indigo-500" />
+                          <Pencil size={14} className="text-indigo-500" />
                           Visual Layout Editor
                         </label>
                         <button

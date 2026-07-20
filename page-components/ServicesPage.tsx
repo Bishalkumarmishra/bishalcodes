@@ -22,6 +22,7 @@ import FontDownloader from '../components/FontDownloader';
 import AiOcrConverter from '../components/AiOcrConverter';
 import BgRemover from '../components/BgRemover';
 import DocScanner from '../components/DocScanner';
+import TypingPractice from '../components/TypingPractice';
 import Footer from '../sections/Footer';
 import { useNavigation } from '../context/NavigationContext';
 import { ArrowRight, Loader2, Star, Pin } from 'lucide-react';
@@ -136,6 +137,11 @@ const toolSeoData: Record<string, { title: string; desc: string; keywords: strin
     title: 'Scan-to-PDF Document CamScanner',
     desc: 'Scan paper documents using your phone camera, apply magic color enhancement filters, and compile pages into a clean, searchable PDF directly in your browser.',
     keywords: ['scan to pdf', 'camscanner online', 'document scanner', 'phone camera scan to computer', 'mobile document capture', 'free online scanner']
+  },
+  'typing-practice': {
+    title: 'Online Typing Speed Test & Keyboard Practice Studio',
+    desc: 'Test and improve your typing speed (WPM) and accuracy. Practice with custom texts, common English vocabularies, or multi-language code snippets.',
+    keywords: ['typing speed test', 'online typing practice', 'wpm calculator', 'keyboard accuracy training', 'code typing practice', 'typing speed tutor']
   }
 };
 
@@ -150,6 +156,14 @@ interface StaticTool {
 }
 
 const STATIC_TOOLS: StaticTool[] = [
+  {
+    id: 'typing-practice',
+    name: 'Typing Studio',
+    emoji: '⌨️',
+    description: 'Test and improve your typing speed (WPM) and keyboard accuracy with custom English words, code snippets, or custom text practice.',
+    badge: 'NEW',
+    accentColor: 'purple',
+  },
   {
     id: 'dev-card-studio',
     name: 'Developer Card Studio',
@@ -587,6 +601,7 @@ const ServicesPage: React.FC = () => {
       case 'ocr-converter': return <AiOcrConverter />;
       case 'bg-remover': return <BgRemover />;
       case 'scan-pdf': return <DocScanner />;
+      case 'typing-practice': return <TypingPractice />;
       default: return renderDashboard();
     }
   };

@@ -22,12 +22,12 @@ async function run() {
     title: 'Full-Stack Web Architect',
     experience: '3+ Years',
     bio: newBio,
-    phone: '+977 9828701575',
+    phone: '+977 9827801575',
     email: 'developer@bishalcodes.com',
     imageUrl: 'https://ik.imagekit.io/bishalc/bishal.png',
     images: ['https://ik.imagekit.io/bishalc/bishal.png'],
     projectsCompleted: '300+',
-    whatsappUrl: 'https://wa.me/9779828701575'
+    whatsappUrl: 'https://wa.me/9779827801575'
   }, { merge: true });
   console.log("Updated about settings successfully!");
   process.exit(0);

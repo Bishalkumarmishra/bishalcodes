@@ -980,6 +980,44 @@ const GUIDES_DATABASE: Record<string, GuideData> = {
         a: "Most fonts in our archive are licensed under open-source agreements (like the SIL Open Font License). However, you should check specific license terms for your commercial projects."
       }
     ]
+  },
+  'typing-practice': {
+    title: "Complete Guide: Mastering Keyboard Speed & Accuracy",
+    subtitle: "Understand the mechanics of typing tests, standard calculations, and visual muscle memory techniques to skyrocket your WPM.",
+    sections: [
+      {
+        title: "How Typing Speed (WPM) is Standardized",
+        icon: "📊",
+        content: [
+          "In formal typing tests, a 'word' is standardized as exactly 5 keystrokes (including spaces, punctuation, and capitalizations). This ensures that typing longer words (like 'application') doesn't artificially lower your score compared to shorter words.",
+          "WPM (Words Per Minute) is calculated using the formula: (Correct Characters Typed / 5) / (Time Elapsed in Minutes).",
+          "Raw WPM tracks your speed regardless of mistakes: (Total Keystrokes / 5) / (Time Elapsed in Minutes). This helps gauge your finger movement capacity compared to final correct accuracy."
+        ]
+      },
+      {
+        title: "How to Build Accurate Muscle Memory",
+        icon: "🧠",
+        content: [
+          "Focus on accuracy first. Speed is a natural byproduct of correct finger placement. Aim for a consistent accuracy of 95% or higher before aiming to type faster.",
+          "Our integrated Visual Keyboard Visualizer maps your key presses in real-time, showing key placements on screen. This guides your eyes to stay on the text rather than looking down at your physical keyboard.",
+          "If you make errors, take note of which keys are highlighted in the Errors Breakdown card, and consciously slow down when those specific letters approach in subsequent test paragraphs."
+        ]
+      }
+    ],
+    faqs: [
+      {
+        q: "What is a good typing speed?",
+        a: "An average typing speed is around 40 WPM. Professional typists usually range between 60 to 80 WPM, while competitive typists exceed 100+ WPM with 97%+ accuracy."
+      },
+      {
+        q: "What is the standard formula for typing accuracy?",
+        a: "Accuracy is calculated as: (Number of Correct Keystrokes / Total Number of Keystrokes) * 100. Higher accuracy reduces corrective backspaces, boosting WPM."
+      },
+      {
+        q: "Does this page log my custom texts or pasted data?",
+        a: "No. All text parsing, input calculations, and visual keyboard loops are executed client-side in browser memory. No data is stored, cached, or sent online."
+      }
+    ]
   }
 };
 

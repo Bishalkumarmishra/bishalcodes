@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, LogOut, Home, FileText, Settings, User, Briefcase, Mail, Facebook, Instagram, Linkedin, Github, BookOpen, Sun, Moon, Calendar, Terminal } from 'lucide-react';
+import { Menu, X, LogOut, Home, FileText, Settings, User, Briefcase, Mail, Facebook, Instagram, Linkedin, Github, BookOpen, Sun, Moon, Calendar, Terminal, Edit2 } from 'lucide-react';
 import { auth } from '../services/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigation } from '../context/NavigationContext';
@@ -10,6 +10,9 @@ const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [user] = useAuthState(auth);
   const { navigate, currentPage } = useNavigation();
+
+  // Live visual editor state in navbar
+  const [liveEditActive, setLiveEditActive] = useState(false);
 
   // Add light/dark theme toggle logic
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
@@ -54,6 +57,24 @@ const Navbar: React.FC = () => {
     }
 
     updateMetaThemeColors(nextTheme);
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setLiveEditActive(localStorage.getItem('liveEditMode') === 'true');
+    }
+    const handleToggle = () => {
+      setLiveEditActive(localStorage.getItem('liveEditMode') === 'true');
+    };
+    window.addEventListener('liveEditToggle', handleToggle);
+    return () => window.removeEventListener('liveEditToggle', handleToggle);
+  }, []);
+
+  const toggleLiveEdit = () => {
+    const newVal = !liveEditActive;
+    setLiveEditActive(newVal);
+    localStorage.setItem('liveEditMode', newVal ? 'true' : 'false');
+    window.dispatchEvent(new Event('liveEditToggle'));
   };
 
   useEffect(() => {
@@ -193,6 +214,21 @@ const Navbar: React.FC = () => {
 
           {/* Header Actions */}
           <div className="flex items-center gap-1.5 relative z-[210]">
+            {/* Live Visual Edit toggle in navbar */}
+            {(isAdmin || (typeof window !== 'undefined' && window.location.hostname === 'localhost')) && (
+              <button
+                onClick={toggleLiveEdit}
+                title={liveEditActive ? 'Exit Live Edit' : 'Live Visual Edit'}
+                className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all active:scale-95 cursor-pointer ${
+                  liveEditActive 
+                    ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-sm' 
+                    : 'bg-slate-900 border-slate-700 text-white dark:bg-white dark:border-slate-350 dark:text-black'
+                }`}
+              >
+                <Edit2 size={13} className={liveEditActive ? 'animate-pulse' : ''} />
+              </button>
+            )}
+
             {/* Theme Toggle Pill */}
             <button 
               onClick={toggleTheme}
@@ -220,7 +256,7 @@ const Navbar: React.FC = () => {
 
             {/* WhatsApp Link */}
             <a 
-              href="https://wa.me/9779828701575" 
+              href="https://wa.me/9779827801575" 
               target="_blank" 
               rel="noopener noreferrer"
               className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 hover:scale-105 active:scale-95 transition-all"

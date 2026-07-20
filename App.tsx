@@ -30,6 +30,7 @@ import { NavigationContext } from './context/NavigationContext'; // Correctly im
 import { logDailyVisit, logToolClick } from './services/analytics';
 import LiveEditWidget from './components/LiveEditWidget';
 import FloatingEditorToolbar from './components/FloatingEditorToolbar';
+import AIAssistant from './components/AIAssistant';
 
 interface AppProps {
   initialSlug?: string[];
@@ -129,6 +130,22 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
   }, [currentPage]);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkMode = () => {
+      const mode = localStorage.getItem('liveEditMode') === 'true';
+      if (mode) {
+        document.documentElement.classList.add('live-edit-mode');
+      } else {
+        document.documentElement.classList.remove('live-edit-mode');
+      }
+    };
+    checkMode();
+    window.addEventListener('liveEditToggle', checkMode);
+    return () => window.removeEventListener('liveEditToggle', checkMode);
+  }, []);
+
+
+  useEffect(() => {
     if (typeof document !== 'undefined') {
       const isFileTransfer = currentPage === 'transfer' || (currentPage === 'services' && selectedId === 'file-transfer');
       const isCalendarTool = currentPage === 'widget-calendar' || currentPage === 'widget-date-converter' || (currentPage === 'services' && selectedId === 'date-converter');
@@ -222,6 +239,7 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
         {renderContent()}
         <LiveEditWidget />
         <FloatingEditorToolbar />
+        <AIAssistant />
       </div>
     </NavigationContext.Provider>
   );

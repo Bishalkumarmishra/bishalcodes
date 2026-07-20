@@ -22,8 +22,9 @@ import { uploadToCloudinary } from '../services/cloudinary';
 import { useApiKey } from '../hooks/useApiKey';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import AdminLiveChat from '../components/AdminLiveChat';
 
-type AdminTab = 'dashboard' | 'hero' | 'about' | 'projects' | 'blog' | 'pricing' | 'faq' | 'leads' | 'system' | 'legal' | 'socials' | 'reports' | 'payments' | 'testimonials' | 'experience' | 'services' | 'seo' | 'users' | 'desktop';
+type AdminTab = 'dashboard' | 'hero' | 'about' | 'projects' | 'blog' | 'pricing' | 'faq' | 'leads' | 'system' | 'legal' | 'socials' | 'reports' | 'payments' | 'testimonials' | 'experience' | 'services' | 'seo' | 'users' | 'desktop' | 'live-chat';
 
 // FIX: Define an interface for sidebar tab items to ensure correct type inference.
 interface SidebarTab {
@@ -458,12 +459,12 @@ const Admin: React.FC = () => {
     title: 'Full-Stack Web Architect', 
     experience: '3+ Years', 
     bio: "Hi! I'm Bishal, a full-stack developer based in Nepal. I've spent the past 3+ years designing and building web solutions that bridge the gap between clean, scalable backends and fast, intuitive user interfaces. I love taking complex business ideas and turning them into solid, maintainable code.\n\nTo me, engineering isn't just about using the latest framework; it's about solving real-world problems, optimizing for the user experience, and ensuring that everything is secure, fast, and easy to maintain. I work primarily with Next.js, React, Node.js, and cloud ecosystems, building everything from custom APIs to full e-commerce architectures.", 
-    phone: '+977 9828701575', 
+    phone: '+977 9827801575', 
     email: 'developer@bishalcodes.com',
     imageUrl: 'https://ik.imagekit.io/bishalc/bishal.png',
     images: [] as string[],
     projectsCompleted: '300+',
-    whatsappUrl: 'https://wa.me/9779828701575'
+    whatsappUrl: 'https://wa.me/9779827801575'
   });
   const [socials, setSocials] = useState<SocialLink[]>([]); // State for social links
 
@@ -689,6 +690,12 @@ const Admin: React.FC = () => {
           setDoc(doc(db, 'settings', 'about'), aData, { merge: true })
             .then(() => console.log("Upgraded robotic about bio to human-made copy in Firestore!"))
             .catch(err => console.error("Firestore auto-upgrade error:", err));
+        }
+        if (aData.phone && aData.phone.replace(/\s+/g, '') === '+9779828701575') {
+          aData.phone = '+977 9827801575';
+        }
+        if (aData.whatsappUrl && aData.whatsappUrl.includes('9828701575')) {
+          aData.whatsappUrl = 'https://wa.me/9779827801575';
         }
         setAboutData(prev => ({...prev, ...aData}));
       }
@@ -2153,6 +2160,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
           {(
             [
               { id: 'dashboard', label: 'Dashboard', icon: <Activity size={15} /> },
+              { id: 'live-chat', label: 'Live Chat Support', icon: <MessageSquare size={15} /> },
               { id: 'projects', label: 'Projects', icon: <Layout size={15} /> },
               { id: 'services', label: 'Services', icon: <Cpu size={15} /> },
               { id: 'blog', label: 'Blog', icon: <FileText size={15} /> },
@@ -2226,6 +2234,10 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                  ))}
               </div>
             ) : null}
+
+            {activeTab === 'live-chat' && (
+              <AdminLiveChat />
+            )}
 
             {activeTab === 'dashboard' && (
               <div className="space-y-6">

@@ -70,9 +70,9 @@ const Pricing: React.FC = () => {
       <div className="w-full px-[5vw] mx-auto relative z-10 flex flex-col items-center">
         <div className="text-center mb-12 max-w-2xl">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <p className="text-slate-900 dark:text-white font-semibold text-xs uppercase tracking-wider">
+            <div className="text-slate-900 dark:text-white font-semibold text-xs uppercase tracking-wider">
               <EditableText collection="settings" document="pricing" field="tag" fallback="Services" />
-            </p>
+            </div>
           </div>
           <h2 className="text-slate-900 text-3xl sm:text-4xl font-bold tracking-tight">
             <EditableText collection="settings" document="pricing" field="title" fallback="Consultation Plans" />
@@ -106,9 +106,9 @@ const Pricing: React.FC = () => {
                     </span>
                     <span className="text-slate-500 font-medium text-xs lowercase select-none">Rs.</span>
                   </div>
-                  <p className="text-slate-500 text-xs sm:text-sm font-normal leading-relaxed">
+                  <div className="text-slate-500 text-xs sm:text-sm font-normal leading-relaxed">
                     <EditableText collection="settings" document="pricing" field={`plan_desc_${index}`} fallback={plan.description} isTextArea />
-                  </p>
+                  </div>
                 </div>
 
                 <ul className="space-y-4 mb-8 flex-grow select-none">

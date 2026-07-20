@@ -177,6 +177,16 @@ export default async function CatchAllPage(props: PageProps) {
             q: "Where can I download Nepali fonts like Preeti or Kantipur?",
             a: "You can browse, preview, and download over 1100+ standard Nepali and English fonts in TTF format for free from our font downloader tool."
           }
+        ],
+        'typing-practice': [
+          {
+            q: "How is the typing speed (WPM) calculated?",
+            a: "Words Per Minute (WPM) is computed using the standard formula: (total correct characters typed / 5) / (time elapsed in minutes). This ensures standardized speed tracking across varying word lengths."
+          },
+          {
+            q: "Does this online typing tutor save or log my keystrokes?",
+            a: "No. The typing practice application executes 100% locally in your web browser. None of your inputs, text pastes, or keystrokes are transmitted or logged server-side."
+          }
         ]
       };
 
@@ -990,6 +1000,33 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
             creator: "@bishalmishra",
             title: "Scan to PDF Online | Free Mobile CamScanner App | Bishal Codes",
             description: "Scan paper documents using your smartphone camera and stream them to your computer screen in real-time.",
+            images: ["https://bishalcodes.com/seo-images/tools.png"]
+          }
+        };
+      }
+
+      if (subpage === 'typing-practice') {
+        return {
+          title: "Online Typing Speed Test & Keyboard Practice | Bishal Codes",
+          description: "Test and build your typing speed (WPM) and accuracy. Practice using standard English vocabularies, programming code snippets, or your own custom paragraphs. Complete offline privacy.",
+          keywords: "typing speed test, online typing tutor, learn typing fast, keyboard WPM tracker, code typing practice, free typing tutor, Bishal Codes",
+          alternates: {
+            canonical: "https://bishalcodes.com/tools/typing-practice",
+          },
+          openGraph: {
+            title: "Online Typing Speed Test & Keyboard Practice | Bishal Codes",
+            description: "Improve your WPM and keyboard accuracy with dynamic text challenges and local muscle-memory visualizations.",
+            url: "https://bishalcodes.com/tools/typing-practice",
+            siteName: "Bishal Codes",
+            type: "website",
+            images: [{ url: "https://bishalcodes.com/seo-images/tools.png", width: 1200, height: 630, alt: "Online Typing Studio" }],
+          },
+          twitter: {
+            card: "summary_large_image",
+            site: "@bishalmishra",
+            creator: "@bishalmishra",
+            title: "Online Typing Speed Test & Keyboard Practice | Bishal Codes",
+            description: "Improve your WPM and keyboard accuracy with dynamic text challenges.",
             images: ["https://bishalcodes.com/seo-images/tools.png"]
           }
         };
