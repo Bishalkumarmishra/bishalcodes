@@ -3,7 +3,7 @@ import { Search, Send, User, Mail, Phone, PhoneCall, MessageSquare, ExternalLink
 import WebVoiceCallModal, { WebCallState } from './WebVoiceCallModal';
 import { webRtcService } from '../services/webRtcCall';
 import { db } from '../services/firebase';
-import { collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, query } from 'firebase/firestore';
+import { collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, query, where } from 'firebase/firestore';
 
 export interface UserLeadInfo {
   name: string;
@@ -54,12 +54,29 @@ const AdminLiveChat: React.FC = () => {
   const [callDuration, setCallDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const durationTimerRef = useRef<any>(null);
+  const lastSignalTimestampRef = useRef<number>(0);
 
   // Listen for WebRTC Voice Signals from local channels & global Firestore
   useEffect(() => {
     const handleSignal = (signal: any) => {
       if (!signal) return;
+      // Ignore stale signals already processed (timestamp dedup)
+      const sigTs = signal.timestamp || 0;
+      if (sigTs > 0 && sigTs <= lastSignalTimestampRef.current) return;
+      if (sigTs > 0) lastSignalTimestampRef.current = sigTs;
+
       if (signal.type === 'CALL_INIT' && signal.callerRole === 'user') {
+        // If admin is already on a call, send busy signal back
+        if (callState && (callState.status === 'connected' || callState.status === 'calling' || callState.status === 'ringing')) {
+          webRtcService.sendSignal({
+            type: 'CALL_END',
+            sessionId: signal.sessionId,
+            callerName: 'Bishal Mishra (Admin)',
+            callerRole: 'admin',
+            data: { reason: 'busy' }
+          });
+          return;
+        }
         setCallState({
           status: 'ringing',
           callerName: signal.callerName || 'Customer',
@@ -68,17 +85,22 @@ const AdminLiveChat: React.FC = () => {
           sessionId: signal.sessionId
         });
         webRtcService.startRingtone();
-      } else if (signal.type === 'CALL_ACCEPT' && signal.sessionId === callState?.sessionId) {
+      } else if (signal.type === 'CALL_ACCEPT' && signal.callerRole === 'user' && signal.sessionId === callState?.sessionId) {
         webRtcService.stopRingtone();
         webRtcService.playCallConnectedChime();
         setCallState(prev => prev ? { ...prev, status: 'connected' } : null);
         startDurationTimer();
-      } else if (signal.type === 'CALL_END') {
-        endActiveCall();
+      } else if (signal.type === 'CALL_END' && signal.callerRole === 'user') {
+        // User ended call — close on admin side immediately
+        webRtcService.stopRingtone();
+        webRtcService.playCallEndedChime();
+        if (durationTimerRef.current) clearInterval(durationTimerRef.current);
+        setCallState(null);
+        setCallDuration(0);
       }
     };
 
-    // 1. Listen to active session's WebRTC signals in Firestore
+    // 1. Listen to ALL session WebRTC signals in Firestore (global listener)
     let unsubFirestore: () => void = () => {};
     if (activeSessionId) {
       try {
@@ -109,7 +131,7 @@ const AdminLiveChat: React.FC = () => {
       if (bc) bc.close();
       unsubFirestore();
     };
-  }, [callState, activeSessionId]);
+  }, [callState?.status, activeSessionId]);
 
   const startDurationTimer = () => {
     if (durationTimerRef.current) clearInterval(durationTimerRef.current);
@@ -121,6 +143,11 @@ const AdminLiveChat: React.FC = () => {
 
   const initiateAdminCall = async () => {
     if (!activeSession) return;
+    // Guard: already on a call
+    if (callState && callState.status !== 'ended') {
+      alert('⚠️ You are already on a call. End the current call first.');
+      return;
+    }
     await webRtcService.getMicrophoneStream();
     setCallState({
       status: 'calling',
@@ -155,13 +182,14 @@ const AdminLiveChat: React.FC = () => {
   };
 
   const endActiveCall = () => {
+    const sessionId = callState?.sessionId;
     webRtcService.cleanup();
     webRtcService.playCallEndedChime();
     if (durationTimerRef.current) clearInterval(durationTimerRef.current);
-    if (callState) {
+    if (sessionId) {
       webRtcService.sendSignal({
         type: 'CALL_END',
-        sessionId: callState.sessionId,
+        sessionId,
         callerName: 'Bishal Mishra (Admin)',
         callerRole: 'admin'
       });
@@ -175,14 +203,34 @@ const AdminLiveChat: React.FC = () => {
     try {
       const q = query(collection(db, 'support_sessions'));
       const unsubscribe = onSnapshot(q, (snapshot) => {
-        const liveSessions: SupportSession[] = [];
+        const sessionMap = new Map<string, SupportSession>();
+        
         snapshot.forEach((docSnap) => {
           const data = docSnap.data() as SupportSession;
-          if (data && data.lead) {
-            liveSessions.push(data);
+          if (data && data.lead && data.lead.email) {
+            const normEmail = data.lead.email.trim().toLowerCase();
+            const canonicalId = getCanonicalSessionId(normEmail);
+            
+            if (!sessionMap.has(normEmail)) {
+              sessionMap.set(normEmail, {
+                ...data,
+                lead: { ...data.lead, sessionId: canonicalId, email: normEmail }
+              });
+            } else {
+              const existing = sessionMap.get(normEmail)!;
+              const combinedMsgs = [...(existing.messages || []), ...(data.messages || [])];
+              const uniqueMsgs = Array.from(new Map(combinedMsgs.map(m => [m.id || (m.timestamp + m.text), m])).values());
+              uniqueMsgs.sort((a, b) => new Date(a.timestamp || 0).getTime() - new Date(b.timestamp || 0).getTime());
+              sessionMap.set(normEmail, {
+                ...existing,
+                messages: uniqueMsgs,
+                lastUpdated: new Date(Math.max(new Date(existing.lastUpdated || 0).getTime(), new Date(data.lastUpdated || 0).getTime())).toISOString()
+              });
+            }
           }
         });
 
+        const liveSessions = Array.from(sessionMap.values());
         // Sort by last updated timestamp descending
         liveSessions.sort((a, b) => new Date(b.lastUpdated || 0).getTime() - new Date(a.lastUpdated || 0).getTime());
 
@@ -383,23 +431,46 @@ const AdminLiveChat: React.FC = () => {
     }
   };
 
-  // Delete session
+  // Delete session permanently across all Firestore collections
   const handleDeleteSession = async (sessionId: string) => {
-    if (!window.confirm("Are you sure you want to delete this customer chat lead?")) return;
+    if (!window.confirm("Are you sure you want to permanently delete this customer chat lead?")) return;
 
-    // 1. Delete from Firestore
+    const targetSession = sessions.find(s => s.lead.sessionId === sessionId);
+    const emailToDelete = targetSession?.lead.email?.trim().toLowerCase();
+
+    // 1. Delete from support_sessions collection
     try {
       await deleteDoc(doc(db, 'support_sessions', sessionId));
     } catch (e) {
-      console.error("Failed to delete session from Firestore:", e);
+      console.error("Failed to delete session from Firestore support_sessions:", e);
     }
 
-    // 2. Delete from local state & storage
-    const filtered = sessions.filter(s => s.lead.sessionId !== sessionId);
+    // 2. Also delete matching records from submissions collection
+    if (emailToDelete) {
+      try {
+        const subSnap = await getDocs(query(collection(db, 'submissions'), where('email', '==', emailToDelete)));
+        subSnap.forEach(async (d) => {
+          try { await deleteDoc(doc(db, 'submissions', d.id)); } catch (err) {}
+        });
+      } catch (e) {
+        console.warn("Could not delete matching submissions:", e);
+      }
+    }
+
+    // 3. Clean up WebRTC signaling documents
+    try { await deleteDoc(doc(db, 'webrtc_signals', sessionId)); } catch (e) {}
+    try { await deleteDoc(doc(db, 'webrtc_sdp', `webrtc_sdp_${sessionId}`)); } catch (e) {}
+
+    // 4. Delete from local state & localStorage
+    const filtered = sessions.filter(s => s.lead.sessionId !== sessionId && s.lead.email?.trim().toLowerCase() !== emailToDelete);
     setSessions(filtered);
-    localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(filtered));
+    try {
+      localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(filtered));
+    } catch (e) {}
+
     if (activeSessionId === sessionId) {
       setActiveSessionId(filtered.length > 0 ? filtered[0].lead.sessionId : null);
+      setMobileChatOpen(false);
     }
   };
 
@@ -709,6 +780,7 @@ const AdminLiveChat: React.FC = () => {
         onToggleMute={() => setIsMuted(prev => !prev)}
         isMuted={isMuted}
         callDuration={callDuration}
+        myRole="admin"
       />
 
     </div>

@@ -685,10 +685,18 @@ const getCanonicalSessionId = (email?: string, fallbackId?: string) => {
 };
 
   // Listen for WebRTC Voice Signals for User Widget across all devices
+  const lastSignalTsRef = useRef<number>(0);
   useEffect(() => {
     const handleSignal = (signal: any) => {
       if (!signal) return;
-      if (signal.type === 'CALL_INIT' && signal.callerRole === 'admin' && leadUser && (signal.sessionId === leadUser.sessionId || signal.email === leadUser.email)) {
+      // Timestamp dedup to prevent stale Firestore signals re-firing
+      const sigTs = signal.timestamp || 0;
+      if (sigTs > 0 && sigTs <= lastSignalTsRef.current) return;
+      if (sigTs > 0) lastSignalTsRef.current = sigTs;
+
+      if (signal.type === 'CALL_INIT' && signal.callerRole === 'admin' && leadUser && (signal.sessionId === leadUser.sessionId)) {
+        // Already on a call — ignore new ring
+        if (callState && callState.status !== 'ended') return;
         setCallState({
           status: 'ringing',
           callerName: 'Bishal Mishra (Admin)',
@@ -698,7 +706,7 @@ const getCanonicalSessionId = (email?: string, fallbackId?: string) => {
         });
         setIsOpen(true);
         webRtcService.startRingtone();
-      } else if (signal.type === 'CALL_ACCEPT' && signal.sessionId === callState?.sessionId) {
+      } else if (signal.type === 'CALL_ACCEPT' && signal.callerRole === 'admin' && signal.sessionId === callState?.sessionId) {
         webRtcService.stopRingtone();
         webRtcService.playCallConnectedChime();
         setCallState(prev => prev ? { ...prev, status: 'connected' } : null);
@@ -707,11 +715,17 @@ const getCanonicalSessionId = (email?: string, fallbackId?: string) => {
         durationTimerRef.current = setInterval(() => {
           setCallDuration(prev => prev + 1);
         }, 1000);
-      } else if (signal.type === 'CALL_END') {
+      } else if (signal.type === 'CALL_END' && signal.callerRole === 'admin') {
+        // Admin ended or is busy
+        const isBusy = signal.data?.reason === 'busy';
+        webRtcService.stopRingtone();
         webRtcService.cleanup();
         if (durationTimerRef.current) clearInterval(durationTimerRef.current);
         setCallState(null);
         setCallDuration(0);
+        if (isBusy) {
+          alert('🚫 Bishal is currently on another call. Please try again later or send a message!');
+        }
       }
     };
 
@@ -746,11 +760,16 @@ const getCanonicalSessionId = (email?: string, fallbackId?: string) => {
       if (bc) bc.close();
       unsubFirestore();
     };
-  }, [callState, leadUser]);
+  }, [callState?.status, leadUser]);
 
   const initiateUserCall = async () => {
     if (!leadUser) {
-      alert("Please fill out the chat registration details first to make a call.");
+      alert('Please fill out the chat registration details first to make a call.');
+      return;
+    }
+    // Guard: already on a call
+    if (callState && callState.status !== 'ended') {
+      alert('⚠️ You are already on a call.');
       return;
     }
     await webRtcService.getMicrophoneStream();
@@ -1744,6 +1763,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
         onToggleMute={() => setIsMuted(prev => !prev)}
         isMuted={isMuted}
         callDuration={callDuration}
+        myRole="user"
       />
     </>
   );
