@@ -1,4 +1,5 @@
-// WebRTC In-App Browser Voice Call Service
+import { db } from './firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 const BROADCAST_CALL_CHANNEL = 'bishal_webrtc_call_channel';
 
@@ -141,13 +142,25 @@ class WebRtcVoiceService {
     }
   }
 
-  // Broadcast Call Signal
-  sendSignal(signal: CallSignalPayload) {
+  // Broadcast Call Signal to Local Tabs & Global Firestore
+  async sendSignal(signal: CallSignalPayload) {
     if (this.broadcastChannel) {
       this.broadcastChannel.postMessage(signal);
     }
-    // Storage fallback for cross-tab sync
+    // Storage fallback for local tab sync
     localStorage.setItem('bishal_webrtc_signal', JSON.stringify({ ...signal, timestamp: Date.now() }));
+
+    // Global Firestore WebRTC Signal Sync across all internet devices
+    try {
+      if (signal.sessionId) {
+        await setDoc(doc(db, 'webrtc_signals', signal.sessionId), {
+          ...signal,
+          timestamp: Date.now()
+        }, { merge: true });
+      }
+    } catch (e) {
+      console.warn("Firestore WebRTC signal sync warning:", e);
+    }
   }
 
   // Cleanup active streams

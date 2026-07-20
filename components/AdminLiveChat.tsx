@@ -34,6 +34,13 @@ export interface SupportSession {
 const STORAGE_KEY_SESSIONS = 'bishal_live_support_sessions';
 const BROADCAST_CHANNEL_NAME = 'bishal_live_chat_channel';
 
+export const getCanonicalSessionId = (email?: string, fallbackId?: string) => {
+  if (email && email.includes('@')) {
+    return 'session_' + email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+  }
+  return fallbackId || 'session_default';
+};
+
 const AdminLiveChat: React.FC = () => {
   const [sessions, setSessions] = useState<SupportSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -47,7 +54,7 @@ const AdminLiveChat: React.FC = () => {
   const [isMuted, setIsMuted] = useState(false);
   const durationTimerRef = useRef<any>(null);
 
-  // Listen for WebRTC Voice Signals
+  // Listen for WebRTC Voice Signals from local channels & global Firestore
   useEffect(() => {
     const handleSignal = (signal: any) => {
       if (!signal) return;
@@ -62,6 +69,7 @@ const AdminLiveChat: React.FC = () => {
         webRtcService.startRingtone();
       } else if (signal.type === 'CALL_ACCEPT' && signal.sessionId === callState?.sessionId) {
         webRtcService.stopRingtone();
+        webRtcService.playCallConnectedChime();
         setCallState(prev => prev ? { ...prev, status: 'connected' } : null);
         startDurationTimer();
       } else if (signal.type === 'CALL_END') {
@@ -69,6 +77,19 @@ const AdminLiveChat: React.FC = () => {
       }
     };
 
+    // 1. Listen to active session's WebRTC signals in Firestore
+    let unsubFirestore: () => void = () => {};
+    if (activeSessionId) {
+      try {
+        unsubFirestore = onSnapshot(doc(db, 'webrtc_signals', activeSessionId), (snap) => {
+          if (snap.exists()) {
+            handleSignal(snap.data());
+          }
+        });
+      } catch (e) {}
+    }
+
+    // 2. BroadcastChannel & Storage fallback
     let bc: BroadcastChannel | null = null;
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
       bc = new BroadcastChannel('bishal_webrtc_call_channel');
@@ -85,8 +106,9 @@ const AdminLiveChat: React.FC = () => {
     return () => {
       window.removeEventListener('storage', handleStorage);
       if (bc) bc.close();
+      unsubFirestore();
     };
-  }, [callState]);
+  }, [callState, activeSessionId]);
 
   const startDurationTimer = () => {
     if (durationTimerRef.current) clearInterval(durationTimerRef.current);
@@ -205,7 +227,7 @@ const AdminLiveChat: React.FC = () => {
         const d = docSnap.data();
         if (d && d.email && !emailsSeen.has(d.email)) {
           emailsSeen.add(d.email);
-          const sId = 'sub_' + docSnap.id;
+          const sId = getCanonicalSessionId(d.email, docSnap.id);
           combinedSessions.push({
             lead: {
               name: d.name || 'Anonymous Lead',

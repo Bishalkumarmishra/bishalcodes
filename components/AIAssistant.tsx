@@ -677,7 +677,14 @@ const AIAssistant: React.FC = () => {
   const [isMuted, setIsMuted] = useState(false);
   const durationTimerRef = useRef<any>(null);
 
-  // Listen for WebRTC Voice Signals for User Widget
+const getCanonicalSessionId = (email?: string, fallbackId?: string) => {
+  if (email && email.includes('@')) {
+    return 'session_' + email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+  }
+  return fallbackId || 'session_default';
+};
+
+  // Listen for WebRTC Voice Signals for User Widget across all devices
   useEffect(() => {
     const handleSignal = (signal: any) => {
       if (!signal) return;
@@ -689,9 +696,11 @@ const AIAssistant: React.FC = () => {
           calleeName: leadUser.name,
           sessionId: leadUser.sessionId
         });
+        setIsOpen(true);
         webRtcService.startRingtone();
       } else if (signal.type === 'CALL_ACCEPT' && signal.sessionId === callState?.sessionId) {
         webRtcService.stopRingtone();
+        webRtcService.playCallConnectedChime();
         setCallState(prev => prev ? { ...prev, status: 'connected' } : null);
         if (durationTimerRef.current) clearInterval(durationTimerRef.current);
         setCallDuration(0);
@@ -706,6 +715,19 @@ const AIAssistant: React.FC = () => {
       }
     };
 
+    // 1. Listen to user session's WebRTC signals in Firestore across all devices
+    let unsubFirestore: () => void = () => {};
+    if (leadUser?.sessionId) {
+      try {
+        unsubFirestore = onSnapshot(doc(db, 'webrtc_signals', leadUser.sessionId), (snap) => {
+          if (snap.exists()) {
+            handleSignal(snap.data());
+          }
+        });
+      } catch (e) {}
+    }
+
+    // 2. BroadcastChannel & Storage fallback
     let bc: BroadcastChannel | null = null;
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
       bc = new BroadcastChannel('bishal_webrtc_call_channel');
@@ -722,6 +744,7 @@ const AIAssistant: React.FC = () => {
     return () => {
       window.removeEventListener('storage', handleStorage);
       if (bc) bc.close();
+      unsubFirestore();
     };
   }, [callState, leadUser]);
 
@@ -815,13 +838,13 @@ const AIAssistant: React.FC = () => {
   // Submit Lead Form for First-Time Users
   const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!leadName.trim() || !leadEmail.trim() || !leadPhone.trim()) return;
+    const canonicalId = getCanonicalSessionId(leadEmail.trim());
 
     const newLead: UserLeadProfile = {
       name: leadName.trim(),
       email: leadEmail.trim(),
       phone: leadPhone.trim(),
-      sessionId: 'session_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+      sessionId: canonicalId,
       createdAt: new Date().toISOString()
     };
 
