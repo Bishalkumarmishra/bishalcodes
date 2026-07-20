@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import { X, Send, PhoneCall, Phone, ExternalLink, Sparkles, Loader2, Copy, Check, MessageCircle, HelpCircle, Wrench, DollarSign, BookOpen, Key, ArrowRight, User, Paperclip, Image as ImageIcon, FileText } from 'lucide-react';
+import { X, Send, PhoneCall, Phone, Shield, ExternalLink, Sparkles, Loader2, Copy, Check, MessageCircle, HelpCircle, Wrench, DollarSign, BookOpen, Key, ArrowRight, User, Paperclip, Image as ImageIcon, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useApiKey } from '../hooks/useApiKey';
@@ -8,7 +8,8 @@ import ApiKeyModal from './ApiKeyModal';
 import { useNavigation } from '../context/NavigationContext';
 import WebVoiceCallModal, { WebCallState } from './WebVoiceCallModal';
 import { webRtcService } from '../services/webRtcCall';
-import { db } from '../services/firebase';
+import { auth, db } from '../services/firebase';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { collection, doc, setDoc, addDoc, onSnapshot } from 'firebase/firestore';
 
 // Customer Service Headset + Speech Bubble Icon (matching Vecteezy Customer Support Chat design)
@@ -638,6 +639,10 @@ const AIAssistant: React.FC = () => {
   const { navigate } = useNavigation();
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
 
+  // Admin Authentication State
+  const [authUser] = useAuthState(auth);
+  const isAdmin = !!authUser;
+
   const [isOpen, setIsOpen] = useState(false);
   const [showGreetingBubble, setShowGreetingBubble] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
@@ -651,6 +656,20 @@ const AIAssistant: React.FC = () => {
   const [leadName, setLeadName] = useState('');
   const [leadEmail, setLeadEmail] = useState('');
   const [leadPhone, setLeadPhone] = useState('');
+
+  // Automatically recognize logged-in Admin and bypass lead onboarding form
+  useEffect(() => {
+    if (isAdmin && !leadUser) {
+      const adminProfile: UserLeadProfile = {
+        name: "Bishal Mishra (Admin)",
+        email: authUser?.email || "bishalmishra9000@gmail.com",
+        phone: "+977 9827801575",
+        sessionId: "admin_session_" + Date.now(),
+        createdAt: new Date().toISOString()
+      };
+      setLeadUser(adminProfile);
+    }
+  }, [isAdmin, authUser, leadUser]);
 
   // In-App Web Voice Call State
   const [callState, setCallState] = useState<WebCallState | null>(null);
@@ -1287,14 +1306,21 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                 <div>
                   <div className="flex items-center gap-1.5">
                     <h3 className="font-bold text-xs tracking-tight text-white">Bishal Mishra</h3>
-                    <span className="bg-emerald-500/20 text-emerald-300 text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider flex items-center gap-1">
-                      <CustomerSupportChatIcon size={10} className="text-emerald-400" />
-                      Support
-                    </span>
+                    {isAdmin ? (
+                      <span className="bg-indigo-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider flex items-center gap-1 shadow-xs">
+                        <Shield size={10} />
+                        Admin Mode
+                      </span>
+                    ) : (
+                      <span className="bg-emerald-500/20 text-emerald-300 text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider flex items-center gap-1">
+                        <CustomerSupportChatIcon size={10} className="text-emerald-400" />
+                        Support
+                      </span>
+                    )}
                   </div>
                   <p className="text-[10px] text-slate-300 font-medium flex items-center gap-1 mt-0.5">
                     <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                    Online • Replies instantly
+                    {isAdmin ? "Admin Console Active" : "Online • Replies instantly"}
                   </p>
                 </div>
               </div>
@@ -1326,29 +1352,44 @@ If you generate code snippets, enclose them in markdown block code syntax so the
               </div>
             </div>
 
-            {/* Quick Contact & Info Sub-Bar */}
-            <div className="bg-slate-100/90 dark:bg-slate-900 px-3 py-1.5 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-[10px] font-medium text-slate-600 dark:text-slate-300">
-              <span className="flex items-center gap-1">
-                <HelpCircle size={11} className="text-indigo-600 dark:text-indigo-400" /> Support Desk
-              </span>
-              <div className="flex items-center gap-2">
-                <a
-                  href={`tel:${SITE_KNOWLEDGE.contact.phone}`}
-                  className="text-indigo-700 dark:text-indigo-400 hover:underline font-semibold flex items-center gap-0.5"
+            {/* Quick Contact & Admin Command Sub-Bar */}
+            {isAdmin ? (
+              <div className="bg-indigo-950 text-indigo-100 px-3 py-1.5 border-b border-indigo-800 flex items-center justify-between text-[10px] font-semibold">
+                <span className="flex items-center gap-1 text-indigo-300">
+                  <Shield size={11} className="text-indigo-400" /> Admin Command Center
+                </span>
+                <button
+                  onClick={() => navigate('admin')}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-0.5 rounded-md text-[9.5px] font-bold flex items-center gap-1 transition-all shadow-xs"
                 >
-                  <Phone size={9} /> Call (+977 9827801575)
-                </a>
-                <span>•</span>
-                <a
-                  href={SITE_KNOWLEDGE.contact.whatsapp}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold flex items-center gap-0.5"
-                >
-                  <MessageCircle size={9} /> WhatsApp
-                </a>
+                  <span>Open Admin Console</span>
+                  <ArrowRight size={10} />
+                </button>
               </div>
-            </div>
+            ) : (
+              <div className="bg-slate-100/90 dark:bg-slate-900 px-3 py-1.5 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-[10px] font-medium text-slate-600 dark:text-slate-300">
+                <span className="flex items-center gap-1">
+                  <HelpCircle size={11} className="text-indigo-600 dark:text-indigo-400" /> Support Desk
+                </span>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={`tel:${SITE_KNOWLEDGE.contact.phone}`}
+                    className="text-indigo-700 dark:text-indigo-400 hover:underline font-semibold flex items-center gap-0.5"
+                  >
+                    <Phone size={9} /> Call (+977 9827801575)
+                  </a>
+                  <span>•</span>
+                  <a
+                    href={SITE_KNOWLEDGE.contact.whatsapp}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-700 dark:text-emerald-400 hover:underline font-semibold flex items-center gap-0.5"
+                  >
+                    <MessageCircle size={9} /> WhatsApp
+                  </a>
+                </div>
+              </div>
+            )}
 
             {!leadUser ? (
               /* First-Time User Lead Capture Form */
@@ -1526,33 +1567,50 @@ If you generate code snippets, enclose them in markdown block code syntax so the
               )}
             </div>
 
-            {/* Quick Prompt Suggestions Bar */}
-            <div className="px-2.5 py-1.5 bg-slate-100/90 dark:bg-slate-950 border-t border-slate-200/70 dark:border-slate-800 overflow-x-auto flex gap-1 scrollbar-hide shrink-0">
-              <button
-                onClick={() => handleSend("What are your pricing plans?")}
-                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
-              >
-                <DollarSign size={9} /> Pricing
-              </button>
-              <button
-                onClick={() => handleSend("What free tools are available and how to use them?")}
-                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
-              >
-                <Wrench size={9} /> Tools Guide
-              </button>
-              <button
-                onClick={() => handleSend("What web development services do you offer?")}
-                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
-              >
-                <User size={9} /> Services
-              </button>
-              <button
-                onClick={() => handleSend("Tell me about Developer Portal and APIs")}
-                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
-              >
-                <Key size={9} /> APIs & Docs
-              </button>
-            </div>
+            {/* Quick Prompt / Admin Command Suggestions Bar */}
+            {isAdmin ? (
+              <div className="px-2.5 py-1.5 bg-indigo-950/90 border-t border-indigo-900 overflow-x-auto flex gap-1.5 scrollbar-hide shrink-0">
+                <button
+                  onClick={() => navigate('admin')}
+                  className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[9.5px] font-bold shrink-0 transition-all flex items-center gap-1 shadow-xs"
+                >
+                  <Shield size={10} /> Live Support Console
+                </button>
+                <button
+                  onClick={initiateUserCall}
+                  className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[9.5px] font-bold shrink-0 transition-all flex items-center gap-1 shadow-xs"
+                >
+                  <PhoneCall size={10} /> Web Call Test
+                </button>
+              </div>
+            ) : (
+              <div className="px-2.5 py-1.5 bg-slate-100/90 dark:bg-slate-950 border-t border-slate-200/70 dark:border-slate-800 overflow-x-auto flex gap-1 scrollbar-hide shrink-0">
+                <button
+                  onClick={() => handleSend("What are your pricing plans?")}
+                  className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
+                >
+                  <DollarSign size={9} /> Pricing
+                </button>
+                <button
+                  onClick={() => handleSend("What free tools are available and how to use them?")}
+                  className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
+                >
+                  <Wrench size={9} /> Tools Guide
+                </button>
+                <button
+                  onClick={() => handleSend("What web development services do you offer?")}
+                  className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
+                >
+                  <User size={9} /> Services
+                </button>
+                <button
+                  onClick={() => handleSend("Tell me about Developer Portal and APIs")}
+                  className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
+                >
+                  <Key size={9} /> APIs & Docs
+                </button>
+              </div>
+            )}
 
             {/* Attachment Preview Bar */}
             {attachedFile && (
