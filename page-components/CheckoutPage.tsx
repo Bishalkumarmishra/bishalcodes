@@ -102,6 +102,28 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
     return `bc_prod_${salt}`;
   };
 
+  const sendReceiptEmail = async (paymentData: {
+    email: string;
+    planName: string;
+    amountPaid: number;
+    currency: string;
+    paymentMethod: string;
+    generatedApiKey?: string;
+  }) => {
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'payment-receipt',
+          data: paymentData
+        })
+      });
+    } catch (err) {
+      console.error('Failed to send automatic payment receipt email:', err);
+    }
+  };
+
   const handleCardPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
@@ -139,6 +161,16 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
         }, { merge: true });
       }
 
+      // Automatically dispatch email receipt
+      sendReceiptEmail({
+        email,
+        planName: activePlanName,
+        amountPaid: effectivePriceUsd,
+        currency: 'USD',
+        paymentMethod: 'International Card / Payoneer',
+        generatedApiKey: prodKey
+      });
+
       setGeneratedProdKey(prodKey);
       setSuccess(true);
     } catch (err) {
@@ -173,9 +205,10 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
 
     setLoading(true);
     const prodKey = generateProductionKey();
+    const targetEmail = email || walletPhone + '@khalti-wallet.local';
     const paymentRecord = {
       userId: user?.uid || 'guest_checkout',
-      userEmail: email || walletPhone + '@khalti-wallet.local',
+      userEmail: targetEmail,
       planId: selectedPlanId,
       amountPaid: effectivePriceNpr,
       currency: 'NPR',
@@ -195,6 +228,18 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
           api_plan: selectedPlanId,
           api_limit: effectivePriceUsd >= 100 ? 999999 : 50000
         }, { merge: true });
+      }
+
+      // Automatically dispatch email receipt if valid email provided
+      if (email) {
+        sendReceiptEmail({
+          email,
+          planName: activePlanName,
+          amountPaid: effectivePriceNpr,
+          currency: 'NPR',
+          paymentMethod: 'eSewa / Khalti Digital Wallet',
+          generatedApiKey: prodKey
+        });
       }
 
       setGeneratedProdKey(prodKey);
@@ -246,6 +291,17 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
 
     try {
       await addDoc(collection(db, 'payments'), paymentRecord);
+
+      // Automatically dispatch email notification for proof upload
+      sendReceiptEmail({
+        email,
+        planName: activePlanName,
+        amountPaid: effectivePriceNpr,
+        currency: 'NPR',
+        paymentMethod: 'Fonepay QR Scan',
+        generatedApiKey: 'Pending Audit Review'
+      });
+
       setSuccess(true);
     } catch (err) {
       console.error('Failed to log Fonepay request:', err);

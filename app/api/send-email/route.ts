@@ -460,6 +460,47 @@ export async function POST(request: Request) {
 
       textContent = `Calendar Note Saved!\n\nDate: ${dateStr}\nColor: ${colorLabel}\nNote:\n${noteText}\n\nView Calendar: https://bishalcodes.com/tools/date-converter`;
 
+    } else if (type === 'payment-receipt') {
+      const { email, planName, amountPaid, currency, paymentMethod, generatedApiKey } = data;
+      subject = `Payment Receipt & API Key Activation - Bishal Codes`;
+      singleTo = email;
+
+      const paymentContent = `
+        <p>Thank you for your payment! Your subscription is active and your live production API key is ready.</p>
+        
+        <table class="field-table">
+          <tr class="field-row">
+            <td class="field-label">Account Email</td>
+            <td class="field-value" style="font-weight: 600; color: #0f172a;">${email}</td>
+          </tr>
+          <tr class="field-row">
+            <td class="field-label">Plan / Amount</td>
+            <td class="field-value" style="font-weight: 600; color: #6366f1;">${planName}</td>
+          </tr>
+          <tr class="field-row">
+            <td class="field-label">Amount Paid</td>
+            <td class="field-value" style="font-weight: 700; color: #10b981;">${currency === 'USD' ? '$' : 'Rs. '}${amountPaid} ${currency}</td>
+          </tr>
+          <tr class="field-row">
+            <td class="field-label">Payment Gateway</td>
+            <td class="field-value">${paymentMethod}</td>
+          </tr>
+        </table>
+        
+        <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.05em;">Your Production API Key</div>
+        <div class="field-box" style="font-family: monospace; font-weight: bold; color: #4338ca; background: #eef2ff; border-color: #c7d2fe;">${generatedApiKey || 'Pending Audit Verification'}</div>
+      `;
+
+      htmlContent = createEmailTemplate(
+        `Payment Receipt`,
+        `Your API key has been initialized and activated`,
+        `Payment Confirmed`,
+        paymentContent,
+        `<a href="https://bishalcodes.com/developers" class="cta-btn">Access Developer Portal</a>`
+      );
+
+      textContent = `Bishal Codes - Payment Receipt\n\nPlan: ${planName}\nAmount Paid: ${currency} ${amountPaid}\nPayment Gateway: ${paymentMethod}\nAPI Key: ${generatedApiKey}\n\nAccess Developer Portal: https://bishalcodes.com/developers`;
+
     } else {
       return NextResponse.json({ success: false, error: 'Unknown notification type' }, { status: 400 });
     }
