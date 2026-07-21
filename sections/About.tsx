@@ -268,7 +268,7 @@ const About: React.FC = () => {
                 contentEditable={isEditMode}
                 suppressContentEditableWarning
                 onBlur={(e) => handleInlineSave('aboutHeaderTitle', e.currentTarget.textContent || '')}
-                className={`text-slate-900 dark:text-white text-2xl sm:text-3xl font-extrabold mb-4 tracking-tight font-outfit text-left transition-colors ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                className={`text-slate-900 dark:text-white text-xl sm:text-2xl md:text-3xl font-extrabold mb-3 tracking-tight font-outfit text-left transition-colors ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
               >
                 {aboutData.aboutHeaderTitle || 'About Me'}
               </h2>
@@ -279,12 +279,12 @@ const About: React.FC = () => {
                   contentEditable
                   suppressContentEditableWarning
                   onBlur={(e) => handleInlineSave('bio', e.currentTarget.innerText || '')}
-                  className="text-slate-700 dark:text-slate-300 text-sm sm:text-[14.5px] leading-relaxed mb-6 font-normal space-y-3 text-left outline-dashed outline-2 outline-amber-500/80 p-2.5 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 cursor-text min-h-[100px] whitespace-pre-wrap transition-colors"
+                  className="text-slate-700 dark:text-slate-300 text-[13px] sm:text-sm md:text-[14.5px] leading-relaxed mb-5 font-normal space-y-2.5 text-left outline-dashed outline-2 outline-amber-500/80 p-2.5 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 cursor-text min-h-[100px] whitespace-pre-wrap transition-colors"
                 >
                   {aboutData.bio}
                 </div>
               ) : (
-                <div className="text-slate-600 dark:text-slate-300 text-sm sm:text-[14.5px] leading-relaxed mb-6 font-normal space-y-3 text-left transition-colors">
+                <div className="text-slate-600 dark:text-slate-300 text-[13px] sm:text-sm md:text-[14.5px] leading-relaxed mb-5 font-normal space-y-2.5 text-left transition-colors">
                   {aboutData.bio.split('\n\n').map((para, idx) => (
                     <p key={idx}>{para}</p>
                   ))}
