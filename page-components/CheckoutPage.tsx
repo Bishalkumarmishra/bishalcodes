@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  CreditCard, Shield, Lock, CheckCircle, UploadCloud, Smartphone, ArrowRight, 
+import {
+  CreditCard, Shield, Lock, CheckCircle, UploadCloud, Smartphone, ArrowRight,
   Coins, Sparkles, Check, Loader2, Landmark, AlertCircle, Download, FileText
 } from 'lucide-react';
 import Navbar from '../sections/Navbar';
@@ -55,13 +55,13 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
   // Active plan or custom plan calculations
   const presetPlan = PLANS.find(p => p.id === selectedPlanId);
   const isCustom = selectedPlanId === 'custom' || !presetPlan;
-  
-  const effectivePriceUsd = isCustom 
-    ? Math.max(1, Number(customPriceUsd) || 1) 
+
+  const effectivePriceUsd = isCustom
+    ? Math.max(1, Number(customPriceUsd) || 1)
     : (presetPlan?.price || 29);
 
-  const effectivePriceNpr = isCustom 
-    ? Math.round(effectivePriceUsd * 125) 
+  const effectivePriceNpr = isCustom
+    ? Math.round(effectivePriceUsd * 125)
     : (presetPlan?.priceNpr || 3500);
 
   const activePlanName = isCustom ? 'Custom Tier' : presetPlan?.name || 'Commercial Pro';
@@ -70,7 +70,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [generatedProdKey, setGeneratedProdKey] = useState('');
-  
+
   // Input fields
   const [email, setEmail] = useState(user?.email || '');
   const [cardName, setCardName] = useState(userProfile?.displayName || '');
@@ -132,12 +132,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
       // Brand Header
       doc.setFillColor(15, 23, 42); // slate-900
       doc.rect(0, 0, 210, 40, 'F');
-      
+
       doc.setTextColor(255, 255, 255);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(22);
       doc.text('BISHAL CODES', 20, 25);
-      
+
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(148, 163, 184);
@@ -262,7 +262,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
       alert('Please fill out your contact email address.');
       return;
     }
-    
+
     // 1. Validate Card Number with Luhn Checksum
     if (!cardNumber || !isValidLuhnCardNumber(cardNumber)) {
       alert('Invalid Card Number: Checksum verification failed. Please enter a valid Visa, Mastercard, or Amex card number.');
@@ -292,7 +292,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
 
     setLoading(true);
     const prodKey = generateProductionKey();
-    const payoneerPayLink = process.env.NEXT_PUBLIC_PAYONEER_PAYMENT_LINK || `https://payoneer.com`;
+    const payoneerPayLink = process.env.NEXT_PUBLIC_PAYONEER_PAYMENT_LINK || `https://login.payoneer.com`;
 
     const paymentRecord = {
       userId: user?.uid || 'guest_checkout',
@@ -554,7 +554,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
 
             {/* Compact Action Buttons */}
             <div className="space-y-2.5">
-              <button 
+              <button
                 onClick={handleDownloadPdfInvoice}
                 className="w-full bg-slate-900 hover:bg-black dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer border border-slate-800"
               >
@@ -563,21 +563,21 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
               </button>
 
               <div className="grid grid-cols-2 gap-2">
-                <button 
+                <button
                   onClick={() => navigate('developers')}
                   className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-colors"
                 >
                   Back to Portal
                 </button>
                 {user?.uid ? (
-                  <button 
+                  <button
                     onClick={() => navigate('user-dashboard')}
                     className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-colors"
                   >
                     View Dashboard
                   </button>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => navigate('home')}
                     className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-colors"
                   >
@@ -599,7 +599,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
 
       <main className="flex-grow pt-28 pb-20 px-[5vw] relative z-10">
         <div className="max-w-6xl mx-auto">
-          
+
           <div className="mb-8">
             <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Checkout & Gateway Billing
@@ -610,34 +610,32 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
+
             {/* Left Column: Form Gateways */}
             <div className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-7 shadow-sm">
               <h2 className="text-sm font-bold text-slate-850 dark:text-white uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
                 1. Select Payment Method
               </h2>
-              
+
               {/* Tabs */}
               <div className="grid grid-cols-3 gap-2.5 mb-6">
                 <button
                   onClick={() => setPaymentMethod('card')}
-                  className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-[11px] font-bold uppercase tracking-wider transition-all ${
-                    paymentMethod === 'card' 
-                      ? 'border-indigo-500 bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 font-extrabold' 
+                  className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-[11px] font-bold uppercase tracking-wider transition-all ${paymentMethod === 'card'
+                      ? 'border-indigo-500 bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 font-extrabold'
                       : 'border-slate-200 dark:border-slate-800 bg-transparent text-slate-550 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
-                  }`}
+                    }`}
                 >
                   <CreditCard size={18} />
                   Card (Payoneer)
                 </button>
-                
+
                 <button
                   onClick={() => setPaymentMethod('wallet')}
-                  className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-[11px] font-bold uppercase tracking-wider transition-all ${
-                    paymentMethod === 'wallet' 
-                      ? 'border-indigo-500 bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 font-extrabold' 
+                  className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-[11px] font-bold uppercase tracking-wider transition-all ${paymentMethod === 'wallet'
+                      ? 'border-indigo-500 bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 font-extrabold'
                       : 'border-slate-200 dark:border-slate-800 bg-transparent text-slate-550 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
-                  }`}
+                    }`}
                 >
                   <Smartphone size={18} />
                   eSewa / Khalti
@@ -645,11 +643,10 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
 
                 <button
                   onClick={() => setPaymentMethod('fonepay')}
-                  className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-[11px] font-bold uppercase tracking-wider transition-all ${
-                    paymentMethod === 'fonepay' 
-                      ? 'border-indigo-500 bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 font-extrabold' 
+                  className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-[11px] font-bold uppercase tracking-wider transition-all ${paymentMethod === 'fonepay'
+                      ? 'border-indigo-500 bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 font-extrabold'
                       : 'border-slate-200 dark:border-slate-800 bg-transparent text-slate-550 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
-                  }`}
+                    }`}
                 >
                   <Landmark size={18} />
                   Fonepay QR
@@ -675,7 +672,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-slate-800 dark:focus:border-emerald-500"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500"
                     />
                   </div>
 
@@ -691,7 +688,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                       value={cardName}
                       onChange={(e) => setCardName(e.target.value)}
                       placeholder="Name on card"
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-slate-800 dark:focus:border-emerald-500"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500"
                     />
                   </div>
 
@@ -701,11 +698,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                         Card Number
                       </label>
                       {cardNumber.length >= 1 && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full transition-all bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                          {/^4/.test(cardNumber.replace(/\D/g, '')) ? '💳 VISA' : 
-                           /^(5[1-5]|2[2-7])/.test(cardNumber.replace(/\D/g, '')) ? '💳 MASTERCARD' :
-                           /^3[47]/.test(cardNumber.replace(/\D/g, '')) ? '💳 AMEX' :
-                           /^6/.test(cardNumber.replace(/\D/g, '')) ? '💳 DISCOVER' : '💳 CARD'}
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full transition-all bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+                          {/^4/.test(cardNumber.replace(/\D/g, '')) ? '💳 VISA' :
+                            /^(5[1-5]|2[2-7])/.test(cardNumber.replace(/\D/g, '')) ? '💳 MASTERCARD' :
+                              /^3[47]/.test(cardNumber.replace(/\D/g, '')) ? '💳 AMEX' :
+                                /^6/.test(cardNumber.replace(/\D/g, '')) ? '💳 DISCOVER' : '💳 CARD'}
                         </span>
                       )}
                     </div>
@@ -719,7 +716,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                         value={cardNumber}
                         onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim())}
                         placeholder="4000 0000 0000 0000"
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-slate-800 dark:focus:border-emerald-500 font-mono tracking-wider"
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono tracking-wider"
                       />
                     </div>
                   </div>
@@ -742,7 +739,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                           setCardExpiry(val);
                         }}
                         placeholder="MM/YY"
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-slate-800 dark:focus:border-emerald-500 font-mono text-center"
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono text-center"
                       />
                     </div>
                     <div>
@@ -758,14 +755,14 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                         value={cardCvv}
                         onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ''))}
                         placeholder="123"
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-slate-800 dark:focus:border-emerald-500 font-mono text-center"
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono text-center"
                       />
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
-                    <span className="font-bold text-slate-900 dark:text-white block mb-1">💳 Verified Payoneer Recipient: bishalmishra9000@gmail.com</span>
-                    Direct Payoneer 3D-Secure payment routing. Funds settle directly into Bishal Kumar Mishra's verified Payoneer balance.
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-xs text-slate-550 dark:text-slate-400 leading-relaxed font-normal">
+                    <span className="font-bold text-slate-800 dark:text-white block mb-1">💳 Payoneer Global Card Processing</span>
+                    Auto-detects Visa, MasterCard, Amex & Discover cards. Funds settle directly into your linked bank account with zero domain verification required.
                   </div>
 
                   <button
@@ -776,12 +773,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                     {loading ? (
                       <>
                         <Loader2 className="animate-spin" size={14} />
-                        Redirecting to Payoneer...
+                        Processing Direct Payment...
                       </>
                     ) : (
                       <>
                         <Lock size={12} />
-                        Pay ${effectivePriceUsd} USD via Payoneer
+                        Pay ${effectivePriceUsd} USD Securely
                       </>
                     )}
                   </button>
@@ -806,7 +803,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                           className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
                           Wallet / Mobile Number
@@ -848,7 +845,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                       <p className="text-[11px] text-slate-500 mb-4 max-w-sm mx-auto leading-normal">
                         A dynamic SMS verification OTP has been triggered and sent to <span className="font-bold text-slate-800 dark:text-white">{walletPhone}</span>. Enter it below to authorize this invoice.
                       </p>
-                      
+
                       <input
                         type="text"
                         maxLength={6}
@@ -880,8 +877,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                   </button>
 
                   {walletStep === 'otp' && (
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => setWalletStep('details')}
                       className="w-full text-center text-xs font-semibold text-slate-550 hover:text-slate-800 transition-colors uppercase tracking-wider mt-2.5"
                     >
@@ -898,11 +895,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                     <p className="text-xs text-slate-500 font-medium max-w-md mx-auto mb-4">
                       Scan the official billing Fonepay QR below using eSewa, Khalti, or any Nepalese Mobile Banking app.
                     </p>
-                    
+
                     <div className="bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-850 p-4 rounded-3xl w-fit mx-auto shadow-sm">
-                      <img 
-                        src="https://ik.imagekit.io/bishalc/Screenshot%202026-01-09%20224952.png" 
-                        alt="Fonepay QR Code" 
+                      <img
+                        src="https://ik.imagekit.io/bishalc/Screenshot%202026-01-09%20224952.png"
+                        alt="Fonepay QR Code"
                         className="w-56 h-56 object-contain rounded-2xl border border-slate-100 bg-white"
                       />
                       <div className="text-[10px] text-slate-900 dark:text-emerald-400 font-black uppercase tracking-wider mt-2">
@@ -990,33 +987,30 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                   <button
                     type="button"
                     onClick={() => setSelectedPlanId('custom')}
-                    className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${
-                      selectedPlanId === 'custom'
+                    className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${selectedPlanId === 'custom'
                         ? 'border-slate-900 bg-slate-900 text-white dark:border-emerald-500 dark:bg-emerald-600/20 dark:text-emerald-400'
                         : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
-                    }`}
+                      }`}
                   >
                     ⚡ Custom $1+
                   </button>
                   <button
                     type="button"
                     onClick={() => setSelectedPlanId('pro')}
-                    className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${
-                      selectedPlanId === 'pro'
+                    className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${selectedPlanId === 'pro'
                         ? 'border-slate-900 bg-slate-900 text-white dark:border-emerald-500 dark:bg-emerald-600/20 dark:text-emerald-400'
                         : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
-                    }`}
+                      }`}
                   >
                     Pro ($29)
                   </button>
                   <button
                     type="button"
                     onClick={() => setSelectedPlanId('enterprise')}
-                    className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${
-                      selectedPlanId === 'enterprise'
+                    className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${selectedPlanId === 'enterprise'
                         ? 'border-slate-900 bg-slate-900 text-white dark:border-emerald-500 dark:bg-emerald-600/20 dark:text-emerald-400'
                         : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
-                    }`}
+                      }`}
                   >
                     Enterprise ($149)
                   </button>
