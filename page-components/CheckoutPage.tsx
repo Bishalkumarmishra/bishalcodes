@@ -301,7 +301,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                     {generatedProdKey}
                   </code>
                   <div className="text-[9px] text-slate-500 mt-2 font-normal">
-                    * Make sure to save this key securely. It operates under standard rate limits of {activePlan.name}.
+                    * Make sure to save this key securely. It operates under standard rate limits of {activePlanName}.
                   </div>
                 </div>
               </>
@@ -804,7 +804,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                   Included Features
                 </h3>
                 <ul className="space-y-2.5 text-xs text-slate-655 dark:text-slate-300 font-medium">
-                  {activePlan.features.map((feat, i) => (
+                  {(presetPlan?.features || [
+                    'Dedicated HTTPS live production key',
+                    'Instant API quota activation',
+                    'Rate limit: 60 - 500 req / minute',
+                    'All core developer utility tools'
+                  ]).map((feat, i) => (
                     <li key={i} className="flex items-center gap-2">
                       <Check size={12} className="text-indigo-500 shrink-0" />
                       {feat}
