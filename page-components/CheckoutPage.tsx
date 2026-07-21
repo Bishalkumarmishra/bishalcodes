@@ -49,8 +49,22 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
   const { navigate } = useNavigation();
   const { user, userProfile } = useUser();
 
-  // Find active plan based on query path
-  const activePlan = PLANS.find(p => p.id === planId) || PLANS[0];
+  const [selectedPlanId, setSelectedPlanId] = useState<string>(planId || 'pro');
+  const [customPriceUsd, setCustomPriceUsd] = useState<number | string>(1);
+
+  // Active plan or custom plan calculations
+  const presetPlan = PLANS.find(p => p.id === selectedPlanId);
+  const isCustom = selectedPlanId === 'custom' || !presetPlan;
+  
+  const effectivePriceUsd = isCustom 
+    ? Math.max(1, Number(customPriceUsd) || 1) 
+    : (presetPlan?.price || 29);
+
+  const effectivePriceNpr = isCustom 
+    ? Math.round(effectivePriceUsd * 125) 
+    : (presetPlan?.priceNpr || 3500);
+
+  const activePlanName = isCustom ? 'Custom Tier' : presetPlan?.name || 'Commercial Pro';
 
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'wallet' | 'fonepay'>('card');
   const [loading, setLoading] = useState(false);
@@ -104,10 +118,10 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
     const paymentRecord = {
       userId: user?.uid || 'guest_checkout',
       userEmail: email,
-      planId: activePlan.id,
-      amountPaid: activePlan.price,
+      planId: selectedPlanId,
+      amountPaid: effectivePriceUsd,
       currency: 'USD',
-      paymentMethod: 'International Card / Direct Checkout',
+      paymentMethod: 'International Card / Payoneer',
       cardHolderName: cardName || 'Cardholder',
       status: 'completed',
       generatedApiKey: prodKey,
@@ -120,8 +134,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
       if (user?.uid) {
         await setDoc(doc(db, 'users', user.uid), {
           api_production_key: prodKey,
-          api_plan: activePlan.id,
-          api_limit: activePlan.id === 'pro' ? 50000 : 999999
+          api_plan: selectedPlanId,
+          api_limit: effectivePriceUsd >= 100 ? 999999 : 50000
         }, { merge: true });
       }
 
@@ -162,8 +176,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
     const paymentRecord = {
       userId: user?.uid || 'guest_checkout',
       userEmail: email || walletPhone + '@khalti-wallet.local',
-      planId: activePlan.id,
-      amountPaid: activePlan.priceNpr,
+      planId: selectedPlanId,
+      amountPaid: effectivePriceNpr,
       currency: 'NPR',
       paymentMethod: 'Khalti/eSewa Wallet',
       walletPhone: walletPhone,
@@ -178,8 +192,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
       if (user?.uid) {
         await setDoc(doc(db, 'users', user.uid), {
           api_production_key: prodKey,
-          api_plan: activePlan.id,
-          api_limit: activePlan.id === 'pro' ? 50000 : 999999
+          api_plan: selectedPlanId,
+          api_limit: effectivePriceUsd >= 100 ? 999999 : 50000
         }, { merge: true });
       }
 
@@ -221,8 +235,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
     const paymentRecord = {
       userId: user?.uid || 'guest_checkout',
       userEmail: email,
-      planId: activePlan.id,
-      amountPaid: activePlan.priceNpr,
+      planId: selectedPlanId,
+      amountPaid: effectivePriceNpr,
       currency: 'NPR',
       paymentMethod: 'Fonepay QR Scan',
       paymentProofBase64: paymentProof.base64,
@@ -504,7 +518,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                     ) : (
                       <>
                         <Lock size={12} />
-                        Pay ${activePlan.price} USD Securely
+                        Pay ${effectivePriceUsd} USD Securely
                       </>
                     )}
                   </button>
@@ -597,7 +611,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                     ) : (
                       <>
                         <Smartphone size={12} />
-                        {walletStep === 'details' ? 'Request Payment OTP' : `Authorize Rs. ${activePlan.priceNpr}`}
+                        {walletStep === 'details' ? 'Request Payment OTP' : `Authorize Rs. ${effectivePriceNpr}`}
                       </>
                     )}
                   </button>
@@ -629,7 +643,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                         className="w-56 h-56 object-contain rounded-2xl border border-slate-100 bg-white"
                       />
                       <div className="text-[10px] text-indigo-650 dark:text-indigo-400 font-black uppercase tracking-wider mt-2">
-                        Total Amount: Rs. {activePlan.priceNpr}
+                        Total Amount: Rs. {effectivePriceNpr}
                       </div>
                     </div>
                   </div>
@@ -701,21 +715,87 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
             {/* Right Column: Plan Order Summary */}
             <div className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-7 shadow-sm sticky top-24">
               <h2 className="text-sm font-bold text-slate-850 dark:text-white uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
-                Order Summary
+                Order Summary & Pricing Tier
               </h2>
+
+              {/* Tier Selector Buttons */}
+              <div className="space-y-2 mb-4">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  Select Amount or Plan
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPlanId('custom')}
+                    className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${
+                      selectedPlanId === 'custom'
+                        ? 'border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                        : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    ⚡ Custom $1+
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPlanId('pro')}
+                    className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${
+                      selectedPlanId === 'pro'
+                        ? 'border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                        : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    Pro ($29)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPlanId('enterprise')}
+                    className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${
+                      selectedPlanId === 'enterprise'
+                        ? 'border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                        : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    Enterprise ($149)
+                  </button>
+                </div>
+              </div>
+
+              {/* Custom Input Field when Custom is selected */}
+              {selectedPlanId === 'custom' && (
+                <div className="p-3.5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/50 mb-4">
+                  <label className="block text-xs font-bold text-slate-800 dark:text-indigo-200 mb-1 uppercase">
+                    Enter Custom USD Amount ($)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-black text-indigo-600 dark:text-indigo-400">$</span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={10000}
+                      value={customPriceUsd}
+                      onChange={(e) => setCustomPriceUsd(e.target.value)}
+                      placeholder="1"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-bold text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono"
+                    />
+                  </div>
+                  <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-1.5">
+                    * Ideal for testing $1 transactions or custom quotes.
+                  </div>
+                </div>
+              )}
 
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 mb-5">
                 <div className="flex items-center justify-between font-bold">
-                  <span className="text-slate-800 dark:text-white text-xs">{activePlan.name} Subscription</span>
-                  <span className="text-indigo-650 dark:text-indigo-400 text-sm">
-                    ${activePlan.price} <span className="text-[10px] text-slate-500 font-medium">/mo</span>
+                  <span className="text-slate-800 dark:text-white text-xs">{activePlanName}</span>
+                  <span className="text-indigo-650 dark:text-indigo-400 text-sm font-black font-mono">
+                    ${effectivePriceUsd} <span className="text-[10px] text-slate-500 font-medium">USD</span>
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-550 dark:text-slate-400 mt-1 font-medium leading-normal">
-                  {activePlan.desc}
+                  {isCustom ? 'Custom payment transaction with instant API key activation.' : presetPlan?.desc}
                 </p>
-                <div className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mt-2">
-                  Equivalent: Rs. {activePlan.priceNpr} NPR
+                <div className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mt-2 font-mono">
+                  NPR Equivalent: Rs. {effectivePriceNpr} NPR
                 </div>
               </div>
 
