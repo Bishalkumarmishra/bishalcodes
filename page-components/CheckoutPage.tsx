@@ -259,16 +259,41 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
   const handleCardPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
-      alert('Please fill out your email address.');
+      alert('Please fill out your contact email address.');
       return;
     }
+    
+    // 1. Validate Card Number with Luhn Checksum
     if (!cardNumber || !isValidLuhnCardNumber(cardNumber)) {
       alert('Invalid Card Number: Checksum verification failed. Please enter a valid Visa, Mastercard, or Amex card number.');
       return;
     }
 
+    // 2. Validate Expiration Date (MM/YY)
+    if (!cardExpiry || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry)) {
+      alert('Invalid Expiration Date: Please enter a valid expiration date in MM/YY format (e.g. 12/28).');
+      return;
+    }
+
+    const [expMonth, expYear] = cardExpiry.split('/').map(n => parseInt(n, 10));
+    const currentYear = parseInt(new Date().getFullYear().toString().slice(-2), 10);
+    const currentMonth = new Date().getMonth() + 1;
+
+    if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+      alert('Expired Card: The card expiration date has passed. Please use an active card.');
+      return;
+    }
+
+    // 3. Validate CVV
+    if (!cardCvv || cardCvv.length < 3) {
+      alert('Invalid CVV: Please enter a valid 3 or 4-digit CVV security code from the back of your card.');
+      return;
+    }
+
     setLoading(true);
     const prodKey = generateProductionKey();
+    const payoneerPayLink = process.env.NEXT_PUBLIC_PAYONEER_PAYMENT_LINK || 'https://payoneer.com';
+
     const paymentRecord = {
       userId: user?.uid || 'guest_checkout',
       userEmail: email,
@@ -299,7 +324,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
         }, { merge: true });
       }
 
-      // Automatically dispatch email receipt
+      // Automatically dispatch email receipt & invoice details
       sendReceiptEmail({
         email,
         planName: activePlanName,
