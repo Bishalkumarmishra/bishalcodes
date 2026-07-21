@@ -1026,13 +1026,23 @@ const getCanonicalSessionId = (email?: string, fallbackId?: string) => {
     };
   }, [leadUser]);
 
-  // Show floating greeting popup for first-time visitors with notification sound
+  // Show floating greeting popup for first-time visitors and auto-close after 2 seconds
   useEffect(() => {
-    const timer = setTimeout(() => {
+    let hideTimer: any;
+    const showTimer = setTimeout(() => {
       setShowGreetingBubble(true);
       playNotificationSound();
+
+      // Automatically hide greeting bubble after 2 seconds
+      hideTimer = setTimeout(() => {
+        setShowGreetingBubble(false);
+      }, 2000);
     }, 1800);
-    return () => clearTimeout(timer);
+
+    return () => {
+      clearTimeout(showTimer);
+      if (hideTimer) clearTimeout(hideTimer);
+    };
   }, []);
 
   useEffect(() => {
