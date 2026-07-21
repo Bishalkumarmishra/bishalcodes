@@ -81,7 +81,7 @@ const TypingPractice: React.FC = () => {
     } else if (vocabMode === 'code') {
       setTargetText(CODE_SNIPPETS[codeLang]);
     } else if (vocabMode === 'custom') {
-      setTargetText(customText.trim() || 'Type or paste your custom practice text here. Click here to begin...');
+      setTargetText(customText.trim() || 'Type or paste your custom practice text here to begin typing...');
     }
     
     setTypedInput('');
@@ -347,15 +347,6 @@ const TypingPractice: React.FC = () => {
               onClick={handleWorkspaceClick}
               className="w-full bg-white dark:bg-slate-950/20 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700/80 rounded-2xl p-6 sm:p-10 min-h-[220px] relative cursor-text overflow-hidden transition-all shadow-sm"
             >
-              
-              {/* Unfocused overlay */}
-              {!isFocused && (
-                <div className="absolute inset-0 bg-slate-900/5 dark:bg-slate-950/80 backdrop-blur-[1px] flex flex-col items-center justify-center gap-2 z-20">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-neutral-200 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 px-4 py-2 rounded-full cursor-pointer hover:bg-slate-50 dark:hover:bg-neutral-850 transition-colors shadow-md">
-                    Click here or press any key to focus typing input
-                  </span>
-                </div>
-              )}
 
               {/* Hidden text listener */}
               <textarea
