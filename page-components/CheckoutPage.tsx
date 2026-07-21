@@ -292,7 +292,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
 
     setLoading(true);
     const prodKey = generateProductionKey();
-    const payoneerPayLink = process.env.NEXT_PUBLIC_PAYONEER_PAYMENT_LINK || 'https://payoneer.com';
+    const payoneerPayLink = process.env.NEXT_PUBLIC_PAYONEER_PAYMENT_LINK || `https://payoneer.com`;
 
     const paymentRecord = {
       userId: user?.uid || 'guest_checkout',
@@ -302,7 +302,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
       currency: 'USD',
       paymentMethod: 'International Card / Payoneer',
       cardHolderName: cardName || 'Cardholder',
-      status: 'completed',
+      status: 'pending_payoneer_checkout',
       generatedApiKey: prodKey,
       timestamp: Date.now()
     };
@@ -320,19 +320,22 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
           api_limit: effectivePriceUsd >= 100 ? 999999 : 50000,
           api_subscribed_at: now,
           api_expires_at: expiresAt,
-          api_status: 'active'
+          api_status: 'pending_payment'
         }, { merge: true });
       }
 
-      // Automatically dispatch email receipt & invoice details
+      // Dispatch payment request email with Payoneer invoice link
       sendReceiptEmail({
         email,
         planName: activePlanName,
         amountPaid: effectivePriceUsd,
         currency: 'USD',
-        paymentMethod: 'International Card / Payoneer',
+        paymentMethod: 'Payoneer 3D-Secure Card Gateway',
         generatedApiKey: prodKey
       });
+
+      // Open official Payoneer secure hosted payment page in a new window/tab for REAL credit card charging
+      window.open(payoneerPayLink, '_blank');
 
       setGeneratedProdKey(prodKey);
       setSuccess(true);
