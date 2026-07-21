@@ -91,13 +91,22 @@ const Navbar: React.FC = () => {
     { name: 'Home', id: 'home', icon: <Home size={16} /> },
     { name: 'About', id: 'about', icon: <User size={16} /> },
     { name: 'Work', id: 'projects', icon: <Briefcase size={16} /> },
-    { name: 'Services', id: 'services', icon: <Calendar size={16} /> },
-    { name: 'Widgets', id: 'widgets', icon: <Code size={16} /> },
     { name: 'Blogs', id: 'blog', icon: <FileText size={16} /> },
     { name: 'Docs', id: 'docs', icon: <BookOpen size={16} /> },
     { name: 'APIs', id: 'developers', icon: <Terminal size={16} /> },
     { name: 'Contact', id: 'contact', icon: <Mail size={16} /> },
   ];
+
+  const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
+  const servicesDropdownTimer = React.useRef<any>(null);
+
+  const openServicesDropdown = () => {
+    if (servicesDropdownTimer.current) clearTimeout(servicesDropdownTimer.current);
+    setServicesDropdownOpen(true);
+  };
+  const closeServicesDropdown = () => {
+    servicesDropdownTimer.current = setTimeout(() => setServicesDropdownOpen(false), 150);
+  };
 
   const socialLinks = [
     { icon: <Facebook size={18} />, url: 'https://www.facebook.com/share/1AhoqK2XMo/' },
@@ -121,6 +130,7 @@ const Navbar: React.FC = () => {
       navigate(id);
     }
     setIsOpen(false);
+    setServicesDropdownOpen(false);
   };
 
   const handleLogout = () => {
@@ -156,6 +166,65 @@ const Navbar: React.FC = () => {
             {navLinks.map((link) => {
               const isActive = currentPage === link.id;
               const path = link.id === 'home' ? '/' : (link.id === 'services' ? '/tools' : `/${link.id}`);
+
+              // Insert Services dropdown before Blogs
+              if (link.id === 'blog') {
+                const isServicesActive = currentPage === 'services' || currentPage === 'widgets';
+                return (
+                  <React.Fragment key="services-dropdown-and-blog">
+                    {/* Services Dropdown */}
+                    <li
+                      className="relative"
+                      onMouseEnter={openServicesDropdown}
+                      onMouseLeave={closeServicesDropdown}
+                    >
+                      <button
+                        className={`${textLinkClass(isServicesActive)} flex items-center gap-1`}
+                        onClick={() => handleLinkClick('services')}
+                      >
+                        <span>Services</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${servicesDropdownOpen ? 'rotate-180' : ''}`}>
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                      </button>
+
+                      {servicesDropdownOpen && (
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                          <button
+                            onClick={() => handleLinkClick('services')}
+                            className="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors flex items-center gap-2.5 cursor-pointer"
+                          >
+                            <Calendar size={14} className="text-emerald-600 dark:text-emerald-400" />
+                            Developer Tools
+                          </button>
+                          <button
+                            onClick={() => handleLinkClick('widgets')}
+                            className="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors flex items-center gap-2.5 cursor-pointer"
+                          >
+                            <Code size={14} className="text-emerald-600 dark:text-emerald-400" />
+                            Embed Widgets
+                          </button>
+                        </div>
+                      )}
+                    </li>
+
+                    {/* Blog link */}
+                    <li key={link.id}>
+                      <a
+                        href={path}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleLinkClick(link.id);
+                        }}
+                        className={textLinkClass(isActive)}
+                      >
+                        <span>{link.name}</span>
+                      </a>
+                    </li>
+                  </React.Fragment>
+                );
+              }
+
               return (
                 <li key={link.id}>
                   <a
@@ -289,6 +358,54 @@ const Navbar: React.FC = () => {
           {navLinks.map((link) => {
             const isActive = currentPage === link.id;
             const path = link.id === 'home' ? '/' : (link.id === 'services' ? '/tools' : `/${link.id}`);
+
+            // Insert Services section before Blogs in mobile too
+            if (link.id === 'blog') {
+              return (
+                <React.Fragment key="mobile-services-and-blog">
+                  {/* Services with sub-items */}
+                  <li>
+                    <button
+                      onClick={() => handleLinkClick('services')}
+                      className={`flex items-center gap-3 py-2 text-lg font-medium transition-colors cursor-pointer ${
+                        currentPage === 'services' ? "text-[var(--nav-text-active)]" : "text-[var(--nav-text)] active:text-[var(--nav-text-hover)]"
+                      }`}
+                    >
+                      <span className="opacity-75"><Calendar size={16} /></span>
+                      Developer Tools
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => handleLinkClick('widgets')}
+                      className={`flex items-center gap-3 py-2 text-lg font-medium transition-colors cursor-pointer ${
+                        currentPage === 'widgets' ? "text-[var(--nav-text-active)]" : "text-[var(--nav-text)] active:text-[var(--nav-text-hover)]"
+                      }`}
+                    >
+                      <span className="opacity-75"><Code size={16} /></span>
+                      Embed Widgets
+                    </button>
+                  </li>
+                  {/* Blog */}
+                  <li>
+                    <a
+                      href={path}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleLinkClick(link.id);
+                      }}
+                      className={`flex items-center gap-3 py-2 text-lg font-medium transition-colors cursor-pointer ${
+                        isActive ? "text-[var(--nav-text-active)]" : "text-[var(--nav-text)] active:text-[var(--nav-text-hover)]"
+                      }`}
+                    >
+                      <span className="opacity-75">{link.icon}</span>
+                      {link.name}
+                    </a>
+                  </li>
+                </React.Fragment>
+              );
+            }
+
             return (
               <li key={link.id}>
                 <a 

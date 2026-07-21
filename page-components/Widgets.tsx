@@ -160,9 +160,6 @@ export default function Widgets() {
         
         {/* Page Title Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-          <span className="text-[11px] bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 px-3.5 py-1 rounded-full font-bold uppercase tracking-wider border border-emerald-200 dark:border-emerald-800">
-            Webmaster Integrations
-          </span>
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Embeddable Widgets &amp; Tools
           </h1>
@@ -327,9 +324,6 @@ export default function Widgets() {
         {/* ── Powerful SEO Guide & Webmaster FAQ Section ── */}
         <div className="max-w-4xl mx-auto border-t border-slate-200 dark:border-slate-800 pt-14 text-left">
           <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
-              Webmaster Integration Guide
-            </span>
             <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Frequently Asked Questions &amp; Embed Docs
             </h2>
