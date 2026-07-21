@@ -124,6 +124,12 @@ const TypingPractice: React.FC = () => {
   // Listen to physical keyboard events to highlight visual keys
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Disable Backspace key to prevent deleting mistyped characters
+      if (e.key === 'Backspace') {
+        e.preventDefault();
+        return;
+      }
+
       const key = e.key.toLowerCase();
       
       // Auto-focus on keydown if keys are pressed while typing isn't finished
@@ -177,6 +183,11 @@ const TypingPractice: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     if (isFinished) return;
+
+    // Do not allow deleting or shortening previously typed input
+    if (value.length < typedInput.length) {
+      return;
+    }
 
     // Start timer on first keystroke
     if (startTime === null) {
