@@ -5,7 +5,7 @@ import { collection, getDocs } from 'firebase/firestore';
 
 export const dynamic = 'force-dynamic';
 
-// Helper function to build human-designed responsive premium emails
+// Helper function to build human-designed responsive ultra-clean corporate emails
 const createEmailTemplate = (title: string, subtitle: string, badge: string, contentHtml: string, actionButtonHtml: string = '') => {
   return `
     <!DOCTYPE html>
@@ -16,9 +16,9 @@ const createEmailTemplate = (title: string, subtitle: string, badge: string, con
       <title>${title}</title>
       <style>
         body {
-          font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
-          background-color: #f1f5f9;
-          color: #334155;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+          background-color: #f8fafc;
+          color: #0f172a;
           margin: 0;
           padding: 0;
           -webkit-font-smoothing: antialiased;
@@ -26,73 +26,72 @@ const createEmailTemplate = (title: string, subtitle: string, badge: string, con
         .wrapper {
           width: 100%;
           table-layout: fixed;
-          background-color: #f1f5f9;
+          background-color: #f8fafc;
           padding: 40px 0;
         }
         .container {
-          max-width: 600px;
+          max-width: 580px;
           background-color: #ffffff;
-          border-radius: 16px;
+          border-radius: 12px;
           margin: 0 auto;
           overflow: hidden;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
           border: 1px solid #e2e8f0;
         }
         .header {
-          background-color: #0f172a;
-          padding: 32px;
-          text-align: center;
-          position: relative;
+          padding: 28px 32px;
+          border-bottom: 1px solid #f1f5f9;
         }
         .logo {
-          font-size: 20px;
+          font-size: 18px;
           font-weight: 800;
-          color: #ffffff;
-          letter-spacing: 0.05em;
+          color: #0f172a;
+          letter-spacing: -0.02em;
           text-transform: uppercase;
-          margin: 0 0 8px 0;
         }
         .logo span {
-          color: #6366f1;
+          color: #059669;
         }
         .badge {
           display: inline-block;
-          background-color: rgba(99, 102, 241, 0.15);
-          color: #818cf8;
+          background-color: #f1f5f9;
+          color: #334155;
           font-size: 10px;
           font-weight: 700;
-          padding: 4px 12px;
-          border-radius: 9999px;
+          padding: 4px 10px;
+          border-radius: 6px;
           text-transform: uppercase;
           letter-spacing: 0.05em;
+          border: 1px solid #e2e8f0;
         }
         .body {
-          padding: 40px 32px;
+          padding: 36px 32px;
         }
         .headline {
-          font-size: 20px;
-          font-weight: 700;
+          font-size: 22px;
+          font-weight: 800;
           color: #0f172a;
           margin-top: 0;
-          margin-bottom: 12px;
-          line-height: 1.3;
+          margin-bottom: 8px;
+          letter-spacing: -0.02em;
         }
         .sub-headline {
           font-size: 14px;
           color: #64748b;
           margin-bottom: 24px;
           margin-top: 0;
+          line-height: 1.5;
         }
         .content {
           font-size: 14px;
           line-height: 1.6;
-          color: #475569;
-          margin-bottom: 30px;
+          color: #334155;
+          margin-bottom: 24px;
         }
         .field-table {
           width: 100%;
           border-collapse: collapse;
-          margin-bottom: 30px;
+          margin-bottom: 24px;
         }
         .field-row {
           border-bottom: 1px solid #f1f5f9;
@@ -103,48 +102,49 @@ const createEmailTemplate = (title: string, subtitle: string, badge: string, con
           color: #64748b;
           text-transform: uppercase;
           padding: 12px 0;
-          width: 30%;
+          width: 35%;
           vertical-align: top;
           letter-spacing: 0.05em;
         }
         .field-value {
           font-size: 13px;
-          color: #1e293b;
+          color: #0f172a;
           padding: 12px 0;
           vertical-align: top;
         }
         .field-box {
           background-color: #f8fafc;
-          border: 1px solid #e2e8f0;
+          border: 1px solid #cbd5e1;
           border-radius: 8px;
           padding: 16px;
           font-size: 13px;
-          color: #334155;
+          color: #0f172a;
           line-height: 1.6;
           white-space: pre-wrap;
           margin-top: 8px;
+          font-family: monospace;
+          word-break: break-all;
         }
         .cta-btn {
           display: inline-block;
-          background-color: #6366f1;
+          background-color: #0f172a;
           color: #ffffff !important;
-          font-weight: 600;
+          font-weight: 700;
           font-size: 13px;
           text-decoration: none;
-          padding: 12px 24px;
+          padding: 14px 28px;
           border-radius: 8px;
           text-align: center;
-          box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
-          transition: background-color 0.2s;
+          letter-spacing: 0.02em;
         }
         .footer {
           background-color: #f8fafc;
-          padding: 32px;
-          border-top: 1px solid #e2e8f0;
+          padding: 24px 32px;
+          border-top: 1px solid #f1f5f9;
           text-align: center;
         }
         .socials {
-          margin-bottom: 20px;
+          margin-bottom: 12px;
         }
         .social-link {
           display: inline-block;
@@ -154,18 +154,10 @@ const createEmailTemplate = (title: string, subtitle: string, badge: string, con
           font-size: 12px;
           font-weight: 600;
         }
-        .social-link:hover {
-          color: #6366f1;
-        }
         .contact-info {
           font-size: 11px;
           color: #94a3b8;
           line-height: 1.5;
-        }
-        .unsubscribe {
-          margin-top: 16px;
-          font-size: 10px;
-          color: #cbd5e1;
         }
       </style>
     </head>
@@ -173,8 +165,16 @@ const createEmailTemplate = (title: string, subtitle: string, badge: string, con
       <div class="wrapper">
         <div class="container">
           <div class="header">
-            <div class="logo">Bishal<span>Codes</span></div>
-            <div class="badge">${badge}</div>
+            <table width="100%" cellPadding="0" cellSpacing="0" border="0">
+              <tr>
+                <td align="left">
+                  <div class="logo">BISHAL <span>CODES</span></div>
+                </td>
+                <td align="right">
+                  <div class="badge">${badge}</div>
+                </td>
+              </tr>
+            </table>
           </div>
           <div class="body">
             <h1 class="headline">${title}</h1>
@@ -182,21 +182,17 @@ const createEmailTemplate = (title: string, subtitle: string, badge: string, con
             <div class="content">
               ${contentHtml}
             </div>
-            ${actionButtonHtml ? `<div style="text-align: center; margin-top: 30px;">${actionButtonHtml}</div>` : ''}
+            ${actionButtonHtml ? `<div style="text-align: center; margin-top: 24px;">${actionButtonHtml}</div>` : ''}
           </div>
           <div class="footer">
             <div class="socials">
-              <a href="https://bishalcodes.com" class="social-link">Website</a>
-              <a href="https://github.com/Bishalkumarmishra" class="social-link">GitHub</a>
-              <a href="https://wa.me/9779827801575" class="social-link">WhatsApp</a>
-              <a href="mailto:developer@bishalcodes.com" class="social-link">Contact Email</a>
+              <a href="https://bishalcodes.com" class="social-link">Website</a> &bull;
+              <a href="https://github.com/Bishalkumarmishra" class="social-link">GitHub</a> &bull;
+              <a href="mailto:developer@bishalcodes.com" class="social-link">Contact</a>
             </div>
             <div class="contact-info">
-              Bishal Codes &copy; ${new Date().getFullYear()} &bull; World-Class Web Engineering<br>
+              Bishal Codes &copy; ${new Date().getFullYear()} &bull; World-Class Web Engineering & API Infrastructure<br>
               Kathmandu, Nepal &bull; Phone: +977 9827801575
-            </div>
-            <div class="unsubscribe">
-              You are receiving this because you contacted us or subscribed to updates.
             </div>
           </div>
         </div>

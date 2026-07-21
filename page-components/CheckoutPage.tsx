@@ -269,10 +269,16 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
       await addDoc(collection(db, 'payments'), paymentRecord);
 
       if (user?.uid) {
+        const now = Date.now();
+        const expiresAt = now + (30 * 24 * 60 * 60 * 1000);
         await setDoc(doc(db, 'users', user.uid), {
           api_production_key: prodKey,
           api_plan: selectedPlanId,
-          api_limit: effectivePriceUsd >= 100 ? 999999 : 50000
+          api_plan_name: activePlanName,
+          api_limit: effectivePriceUsd >= 100 ? 999999 : 50000,
+          api_subscribed_at: now,
+          api_expires_at: expiresAt,
+          api_status: 'active'
         }, { merge: true });
       }
 
@@ -338,10 +344,16 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
       await addDoc(collection(db, 'payments'), paymentRecord);
 
       if (user?.uid) {
+        const now = Date.now();
+        const expiresAt = now + (30 * 24 * 60 * 60 * 1000);
         await setDoc(doc(db, 'users', user.uid), {
           api_production_key: prodKey,
           api_plan: selectedPlanId,
-          api_limit: effectivePriceUsd >= 100 ? 999999 : 50000
+          api_plan_name: activePlanName,
+          api_limit: effectivePriceUsd >= 100 ? 999999 : 50000,
+          api_subscribed_at: now,
+          api_expires_at: expiresAt,
+          api_status: 'active'
         }, { merge: true });
       }
 

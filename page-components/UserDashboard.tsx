@@ -3,12 +3,12 @@ import React, { useEffect, useState, useRef } from 'react';
 // @ts-ignore
 import { onAuthStateChanged, signOut, updateProfile, User } from 'firebase/auth';
 import { auth, db } from '../services/firebase';
-import { doc, setDoc, addDoc, collection } from 'firebase/firestore';
+import { doc, setDoc, addDoc, collection, getDoc } from 'firebase/firestore';
 import { uploadToCloudinary } from '../services/cloudinary';
 import { useNavigation } from '../context/NavigationContext';
 import {
   LogOut, Edit3, Check, X, Loader2, ChevronRight, Star, Shield, Code2,
-  Brain, QrCode, BookOpen, Wrench, GitCompare, Camera
+  Brain, QrCode, BookOpen, Wrench, GitCompare, Camera, Clock, Key, AlertTriangle, RefreshCw, Zap
 } from 'lucide-react';
 
 const quickTools = [
@@ -100,6 +100,8 @@ const UserDashboard: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [userProfileData, setUserProfileData] = useState<any>(null);
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u: User | null) => {
       if (!u) { navigate('login'); return; }
@@ -116,6 +118,35 @@ const UserDashboard: React.FC = () => {
           photoURL: u.photoURL || '',
           lastActive: Date.now()
         }, { merge: true });
+
+        // Fetch user profile data to check subscription status & expiration
+        const userDocSnap = await getDoc(doc(db, 'users', u.uid));
+        if (userDocSnap.exists()) {
+          const pData = userDocSnap.data();
+          setUserProfileData(pData);
+
+          // Expiration 7-day automatic courtesy reminder check
+          if (pData.api_expires_at) {
+            const daysLeft = Math.max(0, Math.ceil((pData.api_expires_at - Date.now()) / (1000 * 60 * 60 * 24)));
+            if (daysLeft <= 7 && daysLeft > 0 && !sessionStorage.getItem(`reminder_sent_${u.uid}`)) {
+              sessionStorage.setItem(`reminder_sent_${u.uid}`, 'true');
+              fetch('/api/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  type: 'subscription-reminder',
+                  data: {
+                    email: u.email,
+                    planName: pData.api_plan_name || 'Active API Plan',
+                    daysLeft,
+                    expiresDate: new Date(pData.api_expires_at).toLocaleDateString(),
+                    generatedApiKey: pData.api_production_key
+                  }
+                })
+              });
+            }
+          }
+        }
 
         // Log session login once
         if (!sessionStorage.getItem('logged_login_activity')) {
@@ -319,10 +350,83 @@ const UserDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Display Name Toast */}
-        {nameSaved && (
-          <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl px-4 py-3 mb-6 flex items-center gap-2 text-sm font-medium animate-fadeIn">
-            <Check size={16} /> Display name updated successfully!
+        {/* Active API Subscription & Expiration Tracking Card */}
+        {userProfileData?.api_production_key && (
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 mb-8 shadow-sm relative overflow-hidden">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 pb-5 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">
+                  <Key size={18} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base font-bold text-slate-900">
+                      {userProfileData.api_plan_name || 'Commercial API Plan'}
+                    </h2>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                      daysRemaining === 0 
+                        ? 'bg-rose-100 text-rose-700' 
+                        : (daysRemaining !== null && daysRemaining <= 7)
+                        ? 'bg-amber-100 text-amber-800'
+                        : 'bg-emerald-100 text-emerald-800'
+                    }`}>
+                      {daysRemaining === 0 ? 'EXPIRED' : (daysRemaining !== null && daysRemaining <= 7) ? 'EXPIRING SOON' : 'ACTIVE'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Live Production Endpoint Access • Rate Limit: {userProfileData.api_limit ? userProfileData.api_limit.toLocaleString() : '50,000'} req/mo
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => navigate('checkout', 'pro')}
+                className="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors shrink-0 shadow-sm"
+              >
+                <RefreshCw size={13} />
+                Renew / Upgrade Plan
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+              {/* Days Left Indicator */}
+              <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4">
+                <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5 font-bold uppercase tracking-wider">
+                  <span className="flex items-center gap-1.5"><Clock size={13} /> Days Remaining</span>
+                  <span className="font-extrabold text-slate-900">{daysRemaining !== null ? `${daysRemaining} Days` : '30 Days'}</span>
+                </div>
+                <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full transition-all duration-500 ${
+                      daysRemaining === 0 ? 'bg-rose-500' : (daysRemaining !== null && daysRemaining <= 7) ? 'bg-amber-500' : 'bg-emerald-500'
+                    }`}
+                    style={{ width: `${daysRemaining !== null ? Math.max(5, ((30 - daysRemaining) / 30) * 100) : 100}%` }}
+                  />
+                </div>
+                <div className="text-[10px] text-slate-400 mt-2 font-medium">
+                  {daysRemaining !== null ? `Expires on ${new Date(userProfileData.api_expires_at).toLocaleDateString()}` : '30-Day Auto Billing Cycle'}
+                </div>
+              </div>
+
+              {/* API Key Display Box */}
+              <div className="md:col-span-2 bg-slate-50 border border-slate-200/80 rounded-xl p-4">
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                  <span>Your Live API Key</span>
+                  <span className="text-slate-500 font-mono text-[9px]">x-api-key header</span>
+                </div>
+                <code className="block bg-white border border-slate-200 rounded-lg p-2.5 font-mono text-xs font-bold text-slate-900 select-all break-all shadow-2xs">
+                  {userProfileData.api_production_key}
+                </code>
+              </div>
+            </div>
+
+            {/* 7-Day Warning Notification Banner */}
+            {daysRemaining !== null && daysRemaining <= 7 && daysRemaining > 0 && (
+              <div className="mt-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2 font-medium">
+                <AlertTriangle size={15} className="shrink-0 text-amber-600" />
+                <span>Courtesy Reminder: Your plan expires in <strong>{daysRemaining} days</strong>. Click <strong>Renew Plan</strong> above to prevent API key throttling.</span>
+              </div>
+            )}
           </div>
         )}
 
