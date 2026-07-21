@@ -457,78 +457,103 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans relative overflow-hidden">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-955 text-slate-900 dark:text-slate-100 flex flex-col font-sans">
         <Navbar />
-        <div className="flex-grow pt-32 pb-20 flex items-center justify-center px-[5vw]">
-          <div className="max-w-xl w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 sm:p-12 text-center shadow-lg relative z-10">
-            <div className="w-20 h-20 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-emerald-100 dark:border-emerald-500/20">
-              <CheckCircle size={40} />
+        <div className="flex-grow pt-28 pb-16 flex items-center justify-center px-4">
+          <div className="max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-xl">
+            {/* Header Status Badge */}
+            <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold shrink-0 border border-emerald-200 dark:border-emerald-800">
+                  <CheckCircle size={20} />
+                </div>
+                <div>
+                  <h1 className="text-base font-extrabold text-slate-900 dark:text-white leading-tight">
+                    {paymentMethod === 'fonepay' ? 'Proof Registered' : 'Payment Confirmed'}
+                  </h1>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                </div>
+              </div>
+              <span className="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                ACTIVE
+              </span>
             </div>
 
-            {paymentMethod === 'fonepay' ? (
-              <>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-3">
-                  Proof Submitted!
-                </h1>
-                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 font-normal">
-                  Your manual payment proof was registered successfully. Once our billing desk reviews the receipt, your live production key will be activated and emailed to <strong className="text-slate-800 dark:text-white font-bold">{email}</strong> within 1-2 hours.
-                </p>
-                <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300 text-xs text-left mb-8 flex items-start gap-2.5">
-                  <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-bold">Pending Audit Verification:</span> You can check your status in the Developer Dashboard or email billing support.
-                  </div>
+            {/* Receipt Summary Grid */}
+            <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 mb-5 space-y-2.5 text-xs">
+              <div className="flex justify-between items-center text-slate-500">
+                <span>Account Email:</span>
+                <span className="font-bold text-slate-900 dark:text-white truncate max-w-[200px]">{email || 'Guest Checkout'}</span>
+              </div>
+              <div className="flex justify-between items-center text-slate-500">
+                <span>Plan Tier:</span>
+                <span className="font-bold text-slate-900 dark:text-white">{activePlanName}</span>
+              </div>
+              <div className="flex justify-between items-center text-slate-500">
+                <span>Amount Paid:</span>
+                <span className="font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
+                  {paymentMethod === 'card' ? `$${effectivePriceUsd} USD` : `Rs. ${effectivePriceNpr} NPR`}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-slate-500 pt-2 border-t border-slate-200 dark:border-slate-800">
+                <span>Payment Gateway:</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
+                  {paymentMethod === 'card' ? 'Payoneer Processing' : paymentMethod === 'wallet' ? 'Digital Wallet' : 'Fonepay QR'}
+                </span>
+              </div>
+            </div>
+
+            {/* Production API Key Box */}
+            {paymentMethod !== 'fonepay' ? (
+              <div className="mb-5">
+                <div className="flex justify-between items-center text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                  <span>Live Production API Key</span>
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold">30 Days License</span>
                 </div>
-              </>
-            ) : (
-              <>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-3">
-                  Payment Successful!
-                </h1>
-                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 font-normal">
-                  Thank you for subscribing! Your live production key is initialized and ready. Integrate this key into your backends to bypass sandbox blocks.
-                </p>
-                
-                <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-left mb-8">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-2">
-                    <span>Your Live Production API Key</span>
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-450 uppercase tracking-widest font-black flex items-center gap-1">
-                      <Sparkles size={12} />
-                      Active
-                    </span>
-                  </div>
-                  <code className="block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 font-mono text-xs text-slate-900 dark:text-emerald-400 font-extrabold select-all break-all shadow-sm">
+                <div className="bg-slate-950 text-white rounded-xl p-3 flex items-center justify-between border border-slate-800 shadow-inner">
+                  <code className="font-mono text-xs font-bold text-emerald-400 truncate pr-2 select-all">
                     {generatedProdKey}
                   </code>
-                  <div className="text-[9px] text-slate-500 mt-2 font-normal">
-                    * Make sure to save this key securely. It operates under standard rate limits of {activePlanName}.
-                  </div>
                 </div>
-              </>
+              </div>
+            ) : (
+              <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs mb-5 leading-relaxed">
+                <strong>Pending Desk Review:</strong> Your screenshot receipt was logged. Live key will be activated & emailed to <strong>{email}</strong> shortly.
+              </div>
             )}
 
-            <div className="flex flex-col gap-3">
+            {/* Compact Action Buttons */}
+            <div className="space-y-2.5">
               <button 
                 onClick={handleDownloadPdfInvoice}
-                className="w-full bg-slate-900 hover:bg-black text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer border border-slate-800"
+                className="w-full bg-slate-900 hover:bg-black dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer border border-slate-800"
               >
                 <Download size={14} />
-                Download PDF Invoice & Integration Guide
+                Download PDF Invoice & Guide (.pdf)
               </button>
 
-              <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+              <div className="grid grid-cols-2 gap-2">
                 <button 
                   onClick={() => navigate('developers')}
-                  className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-sm"
+                  className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-colors"
                 >
-                  Back to API Portal
+                  Back to Portal
                 </button>
-                {user?.uid && (
+                {user?.uid ? (
                   <button 
                     onClick={() => navigate('user-dashboard')}
-                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 text-slate-800 dark:text-slate-200 font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
+                    className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-colors"
                   >
                     View Dashboard
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => navigate('home')}
+                    className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-colors"
+                  >
+                    Return Home
                   </button>
                 )}
               </div>
