@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Shield, Lock, CheckCircle, ArrowRight, Sparkles, Check, Loader2, Download, FileText, Gift
+  Shield, Lock, CheckCircle, ArrowRight, Check, Loader2, Download, FileText, Gift, Mail, Key
 } from 'lucide-react';
 import Navbar from '../sections/Navbar';
 import Footer from '../sections/Footer';
@@ -37,6 +37,28 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
     return `bc_prod_${salt}`;
   };
 
+  const sendReceiptEmail = async (paymentData: {
+    email: string;
+    planName: string;
+    amountPaid: number;
+    currency: string;
+    paymentMethod: string;
+    generatedApiKey?: string;
+  }) => {
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'payment-receipt',
+          data: paymentData
+        })
+      });
+    } catch (err) {
+      console.error('Failed to send automatic payment receipt email:', err);
+    }
+  };
+
   const handleGenerateFreeKey = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
@@ -61,6 +83,16 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
           api_status: 'active'
         }, { merge: true });
       }
+
+      // Automatically send API key to Gmail inbox
+      sendReceiptEmail({
+        email,
+        planName: 'Free Developer Plan',
+        amountPaid: 0,
+        currency: 'USD',
+        paymentMethod: 'Instant Free Access',
+        generatedApiKey: prodKey
+      });
 
       setGeneratedProdKey(prodKey);
       setSuccess(true);
@@ -143,32 +175,25 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
             <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold shrink-0 border border-emerald-200 dark:border-emerald-800">
-                  <CheckCircle size={20} />
+                  <Mail size={20} />
                 </div>
                 <div>
                   <h1 className="text-base font-extrabold text-slate-900 dark:text-white leading-tight">
-                    API Key Activated!
+                    API Key Sent to Email!
                   </h1>
                   <span className="text-[11px] text-slate-500 font-medium">
-                    100% Free Developer Tier
+                    Sent to {email}
                   </span>
                 </div>
               </div>
               <span className="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                ACTIVE
+                DISPATCHED
               </span>
             </div>
 
-            <div className="mb-5">
-              <div className="flex justify-between items-center text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                <span>Your Live Production Key</span>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold">Free Unlimited Access</span>
-              </div>
-              <div className="bg-slate-955 text-white rounded-xl p-3.5 flex items-center justify-between border border-slate-800 shadow-inner">
-                <code className="font-mono text-xs font-bold text-emerald-400 truncate pr-2 select-all">
-                  {generatedProdKey}
-                </code>
-              </div>
+            <div className="mb-5 p-4 rounded-xl bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              <span className="font-bold text-slate-900 dark:text-white block mb-1">📩 Check Your Gmail Inbox</span>
+              Your live production key and PDF documentation have been dispatched directly to <strong className="text-emerald-600 dark:text-emerald-400 font-bold">{email}</strong>.
             </div>
 
             <div className="space-y-2.5">
@@ -225,7 +250,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
               Get 100% Free API Key
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">
-              No credit card required. Instant live production key generation.
+              No credit card required. API key delivered instantly to your email.
             </p>
           </div>
 
@@ -246,13 +271,13 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
 
             <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-900 dark:text-emerald-300 space-y-1.5 font-medium">
               <div className="font-bold flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
-                <Sparkles size={14} /> Free Plan Included Features:
+                <CheckCircle size={14} /> Free Plan Features Included:
               </div>
               <ul className="space-y-1 text-[11px] text-emerald-800 dark:text-emerald-300">
                 <li>✓ 50,000 API requests per month</li>
                 <li>✓ Access to all core developer utilities</li>
                 <li>✓ High-speed production endpoints</li>
-                <li>✓ Instant key activation</li>
+                <li>✓ Instant key sent directly to your Gmail</li>
               </ul>
             </div>
 
@@ -264,12 +289,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
               {loading ? (
                 <>
                   <Loader2 className="animate-spin" size={14} />
-                  Generating Free Key...
+                  Sending API Key to Gmail...
                 </>
               ) : (
                 <>
-                  <Sparkles size={14} />
-                  Generate Free Production API Key
+                  <Key size={14} />
+                  Send Free API Key to Gmail
                 </>
               )}
             </button>
