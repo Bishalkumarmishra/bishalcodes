@@ -539,13 +539,13 @@ func main() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans selection:bg-emerald-600 selection:text-white relative overflow-hidden">
       <Navbar />
 
       {/* Hero section */}
       <div className="pt-28 pb-12 w-full px-[5vw] relative z-10 border-b border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-955/60 backdrop-blur-md">
         <div className="max-w-7xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1 rounded-full mb-3 text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider text-[9px]">
+          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1 rounded-full mb-3 text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-wider text-[9px]">
             <Terminal size={12} />
             API Store & Developer Hub
           </div>
@@ -1022,120 +1022,54 @@ func main() {
         </div>
       </div>
 
-      {/* Pricing packages section for commercial intent */}
+      {/* 100% Free API Access Section */}
       <div id="api-pricing-section" className="py-16 w-full border-t border-slate-200 dark:border-slate-900 bg-slate-100/50 dark:bg-slate-900/10 px-[5vw] relative z-10">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-xl mx-auto mb-12">
-            <p className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider text-[10px] mb-2">API Pricing Models</p>
+          <div className="text-center max-w-xl mx-auto mb-10">
+            <p className="text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider text-[10px] mb-2">100% Free API Access</p>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0f172a] dark:text-white tracking-tight leading-none">
-              Choose A Plan That Fits Your Scale
+              Free Developer Production Key
             </h2>
             <p className="text-[#475569] dark:text-slate-400 text-xs sm:text-sm mt-3 leading-relaxed font-normal">
-              Unlock live endpoints with higher rate limits, high availability SLA, and dedicated engineering consultation support.
+              No credit card required. Generate your live production key instantly and receive full PDF documentation directly in your Gmail inbox.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {/* Free Sandbox */}
-            <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 flex flex-col justify-between h-full">
-              <div>
-                <p className="text-xs font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-2">Developer Sandbox</p>
-                <div className="flex items-baseline gap-1 text-[#0f172a] dark:text-white mb-4">
-                  <span className="text-3xl font-black">$0</span>
-                  <span className="text-xs text-slate-500 font-normal">/ free sandbox</span>
-                </div>
-                <ul className="space-y-3 text-xs text-[#334155] dark:text-slate-300 font-medium border-t border-slate-200 dark:border-slate-900 pt-4">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
-                    100 API Requests / day
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
-                    Unlimited local playground queries
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
-                    Access to all 7 API endpoints
-                  </li>
-                </ul>
+          <div className="max-w-md mx-auto p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 relative shadow-xl">
+            <span className="absolute top-0 right-6 -translate-y-1/2 bg-emerald-600 text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              100% FREE
+            </span>
+            <div>
+              <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-2">Developer Production Plan</p>
+              <div className="flex items-baseline gap-1 text-[#0f172a] dark:text-white mb-4">
+                <span className="text-4xl font-black">$0</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">/ free forever</span>
               </div>
-              <button className="mt-8 w-full bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider border border-slate-200 dark:border-slate-800">
-                Current Plan
-              </button>
+              <ul className="space-y-3 text-xs text-[#334155] dark:text-slate-300 font-medium border-t border-slate-200 dark:border-slate-800 pt-4">
+                <li className="flex items-center gap-2">
+                  <CheckCircle size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  50,000 Free API Requests / month
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  Access to all core developer utility APIs
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  Direct Gmail key delivery & PDF documentation
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  99.9% Server Uptime SLA
+                </li>
+              </ul>
             </div>
-
-            {/* Pro SaaS API Tier */}
-            <div className="p-6 rounded-2xl border-2 border-indigo-500/50 bg-white dark:bg-slate-900 relative flex flex-col justify-between h-full shadow-lg shadow-indigo-500/5 dark:shadow-indigo-500/5">
-              <span className="absolute top-0 right-6 -translate-y-1/2 bg-indigo-500 text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                POPULAR
-              </span>
-              <div>
-                <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-2">Commercial Pro</p>
-                <div className="flex items-baseline gap-1 text-[#0f172a] dark:text-white mb-4">
-                  <span className="text-3xl font-black">$29</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">/ month</span>
-                </div>
-                <ul className="space-y-3 text-xs text-[#334155] dark:text-slate-350 font-medium border-t border-slate-200 dark:border-slate-800/80 pt-4">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-455 shrink-0" />
-                    50,000 API Requests / month
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-455 shrink-0" />
-                    Rate limit: 60 req / minute
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-455 shrink-0" />
-                    Dedicated HTTPS live production key
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-455 shrink-0" />
-                    99.9% Server uptime SLA
-                  </li>
-                </ul>
-              </div>
-              <button 
-                onClick={() => navigate('checkout', 'pro')}
-                className="mt-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-sm transition-colors cursor-pointer"
-              >
-                Upgrade to Pro
-              </button>
-            </div>
-
-            {/* Enterprise Tier */}
-            <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 flex flex-col justify-between h-full">
-              <div>
-                <p className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-2">Custom Integration</p>
-                <div className="flex items-baseline gap-1 text-[#0f172a] dark:text-white mb-4">
-                  <span className="text-3xl font-black">$149</span>
-                  <span className="text-xs text-slate-500 font-normal">/ month starting</span>
-                </div>
-                <ul className="space-y-3 text-xs text-[#334155] dark:text-slate-355 font-medium border-t border-slate-200 dark:border-slate-900 pt-4">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
-                    Unlimited Requests (Custom contract)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
-                    Rate limit: 500 req / minute
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
-                    Zero-throttling hosting cluster scaling
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
-                    Email, slack, and call developer support
-                  </li>
-                </ul>
-              </div>
-              <button 
-                onClick={() => navigate('checkout', 'enterprise')}
-                className="mt-8 w-full bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider border border-slate-200 dark:border-slate-800 cursor-pointer"
-              >
-                Contact Sales
-              </button>
-            </div>
+            <button 
+              onClick={() => navigate('checkout', 'free')}
+              className="mt-8 w-full bg-slate-900 hover:bg-black dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2"
+            >
+              Get Free Production Key
+            </button>
           </div>
         </div>
       </div>
