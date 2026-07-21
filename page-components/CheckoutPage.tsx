@@ -675,7 +675,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-slate-800 dark:focus:border-emerald-500"
                     />
                   </div>
 
@@ -691,7 +691,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                       value={cardName}
                       onChange={(e) => setCardName(e.target.value)}
                       placeholder="Name on card"
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-slate-800 dark:focus:border-emerald-500"
                     />
                   </div>
 
@@ -701,7 +701,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                         Card Number
                       </label>
                       {cardNumber.length >= 1 && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full transition-all bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full transition-all bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                           {/^4/.test(cardNumber.replace(/\D/g, '')) ? '💳 VISA' : 
                            /^(5[1-5]|2[2-7])/.test(cardNumber.replace(/\D/g, '')) ? '💳 MASTERCARD' :
                            /^3[47]/.test(cardNumber.replace(/\D/g, '')) ? '💳 AMEX' :
@@ -719,7 +719,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                         value={cardNumber}
                         onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim())}
                         placeholder="4000 0000 0000 0000"
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono tracking-wider"
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-slate-800 dark:focus:border-emerald-500 font-mono tracking-wider"
                       />
                     </div>
                   </div>
@@ -742,7 +742,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                           setCardExpiry(val);
                         }}
                         placeholder="MM/YY"
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono text-center"
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-slate-800 dark:focus:border-emerald-500 font-mono text-center"
                       />
                     </div>
                     <div>
@@ -758,14 +758,14 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                         value={cardCvv}
                         onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ''))}
                         placeholder="123"
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono text-center"
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-slate-800 dark:focus:border-emerald-500 font-mono text-center"
                       />
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-xs text-slate-550 dark:text-slate-400 leading-relaxed font-normal">
-                    <span className="font-bold text-slate-800 dark:text-white block mb-1">💳 Payoneer Global Card Processing</span>
-                    Auto-detects Visa, MasterCard, Amex & Discover cards. Funds settle directly into your linked bank account with zero domain verification required.
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
+                    <span className="font-bold text-slate-900 dark:text-white block mb-1">💳 Verified Payoneer Recipient: bishalmishra9000@gmail.com</span>
+                    Direct Payoneer 3D-Secure payment routing. Funds settle directly into Bishal Kumar Mishra's verified Payoneer balance.
                   </div>
 
                   <button
@@ -776,12 +776,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                     {loading ? (
                       <>
                         <Loader2 className="animate-spin" size={14} />
-                        Processing Direct Payment...
+                        Redirecting to Payoneer...
                       </>
                     ) : (
                       <>
                         <Lock size={12} />
-                        Pay ${effectivePriceUsd} USD Securely
+                        Pay ${effectivePriceUsd} USD via Payoneer
                       </>
                     )}
                   </button>
