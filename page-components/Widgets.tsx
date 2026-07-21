@@ -107,11 +107,8 @@ export default function Widgets() {
   const { width, height } = getDimensions();
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bishalcodes.com';
   const widgetUrl = `${origin}${selectedTool.path}`;
-  const embedCode = `<!-- Bishal Codes Embeddable Widget: ${selectedTool.name} -->
-<iframe src="${widgetUrl}" frameborder="0" style="border: 1px solid #e2e8f0; border-radius:16px; width: ${width}px; height: ${height}px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);" title="${selectedTool.name}"></iframe>
-<div style="font-size:11px; text-align:right; font-family:sans-serif; margin-top:4px; color:#64748b;">
-  Powered by <a href="https://bishalcodes.com" target="_blank" style="color:#059669; font-weight:bold; text-decoration:none;">Bishal Codes</a> © 2026 Bishal Mishra
-</div>`;
+  const embedCode = `<!-- Bishal Codes Embeddable Widget: ${selectedTool.name} | Powered by Bishal Codes © 2026 Bishal Mishra -->
+<iframe src="${widgetUrl}" frameborder="0" style="border: 1px solid #e2e8f0; border-radius:16px; width: ${width}px; height: ${height}px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);" title="${selectedTool.name}"></iframe>`;
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(embedCode).then(() => {
@@ -314,17 +311,13 @@ export default function Widgets() {
             <div className="w-full flex items-center justify-center p-4 bg-slate-100/60 dark:bg-slate-900/40 rounded-xl overflow-auto border border-slate-200/60 dark:border-slate-800/60 min-h-[480px]">
               <div 
                 style={{ width: `${width}px`, height: `${height}px` }} 
-                className="bg-white dark:bg-slate-950 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden transition-all flex flex-col justify-between"
+                className="bg-white dark:bg-slate-950 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden transition-all"
               >
                 <iframe
                   title={`Preview of ${selectedTool.name}`}
                   src={widgetUrl}
                   className="w-full h-full border-0"
                 />
-                <div className="bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-[10px] py-2 px-3 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
-                  <span>Powered by <strong className="text-emerald-600 dark:text-emerald-400 font-bold">Bishal Codes</strong></span>
-                  <span className="text-slate-500 dark:text-slate-400">© 2026 Bishal Mishra</span>
-                </div>
               </div>
             </div>
           </div>

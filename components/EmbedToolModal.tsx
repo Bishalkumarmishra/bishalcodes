@@ -17,11 +17,8 @@ const EmbedToolModal: React.FC<EmbedToolModalProps> = ({ toolId, toolName, isOpe
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bishalcodes.com';
   const embedUrl = `${origin}/tools/${toolId}?embed=true`;
 
-  const embedCode = `<!-- Bishal Codes Embeddable Widget: ${toolName} -->
-<iframe src="${embedUrl}" width="100%" height="${height}" frameborder="0" style="border:1px solid #e2e8f0; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);" title="${toolName}"></iframe>
-<div style="font-size:11px; text-align:right; font-family:sans-serif; margin-top:6px; color:#64748b;">
-  Powered by <a href="https://bishalcodes.com" target="_blank" style="color:#059669; font-weight:bold; text-decoration:none;">Bishal Codes</a> © 2026 Bishal Mishra
-</div>`;
+  const embedCode = `<!-- Bishal Codes Embeddable Widget: ${toolName} | Powered by Bishal Codes © 2026 Bishal Mishra -->
+<iframe src="${embedUrl}" width="100%" height="${height}" frameborder="0" style="border:1px solid #e2e8f0; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.06);" title="${toolName}"></iframe>`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(embedCode).then(() => {
