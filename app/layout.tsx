@@ -17,9 +17,9 @@ export const viewport = {
 };
 
 export const metadata = {
-  title: "Bishal Mishra | Full-Stack Web Developer & Designer Portfolio",
-  description: "Hi, I'm Bishal Mishra. I build fast, clean, and interactive websites and web applications. Explore my portfolio projects, read my blog, or get in touch for custom web development.",
-  keywords: "Bishal Mishra, Bishal Codes, Full Stack Developer Nepal, Web Developer, Next.js Expert, React Developer, UI/UX Designer, Professional Web Development, JavaScript Expert, TypeScript, Freelance Web Developer",
+  title: "Bishal Mishra | Full-Stack Web Developer & Free Developer APIs",
+  description: "Hi, I'm Bishal Mishra. Explore my portfolio projects, read technical blogs, and get 100% free production API keys for developer utilities, OCR, Screenshot, and Currency APIs.",
+  keywords: "Bishal Mishra, Bishal Codes, Free Developer APIs, Free Production API Key, Web Developer Nepal, Full Stack Developer, Next.js Expert, React Developer, UI/UX Designer, Free Currency API, Free Screenshot API, Free OCR API",
   authors: [{ name: "Bishal Mishra" }],
   alternates: {
     canonical: "https://bishalcodes.com/",
@@ -28,8 +28,8 @@ export const metadata = {
   openGraph: {
     type: "website",
     url: "https://bishalcodes.com/",
-    title: "Bishal Mishra | Full-Stack Web Developer & Designer Portfolio",
-    description: "Hi, I'm Bishal Mishra. I build fast, clean, and interactive websites and web applications. Explore my portfolio projects, read my blog, or get in touch for custom web development.",
+    title: "Bishal Mishra | Full-Stack Web Developer & Free Developer APIs",
+    description: "Hi, I'm Bishal Mishra. Explore my portfolio projects, read technical blogs, and get 100% free production API keys for developer utilities, OCR, Screenshot, and Currency APIs.",
     images: [
       {
         url: "https://ik.imagekit.io/bishalc/desktop.png",
@@ -44,8 +44,8 @@ export const metadata = {
     card: "summary_large_image",
     site: "@bishalmishra",
     creator: "@bishalmishra",
-    title: "Bishal Mishra | Full-Stack Web Developer & Designer Portfolio",
-    description: "Hi, I'm Bishal Mishra. I build fast, clean, and interactive websites and web applications. Explore my portfolio projects, read my blog, or get in touch for custom web development.",
+    title: "Bishal Mishra | Full-Stack Web Developer & Free Developer APIs",
+    description: "Hi, I'm Bishal Mishra. Explore my portfolio projects, read technical blogs, and get 100% free production API keys for developer utilities, OCR, Screenshot, and Currency APIs.",
     images: ["https://ik.imagekit.io/bishalc/desktop.png"],
   }
 };
