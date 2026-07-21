@@ -173,7 +173,7 @@ const Skills: React.FC = () => {
               onBlur={(e) => handleInlineAboutSave('bio', e.currentTarget.textContent || '')}
               onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
               onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
-              className={`text-slate-650 text-base sm:text-lg leading-relaxed mb-8 font-normal max-w-xl ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 p-1 rounded cursor-text' : ''}`}
+              className={`text-slate-600 dark:text-slate-400 text-xs sm:text-sm md:text-[14px] leading-relaxed mb-6 font-normal max-w-xl ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 p-1 rounded cursor-text' : ''}`}
             >
               {aboutData.bio}
             </p>
