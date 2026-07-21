@@ -233,13 +233,19 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
     }
   };
 
+  const isEmbedded = typeof window !== 'undefined' && (
+    new URLSearchParams(window.location.search).get('embed') === 'true' ||
+    window.self !== window.top ||
+    window.location.pathname.startsWith('/widgets')
+  );
+
   return (
     <NavigationContext.Provider value={{ currentPage, selectedId, navigate }}>
       <div className="antialiased font-sans text-slate-800 bg-slate-50 min-h-screen">
         {renderContent()}
-        <LiveEditWidget />
-        <FloatingEditorToolbar />
-        <AIAssistant />
+        {!isEmbedded && <LiveEditWidget />}
+        {!isEmbedded && <FloatingEditorToolbar />}
+        {!isEmbedded && <AIAssistant />}
       </div>
     </NavigationContext.Provider>
   );

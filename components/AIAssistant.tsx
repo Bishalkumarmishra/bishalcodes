@@ -639,6 +639,19 @@ const AIAssistant: React.FC = () => {
   const { navigate } = useNavigation();
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
 
+  // Check if component is loaded inside an embedded iframe or widget URL
+  const [isEmbeddedIframe, setIsEmbeddedIframe] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isEmbedParam = new URLSearchParams(window.location.search).get('embed') === 'true';
+      const inIframe = window.self !== window.top;
+      const isWidgetRoute = window.location.pathname.startsWith('/widgets');
+      if (isEmbedParam || inIframe || isWidgetRoute) {
+        setIsEmbeddedIframe(true);
+      }
+    }
+  }, []);
+
   // Admin Authentication State
   const [authUser] = useAuthState(auth);
   const isAdmin = !!authUser;
@@ -1319,6 +1332,8 @@ If you generate code snippets, enclose them in markdown block code syntax so the
       setLoading(false);
     }
   };
+
+  if (isEmbeddedIframe) return null;
 
   return (
     <>
