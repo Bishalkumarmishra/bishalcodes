@@ -292,7 +292,7 @@ const About: React.FC = () => {
               )}
 
               {/* Badges/Feature Icons (Solid Slate-800 Accents) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 border-t border-slate-100 dark:border-slate-800 pt-4 text-left transition-colors">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 border-t border-slate-100 dark:border-slate-800 pt-4 text-left transition-colors">
                 <div className="flex items-start gap-1.5">
                   <CheckCircle2 size={15} className="text-slate-800 dark:text-slate-400 mt-0.5 shrink-0" />
                   <div>
@@ -314,10 +314,36 @@ const About: React.FC = () => {
                     <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">Polished UX/UI systems</p>
                   </div>
                 </div>
+
+                {/* Stats inline on mobile, below badges */}
+                <div className="sm:hidden col-span-1 grid grid-cols-2 gap-2 mt-1">
+                  <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 p-2.5 rounded-xl text-left">
+                    <p 
+                      contentEditable={isEditMode}
+                      suppressContentEditableWarning
+                      onBlur={(e) => handleInlineSave('projectsCompleted', e.currentTarget.textContent || '')}
+                      className={`text-lg font-extrabold text-slate-900 dark:text-white font-outfit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                    >
+                      {aboutData.projectsCompleted}
+                    </p>
+                    <p className="text-[8px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">Projects Completed</p>
+                  </div>
+                  <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 p-2.5 rounded-xl text-left">
+                    <p 
+                      contentEditable={isEditMode}
+                      suppressContentEditableWarning
+                      onBlur={(e) => handleInlineSave('experience', e.currentTarget.textContent || '')}
+                      className={`text-lg font-extrabold text-slate-900 dark:text-white font-outfit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                    >
+                      {aboutData.experience}
+                    </p>
+                    <p className="text-[8px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">Experience</p>
+                  </div>
+                </div>
               </div>
 
-              {/* Stats Bar */}
-              <div className="grid grid-cols-2 gap-3 mb-6">
+              {/* Stats Bar - Desktop only (mobile shown inline above) */}
+              <div className="hidden sm:grid grid-cols-2 gap-3 mb-6">
                 <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 p-3 sm:p-4 rounded-xl hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-300 text-left">
                   <p 
                     contentEditable={isEditMode}
