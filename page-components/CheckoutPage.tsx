@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   CreditCard, Shield, Lock, CheckCircle, UploadCloud, Smartphone, ArrowRight, 
-  Coins, Sparkles, Check, Loader2, Landmark, AlertCircle
+  Coins, Sparkles, Check, Loader2, Landmark, AlertCircle, Download, FileText
 } from 'lucide-react';
 import Navbar from '../sections/Navbar';
 import Footer from '../sections/Footer';
@@ -121,6 +121,121 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
       });
     } catch (err) {
       console.error('Failed to send automatic payment receipt email:', err);
+    }
+  };
+
+  const handleDownloadPdfInvoice = async () => {
+    try {
+      const { jsPDF } = await import('jspdf');
+      const doc = new jsPDF();
+
+      // Brand Header
+      doc.setFillColor(15, 23, 42); // slate-900
+      doc.rect(0, 0, 210, 40, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(22);
+      doc.text('BISHAL CODES', 20, 25);
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(148, 163, 184);
+      doc.text('OFFICIAL INVOICE & INTEGRATION GUIDE', 130, 25);
+
+      // Invoice Details
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Payment Receipt & License Key', 20, 55);
+
+      doc.setDrawColor(226, 232, 240);
+      doc.line(20, 60, 190, 60);
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(100, 116, 139);
+      doc.text('ACCOUNT EMAIL:', 20, 72);
+      doc.text('TIER / PLAN:', 20, 82);
+      doc.text('AMOUNT PAID:', 20, 92);
+      doc.text('PAYMENT METHOD:', 20, 102);
+      doc.text('TRANSACTION DATE:', 20, 112);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(30, 41, 59);
+      doc.text(email || 'Guest User', 70, 72);
+      doc.text(activePlanName, 70, 82);
+      doc.text(`${paymentMethod === 'card' ? '$' + effectivePriceUsd + ' USD' : 'Rs. ' + effectivePriceNpr + ' NPR'}`, 70, 92);
+      doc.text(paymentMethod === 'card' ? 'Payoneer Card Processing' : paymentMethod === 'wallet' ? 'eSewa / Khalti Digital Wallet' : 'Fonepay QR Scan', 70, 102);
+      doc.text(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }), 70, 112);
+
+      // API Key Box
+      doc.setFillColor(238, 242, 255);
+      doc.roundedRect(20, 122, 170, 24, 3, 3, 'F');
+      doc.setDrawColor(199, 210, 254);
+      doc.roundedRect(20, 122, 170, 24, 3, 3, 'D');
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(99, 102, 241);
+      doc.text('YOUR ACTIVE PRODUCTION API KEY:', 25, 130);
+
+      doc.setFontSize(10);
+      doc.setFont('courier', 'bold');
+      doc.setTextColor(67, 56, 202);
+      doc.text(generatedProdKey || 'bc_prod_live_key', 25, 140);
+
+      // Integration Guide Section
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text('API Integration Guide (Step-by-Step)', 20, 160);
+
+      doc.setDrawColor(226, 232, 240);
+      doc.line(20, 164, 190, 164);
+
+      doc.setFontSize(9.5);
+      doc.setFont('helvetica', 'bold');
+      doc.text('1. cURL Terminal Header Example:', 20, 174);
+      doc.setFont('courier', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(51, 65, 85);
+      doc.text(`curl -X POST "https://bishalcodes.com/api/v1/currency" \\`, 25, 182);
+      doc.text(`  -H "x-api-key: ${generatedProdKey || 'bc_prod_YOUR_KEY'}" \\`, 25, 188);
+      doc.text(`  -H "Content-Type: application/json"`, 25, 194);
+
+      doc.setFontSize(9.5);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text('2. Node.js / Next.js Fetch Example:', 20, 208);
+      doc.setFont('courier', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(51, 65, 85);
+      doc.text(`const res = await fetch('https://bishalcodes.com/api/v1/currency', {`, 25, 216);
+      doc.text(`  headers: { 'x-api-key': '${generatedProdKey || 'bc_prod_YOUR_KEY'}' }`, 25, 222);
+      doc.text(`});`, 25, 228);
+
+      doc.setFontSize(9.5);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text('3. Python Requests Integration:', 20, 242);
+      doc.setFont('courier', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(51, 65, 85);
+      doc.text(`import requests`, 25, 250);
+      doc.text(`headers = {'x-api-key': '${generatedProdKey || 'bc_prod_YOUR_KEY'}'}`, 25, 256);
+      doc.text(`res = requests.get('https://bishalcodes.com/api/v1/currency', headers=headers)`, 25, 262);
+
+      // Footer
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(148, 163, 184);
+      doc.text('Bishal Codes (https://bishalcodes.com) • Support: developer@bishalcodes.com • Kathmandu, Nepal', 20, 285);
+
+      doc.save(`BishalCodes_Invoice_${Date.now()}.pdf`);
+    } catch (err) {
+      console.error('Failed to generate PDF invoice:', err);
+      alert('Error generating PDF invoice. Please try again.');
     }
   };
 
@@ -363,21 +478,31 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
               </>
             )}
 
-            <div className="flex flex-col sm:flex-row items-center gap-3">
+            <div className="flex flex-col gap-3">
               <button 
-                onClick={() => navigate('developers')}
-                className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-sm"
+                onClick={handleDownloadPdfInvoice}
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
               >
-                Back to API Portal
+                <Download size={14} />
+                Download PDF Invoice & Integration Guide
               </button>
-              {user?.uid && (
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
                 <button 
-                  onClick={() => navigate('user-dashboard')}
-                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 text-slate-800 dark:text-slate-200 font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
+                  onClick={() => navigate('developers')}
+                  className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-sm"
                 >
-                  View Dashboard
+                  Back to API Portal
                 </button>
-              )}
+                {user?.uid && (
+                  <button 
+                    onClick={() => navigate('user-dashboard')}
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 text-slate-800 dark:text-slate-200 font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
+                  >
+                    View Dashboard
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
