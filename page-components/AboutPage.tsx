@@ -49,14 +49,14 @@ const AboutPage: React.FC = () => {
       </div>
 
       {/* CTA Section */}
-      <section className="py-14 sm:py-20 bg-slate-950 text-white border-t border-slate-800 relative overflow-hidden">
-        <div className="w-full px-[5vw] mx-auto text-center relative z-10">
-          <h2 className="text-white text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-6 max-w-xl mx-auto font-outfit">
+      <section className="py-12 sm:py-16 px-[5vw]">
+        <div className="max-w-4xl mx-auto bg-slate-950 dark:bg-slate-900 text-white rounded-3xl p-8 sm:p-12 shadow-2xl text-center border border-slate-800 relative overflow-hidden">
+          <h2 className="text-white text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-6 max-w-xl mx-auto font-outfit relative z-10">
             <EditableText collection="settings" document="about_page" field="cta_title" fallback="Ready to Build Your Next Web Project?" />
           </h2>
           <button 
             onClick={() => navigate('contact')}
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer border border-emerald-500/30"
+            className="relative z-10 inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer border border-emerald-500/30"
           >
             <EditableText collection="settings" document="about_page" field="cta_btn" fallback="Get in Touch" />
           </button>
