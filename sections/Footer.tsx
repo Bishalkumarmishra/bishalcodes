@@ -154,9 +154,9 @@ const Footer: React.FC = () => {
     { label: 'My work',     id: 'projects' },
     { label: 'Experience',  id: 'experience' },
     { label: 'Services',    id: 'services' },
+    { label: 'Widgets',     id: 'widgets' },
     { label: 'Blog',        id: 'blog' },
     { label: 'Docs',        id: 'docs' },
-    { label: 'Say hello',   id: 'contact' },
   ];
 
   const getSocialIcon = (name: string) => {
