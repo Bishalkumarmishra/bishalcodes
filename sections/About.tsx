@@ -318,7 +318,7 @@ const About: React.FC = () => {
                 </div>
 
                 {/* Stats right below badges */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 mt-1">
                   <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 p-2.5 sm:p-4 rounded-xl hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-300 text-left">
                     <p 
                       contentEditable={isEditMode}
@@ -341,32 +341,6 @@ const About: React.FC = () => {
                     </p>
                     <p className="text-[8px] sm:text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">Experience</p>
                   </div>
-                </div>
-              </div>
-
-              {/* Stats Bar - Desktop only (mobile shown inline above) */}
-              <div className="hidden sm:grid grid-cols-2 gap-3 mb-6">
-                <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 p-3 sm:p-4 rounded-xl hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-300 text-left">
-                  <p 
-                    contentEditable={isEditMode}
-                    suppressContentEditableWarning
-                    onBlur={(e) => handleInlineSave('projectsCompleted', e.currentTarget.textContent || '')}
-                    className={`text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-outfit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
-                  >
-                    {aboutData.projectsCompleted}
-                  </p>
-                  <p className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">Projects Completed</p>
-                </div>
-                <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 p-3 sm:p-4 rounded-xl hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-300 text-left">
-                  <p 
-                    contentEditable={isEditMode}
-                    suppressContentEditableWarning
-                    onBlur={(e) => handleInlineSave('experience', e.currentTarget.textContent || '')}
-                    className={`text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-outfit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
-                  >
-                    {aboutData.experience}
-                  </p>
-                  <p className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">Experience</p>
                 </div>
               </div>
 
