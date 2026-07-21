@@ -31,7 +31,7 @@ const EmbedToolModal: React.FC<EmbedToolModalProps> = ({ toolId, toolName, isOpe
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="max-w-2xl w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2.5">
@@ -57,13 +57,13 @@ const EmbedToolModal: React.FC<EmbedToolModalProps> = ({ toolId, toolName, isOpe
 
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
-            <span>HTML iFrame Snippet</span>
+            <span>HTML iFrame Code Snippet</span>
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-slate-500 font-medium">Height:</span>
               <select
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
-                className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] rounded px-2 py-0.5 outline-none font-medium"
+                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] rounded px-2 py-0.5 outline-none font-medium text-slate-900 dark:text-white"
               >
                 <option value="550">550px (Compact)</option>
                 <option value="650">650px (Standard)</option>
@@ -72,8 +72,8 @@ const EmbedToolModal: React.FC<EmbedToolModalProps> = ({ toolId, toolName, isOpe
             </div>
           </div>
 
-          <div className="relative bg-slate-950 text-slate-200 rounded-xl p-3.5 font-mono text-[11px] border border-slate-800 overflow-x-auto select-all">
-            <pre className="whitespace-pre-wrap break-all">{embedCode}</pre>
+          <div className="relative bg-slate-50 dark:bg-slate-955 text-slate-900 dark:text-slate-100 rounded-xl p-3.5 font-mono text-[11px] border border-slate-200 dark:border-slate-800 overflow-x-auto select-all">
+            <pre className="whitespace-pre-wrap break-all text-slate-800 dark:text-slate-200">{embedCode}</pre>
           </div>
 
           <div className="flex items-center justify-between pt-1">

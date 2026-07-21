@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../sections/Navbar';
 import Footer from '../sections/Footer';
-import { Copy, Check, Calendar, ArrowRightLeft, Code, Eye, ShieldCheck, Sparkles } from 'lucide-react';
+import { Copy, Check, Calendar, ArrowRightLeft, Code, Eye, ShieldCheck, Sparkles, ChevronDown, HelpCircle, BookOpen } from 'lucide-react';
 import { doc, updateDoc, increment, setDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import DesktopDownloadModal from '../components/DesktopDownloadModal';
 
 const EMBEDDABLE_TOOLS = [
   { id: 'date-converter', name: 'Date Converter (BS ↔ AD)', path: '/widgets/date-converter' },
-  { id: 'calendar', name: 'Nepali Calendar', path: '/widgets/calendar' },
+  { id: 'calendar', name: 'Nepali Calendar Widget', path: '/widgets/calendar' },
   { id: 'currency-converter', name: 'Live Currency Exchange Rate Converter', path: '/tools/currency-converter?embed=true' },
   { id: 'currency-calculator', name: 'Currency Calculator', path: '/tools/currency-calculator?embed=true' },
   { id: 'translator', name: 'Multi-Language Text & Speech Translator', path: '/tools/translator?embed=true' },
@@ -37,6 +37,7 @@ export default function Widgets() {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [selectedToolId, setSelectedToolId] = useState<string>('date-converter');
   const [sizePreset, setSizePreset] = useState<'small' | 'medium' | 'full' | 'custom'>('medium');
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   
   // Custom Dimension State
   const [customWidth, setCustomWidth] = useState<number>(360);
@@ -44,6 +45,48 @@ export default function Widgets() {
 
   // Copy status
   const [copied, setCopied] = useState<boolean>(false);
+
+  // Dynamic SEO Setup
+  useEffect(() => {
+    document.title = "Free Website Widgets & Embeddable Developer Tools | Bishal Codes";
+
+    let metaDescriptionTag = document.querySelector('meta[name="description"]');
+    if (!metaDescriptionTag) {
+      metaDescriptionTag = document.createElement('meta');
+      metaDescriptionTag.setAttribute('name', 'description');
+      document.head.appendChild(metaDescriptionTag);
+    }
+    metaDescriptionTag.setAttribute('content', 'Embed 24 free responsive website widgets and developer utilities. iFrame snippets for Nepali Date Converter, Currency Exchange, Code Runner, and Image Tools with copyright attribution.');
+
+    let metaKeywordsTag = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywordsTag) {
+      metaKeywordsTag = document.createElement('meta');
+      metaKeywordsTag.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywordsTag);
+    }
+    metaKeywordsTag.setAttribute('content', 'website widgets, embeddable developer tools, nepali date converter iframe, currency converter widget, HTML iframe generator, bishal codes widgets');
+
+    const schemaId = 'widgets-seo-jsonld';
+    let scriptTag = document.getElementById(schemaId) as HTMLScriptElement;
+    if (!scriptTag) {
+      scriptTag = document.createElement('script');
+      scriptTag.id = schemaId;
+      scriptTag.type = 'application/ld+json';
+      document.head.appendChild(scriptTag);
+    }
+
+    scriptTag.innerHTML = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Bishal Codes Embeddable Webmaster Widgets",
+      "description": "Responsive iFrame widgets for webmasters, developers, and blog authors. Embed currency tools, date converters, and utilities with 1-click HTML snippets.",
+      "url": "https://bishalcodes.com/widgets",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "All",
+      "offers": { "@type": "Offer", "price": "0.00", "priceCurrency": "USD" },
+      "author": { "@type": "Person", "name": "Bishal Mishra", "url": "https://bishalcodes.com/" }
+    });
+  }, []);
 
   const selectedTool = EMBEDDABLE_TOOLS.find(t => t.id === selectedToolId) || EMBEDDABLE_TOOLS[0];
 
@@ -93,6 +136,25 @@ export default function Widgets() {
     }
   };
 
+  const faqs = [
+    {
+      q: "How do I embed Bishal Codes widgets on WordPress, React, or HTML websites?",
+      a: "Simply select your desired tool from the dropdown menu above, customize the width and height dimensions, and click 'Copy Embed Code'. Paste the HTML iframe code snippet directly into your WordPress HTML block, Wix HTML element, React component, or website source code."
+    },
+    {
+      q: "Are these embeddable website widgets 100% free for commercial use?",
+      a: "Yes! All 24 developer utility widgets are 100% free to embed on personal blogs, commercial portals, corporate web apps, and news sites. All embedded widgets include a clean copyright attribution linking back to Bishal Codes."
+    },
+    {
+      q: "How often are live exchange rates and Nepali date conversions updated in the widgets?",
+      a: "Live currency rates update automatically every single hour from verified interbank Forex feeds. The Bikram Sambat (BS) to Gregorian (AD) date converter uses verified astronomical transit data for 100% exact date matching."
+    },
+    {
+      q: "Will embedding these widgets slow down my website load time?",
+      a: "No. All Bishal Codes widgets run in lightweight isolated iframes with zero render-blocking JavaScript for your host website. They load asynchronously with strict client-side caching."
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900/50 flex flex-col justify-between select-none">
       <Navbar />
@@ -113,7 +175,7 @@ export default function Widgets() {
         </div>
 
         {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-16">
           
           {/* Left Block - Customizer Configuration */}
           <div className="lg:col-span-5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-md rounded-2xl p-6 space-y-6">
@@ -185,7 +247,7 @@ export default function Widgets() {
               </div>
             )}
 
-            {/* 4. Generated Copy Code Box */}
+            {/* 4. Generated Copy Code Box (Clean Light Background - No Black!) */}
             <div className="space-y-2 text-left">
               <div className="flex items-center justify-between">
                 <label className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold">Copy HTML iFrame Code</label>
@@ -193,7 +255,7 @@ export default function Widgets() {
                   <ShieldCheck size={12} /> Includes Copyright
                 </span>
               </div>
-              <div className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-950 p-3.5 text-slate-200 text-xs font-mono select-all overflow-x-auto whitespace-pre leading-relaxed">
+              <div className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3.5 text-slate-900 dark:text-slate-100 text-xs font-mono select-all overflow-x-auto whitespace-pre leading-relaxed">
                 {embedCode}
               </div>
               <button
@@ -259,14 +321,58 @@ export default function Widgets() {
                   src={widgetUrl}
                   className="w-full h-full border-0"
                 />
-                <div className="bg-slate-950 text-white text-[10px] py-1.5 px-3 flex items-center justify-between border-t border-slate-800">
-                  <span>Powered by <strong className="text-emerald-400 font-bold">Bishal Codes</strong></span>
-                  <span className="text-slate-400">© 2026 Bishal Mishra</span>
+                <div className="bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-[10px] py-2 px-3 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
+                  <span>Powered by <strong className="text-emerald-600 dark:text-emerald-400 font-bold">Bishal Codes</strong></span>
+                  <span className="text-slate-500 dark:text-slate-400">© 2026 Bishal Mishra</span>
                 </div>
               </div>
             </div>
           </div>
 
+        </div>
+
+        {/* ── Powerful SEO Guide & Webmaster FAQ Section ── */}
+        <div className="max-w-4xl mx-auto border-t border-slate-200 dark:border-slate-800 pt-14 text-left">
+          <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+              Webmaster Integration Guide
+            </span>
+            <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Frequently Asked Questions &amp; Embed Docs
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Learn how to seamlessly integrate responsive developer tools and widgets into your websites.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            {faqs.map((faq, index) => {
+              const isOpen = openFaqIndex === index;
+              return (
+                <div 
+                  key={index}
+                  className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden transition-all shadow-sm"
+                >
+                  <button
+                    onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                    className="w-full p-4 sm:p-5 flex items-center justify-between text-left gap-4 font-bold text-xs sm:text-sm text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <HelpCircle size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      {faq.q}
+                    </span>
+                    <ChevronDown size={16} className={`transition-transform duration-200 text-slate-400 ${isOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {isOpen && (
+                    <div className="px-5 pb-5 pt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal border-t border-slate-100 dark:border-slate-850">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
       </main>

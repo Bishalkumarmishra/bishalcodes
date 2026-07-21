@@ -757,12 +757,12 @@ const ServicesPage: React.FC = () => {
 
       {/* Embed Watermark Footer inside Iframe */}
       {isEmbed && (
-        <div className="w-full bg-slate-950 text-white text-[11px] py-2.5 px-4 flex items-center justify-between border-t border-slate-800 font-sans mt-auto z-40">
+        <div className="w-full bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-[11px] py-2.5 px-4 flex items-center justify-between border-t border-slate-200 dark:border-slate-800 font-sans mt-auto z-40">
           <div className="flex items-center gap-2 font-bold">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Powered by <a href="https://bishalcodes.com" target="_blank" rel="noopener noreferrer" className="text-emerald-400 font-extrabold hover:underline">Bishal Codes</a></span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Powered by <a href="https://bishalcodes.com" target="_blank" rel="noopener noreferrer" className="text-emerald-600 dark:text-emerald-400 font-extrabold hover:underline">Bishal Codes</a></span>
           </div>
-          <div className="text-slate-400 text-[10px] font-medium">
+          <div className="text-slate-500 dark:text-slate-400 text-[10px] font-medium">
             © 2026 Bishal Mishra. All Rights Reserved.
           </div>
         </div>
