@@ -137,7 +137,7 @@ const FALLBACK_CONTENT: Record<string, string> = {
 
 At Bishal Codes, we strive to provide high-quality developer utility tools and APIs. Because our products are digital services delivered instantly upon subscription, we want to ensure a fair and transparent refund and cancellation experience.
 
-This Refund and Cancellation Policy governs all purchases made through **bishalcodes.com** (processed securely via our Merchant of Record, Paddle Billing).
+This Refund and Cancellation Policy governs all purchases made through **bishalcodes.com** (processed securely via our payment gateways).
 
 ## 1. 14-Day Money-Back Guarantee
 
@@ -150,7 +150,7 @@ We offer a **14-day money-back guarantee** on all our premium subscription plans
 
 To request a refund:
 1. Send an email to **developer@bishalcodes.com** or call us at **+977 9827801575**.
-2. Provide your account email address and your Paddle transaction/invoice receipt ID.
+2. Provide your account email address and your transaction reference ID.
 3. Our support team will process your refund request within **24-48 hours**. Once approved, the funds will be credited back to your original payment method (Credit/Debit Card or PayPal) within 5 to 10 business days, depending on your bank's processing times.
 
 ## 3. Subscriptions and Cancellations
