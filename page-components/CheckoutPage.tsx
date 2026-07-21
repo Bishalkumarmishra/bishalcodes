@@ -1,91 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import {
-  CreditCard, Shield, Lock, CheckCircle, UploadCloud, Smartphone, ArrowRight,
-  Coins, Sparkles, Check, Loader2, Landmark, AlertCircle, Download, FileText
+  Shield, Lock, CheckCircle, ArrowRight, Sparkles, Check, Loader2, Download, FileText, Gift
 } from 'lucide-react';
 import Navbar from '../sections/Navbar';
 import Footer from '../sections/Footer';
 import { useNavigation } from '../context/NavigationContext';
 import { useUser } from '../hooks/useUser';
-import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 
 interface CheckoutPageProps {
   planId?: string | null;
 }
 
-const PLANS = [
-  {
-    id: 'pro',
-    name: 'Commercial Pro',
-    price: 29,
-    priceNpr: 3500,
-    desc: 'Unlocks live endpoints with 50,000 monthly requests.',
-    features: [
-      '50,050 API requests / month',
-      'Rate limit: 60 req / minute',
-      'Dedicated HTTPS live production key',
-      '99.9% Server uptime SLA',
-      'All 7 core developer utility tools'
-    ]
-  },
-  {
-    id: 'enterprise',
-    name: 'Custom Enterprise',
-    price: 149,
-    priceNpr: 18000,
-    desc: 'Unlimited volume with zero-throttling hosting cluster.',
-    features: [
-      'Unlimited API requests (custom contract)',
-      'Rate limit: 500 req / minute',
-      'High-availability SLA clusters',
-      'Dedicated Slack & email support channel',
-      'Custom code integration consulting'
-    ]
-  }
-];
-
-const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
+const CheckoutPage: React.FC<CheckoutPageProps> = () => {
   const { navigate } = useNavigation();
-  const { user, userProfile } = useUser();
+  const { user } = useUser();
 
-  const [selectedPlanId, setSelectedPlanId] = useState<string>(planId || 'pro');
-  const [customPriceUsd, setCustomPriceUsd] = useState<number | string>(1);
-
-  // Active plan or custom plan calculations
-  const presetPlan = PLANS.find(p => p.id === selectedPlanId);
-  const isCustom = selectedPlanId === 'custom' || !presetPlan;
-
-  const effectivePriceUsd = isCustom
-    ? Math.max(1, Number(customPriceUsd) || 1)
-    : (presetPlan?.price || 29);
-
-  const effectivePriceNpr = isCustom
-    ? Math.round(effectivePriceUsd * 125)
-    : (presetPlan?.priceNpr || 3500);
-
-  const activePlanName = isCustom ? 'Custom Tier' : presetPlan?.name || 'Commercial Pro';
-
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'wallet' | 'fonepay'>('card');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [generatedProdKey, setGeneratedProdKey] = useState('');
-
-  // Input fields
   const [email, setEmail] = useState(user?.email || '');
-  const [cardName, setCardName] = useState(userProfile?.displayName || '');
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvv, setCardCvv] = useState('');
-
-  // Wallet inputs
-  const [walletPhone, setWalletPhone] = useState('');
-  const [walletPin, setWalletPin] = useState('');
-  const [walletOtp, setWalletOtp] = useState('');
-  const [walletStep, setWalletStep] = useState<'details' | 'otp'>('details');
-
-  // Fonepay states
-  const [paymentProof, setPaymentProof] = useState<{ name: string; base64: string } | null>(null);
 
   useEffect(() => {
     if (user?.email) {
@@ -102,25 +37,38 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
     return `bc_prod_${salt}`;
   };
 
-  const sendReceiptEmail = async (paymentData: {
-    email: string;
-    planName: string;
-    amountPaid: number;
-    currency: string;
-    paymentMethod: string;
-    generatedApiKey?: string;
-  }) => {
+  const handleGenerateFreeKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      alert('Please enter your email address to receive your free key.');
+      return;
+    }
+
+    setLoading(true);
+    const prodKey = generateProductionKey();
+
     try {
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'payment-receipt',
-          data: paymentData
-        })
-      });
+      if (user?.uid) {
+        const now = Date.now();
+        const expiresAt = now + (365 * 24 * 60 * 60 * 1000); // 1 year free
+        await setDoc(doc(db, 'users', user.uid), {
+          api_production_key: prodKey,
+          api_plan: 'free_pro',
+          api_plan_name: 'Free Developer Plan',
+          api_limit: 50000,
+          api_subscribed_at: now,
+          api_expires_at: expiresAt,
+          api_status: 'active'
+        }, { merge: true });
+      }
+
+      setGeneratedProdKey(prodKey);
+      setSuccess(true);
     } catch (err) {
-      console.error('Failed to send automatic payment receipt email:', err);
+      console.error('Failed to generate free key:', err);
+      alert('Failed to generate key. Please retry.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -140,346 +88,49 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
 
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(148, 163, 184);
-      doc.text('OFFICIAL INVOICE & INTEGRATION GUIDE', 130, 25);
+      doc.text('FREE API KEY & INTEGRATION GUIDE', 130, 25);
 
-      // Invoice Details
+      // Metadata
       doc.setTextColor(15, 23, 42);
-      doc.setFontSize(16);
+      doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      doc.text('Payment Receipt & License Key', 20, 55);
-
-      doc.setDrawColor(226, 232, 240);
-      doc.line(20, 60, 190, 60);
+      doc.text('License Information', 20, 55);
 
       doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(100, 116, 139);
-      doc.text('ACCOUNT EMAIL:', 20, 72);
-      doc.text('TIER / PLAN:', 20, 82);
-      doc.text('AMOUNT PAID:', 20, 92);
-      doc.text('PAYMENT METHOD:', 20, 102);
-      doc.text('TRANSACTION DATE:', 20, 112);
-
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(30, 41, 59);
-      doc.text(email || 'Guest User', 70, 72);
-      doc.text(activePlanName, 70, 82);
-      doc.text(`${paymentMethod === 'card' ? '$' + effectivePriceUsd + ' USD' : 'Rs. ' + effectivePriceNpr + ' NPR'}`, 70, 92);
-      doc.text(paymentMethod === 'card' ? 'Payoneer Card Processing' : paymentMethod === 'wallet' ? 'eSewa / Khalti Digital Wallet' : 'Fonepay QR Scan', 70, 102);
-      doc.text(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }), 70, 112);
+      doc.text(`Account Email: ${email || 'Guest User'}`, 20, 65);
+      doc.text(`Tier Plan: Free Developer Tier`, 20, 73);
+      doc.text(`Price: $0.00 USD (100% Free)`, 20, 81);
+      doc.text(`Issued Date: ${new Date().toLocaleDateString()}`, 20, 89);
+      doc.text(`Status: ACTIVE`, 20, 97);
 
       // API Key Box
-      doc.setFillColor(238, 242, 255);
-      doc.roundedRect(20, 122, 170, 24, 3, 3, 'F');
-      doc.setDrawColor(199, 210, 254);
-      doc.roundedRect(20, 122, 170, 24, 3, 3, 'D');
-
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(99, 102, 241);
-      doc.text('YOUR ACTIVE PRODUCTION API KEY:', 25, 130);
-
-      doc.setFontSize(10);
+      doc.setFillColor(248, 250, 252);
+      doc.rect(20, 105, 170, 25, 'F');
       doc.setFont('courier', 'bold');
-      doc.setTextColor(67, 56, 202);
-      doc.text(generatedProdKey || 'bc_prod_live_key', 25, 140);
+      doc.setFontSize(11);
+      doc.text(`LIVE KEY: ${generatedProdKey}`, 25, 120);
 
-      // Integration Guide Section
-      doc.setFontSize(13);
+      // Integration Code
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(15, 23, 42);
-      doc.text('API Integration Guide (Step-by-Step)', 20, 160);
+      doc.setFontSize(12);
+      doc.text('Quick Integration Examples', 20, 145);
 
-      doc.setDrawColor(226, 232, 240);
-      doc.line(20, 164, 190, 164);
-
-      doc.setFontSize(9.5);
-      doc.setFont('helvetica', 'bold');
-      doc.text('1. cURL Terminal Header Example:', 20, 174);
       doc.setFont('courier', 'normal');
-      doc.setFontSize(8.5);
-      doc.setTextColor(51, 65, 85);
-      doc.text(`curl -X POST "https://bishalcodes.com/api/v1/currency" \\`, 25, 182);
-      doc.text(`  -H "x-api-key: ${generatedProdKey || 'bc_prod_YOUR_KEY'}" \\`, 25, 188);
-      doc.text(`  -H "Content-Type: application/json"`, 25, 194);
+      doc.setFontSize(9);
+      doc.text('1. cURL Request:', 20, 155);
+      doc.text(`curl -X GET "https://bishalcodes.com/api/v1/currency?from=USD&to=NPR" \\`, 20, 162);
+      doc.text(`  -H "Authorization: Bearer ${generatedProdKey}"`, 20, 169);
 
-      doc.setFontSize(9.5);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(15, 23, 42);
-      doc.text('2. Node.js / Next.js Fetch Example:', 20, 208);
-      doc.setFont('courier', 'normal');
-      doc.setFontSize(8.5);
-      doc.setTextColor(51, 65, 85);
-      doc.text(`const res = await fetch('https://bishalcodes.com/api/v1/currency', {`, 25, 216);
-      doc.text(`  headers: { 'x-api-key': '${generatedProdKey || 'bc_prod_YOUR_KEY'}' }`, 25, 222);
-      doc.text(`});`, 25, 228);
+      doc.text('2. JavaScript / Node.js (fetch):', 20, 184);
+      doc.text(`const res = await fetch('https://bishalcodes.com/api/v1/currency?from=USD&to=NPR', {`, 20, 191);
+      doc.text(`  headers: { 'Authorization': 'Bearer ${generatedProdKey}' }`, 20, 198);
+      doc.text(`});`, 20, 205);
 
-      doc.setFontSize(9.5);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(15, 23, 42);
-      doc.text('3. Python Requests Integration:', 20, 242);
-      doc.setFont('courier', 'normal');
-      doc.setFontSize(8.5);
-      doc.setTextColor(51, 65, 85);
-      doc.text(`import requests`, 25, 250);
-      doc.text(`headers = {'x-api-key': '${generatedProdKey || 'bc_prod_YOUR_KEY'}'}`, 25, 256);
-      doc.text(`res = requests.get('https://bishalcodes.com/api/v1/currency', headers=headers)`, 25, 262);
-
-      // Footer
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(148, 163, 184);
-      doc.text('Bishal Codes (https://bishalcodes.com) • Support: developer@bishalcodes.com • Kathmandu, Nepal', 20, 285);
-
-      doc.save(`BishalCodes_Invoice_${Date.now()}.pdf`);
+      doc.save(`BishalCodes_Free_API_Key.pdf`);
     } catch (err) {
-      console.error('Failed to generate PDF invoice:', err);
-      alert('Error generating PDF invoice. Please try again.');
-    }
-  };
-
-  const isValidLuhnCardNumber = (cardNumberStr: string): boolean => {
-    const digits = cardNumberStr.replace(/\D/g, '');
-    if (digits.length < 13 || digits.length > 19) return false;
-    let sum = 0;
-    let shouldDouble = false;
-    for (let i = digits.length - 1; i >= 0; i--) {
-      let digit = parseInt(digits.charAt(i), 10);
-      if (shouldDouble) {
-        digit *= 2;
-        if (digit > 9) digit -= 9;
-      }
-      sum += digit;
-      shouldDouble = !shouldDouble;
-    }
-    return sum % 10 === 0;
-  };
-
-  const handleCardPayment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) {
-      alert('Please fill out your contact email address.');
-      return;
-    }
-
-    // 1. Validate Card Number with Luhn Checksum
-    if (!cardNumber || !isValidLuhnCardNumber(cardNumber)) {
-      alert('Invalid Card Number: Checksum verification failed. Please enter a valid Visa, Mastercard, or Amex card number.');
-      return;
-    }
-
-    // 2. Validate Expiration Date (MM/YY)
-    if (!cardExpiry || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry)) {
-      alert('Invalid Expiration Date: Please enter a valid expiration date in MM/YY format (e.g. 12/28).');
-      return;
-    }
-
-    const [expMonth, expYear] = cardExpiry.split('/').map(n => parseInt(n, 10));
-    const currentYear = parseInt(new Date().getFullYear().toString().slice(-2), 10);
-    const currentMonth = new Date().getMonth() + 1;
-
-    if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
-      alert('Expired Card: The card expiration date has passed. Please use an active card.');
-      return;
-    }
-
-    // 3. Validate CVV
-    if (!cardCvv || cardCvv.length < 3) {
-      alert('Invalid CVV: Please enter a valid 3 or 4-digit CVV security code from the back of your card.');
-      return;
-    }
-
-    setLoading(true);
-    const prodKey = generateProductionKey();
-    const payoneerPayLink = process.env.NEXT_PUBLIC_PAYONEER_PAYMENT_LINK || `https://login.payoneer.com`;
-
-    const paymentRecord = {
-      userId: user?.uid || 'guest_checkout',
-      userEmail: email,
-      planId: selectedPlanId,
-      amountPaid: effectivePriceUsd,
-      currency: 'USD',
-      paymentMethod: 'International Card / Payoneer',
-      cardHolderName: cardName || 'Cardholder',
-      status: 'pending_payoneer_checkout',
-      generatedApiKey: prodKey,
-      timestamp: Date.now()
-    };
-
-    try {
-      await addDoc(collection(db, 'payments'), paymentRecord);
-
-      if (user?.uid) {
-        const now = Date.now();
-        const expiresAt = now + (30 * 24 * 60 * 60 * 1000);
-        await setDoc(doc(db, 'users', user.uid), {
-          api_production_key: prodKey,
-          api_plan: selectedPlanId,
-          api_plan_name: activePlanName,
-          api_limit: effectivePriceUsd >= 100 ? 999999 : 50000,
-          api_subscribed_at: now,
-          api_expires_at: expiresAt,
-          api_status: 'pending_payment'
-        }, { merge: true });
-      }
-
-      // Dispatch payment request email with Payoneer invoice link
-      sendReceiptEmail({
-        email,
-        planName: activePlanName,
-        amountPaid: effectivePriceUsd,
-        currency: 'USD',
-        paymentMethod: 'Payoneer 3D-Secure Card Gateway',
-        generatedApiKey: prodKey
-      });
-
-      // Open official Payoneer secure hosted payment page in a new window/tab for REAL credit card charging
-      window.open(payoneerPayLink, '_blank');
-
-      setGeneratedProdKey(prodKey);
-      setSuccess(true);
-    } catch (err) {
-      console.error('Failed to register transaction:', err);
-      alert('Gateway transaction failed. Please retry.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleWalletSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!walletPhone || walletPhone.length < 10) {
-      alert('Please enter a valid 10-digit mobile number.');
-      return;
-    }
-
-    if (walletStep === 'details') {
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        setWalletStep('otp');
-      }, 1200);
-      return;
-    }
-
-    // OTP submission
-    if (!walletOtp || walletOtp.length < 4) {
-      alert('Please enter the OTP verification code.');
-      return;
-    }
-
-    setLoading(true);
-    const prodKey = generateProductionKey();
-    const targetEmail = email || walletPhone + '@khalti-wallet.local';
-    const paymentRecord = {
-      userId: user?.uid || 'guest_checkout',
-      userEmail: targetEmail,
-      planId: selectedPlanId,
-      amountPaid: effectivePriceNpr,
-      currency: 'NPR',
-      paymentMethod: 'Khalti/eSewa Wallet',
-      walletPhone: walletPhone,
-      status: 'completed',
-      generatedApiKey: prodKey,
-      timestamp: Date.now()
-    };
-
-    try {
-      await addDoc(collection(db, 'payments'), paymentRecord);
-
-      if (user?.uid) {
-        const now = Date.now();
-        const expiresAt = now + (30 * 24 * 60 * 60 * 1000);
-        await setDoc(doc(db, 'users', user.uid), {
-          api_production_key: prodKey,
-          api_plan: selectedPlanId,
-          api_plan_name: activePlanName,
-          api_limit: effectivePriceUsd >= 100 ? 999999 : 50000,
-          api_subscribed_at: now,
-          api_expires_at: expiresAt,
-          api_status: 'active'
-        }, { merge: true });
-      }
-
-      // Automatically dispatch email receipt if valid email provided
-      if (email) {
-        sendReceiptEmail({
-          email,
-          planName: activePlanName,
-          amountPaid: effectivePriceNpr,
-          currency: 'NPR',
-          paymentMethod: 'eSewa / Khalti Digital Wallet',
-          generatedApiKey: prodKey
-        });
-      }
-
-      setGeneratedProdKey(prodKey);
-      setSuccess(true);
-    } catch (err) {
-      console.error('Failed to register wallet transaction:', err);
-      alert('Gateway transaction failed. Please retry.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64 = (event.target?.result as string).split(',')[1];
-        setPaymentProof({ name: file.name, base64 });
-      };
-      reader.readAsDataURL(file);
-    } else {
-      alert("Please upload a valid image file (PNG, JPG, etc).");
-    }
-  };
-
-  const handleFonepaySubmit = async () => {
-    if (!paymentProof) {
-      alert('Please select or drag an image screenshot of your transaction proof.');
-      return;
-    }
-    if (!email) {
-      alert('Please fill out your contact email address.');
-      return;
-    }
-
-    setLoading(true);
-    const paymentRecord = {
-      userId: user?.uid || 'guest_checkout',
-      userEmail: email,
-      planId: selectedPlanId,
-      amountPaid: effectivePriceNpr,
-      currency: 'NPR',
-      paymentMethod: 'Fonepay QR Scan',
-      paymentProofBase64: paymentProof.base64,
-      status: 'pending',
-      timestamp: Date.now()
-    };
-
-    try {
-      await addDoc(collection(db, 'payments'), paymentRecord);
-
-      // Automatically dispatch email notification for proof upload
-      sendReceiptEmail({
-        email,
-        planName: activePlanName,
-        amountPaid: effectivePriceNpr,
-        currency: 'NPR',
-        paymentMethod: 'Fonepay QR Scan',
-        generatedApiKey: 'Pending Audit Review'
-      });
-
-      setSuccess(true);
-    } catch (err) {
-      console.error('Failed to log Fonepay request:', err);
-      alert('Request error. Please check database permissions.');
-    } finally {
-      setLoading(false);
+      console.error('PDF Generation Error:', err);
+      alert('Failed to generate PDF guide.');
     }
   };
 
@@ -489,7 +140,6 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
         <Navbar />
         <div className="flex-grow pt-28 pb-16 flex items-center justify-center px-4">
           <div className="max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-xl">
-            {/* Header Status Badge */}
             <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold shrink-0 border border-emerald-200 dark:border-emerald-800">
@@ -497,10 +147,10 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                 </div>
                 <div>
                   <h1 className="text-base font-extrabold text-slate-900 dark:text-white leading-tight">
-                    {paymentMethod === 'fonepay' ? 'Proof Registered' : 'Payment Confirmed'}
+                    API Key Activated!
                   </h1>
                   <span className="text-[11px] text-slate-500 font-medium">
-                    {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    100% Free Developer Tier
                   </span>
                 </div>
               </div>
@@ -509,75 +159,43 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
               </span>
             </div>
 
-            {/* Receipt Summary Grid */}
-            <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 mb-5 space-y-2.5 text-xs">
-              <div className="flex justify-between items-center text-slate-500">
-                <span>Account Email:</span>
-                <span className="font-bold text-slate-900 dark:text-white truncate max-w-[200px]">{email || 'Guest Checkout'}</span>
+            <div className="mb-5">
+              <div className="flex justify-between items-center text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                <span>Your Live Production Key</span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold">Free Unlimited Access</span>
               </div>
-              <div className="flex justify-between items-center text-slate-500">
-                <span>Plan Tier:</span>
-                <span className="font-bold text-slate-900 dark:text-white">{activePlanName}</span>
-              </div>
-              <div className="flex justify-between items-center text-slate-500">
-                <span>Amount Paid:</span>
-                <span className="font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
-                  {paymentMethod === 'card' ? `$${effectivePriceUsd} USD` : `Rs. ${effectivePriceNpr} NPR`}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-slate-500 pt-2 border-t border-slate-200 dark:border-slate-800">
-                <span>Payment Gateway:</span>
-                <span className="font-semibold text-slate-700 dark:text-slate-300">
-                  {paymentMethod === 'card' ? 'Payoneer Processing' : paymentMethod === 'wallet' ? 'Digital Wallet' : 'Fonepay QR'}
-                </span>
+              <div className="bg-slate-955 text-white rounded-xl p-3.5 flex items-center justify-between border border-slate-800 shadow-inner">
+                <code className="font-mono text-xs font-bold text-emerald-400 truncate pr-2 select-all">
+                  {generatedProdKey}
+                </code>
               </div>
             </div>
 
-            {/* Production API Key Box */}
-            {paymentMethod !== 'fonepay' ? (
-              <div className="mb-5">
-                <div className="flex justify-between items-center text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                  <span>Live Production API Key</span>
-                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold">30 Days License</span>
-                </div>
-                <div className="bg-slate-950 text-white rounded-xl p-3 flex items-center justify-between border border-slate-800 shadow-inner">
-                  <code className="font-mono text-xs font-bold text-emerald-400 truncate pr-2 select-all">
-                    {generatedProdKey}
-                  </code>
-                </div>
-              </div>
-            ) : (
-              <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs mb-5 leading-relaxed">
-                <strong>Pending Desk Review:</strong> Your screenshot receipt was logged. Live key will be activated & emailed to <strong>{email}</strong> shortly.
-              </div>
-            )}
-
-            {/* Compact Action Buttons */}
             <div className="space-y-2.5">
-              <button
+              <button 
                 onClick={handleDownloadPdfInvoice}
                 className="w-full bg-slate-900 hover:bg-black dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer border border-slate-800"
               >
                 <Download size={14} />
-                Download PDF Invoice & Guide (.pdf)
+                Download PDF Integration Guide (.pdf)
               </button>
 
               <div className="grid grid-cols-2 gap-2">
-                <button
+                <button 
                   onClick={() => navigate('developers')}
                   className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-colors"
                 >
                   Back to Portal
                 </button>
                 {user?.uid ? (
-                  <button
+                  <button 
                     onClick={() => navigate('user-dashboard')}
                     className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-colors"
                   >
                     View Dashboard
                   </button>
                 ) : (
-                  <button
+                  <button 
                     onClick={() => navigate('home')}
                     className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-colors"
                   >
@@ -594,499 +212,70 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-955 text-slate-850 dark:text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-955 text-slate-900 dark:text-slate-100 flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-grow pt-28 pb-20 px-[5vw] relative z-10">
-        <div className="max-w-6xl mx-auto">
-
-          <div className="mb-8">
-            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Checkout & Gateway Billing
+      <main className="flex-grow pt-28 pb-20 px-4">
+        <div className="max-w-md mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+          <div className="text-center mb-6">
+            <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-3 border border-emerald-200 dark:border-emerald-800">
+              <Gift size={24} />
+            </div>
+            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Get 100% Free API Key
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1 font-normal">
-              Select your preferred method to complete subscription processing.
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">
+              No credit card required. Instant live production key generation.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-            {/* Left Column: Form Gateways */}
-            <div className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-7 shadow-sm">
-              <h2 className="text-sm font-bold text-slate-850 dark:text-white uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
-                1. Select Payment Method
-              </h2>
-
-              {/* Tabs */}
-              <div className="grid grid-cols-3 gap-2.5 mb-6">
-                <button
-                  onClick={() => setPaymentMethod('card')}
-                  className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-[11px] font-bold uppercase tracking-wider transition-all ${paymentMethod === 'card'
-                      ? 'border-indigo-500 bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 font-extrabold'
-                      : 'border-slate-200 dark:border-slate-800 bg-transparent text-slate-550 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
-                    }`}
-                >
-                  <CreditCard size={18} />
-                  Card (Payoneer)
-                </button>
-
-                <button
-                  onClick={() => setPaymentMethod('wallet')}
-                  className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-[11px] font-bold uppercase tracking-wider transition-all ${paymentMethod === 'wallet'
-                      ? 'border-indigo-500 bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 font-extrabold'
-                      : 'border-slate-200 dark:border-slate-800 bg-transparent text-slate-550 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
-                    }`}
-                >
-                  <Smartphone size={18} />
-                  eSewa / Khalti
-                </button>
-
-                <button
-                  onClick={() => setPaymentMethod('fonepay')}
-                  className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-[11px] font-bold uppercase tracking-wider transition-all ${paymentMethod === 'fonepay'
-                      ? 'border-indigo-500 bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 font-extrabold'
-                      : 'border-slate-200 dark:border-slate-800 bg-transparent text-slate-550 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
-                    }`}
-                >
-                  <Landmark size={18} />
-                  Fonepay QR
-                </button>
-              </div>
-
-              <h2 className="text-sm font-bold text-slate-850 dark:text-white uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
-                2. Payment Details
-              </h2>
-
-              {/* CARD PAYMENT FLOW */}
-              {paymentMethod === 'card' && (
-                <form onSubmit={handleCardPayment} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
-                      Contact Email
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      autoComplete="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
-                      Cardholder Name
-                    </label>
-                    <input
-                      type="text"
-                      name="ccname"
-                      autoComplete="cc-name"
-                      required
-                      value={cardName}
-                      onChange={(e) => setCardName(e.target.value)}
-                      placeholder="Name on card"
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">
-                        Card Number
-                      </label>
-                      {cardNumber.length >= 1 && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full transition-all bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
-                          {/^4/.test(cardNumber.replace(/\D/g, '')) ? '💳 VISA' :
-                            /^(5[1-5]|2[2-7])/.test(cardNumber.replace(/\D/g, '')) ? '💳 MASTERCARD' :
-                              /^3[47]/.test(cardNumber.replace(/\D/g, '')) ? '💳 AMEX' :
-                                /^6/.test(cardNumber.replace(/\D/g, '')) ? '💳 DISCOVER' : '💳 CARD'}
-                        </span>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        name="cardnumber"
-                        autoComplete="cc-number"
-                        required
-                        maxLength={19}
-                        value={cardNumber}
-                        onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim())}
-                        placeholder="4000 0000 0000 0000"
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono tracking-wider"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
-                        Expiry Date
-                      </label>
-                      <input
-                        type="text"
-                        name="exp-date"
-                        autoComplete="cc-exp"
-                        required
-                        maxLength={5}
-                        value={cardExpiry}
-                        onChange={(e) => {
-                          let val = e.target.value.replace(/\D/g, '');
-                          if (val.length >= 2) val = val.substring(0, 2) + '/' + val.substring(2, 4);
-                          setCardExpiry(val);
-                        }}
-                        placeholder="MM/YY"
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono text-center"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
-                        CVV / CVC
-                      </label>
-                      <input
-                        type="password"
-                        name="cvc"
-                        autoComplete="cc-csc"
-                        required
-                        maxLength={4}
-                        value={cardCvv}
-                        onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ''))}
-                        placeholder="123"
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono text-center"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-xs text-slate-550 dark:text-slate-400 leading-relaxed font-normal">
-                    <span className="font-bold text-slate-800 dark:text-white block mb-1">💳 Payoneer Global Card Processing</span>
-                    Auto-detects Visa, MasterCard, Amex & Discover cards. Funds settle directly into your linked bank account with zero domain verification required.
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-slate-900 hover:bg-black text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer mt-4"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="animate-spin" size={14} />
-                        Processing Direct Payment...
-                      </>
-                    ) : (
-                      <>
-                        <Lock size={12} />
-                        Pay ${effectivePriceUsd} USD Securely
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
-
-              {/* DIGITAL WALLETS FLOW */}
-              {paymentMethod === 'wallet' && (
-                <form onSubmit={handleWalletSubmit} className="space-y-4">
-                  {walletStep === 'details' ? (
-                    <>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
-                          Contact Email
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="your-email@example.com"
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
-                          Wallet / Mobile Number
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          maxLength={10}
-                          value={walletPhone}
-                          onChange={(e) => setWalletPhone(e.target.value.replace(/\D/g, ''))}
-                          placeholder="98XXXXXXXX (eSewa or Khalti ID)"
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
-                          Wallet M-PIN
-                        </label>
-                        <input
-                          type="password"
-                          required
-                          maxLength={4}
-                          value={walletPin}
-                          onChange={(e) => setWalletPin(e.target.value.replace(/\D/g, ''))}
-                          placeholder="xxxx"
-                          className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono"
-                        />
-                      </div>
-                    </>
-                  ) : (
-                    <div className="py-4 text-center">
-                      <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-950 text-indigo-650 dark:text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Smartphone size={24} />
-                      </div>
-                      <h3 className="text-sm font-bold text-slate-850 dark:text-white uppercase tracking-wider mb-2">
-                        Enter OTP Code
-                      </h3>
-                      <p className="text-[11px] text-slate-500 mb-4 max-w-sm mx-auto leading-normal">
-                        A dynamic SMS verification OTP has been triggered and sent to <span className="font-bold text-slate-800 dark:text-white">{walletPhone}</span>. Enter it below to authorize this invoice.
-                      </p>
-
-                      <input
-                        type="text"
-                        maxLength={6}
-                        required
-                        value={walletOtp}
-                        onChange={(e) => setWalletOtp(e.target.value.replace(/\D/g, ''))}
-                        placeholder="XXXXXX"
-                        className="w-40 text-center font-bold text-base tracking-widest bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2 mb-4 focus:border-indigo-500 outline-none text-slate-850 dark:text-white font-mono"
-                      />
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-slate-900 hover:bg-black text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer mt-4"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="animate-spin" size={14} />
-                        Sending verification details...
-                      </>
-                    ) : (
-                      <>
-                        <Smartphone size={12} />
-                        {walletStep === 'details' ? 'Request Payment OTP' : `Authorize Rs. ${effectivePriceNpr}`}
-                      </>
-                    )}
-                  </button>
-
-                  {walletStep === 'otp' && (
-                    <button
-                      type="button"
-                      onClick={() => setWalletStep('details')}
-                      className="w-full text-center text-xs font-semibold text-slate-550 hover:text-slate-800 transition-colors uppercase tracking-wider mt-2.5"
-                    >
-                      Back to wallet configuration
-                    </button>
-                  )}
-                </form>
-              )}
-
-              {/* FONEPAY SCAN QR MANUAL FLOW */}
-              {paymentMethod === 'fonepay' && (
-                <div className="space-y-5">
-                  <div className="text-center">
-                    <p className="text-xs text-slate-500 font-medium max-w-md mx-auto mb-4">
-                      Scan the official billing Fonepay QR below using eSewa, Khalti, or any Nepalese Mobile Banking app.
-                    </p>
-
-                    <div className="bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-850 p-4 rounded-3xl w-fit mx-auto shadow-sm">
-                      <img
-                        src="https://ik.imagekit.io/bishalc/Screenshot%202026-01-09%20224952.png"
-                        alt="Fonepay QR Code"
-                        className="w-56 h-56 object-contain rounded-2xl border border-slate-100 bg-white"
-                      />
-                      <div className="text-[10px] text-slate-900 dark:text-emerald-400 font-black uppercase tracking-wider mt-2">
-                        Total Amount: Rs. {effectivePriceNpr}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
-                        Contact Email
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="your-email@example.com"
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
-                        Upload Receipt Screenshot
-                      </label>
-                      <label className="w-full h-32 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-950/20 transition-colors">
-                        <UploadCloud size={24} className="text-slate-400 mb-2" />
-                        <span className="font-bold text-slate-650 dark:text-slate-400 text-xs">
-                          {paymentProof ? "Change Screenshot" : "Click to Upload Screenshot"}
-                        </span>
-                        <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
-                      </label>
-                      {paymentProof && (
-                        <p className="text-[10px] text-slate-500 mt-1.5 text-center font-bold font-mono">
-                          Selected: {paymentProof.name}
-                        </p>
-                      )}
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleFonepaySubmit}
-                      disabled={loading || !paymentProof}
-                      className="w-full bg-slate-900 hover:bg-black text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer mt-4"
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="animate-spin" size={14} />
-                          Logging transaction audit...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle size={12} />
-                          Submit Proof for verification
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-500 leading-none">
-                <span className="flex items-center gap-1 font-medium">
-                  <Shield size={12} className="text-emerald-500 font-bold" />
-                  SSL Secured Processing
-                </span>
-                <span className="font-medium">PCI-DSS Compliant Infrastructure</span>
-              </div>
+          <form onSubmit={handleGenerateFreeKey} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
+                Your Email Address
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-3 text-xs text-slate-900 dark:text-white outline-none focus:border-slate-800 dark:focus:border-emerald-500"
+              />
             </div>
 
-            {/* Right Column: Plan Order Summary */}
-            <div className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-7 shadow-sm sticky top-24">
-              <h2 className="text-sm font-bold text-slate-850 dark:text-white uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
-                Order Summary & Pricing Tier
-              </h2>
-
-              {/* Tier Selector Buttons */}
-              <div className="space-y-2 mb-4">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  Select Amount or Plan
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPlanId('custom')}
-                    className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${selectedPlanId === 'custom'
-                        ? 'border-slate-900 bg-slate-900 text-white dark:border-emerald-500 dark:bg-emerald-600/20 dark:text-emerald-400'
-                        : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
-                      }`}
-                  >
-                    ⚡ Custom $1+
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPlanId('pro')}
-                    className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${selectedPlanId === 'pro'
-                        ? 'border-slate-900 bg-slate-900 text-white dark:border-emerald-500 dark:bg-emerald-600/20 dark:text-emerald-400'
-                        : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
-                      }`}
-                  >
-                    Pro ($29)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPlanId('enterprise')}
-                    className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${selectedPlanId === 'enterprise'
-                        ? 'border-slate-900 bg-slate-900 text-white dark:border-emerald-500 dark:bg-emerald-600/20 dark:text-emerald-400'
-                        : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
-                      }`}
-                  >
-                    Enterprise ($149)
-                  </button>
-                </div>
+            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-900 dark:text-emerald-300 space-y-1.5 font-medium">
+              <div className="font-bold flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
+                <Sparkles size={14} /> Free Plan Included Features:
               </div>
-
-              {/* Custom Input Field when Custom is selected */}
-              {selectedPlanId === 'custom' && (
-                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 mb-4">
-                  <label className="block text-xs font-bold text-slate-800 dark:text-white mb-1 uppercase">
-                    Enter Custom USD Amount ($)
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-base font-black text-slate-900 dark:text-emerald-400">$</span>
-                    <input
-                      type="number"
-                      min={1}
-                      max={10000}
-                      value={customPriceUsd}
-                      onChange={(e) => setCustomPriceUsd(e.target.value)}
-                      placeholder="1"
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-bold text-slate-900 dark:text-white outline-none focus:border-indigo-500 font-mono"
-                    />
-                  </div>
-                  <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-1.5">
-                    * Ideal for testing $1 transactions or custom quotes.
-                  </div>
-                </div>
-              )}
-
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 mb-5">
-                <div className="flex items-center justify-between font-bold">
-                  <span className="text-slate-800 dark:text-white text-xs">{activePlanName}</span>
-                  <span className="text-indigo-650 dark:text-indigo-400 text-sm font-black font-mono">
-                    ${effectivePriceUsd} <span className="text-[10px] text-slate-500 font-medium">USD</span>
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-550 dark:text-slate-400 mt-1 font-medium leading-normal">
-                  {isCustom ? 'Custom payment transaction with instant API key activation.' : presetPlan?.desc}
-                </p>
-                <div className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mt-2 font-mono">
-                  NPR Equivalent: Rs. {effectivePriceNpr} NPR
-                </div>
-              </div>
-
-              <div className="space-y-3 mb-6">
-                <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  Included Features
-                </h3>
-                <ul className="space-y-2.5 text-xs text-slate-655 dark:text-slate-300 font-medium">
-                  {(presetPlan?.features || [
-                    'Dedicated HTTPS live production key',
-                    'Instant API quota activation',
-                    'Rate limit: 60 - 500 req / minute',
-                    'All core developer utility tools'
-                  ]).map((feat, i) => (
-                    <li key={i} className="flex items-center gap-2">
-                      <Check size={12} className="text-indigo-500 shrink-0" />
-                      {feat}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="p-4 rounded-xl bg-indigo-500/5 border border-indigo-500/10 text-xs text-slate-600 dark:text-indigo-300 leading-relaxed font-normal mb-2 flex gap-2">
-                <Coins size={16} className="text-indigo-500 shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-bold">Instant Activation:</span> Subscriptions paid by Card or wallet are activated immediately. Production keys can be used on any domain.
-                </div>
-              </div>
+              <ul className="space-y-1 text-[11px] text-emerald-800 dark:text-emerald-300">
+                <li>✓ 50,000 API requests per month</li>
+                <li>✓ Access to all core developer utilities</li>
+                <li>✓ High-speed production endpoints</li>
+                <li>✓ Instant key activation</li>
+              </ul>
             </div>
 
-          </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-slate-900 hover:bg-black text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-md disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin" size={14} />
+                  Generating Free Key...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={14} />
+                  Generate Free Production API Key
+                </>
+              )}
+            </button>
+          </form>
         </div>
       </main>
-
       <Footer />
     </div>
   );
