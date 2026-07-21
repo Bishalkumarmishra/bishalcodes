@@ -291,53 +291,55 @@ const About: React.FC = () => {
                 </div>
               )}
 
-              {/* Badges/Feature Icons (Solid Slate-800 Accents) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 border-t border-slate-100 dark:border-slate-800 pt-4 text-left transition-colors">
-                <div className="flex items-start gap-1.5">
-                  <CheckCircle2 size={15} className="text-slate-800 dark:text-slate-400 mt-0.5 shrink-0" />
-                  <div>
-                    <h4 className="text-[11px] font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">Clean Code</h4>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">Scalable & robust logic</p>
+              {/* Badges/Feature Icons + Stats (compact on mobile) */}
+              <div className="border-t border-slate-100 dark:border-slate-800 pt-3 mb-3 text-left transition-colors space-y-2.5">
+                <div className="grid grid-cols-[1fr_1.25fr_1fr] sm:grid-cols-3 gap-1 sm:gap-3">
+                  <div className="flex items-center sm:items-start gap-1 min-w-0">
+                    <CheckCircle2 size={13} className="text-slate-800 dark:text-slate-400 shrink-0" />
+                    <div className="min-w-0">
+                      <h4 className="text-[9px] sm:text-[11px] font-bold text-slate-900 dark:text-slate-200 uppercase tracking-tight sm:tracking-wider leading-tight">Clean Code</h4>
+                      <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug hidden sm:block">Scalable & robust logic</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start gap-1.5">
-                  <CheckCircle2 size={15} className="text-slate-800 dark:text-slate-400 mt-0.5 shrink-0" />
-                  <div>
-                    <h4 className="text-[11px] font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">Fast Execution</h4>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">Snap-fast load speeds</p>
+                  <div className="flex items-center sm:items-start gap-1 min-w-0">
+                    <CheckCircle2 size={13} className="text-slate-800 dark:text-slate-400 shrink-0" />
+                    <div className="min-w-0">
+                      <h4 className="text-[9px] sm:text-[11px] font-bold text-slate-900 dark:text-slate-200 uppercase tracking-tight sm:tracking-wider leading-tight whitespace-nowrap sm:whitespace-normal">Fast Execution</h4>
+                      <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug hidden sm:block">Snap-fast load speeds</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start gap-1.5">
-                  <CheckCircle2 size={15} className="text-slate-800 dark:text-slate-400 mt-0.5 shrink-0" />
-                  <div>
-                    <h4 className="text-[11px] font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">User-First</h4>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">Polished UX/UI systems</p>
+                  <div className="flex items-center sm:items-start gap-1 min-w-0">
+                    <CheckCircle2 size={13} className="text-slate-800 dark:text-slate-400 shrink-0" />
+                    <div className="min-w-0">
+                      <h4 className="text-[9px] sm:text-[11px] font-bold text-slate-900 dark:text-slate-200 uppercase tracking-tight sm:tracking-wider leading-tight">User-First</h4>
+                      <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug hidden sm:block">Polished UX/UI systems</p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Stats inline on mobile, below badges */}
-                <div className="sm:hidden col-span-1 grid grid-cols-2 gap-2 mt-1">
-                  <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 p-2.5 rounded-xl text-left">
+                {/* Stats right below badges */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 p-2.5 sm:p-4 rounded-xl hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-300 text-left">
                     <p 
                       contentEditable={isEditMode}
                       suppressContentEditableWarning
                       onBlur={(e) => handleInlineSave('projectsCompleted', e.currentTarget.textContent || '')}
-                      className={`text-lg font-extrabold text-slate-900 dark:text-white font-outfit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                      className={`text-lg sm:text-2xl font-extrabold text-slate-900 dark:text-white font-outfit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
                     >
                       {aboutData.projectsCompleted}
                     </p>
-                    <p className="text-[8px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">Projects Completed</p>
+                    <p className="text-[8px] sm:text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">Projects Completed</p>
                   </div>
-                  <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 p-2.5 rounded-xl text-left">
+                  <div className="bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 p-2.5 sm:p-4 rounded-xl hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-300 text-left">
                     <p 
                       contentEditable={isEditMode}
                       suppressContentEditableWarning
                       onBlur={(e) => handleInlineSave('experience', e.currentTarget.textContent || '')}
-                      className={`text-lg font-extrabold text-slate-900 dark:text-white font-outfit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                      className={`text-lg sm:text-2xl font-extrabold text-slate-900 dark:text-white font-outfit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
                     >
                       {aboutData.experience}
                     </p>
-                    <p className="text-[8px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">Experience</p>
+                    <p className="text-[8px] sm:text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">Experience</p>
                   </div>
                 </div>
               </div>
