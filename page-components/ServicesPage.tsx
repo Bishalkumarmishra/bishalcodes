@@ -25,10 +25,11 @@ import DocScanner from '../components/DocScanner';
 import TypingPractice from '../components/TypingPractice';
 import Footer from '../sections/Footer';
 import { useNavigation } from '../context/NavigationContext';
-import { ArrowRight, Loader2, Star, Pin } from 'lucide-react';
+import { ArrowRight, Loader2, Star, Pin, Code } from 'lucide-react';
 import { getDocs, collection, query, orderBy } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { ServiceTool } from '../types';
+import EmbedToolModal from '../components/EmbedToolModal';
 
 const FAVOURITES_KEY = 'bishal_pinned_tools';
 
@@ -724,15 +725,60 @@ const ServicesPage: React.FC = () => {
     </div>
   );
 
+  const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
+
+  const activeToolName = selectedId
+    ? (toolSeoData[selectedId]?.title.split('-')[0].split('|')[0].trim() || selectedId.replace(/-/g, ' ').toUpperCase())
+    : 'Developer Utility Tool';
+
   const isFullBleed = selectedId === 'file-transfer' || selectedId === 'font-downloader' || selectedId === 'ocr-converter' || selectedId === 'bg-remover' || selectedId === 'scan-pdf';
 
   return (
-    <div className="min-h-screen bg-[#FDF9F3] dark:bg-slate-950 font-sans transition-colors duration-300 selection:bg-indigo-500/30">
+    <div className="min-h-screen bg-[#FDF9F3] dark:bg-slate-950 font-sans transition-colors duration-300 selection:bg-indigo-500/30 flex flex-col justify-between">
       {!isEmbed && <Navbar />}
       <main className={`w-full flex-grow flex flex-col ${isEmbed ? 'pt-0 pb-0 mt-0' : isFullBleed ? 'pt-0 pb-0' : selectedId ? 'pt-0 pb-12' : 'pb-12 pt-20 sm:pt-28'}`}>
+        {selectedId && !isEmbed && (
+          <div className="w-full bg-slate-900 text-slate-100 py-2.5 px-4 sm:px-8 border-b border-slate-800 flex items-center justify-between z-30">
+            <div className="flex items-center gap-2 text-xs font-bold">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Embeddable Developer Tool: <strong className="text-white font-extrabold">{activeToolName}</strong></span>
+            </div>
+            <button
+              onClick={() => setIsEmbedModalOpen(true)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-500 shadow-sm"
+            >
+              <Code size={13} /> Embed Tool on Your Site
+            </button>
+          </div>
+        )}
+
         {renderActiveService()}
       </main>
+
+      {/* Embed Watermark Footer inside Iframe */}
+      {isEmbed && (
+        <div className="w-full bg-slate-950 text-white text-[11px] py-2.5 px-4 flex items-center justify-between border-t border-slate-800 font-sans mt-auto z-40">
+          <div className="flex items-center gap-2 font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Powered by <a href="https://bishalcodes.com" target="_blank" rel="noopener noreferrer" className="text-emerald-400 font-extrabold hover:underline">Bishal Codes</a></span>
+          </div>
+          <div className="text-slate-400 text-[10px] font-medium">
+            © 2026 Bishal Mishra. All Rights Reserved.
+          </div>
+        </div>
+      )}
+
       {!selectedId && !isEmbed && <Footer />}
+
+      {/* Embed Modal */}
+      {selectedId && (
+        <EmbedToolModal
+          toolId={selectedId}
+          toolName={activeToolName}
+          isOpen={isEmbedModalOpen}
+          onClose={() => setIsEmbedModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
