@@ -350,11 +350,11 @@ const Navbar: React.FC = () => {
 
       {/* MOBILE MENU OVERLAY */}
       <div 
-        className={`fixed inset-0 nav-overlay z-[90] lg:hidden transition-all duration-300 flex flex-col p-8 pt-24 ${
+        className={`fixed inset-0 nav-overlay z-[90] lg:hidden transition-all duration-300 flex flex-col p-6 pt-20 ${
           isOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-[-10px] pointer-events-none"
         }`}
       >
-        <ul className="list-none flex flex-col gap-4">
+        <ul className="list-none flex flex-col gap-1">
           {navLinks.map((link) => {
             const isActive = currentPage === link.id;
             const path = link.id === 'home' ? '/' : (link.id === 'services' ? '/tools' : `/${link.id}`);
@@ -367,22 +367,22 @@ const Navbar: React.FC = () => {
                   <li>
                     <button
                       onClick={() => handleLinkClick('services')}
-                      className={`flex items-center gap-3 py-2 text-lg font-medium transition-colors cursor-pointer ${
+                      className={`flex items-center gap-2.5 py-1.5 text-[15px] font-medium transition-colors cursor-pointer ${
                         currentPage === 'services' ? "text-[var(--nav-text-active)]" : "text-[var(--nav-text)] active:text-[var(--nav-text-hover)]"
                       }`}
                     >
-                      <span className="opacity-75"><Calendar size={16} /></span>
+                      <span className="opacity-75"><Calendar size={15} /></span>
                       Developer Tools
                     </button>
                   </li>
                   <li>
                     <button
                       onClick={() => handleLinkClick('widgets')}
-                      className={`flex items-center gap-3 py-2 text-lg font-medium transition-colors cursor-pointer ${
+                      className={`flex items-center gap-2.5 py-1.5 text-[15px] font-medium transition-colors cursor-pointer ${
                         currentPage === 'widgets' ? "text-[var(--nav-text-active)]" : "text-[var(--nav-text)] active:text-[var(--nav-text-hover)]"
                       }`}
                     >
-                      <span className="opacity-75"><Code size={16} /></span>
+                      <span className="opacity-75"><Code size={15} /></span>
                       Embed Widgets
                     </button>
                   </li>
@@ -394,7 +394,7 @@ const Navbar: React.FC = () => {
                         e.preventDefault();
                         handleLinkClick(link.id);
                       }}
-                      className={`flex items-center gap-3 py-2 text-lg font-medium transition-colors cursor-pointer ${
+                      className={`flex items-center gap-2.5 py-1.5 text-[15px] font-medium transition-colors cursor-pointer ${
                         isActive ? "text-[var(--nav-text-active)]" : "text-[var(--nav-text)] active:text-[var(--nav-text-hover)]"
                       }`}
                     >
@@ -414,7 +414,7 @@ const Navbar: React.FC = () => {
                     e.preventDefault();
                     handleLinkClick(link.id);
                   }}
-                  className={`flex items-center gap-3 py-2 text-lg font-medium transition-colors cursor-pointer ${
+                  className={`flex items-center gap-2.5 py-1.5 text-[15px] font-medium transition-colors cursor-pointer ${
                     isActive ? "text-[var(--nav-text-active)]" : "text-[var(--nav-text)] active:text-[var(--nav-text-hover)]"
                   }`} 
                 >
