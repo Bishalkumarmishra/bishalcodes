@@ -239,14 +239,31 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
     }
   };
 
+  const isValidLuhnCardNumber = (cardNumberStr: string): boolean => {
+    const digits = cardNumberStr.replace(/\D/g, '');
+    if (digits.length < 13 || digits.length > 19) return false;
+    let sum = 0;
+    let shouldDouble = false;
+    for (let i = digits.length - 1; i >= 0; i--) {
+      let digit = parseInt(digits.charAt(i), 10);
+      if (shouldDouble) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+      shouldDouble = !shouldDouble;
+    }
+    return sum % 10 === 0;
+  };
+
   const handleCardPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
       alert('Please fill out your email address.');
       return;
     }
-    if (!cardNumber || cardNumber.length < 15) {
-      alert('Please enter a valid 16-digit card number.');
+    if (!cardNumber || !isValidLuhnCardNumber(cardNumber)) {
+      alert('Invalid Card Number: Checksum verification failed. Please enter a valid Visa, Mastercard, or Amex card number.');
       return;
     }
 
@@ -480,7 +497,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                       Active
                     </span>
                   </div>
-                  <code className="block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 font-mono text-xs text-indigo-650 dark:text-indigo-300 font-bold select-all break-all shadow-sm">
+                  <code className="block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 font-mono text-xs text-slate-900 dark:text-emerald-400 font-extrabold select-all break-all shadow-sm">
                     {generatedProdKey}
                   </code>
                   <div className="text-[9px] text-slate-500 mt-2 font-normal">
@@ -493,7 +510,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
             <div className="flex flex-col gap-3">
               <button 
                 onClick={handleDownloadPdfInvoice}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full bg-slate-900 hover:bg-black text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer border border-slate-800"
               >
                 <Download size={14} />
                 Download PDF Invoice & Integration Guide
@@ -701,7 +718,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer mt-4"
+                    className="w-full bg-slate-900 hover:bg-black text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer mt-4"
                   >
                     {loading ? (
                       <>
@@ -794,7 +811,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer mt-4"
+                    className="w-full bg-slate-900 hover:bg-black text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer mt-4"
                   >
                     {loading ? (
                       <>
@@ -835,7 +852,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                         alt="Fonepay QR Code" 
                         className="w-56 h-56 object-contain rounded-2xl border border-slate-100 bg-white"
                       />
-                      <div className="text-[10px] text-indigo-650 dark:text-indigo-400 font-black uppercase tracking-wider mt-2">
+                      <div className="text-[10px] text-slate-900 dark:text-emerald-400 font-black uppercase tracking-wider mt-2">
                         Total Amount: Rs. {effectivePriceNpr}
                       </div>
                     </div>
@@ -878,7 +895,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                       type="button"
                       onClick={handleFonepaySubmit}
                       disabled={loading || !paymentProof}
-                      className="w-full bg-indigo-650 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer mt-4"
+                      className="w-full bg-slate-900 hover:bg-black text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer mt-4"
                     >
                       {loading ? (
                         <>
@@ -922,7 +939,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                     onClick={() => setSelectedPlanId('custom')}
                     className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${
                       selectedPlanId === 'custom'
-                        ? 'border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                        ? 'border-slate-900 bg-slate-900 text-white dark:border-emerald-500 dark:bg-emerald-600/20 dark:text-emerald-400'
                         : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
                     }`}
                   >
@@ -933,7 +950,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                     onClick={() => setSelectedPlanId('pro')}
                     className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${
                       selectedPlanId === 'pro'
-                        ? 'border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                        ? 'border-slate-900 bg-slate-900 text-white dark:border-emerald-500 dark:bg-emerald-600/20 dark:text-emerald-400'
                         : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
                     }`}
                   >
@@ -944,7 +961,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
                     onClick={() => setSelectedPlanId('enterprise')}
                     className={`py-2 px-2.5 rounded-xl text-[11px] font-bold border transition-all ${
                       selectedPlanId === 'enterprise'
-                        ? 'border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                        ? 'border-slate-900 bg-slate-900 text-white dark:border-emerald-500 dark:bg-emerald-600/20 dark:text-emerald-400'
                         : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
                     }`}
                   >
@@ -955,12 +972,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ planId }) => {
 
               {/* Custom Input Field when Custom is selected */}
               {selectedPlanId === 'custom' && (
-                <div className="p-3.5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/50 mb-4">
-                  <label className="block text-xs font-bold text-slate-800 dark:text-indigo-200 mb-1 uppercase">
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 mb-4">
+                  <label className="block text-xs font-bold text-slate-800 dark:text-white mb-1 uppercase">
                     Enter Custom USD Amount ($)
                   </label>
                   <div className="flex items-center gap-2">
-                    <span className="text-base font-black text-indigo-600 dark:text-indigo-400">$</span>
+                    <span className="text-base font-black text-slate-900 dark:text-emerald-400">$</span>
                     <input
                       type="number"
                       min={1}
