@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
 import { SeoGuideSection } from './SeoGuideSection';
+import { ToolHeroUpload } from './ToolHeroUpload';
 import JSZip from 'jszip';
 
 interface CompressionResult {
@@ -700,7 +701,7 @@ export const ImageCompressor: React.FC = () => {
     <div className="w-full text-slate-800 dark:text-slate-100 transition-colors duration-300">
       
       {/* Top Hero Header */}
-      <div className="w-full bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 pt-24 pb-8 md:pt-32 md:pb-12">
+      <div className="w-full bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 pt-20 pb-8 md:pt-24 md:pb-12">
         <div className="w-full px-4 md:px-8 mx-auto">
           <div className="flex flex-col items-start gap-4">
             <button 
@@ -757,7 +758,7 @@ export const ImageCompressor: React.FC = () => {
       </div>
 
       {/* Main Workspace */}
-      <div className="w-full px-4 md:px-8 py-8">
+      <div className="w-full px-4 md:px-8 xl:px-12 py-8">
         
         {error && (
           <div className="mb-6 max-w-6xl mx-auto bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 p-4 rounded-xl text-sm font-semibold flex items-center gap-2">
@@ -767,24 +768,32 @@ export const ImageCompressor: React.FC = () => {
         )}
 
         {/* --- 1. UPLOAD VIEW (If no files are loaded in active mode) --- */}
-        {((compressMode === 'image' && !selectedFile) || (compressMode === 'zip' && zipFiles.length === 0)) ? (
+        {compressMode === 'image' && !selectedFile ? (
+          <ToolHeroUpload
+            title="Compress IMAGE"
+            description="Compress JPG, PNG, or WebP images while maintaining maximum quality."
+            buttonText="Select IMAGES"
+            dropText="or drop images here"
+            accept="image/jpeg, image/jpg, image/png, image/webp"
+            multiple={false}
+            onFilesSelected={(files) => {
+              if (files.length > 0) handleFileSelect(files[0]);
+            }}
+            error={error}
+          />
+        ) : compressMode === 'zip' && zipFiles.length === 0 ? (
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className={`w-full max-w-4xl mx-auto min-h-[350px] border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-8 text-center transition-all duration-300 relative ${
-              isDragOver
-                ? 'border-indigo-500 bg-indigo-500/5 dark:bg-indigo-500/10 shadow-lg scale-[1.01]'
-                : 'border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-400 dark:hover:border-slate-700'
-            }`}
+            className="w-full max-w-4xl mx-auto min-h-[300px] border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-2xl flex flex-col items-center justify-center p-8 text-center bg-white dark:bg-slate-900"
           >
-            {/* Input triggers */}
             <input
               type="file"
               ref={fileInputRef}
               onChange={handleFileInputChange}
-              multiple={compressMode === 'zip'}
-              accept={compressMode === 'image' ? "image/jpeg, image/jpg, image/png, image/webp" : "*/*"}
+              multiple={true}
+              accept="*/*"
               className="hidden"
             />
             <input
@@ -795,45 +804,36 @@ export const ImageCompressor: React.FC = () => {
               multiple
               className="hidden"
             />
-
-            <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm mb-4">
-              <Upload className="text-indigo-600 dark:text-indigo-400 w-7 h-7" />
+            <div className="w-14 h-14 bg-red-50 dark:bg-red-950/20 text-[#e52521] rounded-2xl flex items-center justify-center mb-4">
+              <Upload size={24} />
             </div>
-
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              {compressMode === 'image' ? 'Upload Your Image' : 'Upload Files or Folders'}
+              Upload Files or Folders for ZIP
             </h3>
-            <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md mt-2">
-              {compressMode === 'image' 
-                ? 'Drag & drop your file here, or select an image file to resize and scale.'
-                : 'Drag & drop any files, folders, or mix here, or use the selectors below.'}
+            <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md mt-2 mb-6">
+              Drag & drop files or folders to compress into a ZIP archive.
             </p>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+            <div className="flex flex-wrap items-center justify-center gap-3">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   fileInputRef.current?.click();
                 }}
-                className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl cursor-pointer shadow-sm transition-colors flex items-center gap-1.5"
+                className="bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold text-sm px-6 py-3 rounded-xl cursor-pointer shadow-md transition-colors flex items-center gap-2"
               >
-                <File size={14} />
-                Select File{compressMode === 'zip' && 's'}
+                <File size={15} />
+                Select Files
               </button>
-
-              {compressMode === 'zip' && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    folderInputRef.current?.click();
-                  }}
-                  className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl cursor-pointer border border-slate-200 dark:border-slate-700 transition-colors flex items-center gap-1.5"
-                >
-                  <Folder size={14} />
-                  Select Folder
-                </button>
-              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  folderInputRef.current?.click();
+                }}
+                className="bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-sm px-6 py-3 rounded-xl cursor-pointer shadow-md transition-colors flex items-center gap-2"
+              >
+                <Folder size={15} />
+                Select Folder
+              </button>
             </div>
             
             <span className="text-[10px] text-slate-400 mt-4 leading-normal">
@@ -842,7 +842,7 @@ export const ImageCompressor: React.FC = () => {
           </div>
         ) : (
           // --- 2. ACTIVE WORKSPACE VIEW ---
-          <div className="max-w-6xl mx-auto">
+          <div className="w-full">
             {compressMode === 'image' ? (
               // IMAGE COMPRESSOR WORKSPACE
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">

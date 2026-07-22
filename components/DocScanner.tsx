@@ -754,7 +754,7 @@ export default function DocScanner() {
 
   // ── Render Desktop Mode (Clean Human Design) ──
   return (
-    <div className="w-full text-slate-800 dark:text-slate-100 transition-colors duration-300 min-h-screen pt-28 pb-16 flex flex-col items-center">
+    <div className="w-full text-slate-800 dark:text-slate-100 transition-colors duration-300 min-h-screen pt-20 pb-12 flex flex-col items-center">
       <div className="w-full px-4 md:px-8 xl:px-12 flex flex-col text-left">
         
         {/* Back Button & Title */}

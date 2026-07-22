@@ -367,7 +367,7 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
 
   return (
     <div 
-      className="min-h-screen pt-28 pb-20 relative overflow-hidden transition-colors w-full flex flex-col items-center justify-center text-white limewire-bg"
+      className="min-h-screen pt-20 pb-16 relative overflow-hidden transition-colors w-full flex flex-col items-center justify-center text-white limewire-bg"
     >
       <style dangerouslySetInnerHTML={{ __html: `
         .limewire-bg {

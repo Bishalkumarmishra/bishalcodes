@@ -324,7 +324,7 @@ const SecureVault: React.FC = () => {
   const FileIcon = fileInfo?.icon || File;
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white w-full flex flex-col items-center select-none font-sans pt-20 sm:pt-28">
+    <div className="min-h-screen bg-[#000000] text-white w-full flex flex-col items-center select-none font-sans pt-20">
       <main className="w-full max-w-full px-4 md:px-8 py-8 space-y-8 flex-grow">
         
         {/* Navigation / Header replacement directly in-content */}

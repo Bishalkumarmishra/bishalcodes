@@ -293,7 +293,7 @@ export const CodeRunner: React.FC = () => {
     <div className="w-full text-slate-800 dark:text-slate-100 transition-colors duration-300">
       
       {/* Top Navigation */}
-      <div className="w-full bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 pt-24 pb-8 md:pt-32 md:pb-12">
+      <div className="w-full bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 pt-20 pb-8 md:pt-24 md:pb-12">
         <div className="w-full px-4 md:px-8 mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="space-y-1">
             <button 

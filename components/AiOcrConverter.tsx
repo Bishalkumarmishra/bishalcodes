@@ -3,6 +3,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useNavigation } from '../context/NavigationContext';
 import { SeoGuideSection } from './SeoGuideSection';
+import { ToolHeroUpload } from './ToolHeroUpload';
 import { createWorker } from 'tesseract.js';
 import { 
   ArrowLeft, FileText, Upload, Copy, Check, 
@@ -36,7 +37,7 @@ export default function AiOcrConverter() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFiles = useCallback((files: FileList | null) => {
+  const handleFiles = useCallback((files: FileList | File[] | null) => {
     if (!files || files.length === 0) return;
     setError(null);
     const file = files[0];
@@ -139,7 +140,7 @@ export default function AiOcrConverter() {
   };
 
   return (
-    <div className="w-full text-slate-800 dark:text-slate-100 transition-colors duration-300 min-h-screen pt-28 pb-16 flex flex-col items-center">
+    <div className="w-full text-slate-800 dark:text-slate-100 transition-colors duration-300 min-h-screen pt-20 pb-12 flex flex-col items-center">
       <div className="w-full px-4 md:px-8 xl:px-12 flex flex-col text-left">
         
         {/* Back Button & Title */}
@@ -180,33 +181,18 @@ export default function AiOcrConverter() {
             
             {/* Upload Box */}
             {!imagePreview ? (
-              <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-                className={`w-full min-h-[320px] rounded-3xl border-2 border-dashed flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all ${
-                  isDragging 
-                    ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20' 
-                    : 'border-slate-300 dark:border-slate-800 hover:border-indigo-500 bg-white dark:bg-slate-900/40 hover:bg-slate-50/50 dark:hover:bg-slate-900/60'
-                }`}
-              >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={(e) => handleFiles(e.target.files)}
-                  accept="image/*"
-                  className="hidden"
-                />
-                <div className="w-14 h-14 rounded-full bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center mb-4 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30">
-                  <Upload size={24} />
-                </div>
-                <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-1">Drag and Drop Image</h3>
-                <p className="text-xs text-slate-400 dark:text-slate-500 max-w-xs mb-4">Supports PNG, JPEG, WebP files.</p>
-                <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md">
-                  Browse Files
-                </button>
-              </div>
+              <ToolHeroUpload
+                title="AI OCR Image-to-Text"
+                description="Extract text instantly from scanned documents, receipts, screenshots, and photos."
+                buttonText="Select Image file"
+                dropText="or drop image file here"
+                accept="image/*"
+                multiple={false}
+                onFilesSelected={(files) => {
+                  if (files.length > 0) handleFiles(files);
+                }}
+                error={error}
+              />
             ) : (
               <div className="w-full rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 flex flex-col gap-4 shadow-sm relative">
                 

@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { FilePlus, FileText, Sparkles, AlertCircle, X, Loader2, Copy, Download, Check } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
 import { SeoGuideSection } from './SeoGuideSection';
+import { ToolHeroUpload } from './ToolHeroUpload';
 import ReactMarkdown from 'react-markdown';
 import { jsPDF } from "jspdf";
 
@@ -26,7 +27,7 @@ export const AiSummarizer: React.FC = () => {
     }
   }, []);
 
-  const handleFiles = useCallback((files: FileList | null) => {
+  const handleFiles = useCallback((files: FileList | File[] | null) => {
     if (!files || files.length === 0) return;
     setError(null);
     setSummary(null);
@@ -220,7 +221,7 @@ export const AiSummarizer: React.FC = () => {
   return (
     <div className="w-full h-[calc(100vh-60px)] bg-slate-50 dark:bg-slate-950 flex flex-col">
       {/* Header */}
-      <div className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 pt-28 pb-4 md:pt-32 md:pb-6 shrink-0">
+      <div className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 pt-20 pb-4 md:pt-24 md:pb-6 shrink-0">
         <div className="w-full px-4 md:px-6 mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -255,35 +256,17 @@ export const AiSummarizer: React.FC = () => {
         {!pdf ? (
           /* Upload State & SEO Guide */
           <div className="w-full flex flex-col items-center">
-            <div className="w-full max-w-2xl p-4 md:p-8">
-              <div 
-                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
-                onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleFiles(e.dataTransfer.files); }}
-                className={`w-full border-2 border-dashed rounded-xl p-8 md:p-12 text-center flex flex-col items-center justify-center transition-all duration-200 ${
-                  isDragging 
-                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/10' 
-                    : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900'
-                }`}
-              >
-                <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400 dark:text-slate-500">
-                  <FilePlus size={28} strokeWidth={1.5} />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
-                  Select PDF file
-                </h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 max-w-sm">
-                  Drop your PDF here or browse your computer to begin AI summarization.
-                </p>
-                
-                <input type="file" ref={fileInputRef} onChange={(e) => handleFiles(e.target.files)} accept="application/pdf" className="hidden" />
-                <button 
-                  onClick={() => fileInputRef.current?.click()} 
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-6 rounded-md transition-colors cursor-pointer"
-                >
-                  Browse Files
-                </button>
-              </div>
+            <div className="w-full max-w-4xl p-4 md:p-8">
+              <ToolHeroUpload
+                title="AI Document Summarizer"
+                description="Upload PDF documents to summarize key insights, extract bullet points, and translate instantly using AI."
+                buttonText="Select PDF file"
+                dropText="or drop PDF file here"
+                accept="application/pdf"
+                multiple={false}
+                onFilesSelected={(files) => handleFiles(files)}
+                error={error}
+              />
             </div>
 
             <SeoGuideSection toolId="ai-summarizer" />

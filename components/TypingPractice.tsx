@@ -247,7 +247,7 @@ const TypingPractice: React.FC = () => {
     .slice(0, 5);
 
   return (
-    <div className="w-full min-h-screen bg-slate-50 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 transition-colors duration-300 pb-16 pt-28 px-4 sm:px-8">
+    <div className="w-full min-h-screen bg-slate-50 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 transition-colors duration-300 pb-16 pt-20 px-4 sm:px-8">
       <div className="max-w-7xl mx-auto">
         
         {/* Navigation & Title */}

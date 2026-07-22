@@ -1451,7 +1451,7 @@ export const DevCard = () => {
       </div>
 
       {/* Top Header */}
-      <div className="w-full bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 pt-24 pb-8 md:pt-32 md:pb-12">
+      <div className="w-full bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 pt-20 pb-8 md:pt-24 md:pb-12">
         <div className="w-full px-4 md:px-8 mx-auto">
           <div className="flex flex-col items-start gap-4">
             <button 

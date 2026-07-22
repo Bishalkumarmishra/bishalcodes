@@ -180,7 +180,7 @@ export const ScreenshotStudio: React.FC = () => {
         `,
         backgroundSize: '100% 100%, 40px 40px, 40px 40px'
       }} 
-      className="min-h-screen pt-28 pb-20 relative overflow-hidden w-full flex flex-col items-center justify-center text-white"
+      className="min-h-screen pt-20 pb-16 relative overflow-hidden w-full flex flex-col items-center justify-center text-white"
     >
       <div className="w-full max-w-none px-4 md:px-8 xl:px-12 z-20 flex flex-col">
         {/* Back Button & Header */}

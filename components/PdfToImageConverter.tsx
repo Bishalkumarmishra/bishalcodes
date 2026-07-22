@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { FilePlus, FileImage, Download, X, AlertCircle, Image as ImageIcon } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
 import { SeoGuideSection } from './SeoGuideSection';
+import { ToolHeroUpload } from './ToolHeroUpload';
 import JSZip from 'jszip';
 
 export const PdfToImageConverter: React.FC = () => {
@@ -134,7 +135,7 @@ export const PdfToImageConverter: React.FC = () => {
 
   return (
     <div className="w-full text-slate-800 dark:text-slate-100 transition-colors duration-300">
-      <div className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 pt-28 pb-4 md:pt-32 md:pb-6 shrink-0">
+      <div className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 pt-20 pb-4 md:pt-24 md:pb-6 shrink-0">
         <div className="w-full px-4 md:px-6 mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -156,7 +157,7 @@ export const PdfToImageConverter: React.FC = () => {
         </div>
       </div>
 
-      <div className="w-full px-4 md:px-6 py-6 max-w-5xl mx-auto">
+      <div className="w-full px-4 md:px-8 xl:px-12 py-6">
         {error && (
           <div className="mb-6 flex items-start gap-3 bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-800/60 rounded-lg p-4 text-sm text-red-700 dark:text-red-400">
             <AlertCircle size={16} className="shrink-0 mt-0.5" />
@@ -167,30 +168,16 @@ export const PdfToImageConverter: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             {!pdf ? (
-              <div 
-                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
-                onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleFiles(e.dataTransfer.files); }}
-                className={`w-full border-2 border-dashed rounded-xl p-8 md:p-12 text-center flex flex-col items-center justify-center min-h-[250px] transition-all duration-200 ${
-                  isDragging 
-                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/10' 
-                    : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900'
-                }`}
-              >
-                <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400 dark:text-slate-500">
-                  <FileImage size={28} strokeWidth={1.5} />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
-                  Select PDF file
-                </h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 max-w-sm">
-                  Drop your PDF here or browse your computer to convert pages to images.
-                </p>
-                <input type="file" ref={fileInputRef} onChange={(e) => handleFiles(e.target.files)} accept="application/pdf" className="hidden" />
-                <button onClick={() => fileInputRef.current?.click()} className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md transition-colors cursor-pointer">
-                  Browse Files
-                </button>
-              </div>
+              <ToolHeroUpload
+                title="Convert PDF to JPG & PNG"
+                description="Extract all pages in a PDF document or convert every page into high quality JPG images."
+                buttonText="Select PDF file"
+                dropText="or drop PDF file here"
+                accept="application/pdf"
+                multiple={false}
+                onFilesSelected={(files) => handleFiles(files)}
+                error={error}
+              />
             ) : (
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-4">

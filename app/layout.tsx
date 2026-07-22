@@ -64,6 +64,10 @@ export default function RootLayout({
         <meta name="google-adsense-account" content="ca-pub-2257248018050891" />
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2257248018050891" crossOrigin="anonymous"></script>
         
+        {/* Dropbox SDK for native file picking */}
+        <script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key={process.env.NEXT_PUBLIC_DROPBOX_APP_KEY || "8b28kpk6kjm5p0y"}></script>
+
+        
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Bishal Codes" />

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useNavigation } from '../context/NavigationContext';
 import { SeoGuideSection } from './SeoGuideSection';
+import { ToolHeroUpload } from './ToolHeroUpload';
 import { 
   ArrowLeft, Upload, FileImage, Download, AlertCircle, 
   Loader2, Sparkles, Trash2, Eye, ShieldCheck
@@ -22,7 +23,7 @@ export default function BgRemover() {
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFiles = useCallback((files: FileList | null) => {
+  const handleFiles = useCallback((files: FileList | File[] | null) => {
     if (!files || files.length === 0) return;
     setError(null);
     const file = files[0];
@@ -109,7 +110,7 @@ export default function BgRemover() {
   };
 
   return (
-    <div className="w-full text-slate-800 dark:text-slate-100 transition-colors duration-300 min-h-screen pt-28 pb-16 flex flex-col items-center">
+    <div className="w-full text-slate-800 dark:text-slate-100 transition-colors duration-300 min-h-screen pt-20 pb-12 flex flex-col items-center">
       <div className="w-full px-4 md:px-8 xl:px-12 flex flex-col text-left">
         
         {/* Back Button & Title */}
@@ -150,33 +151,18 @@ export default function BgRemover() {
             
             {/* Input upload box */}
             {!imagePreview ? (
-              <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-                className={`w-full min-h-[360px] rounded-3xl border-2 border-dashed flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all ${
-                  isDragging 
-                    ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20' 
-                    : 'border-slate-300 dark:border-slate-800 hover:border-indigo-500 bg-white dark:bg-slate-900/40 hover:bg-slate-50/50 dark:hover:bg-slate-900/60'
-                }`}
-              >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={(e) => handleFiles(e.target.files)}
-                  accept="image/*"
-                  className="hidden"
-                />
-                <div className="w-14 h-14 rounded-full bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center mb-4 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30">
-                  <Upload size={24} />
-                </div>
-                <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-1">Upload Photo to Remove Background</h3>
-                <p className="text-xs text-slate-400 dark:text-slate-500 max-w-xs mb-4">Drag & drop or select an image file.</p>
-                <button className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md">
-                  Choose Image
-                </button>
-              </div>
+              <ToolHeroUpload
+                title="Remove Image Background"
+                description="Remove image backgrounds automatically in seconds with 100% privacy."
+                buttonText="Select Image file"
+                dropText="or drop image file here"
+                accept="image/*"
+                multiple={false}
+                onFilesSelected={(files) => {
+                  if (files.length > 0) handleFiles(files);
+                }}
+                error={error}
+              />
             ) : (
               <div className="w-full flex flex-col gap-6">
                 

@@ -737,21 +737,6 @@ const ServicesPage: React.FC = () => {
     <div className="min-h-screen bg-[#FDF9F3] dark:bg-slate-950 font-sans transition-colors duration-300 selection:bg-indigo-500/30 flex flex-col justify-between">
       {!isEmbed && <Navbar />}
       <main className={`w-full flex-grow flex flex-col ${isEmbed ? 'pt-0 pb-0 mt-0' : isFullBleed ? 'pt-0 pb-0' : selectedId ? 'pt-0 pb-12' : 'pb-12 pt-20 sm:pt-28'}`}>
-        {selectedId && !isEmbed && (
-          <div className="w-full bg-slate-900 text-slate-100 py-2.5 px-4 sm:px-8 border-b border-slate-800 flex items-center justify-between z-30">
-            <div className="flex items-center gap-2 text-xs font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Embeddable Developer Tool: <strong className="text-white font-extrabold">{activeToolName}</strong></span>
-            </div>
-            <button
-              onClick={() => setIsEmbedModalOpen(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-500 shadow-sm"
-            >
-              <Code size={13} /> Embed Tool on Your Site
-            </button>
-          </div>
-        )}
-
         {renderActiveService()}
       </main>
 

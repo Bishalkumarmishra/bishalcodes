@@ -149,8 +149,9 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
     if (typeof document !== 'undefined') {
       const isFileTransfer = currentPage === 'transfer' || (currentPage === 'services' && selectedId === 'file-transfer');
       const isCalendarTool = currentPage === 'widget-calendar' || currentPage === 'widget-date-converter' || (currentPage === 'services' && selectedId === 'date-converter');
+      const isJpgToPdf = currentPage === 'services' && selectedId === 'jpg-to-pdf';
       
-      if (isFileTransfer || isCalendarTool) {
+      if (isFileTransfer || isCalendarTool || isJpgToPdf) {
         document.documentElement.classList.add('hide-bg-svg');
       } else {
         document.documentElement.classList.remove('hide-bg-svg');

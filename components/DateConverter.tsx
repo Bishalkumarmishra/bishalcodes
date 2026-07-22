@@ -846,7 +846,7 @@ END:VCALENDAR`;
     <div className="w-full text-slate-800 dark:text-slate-100 transition-colors duration-300">
       
       {/* Dynamic Upper Hero Deck */}
-      <div className="w-full bg-gradient-to-br from-[#9c3e1b] via-[#7d2f12] to-[#5c2009] dark:from-[#521c0a] dark:via-[#3b1204] dark:to-[#210900] border-b border-[#7d2f12]/20 dark:border-[#210900]/40 pt-28 pb-12 md:pt-36 md:pb-16">
+      <div className="w-full bg-gradient-to-br from-[#9c3e1b] via-[#7d2f12] to-[#5c2009] dark:from-[#521c0a] dark:via-[#3b1204] dark:to-[#210900] border-b border-[#7d2f12]/20 dark:border-[#210900]/40 pt-20 pb-8 md:pt-24 md:pb-12">
         <div className="w-full px-[5vw] mx-auto">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             <div className="max-w-xl space-y-3">
@@ -894,7 +894,7 @@ END:VCALENDAR`;
       </div>
 
       {/* Main Converter Core Area */}
-      <div className="w-full px-[5vw] mx-auto pt-28 pb-12 md:pt-36 md:pb-16">
+      <div className="w-full px-[5vw] mx-auto pt-8 pb-12 md:pt-12 md:pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left Block - Controls & Conversion Engine: 7 cols */}

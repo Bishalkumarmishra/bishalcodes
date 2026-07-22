@@ -1,14 +1,22 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Upload, Image as ImageIcon, FileText, X, Download, Trash2, AlertCircle } from 'lucide-react';
+import { Upload, Image as ImageIcon, FileText, X, Download, Trash2, AlertCircle, Plus, ChevronRight, RectangleVertical, RectangleHorizontal, RotateCw, Settings } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
 import { SeoGuideSection } from './SeoGuideSection';
+import { ToolHeroUpload } from './ToolHeroUpload';
+import { ToolDownloadStep } from './ToolDownloadStep';
 import { jsPDF } from 'jspdf';
 
 interface ImageData {
   id: string;
   file: File;
   previewUrl: string;
+  name: string;
+  rotation: number;
 }
+
+type Orientation = 'portrait' | 'landscape';
+type PageSize = 'a4' | 'fit' | 'letter';
+type MarginSize = 'no' | 'small' | 'big';
 
 export const JpgToPdfConverter: React.FC = () => {
   const { navigate } = useNavigation();
@@ -16,18 +24,29 @@ export const JpgToPdfConverter: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  
+  // Options state matching iLovePDF Workbench
+  const [orientation, setOrientation] = useState<Orientation>('portrait');
+  const [pageSize, setPageSize] = useState<PageSize>('a4');
+  const [margin, setMargin] = useState<MarginSize>('no');
+  
+  // Mobile settings drawer state
+  const [isMobileSettingsOpen, setIsMobileSettingsOpen] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFiles = useCallback((files: FileList | null) => {
+  const handleFiles = useCallback((files: FileList | File[] | null) => {
     if (!files) return;
     setError(null);
     
-    const validFiles = Array.from(files).filter(file => 
-      file.type.startsWith('image/jpeg') || file.type.startsWith('image/png')
+    const fileArray = Array.from(files);
+    const validFiles = fileArray.filter(file => 
+      file.type.startsWith('image/jpeg') || file.type.startsWith('image/png') || file.type.startsWith('image/webp')
     );
 
-    if (validFiles.length !== files.length) {
-      setError('Only JPG and PNG images are supported.');
+    if (validFiles.length !== fileArray.length) {
+      setError('Only JPG, PNG, and WebP images are supported.');
     }
 
     if (validFiles.length === 0) return;
@@ -35,7 +54,9 @@ export const JpgToPdfConverter: React.FC = () => {
     const newImages = validFiles.map(file => ({
       id: Math.random().toString(36).substring(2, 9),
       file,
-      previewUrl: URL.createObjectURL(file)
+      name: file.name,
+      previewUrl: URL.createObjectURL(file),
+      rotation: 0
     }));
 
     setImages(prev => [...prev, ...newImages]);
@@ -65,34 +86,49 @@ export const JpgToPdfConverter: React.FC = () => {
     });
   };
 
+  const rotateImage = (id: string) => {
+    setImages(prev => prev.map(img => {
+      if (img.id === id) {
+        return { ...img, rotation: (img.rotation + 90) % 360 };
+      }
+      return img;
+    }));
+  };
+
   const clearAll = () => {
     images.forEach(img => URL.revokeObjectURL(img.previewUrl));
     setImages([]);
     setError(null);
+    setIsMobileSettingsOpen(false);
   };
 
+  // Real PDF Generation applying exact orientation, page size, and margins
   const generatePdf = async () => {
     if (images.length === 0) return;
+    
     setIsGenerating(true);
     setError(null);
 
+    // Yield to the event loop so the button spinner can render before the blocking operation
+    await new Promise(resolve => setTimeout(resolve, 50));
+
     try {
-      // Create a new PDF document in A4 format (portrait)
+      let jsPdfFormat: string | [number, number] = 'a4';
+      if (pageSize === 'letter') jsPdfFormat = 'letter';
+
       const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'px',
-        format: 'a4'
+        orientation: orientation,
+        unit: 'pt',
+        format: pageSize === 'fit' ? 'a4' : jsPdfFormat
       });
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
+      let marginPts = 0;
+      if (margin === 'small') marginPts = 24;
+      if (margin === 'big') marginPts = 48;
 
       for (let i = 0; i < images.length; i++) {
-        if (i > 0) pdf.addPage();
-        
         const imgData = images[i];
-        
-        // Load image to get natural dimensions
+
         const img = new Image();
         img.src = imgData.previewUrl;
         await new Promise((resolve, reject) => {
@@ -100,241 +136,493 @@ export const JpgToPdfConverter: React.FC = () => {
           img.onerror = reject;
         });
 
-        // Calculate aspect ratio to fit image within A4 page dimensions
-        const imgRatio = img.width / img.height;
-        const pageRatio = pdfWidth / pdfHeight;
-
-        let renderWidth = pdfWidth;
-        let renderHeight = pdfHeight;
-        let x = 0;
-        let y = 0;
-
-        if (imgRatio > pageRatio) {
-          // Image is wider than the page: fit by width
-          renderWidth = pdfWidth;
-          renderHeight = pdfWidth / imgRatio;
-          y = (pdfHeight - renderHeight) / 2; // Center vertically
+        let renderCanvas = document.createElement('canvas');
+        const ctx = renderCanvas.getContext('2d');
+        if (imgData.rotation % 180 !== 0) {
+          renderCanvas.width = img.height;
+          renderCanvas.height = img.width;
         } else {
-          // Image is taller than the page: fit by height
-          renderHeight = pdfHeight;
-          renderWidth = pdfHeight * imgRatio;
-          x = (pdfWidth - renderWidth) / 2; // Center horizontally
+          renderCanvas.width = img.width;
+          renderCanvas.height = img.height;
         }
 
-        // Read the exact original file bytes to preserve 100% ultra full quality
-        const originalBase64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(imgData.file);
-        });
+        if (ctx) {
+          ctx.translate(renderCanvas.width / 2, renderCanvas.height / 2);
+          ctx.rotate((imgData.rotation * Math.PI) / 180);
+          ctx.drawImage(img, -img.width / 2, -img.height / 2);
+        }
 
-        const format = imgData.file.type === 'image/png' ? 'PNG' : 'JPEG';
-        // Embed the original raw image directly without any canvas downscaling
-        pdf.addImage(originalBase64, format, x, y, renderWidth, renderHeight, undefined, 'FAST');
+        const base64Data = renderCanvas.toDataURL('image/jpeg', 0.95);
+        const imgWidth = renderCanvas.width;
+        const imgHeight = renderCanvas.height;
+
+        let pdfWidth: number;
+        let pdfHeight: number;
+
+        if (pageSize === 'fit') {
+          pdfWidth = imgWidth + marginPts * 2;
+          pdfHeight = imgHeight + marginPts * 2;
+          if (i > 0) {
+            pdf.addPage([pdfWidth, pdfHeight], orientation);
+          } else {
+            pdf.deletePage(1);
+            pdf.addPage([pdfWidth, pdfHeight], orientation);
+          }
+        } else {
+          if (i > 0) pdf.addPage(jsPdfFormat, orientation);
+          pdfWidth = pdf.internal.pageSize.getWidth();
+          pdfHeight = pdf.internal.pageSize.getHeight();
+        }
+
+        const availWidth = pdfWidth - marginPts * 2;
+        const availHeight = pdfHeight - marginPts * 2;
+
+        const imgRatio = imgWidth / imgHeight;
+        const availRatio = availWidth / availHeight;
+
+        let drawW = availWidth;
+        let drawH = availHeight;
+        let x = marginPts;
+        let y = marginPts;
+
+        if (imgRatio > availRatio) {
+          drawW = availWidth;
+          drawH = availWidth / imgRatio;
+          y = marginPts + (availHeight - drawH) / 2;
+        } else {
+          drawH = availHeight;
+          drawW = availHeight * imgRatio;
+          x = marginPts + (availWidth - drawW) / 2;
+        }
+
+        pdf.addImage(base64Data, 'JPEG', x, y, drawW, drawH, undefined, 'FAST');
       }
 
-      // 1. Generate ArrayBuffer and create a strictly typed PDF Blob
-      // Explicitly setting application/pdf prevents Chrome from discarding the filename
       const arrayBuffer = pdf.output('arraybuffer');
       const pdfBlob = new Blob([arrayBuffer], { type: 'application/pdf' });
       const blobUrl = URL.createObjectURL(pdfBlob);
       
-      // 2. Create link and dispatch a proper MouseEvent
+      setPdfUrl(blobUrl);
+      
       const link = document.createElement('a');
       link.href = blobUrl;
       link.download = 'converted-images.pdf';
       document.body.appendChild(link);
-      
-      const clickEvent = new MouseEvent('click', {
-        view: window,
-        bubbles: true,
-        cancelable: true
-      });
-      link.dispatchEvent(clickEvent);
-      
-      // 3. Clean up
+      link.click();
       document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      
+      setIsMobileSettingsOpen(false);
     } catch (err: any) {
       console.error('PDF Generation Error:', err);
-      setError(`An error occurred: ${err.message || 'Unknown error'}. Try converting fewer images at a time.`);
+      setError(`Failed to generate PDF: ${err.message || 'Unknown error'}`);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  return (
-    <div className="w-full text-slate-800 dark:text-slate-100 transition-colors duration-300">
-      {/* Header */}
-      <div className="w-full bg-white dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 pt-28 pb-8 md:pt-32 md:pb-12">
-        <div className="w-full px-4 md:px-8 mx-auto">
-          <div className="flex flex-col items-start gap-4">
-            <button
-              onClick={() => navigate('services')}
-              className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-lg"
-            >
-              &larr; Back to Services
-            </button>
-            <div>
-              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight font-heading">
-                JPG to PDF Converter
-              </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base font-normal leading-relaxed mt-2">
-                Convert multiple images into a single PDF document. Everything happens securely in your browser.
-              </p>
-            </div>
-          </div>
+  const handleReset = useCallback(() => {
+    if (pdfUrl) {
+      URL.revokeObjectURL(pdfUrl);
+      setPdfUrl(null);
+    }
+    setImages([]);
+    setError(null);
+  }, [pdfUrl]);
+
+  // Render options form component to share between Desktop Sidebar & Mobile Drawer
+  const renderOptionsForm = () => (
+    <div className="space-y-6">
+      {/* Page Orientation */}
+      <div>
+        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">
+          PAGE ORIENTATION
+        </label>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => setOrientation('portrait')}
+            className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all cursor-pointer ${
+              orientation === 'portrait'
+                ? 'border-[#e52521] bg-white dark:bg-slate-900 text-[#e52521]'
+                : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-950 hover:border-slate-300'
+            }`}
+          >
+            <RectangleVertical size={26} className="mb-1.5" />
+            <span className="text-xs font-bold">Portrait</span>
+          </button>
+
+          <button
+            onClick={() => setOrientation('landscape')}
+            className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all cursor-pointer ${
+              orientation === 'landscape'
+                ? 'border-[#e52521] bg-white dark:bg-slate-900 text-[#e52521]'
+                : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-950 hover:border-slate-300'
+            }`}
+          >
+            <RectangleHorizontal size={26} className="mb-1.5" />
+            <span className="text-xs font-bold">Landscape</span>
+          </button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="w-full px-4 md:px-8 py-8 max-w-5xl mx-auto">
-        {error && (
-          <div className="mb-6 flex items-start gap-3 bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-800/60 rounded-lg p-4 text-sm text-red-700 dark:text-red-400">
-            <AlertCircle size={16} className="shrink-0 mt-0.5" />
-            <p className="font-medium">{error}</p>
-          </div>
-        )}
+      {/* Page Size */}
+      <div>
+        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">
+          PAGE SIZE
+        </label>
+        <select
+          value={pageSize}
+          onChange={(e) => setPageSize(e.target.value as PageSize)}
+          className="w-full bg-[#f8fafc] dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-semibold text-slate-900 dark:text-white outline-none focus:border-[#e52521] cursor-pointer"
+        >
+          <option value="a4">A4 (297×210 mm)</option>
+          <option value="fit">Fit (Same page size as image)</option>
+          <option value="letter">US Letter (215.9×279.4 mm)</option>
+        </select>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Upload Area */}
-          <div className="lg:col-span-2 space-y-6">
+      {/* Margin */}
+      <div>
+        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">
+          MARGIN
+        </label>
+        <div className="grid grid-cols-3 gap-2.5">
+          <button
+            onClick={() => setMargin('no')}
+            className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all cursor-pointer ${
+              margin === 'no'
+                ? 'border-[#e52521] bg-white dark:bg-slate-900 text-[#e52521]'
+                : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-950 hover:border-slate-300'
+            }`}
+          >
+            <div className="w-5 h-5 border-2 border-current rounded mb-1 flex items-center justify-center">
+              <div className="w-full h-full bg-current/20" />
+            </div>
+            <span className="text-[11px] font-bold">No margin</span>
+          </button>
+
+          <button
+            onClick={() => setMargin('small')}
+            className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all cursor-pointer ${
+              margin === 'small'
+                ? 'border-[#e52521] bg-white dark:bg-slate-900 text-[#e52521]'
+                : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-950 hover:border-slate-300'
+            }`}
+          >
+            <div className="w-5 h-5 border-2 border-dashed border-current rounded mb-1 p-0.5">
+              <div className="w-full h-full bg-current/20" />
+            </div>
+            <span className="text-[11px] font-bold">Small</span>
+          </button>
+
+          <button
+            onClick={() => setMargin('big')}
+            className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all cursor-pointer ${
+              margin === 'big'
+                ? 'border-[#e52521] bg-white dark:bg-slate-900 text-[#e52521]'
+                : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-950 hover:border-slate-300'
+            }`}
+          >
+            <div className="w-5 h-5 border-2 border-dashed border-current rounded mb-1 p-1">
+              <div className="w-full h-full bg-current/20" />
+            </div>
+            <span className="text-[11px] font-bold">Big</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ---------------------------------------------------------------------------
+  // RENDER
+  // ---------------------------------------------------------------------------
+
+  if (pdfUrl) {
+    return (
+      <div className="w-full font-sans">
+        <ToolDownloadStep 
+          title="The images have been converted to PDF"
+          downloadUrl={pdfUrl}
+          downloadFileName="converted-images.pdf"
+          onReset={handleReset}
+        />
+        <SeoGuideSection toolId="jpg-to-pdf" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300">
+      
+      {/* Top Navigation */}
+      <div className="w-full px-4 md:px-8 xl:px-12 pt-20 pb-4 flex items-center justify-between">
+        <button
+          onClick={() => navigate('services')}
+          className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-lg"
+        >
+          &larr; Back to Services
+        </button>
+
+        {images.length > 0 && (
+          <button
+            onClick={clearAll}
+            className="text-xs font-bold text-red-600 hover:text-red-700 dark:text-red-400 uppercase tracking-wider flex items-center gap-1 cursor-pointer"
+          >
+            <Trash2 size={14} /> Clear All ({images.length})
+          </button>
+        )}
+      </div>
+
+      {/* Hidden File Input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg, image/png, image/webp"
+        multiple
+        onChange={(e) => handleFiles(e.target.files)}
+        className="hidden"
+      />
+
+      {/* Main Step 1 Hero or Step 2 iLovePDF Workbench */}
+      {images.length === 0 ? (
+        <div className="w-full px-4 md:px-8 xl:px-12 pb-12">
+          <ToolHeroUpload
+            title="JPG to PDF"
+            description="Convert JPG images to PDF in seconds. Easily adjust orientation and margins."
+            buttonText="Select JPG images"
+            dropText="or drop JPG images here"
+            accept="image/jpeg, image/png, image/webp"
+            multiple={true}
+            onFilesSelected={(files) => handleFiles(files)}
+            error={error}
+          />
+        </div>
+      ) : (
+        <div className="w-full px-4 md:px-8 xl:px-12 pb-12">
+          {error && (
+            <div className="mb-6 flex items-start gap-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60 rounded-xl p-4 text-sm text-red-700 dark:text-red-400">
+              <AlertCircle size={16} className="shrink-0 mt-0.5" />
+              <p className="font-medium">{error}</p>
+            </div>
+          )}
+
+          {/* iLovePDF Step 2 Layout */}
+          <div className="flex flex-col lg:flex-row gap-6 w-full items-start">
+            
+            {/* Left/Center Canvas */}
             <div 
               onDragOver={onDragOver}
               onDragLeave={onDragLeave}
               onDrop={onDrop}
-              className={`border-2 border-dashed rounded-2xl p-10 text-center flex flex-col items-center justify-center min-h-[300px] transition-all duration-200 ${
-                isDragging 
-                  ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' 
-                  : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80'
-              }`}
+              className="w-full lg:flex-1 bg-[#f4f5f8] dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 min-h-[520px] relative flex flex-col justify-between"
             >
-              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-500 dark:text-slate-400">
-                <Upload size={28} />
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
-                Drag & drop images here
-              </h3>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 max-w-sm">
-                Supports JPG and PNG. You can upload multiple images to combine them into one multi-page PDF.
-              </p>
-              
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={(e) => handleFiles(e.target.files)} 
-                accept="image/jpeg, image/png" 
-                multiple 
-                className="hidden" 
-              />
-              
-              <button 
-                onClick={() => fileInputRef.current?.click()}
-                className="bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-lg transition-colors cursor-pointer shadow-sm"
-              >
-                Browse Files
-              </button>
-            </div>
-
-            {/* Image Preview Grid */}
-            {images.length > 0 && (
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <ImageIcon size={18} className="text-slate-500" />
-                    Selected Images ({images.length})
-                  </h4>
-                  <button 
-                    onClick={clearAll}
-                    className="text-xs font-bold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 uppercase tracking-wider flex items-center gap-1 cursor-pointer"
+              {/* Image Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start pb-20 lg:pb-0">
+                {images.map((img, idx) => (
+                  <div 
+                    key={img.id}
+                    className="group bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-sm hover:shadow-md transition-all flex flex-col items-center relative"
                   >
-                    <Trash2 size={14} /> Clear All
-                  </button>
-                </div>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {images.map((img, index) => (
-                    <div key={img.id} className="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 aspect-[3/4] bg-slate-100 dark:bg-slate-800">
+                    {/* Index badge */}
+                    <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-slate-900/80 text-white text-[11px] font-bold flex items-center justify-center z-10 shadow">
+                      {idx + 1}
+                    </div>
+
+                    {/* Rotate & Remove Actions */}
+                    <div className="absolute top-2 right-2 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => rotateImage(img.id)}
+                        className="w-7 h-7 rounded-lg bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center cursor-pointer shadow"
+                        title="Rotate Image"
+                      >
+                        <RotateCw size={13} />
+                      </button>
+                      <button
+                        onClick={() => removeImage(img.id)}
+                        className="w-7 h-7 rounded-lg bg-red-600/90 hover:bg-red-700 text-white flex items-center justify-center cursor-pointer shadow"
+                        title="Remove Image"
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+
+                    {/* Image Preview Thumbnail */}
+                    <div className="w-full aspect-[3/4] rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-900 flex items-center justify-center mb-2.5">
                       <img 
                         src={img.previewUrl} 
-                        alt={`Preview ${index + 1}`} 
-                        className="w-full h-full object-cover"
+                        alt={img.name} 
+                        style={{ transform: `rotate(${img.rotation}deg)` }}
+                        className="max-w-full max-h-full object-contain transition-transform duration-200"
                       />
-                      <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <button 
-                          onClick={() => removeImage(img.id)}
-                          className="bg-white text-red-600 p-2 rounded-full hover:bg-red-50 transition-colors shadow-sm cursor-pointer"
-                          title="Remove image"
-                        >
-                          <X size={16} strokeWidth={3} />
-                        </button>
-                      </div>
-                      <div className="absolute top-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-sm">
-                        {index + 1}
-                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
 
-          {/* Right Column: Actions */}
-          <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-6 sticky top-24">
-              <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center mb-4">
-                <FileText size={24} />
+                    {/* Filename label */}
+                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate w-full text-center px-1" title={img.name}>
+                      {img.name}
+                    </p>
+                  </div>
+                ))}
               </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Convert to PDF</h3>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
-                Images will be automatically resized and centered on standard A4 pages.
-              </p>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-sm py-3 border-y border-slate-100 dark:border-slate-800">
-                  <span className="text-slate-500 dark:text-slate-400">Total Images:</span>
-                  <span className="font-bold text-slate-900 dark:text-white">{images.length}</span>
-                </div>
+
+              {/* Floating Action Controls Stack on Canvas Right Edge (Positioned Vertically Middle Right) */}
+              <div className="fixed lg:absolute top-1/3 right-4 sm:right-6 z-30 flex flex-col items-center gap-3">
                 
+                {/* Floating Gear / Settings Icon Button (Mobile Only, triggers Slide-over Drawer) */}
+                <div className="relative group lg:hidden">
+                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-3 px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    Image to PDF options
+                  </span>
+                  <button
+                    onClick={() => setIsMobileSettingsOpen(true)}
+                    className="w-12 h-12 rounded-full bg-white dark:bg-slate-950 text-slate-800 dark:text-white flex items-center justify-center shadow-xl border border-slate-200 dark:border-slate-800 transition-transform active:scale-95 cursor-pointer"
+                    title="Image to PDF options"
+                  >
+                    <Settings size={22} className="text-slate-800 dark:text-white" />
+                  </button>
+                </div>
+
+                {/* Floating Add More Files (+) Button with Badge */}
+                <div className="relative group">
+                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-3 px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    Add more files
+                  </span>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-14 h-14 rounded-full bg-[#e52521] hover:bg-[#d01f1c] text-white flex items-center justify-center shadow-xl transition-transform active:scale-95 cursor-pointer relative"
+                  >
+                    <Plus size={26} strokeWidth={2.5} />
+                    <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-slate-900 text-white text-[10px] font-extrabold flex items-center justify-center border-2 border-white dark:border-slate-900">
+                      {images.length}
+                    </span>
+                  </button>
+                </div>
+
+                {/* Floating Dropbox Button with Official SVG */}
+                <div className="relative group">
+                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-3 px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    Add from Dropbox
+                  </span>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-11 h-11 rounded-full bg-[#e52521] hover:bg-[#d01f1c] text-white flex items-center justify-center shadow-lg transition-transform active:scale-95 cursor-pointer p-2.5"
+                  >
+                    <img src="/dropbox.svg" alt="Dropbox" className="w-full h-full object-contain brightness-0 invert" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Mobile Fixed Bottom Convert Button Bar (Visible on Mobile) */}
+              <div className="fixed bottom-[90px] left-4 right-4 z-40 lg:hidden">
                 <button
                   onClick={generatePdf}
                   disabled={images.length === 0 || isGenerating}
-                  className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-lg font-bold text-sm transition-all shadow-sm ${
-                    images.length === 0 
-                      ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed' 
-                      : isGenerating 
-                        ? 'bg-indigo-600/70 text-white cursor-wait'
-                        : 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer hover:shadow-md'
-                  }`}
+                  className="w-full bg-[#e52521] hover:bg-[#d01f1c] disabled:opacity-50 text-white py-3.5 px-4 rounded-2xl text-sm font-extrabold shadow-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
                 >
                   {isGenerating ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      Generating...
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Converting...
                     </>
                   ) : (
                     <>
-                      <Download size={18} />
-                      Download PDF
+                      <span>Convert to PDF</span>
+                      <ChevronRight size={18} strokeWidth={3} />
                     </>
                   )}
                 </button>
               </div>
-              
-              <div className="mt-6 flex items-start gap-2 text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-950/30 p-3 rounded-lg border border-slate-100 dark:border-slate-800/50">
-                <AlertCircle size={14} className="shrink-0 mt-0.5 text-indigo-500" />
-                <p>
-                  <strong>100% Private:</strong> Your files never leave your device. All processing is done locally in your browser.
-                </p>
+
+            </div>
+
+            {/* Desktop Docked Options Sidebar (Visible on Desktop lg Screens) */}
+            <div className="hidden lg:flex w-[360px] shrink-0 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-sm flex-col justify-between space-y-8">
+              <div>
+                <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-6 font-heading">
+                  Image to PDF options
+                </h3>
+
+                {renderOptionsForm()}
               </div>
+
+              {/* Convert to PDF Big Red Button */}
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  onClick={generatePdf}
+                  disabled={images.length === 0 || isGenerating}
+                  className="w-full bg-[#e52521] hover:bg-[#d01f1c] disabled:opacity-50 text-white py-4 rounded-xl text-base font-extrabold shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
+                >
+                  {isGenerating ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Converting...
+                    </>
+                  ) : (
+                    <>
+                      <span>Convert to PDF</span>
+                      <ChevronRight size={20} strokeWidth={3} />
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Slide-Over Options Drawer (Triggered by Gear Icon Button) */}
+      {isMobileSettingsOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          {/* Backdrop Overlay */}
+          <div 
+            onClick={() => setIsMobileSettingsOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200" 
+          />
+
+          {/* Slide-over Panel from Right Edge */}
+          <div className="fixed inset-y-0 right-0 w-[85vw] max-w-[360px] bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 p-6 pt-[88px] shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-300">
+            <div>
+              {/* Top Drawer Header with Title & Transparent Close Icon */}
+              <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-100 dark:border-slate-800">
+                <h3 className="text-xl font-extrabold text-slate-900 dark:text-white font-heading">
+                  Image to PDF options
+                </h3>
+                <button
+                  onClick={() => setIsMobileSettingsOpen(false)}
+                  className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-white bg-transparent hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors cursor-pointer"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {renderOptionsForm()}
+            </div>
+
+            {/* Bottom Action inside Drawer */}
+            <div className="pt-6 mt-6 border-t border-slate-100 dark:border-slate-800">
+              <button
+                onClick={generatePdf}
+                disabled={images.length === 0 || isGenerating}
+                className="w-full bg-[#e52521] hover:bg-[#d01f1c] disabled:opacity-50 text-white py-4 rounded-xl text-base font-extrabold shadow-lg flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Converting...
+                  </>
+                ) : (
+                  <>
+                    <span>Convert to PDF</span>
+                    <ChevronRight size={20} strokeWidth={3} />
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
+      {/* SEO Guide Section */}
       <SeoGuideSection toolId="jpg-to-pdf" />
-
     </div>
   );
 };
