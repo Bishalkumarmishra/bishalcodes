@@ -12,8 +12,8 @@ def main():
     print(f"Converting PDF: {pdf_path} to DOCX: {docx_path}")
     try:
         cv = Converter(pdf_path)
-        # Convert all pages
-        cv.convert(docx_path, start=0, end=None)
+        # Convert all pages with optimized thresholds to merge vector drawings/charts into single complete graphics
+        cv.convert(docx_path, start=0, end=None, min_svg_gap_dx=150.0, min_svg_gap_dy=150.0)
         cv.close()
         print("Conversion completed successfully!")
     except Exception as e:
