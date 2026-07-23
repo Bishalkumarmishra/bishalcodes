@@ -280,6 +280,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Convert Excel spreadsheets (.xlsx, .xls) into high-fidelity PDF files with exact sheet scaling, layout preservation, and charts.',
     badge: 'NEW',
     accentColor: 'emerald',
+    iconUrl: '/excel to pdf.svg',
   },
   {
     id: 'pdf-to-excel',
@@ -288,6 +289,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Convert PDF files into structured Microsoft Excel spreadsheets (.xlsx) with clean cell grids, row preservation, and layout mapping.',
     badge: 'NEW',
     accentColor: 'emerald',
+    iconUrl: '/pdf to excel.svg',
   },
   {
     id: 'split-pdf',
@@ -296,6 +298,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Split PDF files into multiple documents by custom page ranges, fixed intervals, or extract every page individually.',
     badge: 'NEW',
     accentColor: 'red',
+    iconUrl: '/spit pdf.svg',
   },
 ];
 
