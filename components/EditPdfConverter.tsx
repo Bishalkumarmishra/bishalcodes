@@ -3,7 +3,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   FileText, Loader2, ChevronRight, KeyRound, AlertCircle, Type, Pencil,
-  Square, Circle, Image as ImageIcon, Highlighter, Trash2, ZoomIn, ZoomOut,
+  Square, Circle, Image as ImageIcon, Highlighter, Eraser, Trash2, ZoomIn, ZoomOut,
   Maximize2, ChevronLeft, Bold, Italic, Check, Plus, Move, MousePointer
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
@@ -12,7 +12,7 @@ import { ToolHeroUpload } from './ToolHeroUpload';
 import { ToolDownloadStep } from './ToolDownloadStep';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type ToolMode = 'select' | 'text' | 'draw' | 'rect' | 'circle' | 'image' | 'highlight';
+type ToolMode = 'select' | 'text' | 'draw' | 'rect' | 'circle' | 'image' | 'highlight' | 'whiteout';
 
 interface TextOverlay {
   id: string;
@@ -221,9 +221,9 @@ export const EditPdfConverter: React.FC = () => {
         id: Math.random().toString(36).substring(2, 9),
         x: coords.x,
         y: coords.y,
-        width: 180,
-        height: 40,
-        text: 'Click to edit text',
+        width: 140,
+        height: 32,
+        text: 'Text',
         fontSize: fontSize,
         fontColor: activeColor,
         isBold: isBold,
@@ -232,6 +232,18 @@ export const EditPdfConverter: React.FC = () => {
       };
       updatePageEdits(currentPage, prev => ({ ...prev, texts: [...prev.texts, newText] }));
       setSelectedElementId(newText.id);
+      setActiveMode('select');
+    } else if (activeMode === 'whiteout') {
+      const newCover: CoverOverlay = {
+        id: Math.random().toString(36).substring(2, 9),
+        x0: coords.x,
+        y0: coords.y,
+        x1: coords.x + 120,
+        y1: coords.y + 40,
+        color: '#ffffff'
+      };
+      updatePageEdits(currentPage, prev => ({ ...prev, covers: [...prev.covers, newCover] }));
+      setSelectedElementId(newCover.id);
       setActiveMode('select');
     } else if (activeMode === 'draw' || activeMode === 'highlight') {
       setIsDrawing(true);
@@ -526,6 +538,7 @@ export const EditPdfConverter: React.FC = () => {
             { id: 'rect', label: 'Rectangle', icon: Square },
             { id: 'circle', label: 'Circle', icon: Circle },
             { id: 'highlight', label: 'Highlight', icon: Highlighter },
+            { id: 'whiteout', label: 'Erase / Whiteout', icon: Eraser },
           ].map(m => {
             const Icon = m.icon;
             const active = activeMode === m.id;
@@ -683,28 +696,6 @@ export const EditPdfConverter: React.FC = () => {
                   'cursor-default'
                 }`}
               >
-                {/* 1. Original PDF Text Spans (detect & erase/edit original PDF text) */}
-                {activePageInfo.textBlocks.map((blk, idx) => {
-                  const scaleX = (activePageInfo.width * zoom) / activePageInfo.width;
-                  const scaleY = (activePageInfo.height * zoom) / activePageInfo.height;
-                  const left = blk.bbox[0] * scaleX;
-                  const top = blk.bbox[1] * scaleY;
-                  const w = (blk.bbox[2] - blk.bbox[0]) * scaleX;
-                  const h = (blk.bbox[3] - blk.bbox[1]) * scaleY;
-
-                  return (
-                    <div
-                      key={`blk-${idx}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditTextBlock(blk);
-                      }}
-                      style={{ left: `${left}px`, top: `${top}px`, width: `${w}px`, height: `${h}px` }}
-                      className="absolute opacity-0 hover:opacity-100 hover:bg-[#e52521]/15 hover:border hover:border-[#e52521] rounded-xs cursor-pointer transition-opacity"
-                      title="Click to edit text directly"
-                    />
-                  );
-                })}
 
                 {/* 2. Cover rects (white background overlays to erase text) */}
                 {currentEdits.covers.map((c) => {
