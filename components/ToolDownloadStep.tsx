@@ -20,17 +20,17 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [isCopied, setIsCopied] = useState(false);
 
-  // Generate a mock shareable link since the actual file is local to the browser
-  // In a real backend implementation, this would be a real server URL
+  // Share link = the clean canonical tool page URL (no random/fake paths)
   const [shareLink, setShareLink] = useState('');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Use the real current page URL — scannable and shareable
-      const link = window.location.href;
+      // Clean URL: origin + pathname strips any query params or fragments
+      // e.g. https://bishalcodes.com/tools/split-pdf
+      const link = window.location.origin + window.location.pathname;
       setShareLink(link);
-      
-      // Generate QR Code for the real page link
+
+      // Generate QR Code pointing to the real tool page
       QRCode.toDataURL(link, { width: 256, margin: 2, color: { dark: '#1e293b', light: '#ffffff' } })
         .then(url => setQrCodeDataUrl(url))
         .catch(err => console.error(err));
@@ -291,7 +291,7 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
             </div>
             
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 text-center">
-              Scan this QR code to open the tool on your mobile device and re-process your file.
+              Scan to open this tool on any device and share it with others.
             </p>
 
             <div className="flex justify-center mb-8">
