@@ -44,9 +44,12 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
 
         if (!uploadRes.ok) throw new Error('Upload failed');
         const data = await uploadRes.json();
-        // tmpfiles returns https://tmpfiles.org/XXXXXX/file → convert to direct /dl/ link
+        // Convert tmpfiles.org/XXXXX/file -> tmpfiles.org/dl/XXXXX/file so download starts automatically when visiting
         const rawUrl: string = data?.data?.url || '';
-        const directUrl = rawUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+        let directUrl = rawUrl;
+        if (directUrl && !directUrl.includes('/dl/')) {
+          directUrl = directUrl.replace(/tmpfiles\.org\/([^\/]+)/, 'tmpfiles.org/dl/$1');
+        }
         setShareLink(directUrl);
 
         // Generate QR code from real direct download URL
