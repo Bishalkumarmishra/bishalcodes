@@ -20,22 +20,56 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [isCopied, setIsCopied] = useState(false);
 
-  // Share link = the clean canonical tool page URL (no random/fake paths)
+  // Real shareable URL via tmpfiles.org (60-min temporary hosting)
   const [shareLink, setShareLink] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Clean URL: origin + pathname strips any query params or fragments
-      // e.g. https://bishalcodes.com/tools/split-pdf
-      const link = window.location.origin + window.location.pathname;
-      setShareLink(link);
+    // Upload file to tmpfiles.org to get a real shareable URL
+    const uploadToTmpFiles = async () => {
+      if (!downloadUrl) return;
+      setIsUploading(true);
+      setUploadError(null);
+      try {
+        const res = await fetch(downloadUrl);
+        const blob = await res.blob();
+        const form = new FormData();
+        form.append('file', blob, downloadFileName);
 
-      // Generate QR Code pointing to the real tool page
-      QRCode.toDataURL(link, { width: 256, margin: 2, color: { dark: '#1e293b', light: '#ffffff' } })
-        .then(url => setQrCodeDataUrl(url))
-        .catch(err => console.error(err));
-    }
-  }, []);
+        const uploadRes = await fetch('https://tmpfiles.org/api/v1/upload', {
+          method: 'POST',
+          body: form,
+        });
+
+        if (!uploadRes.ok) throw new Error('Upload failed');
+        const data = await uploadRes.json();
+        // tmpfiles returns https://tmpfiles.org/XXXXXX/file → convert to direct /dl/ link
+        const rawUrl: string = data?.data?.url || '';
+        const directUrl = rawUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+        setShareLink(directUrl);
+
+        // Generate QR code from real direct download URL
+        QRCode.toDataURL(directUrl, { width: 256, margin: 2, color: { dark: '#1e293b', light: '#ffffff' } })
+          .then(url => setQrCodeDataUrl(url))
+          .catch(err => console.error(err));
+      } catch (err: any) {
+        console.error('tmpfiles upload error:', err);
+        setUploadError('Could not generate share link.');
+        // Fallback to tool page URL
+        const fallback = window.location.origin + window.location.pathname;
+        setShareLink(fallback);
+        QRCode.toDataURL(fallback, { width: 256, margin: 2, color: { dark: '#1e293b', light: '#ffffff' } })
+          .then(url => setQrCodeDataUrl(url))
+          .catch(() => {});
+      } finally {
+        setIsUploading(false);
+      }
+    };
+
+    uploadToTmpFiles();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [downloadUrl]);
 
   const [isUploadingToDropbox, setIsUploadingToDropbox] = useState(false);
 
@@ -283,42 +317,54 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in" onClick={() => setIsShareModalOpen(false)} />
           
           <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 shadow-2xl z-10 w-full max-w-md animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Share & Download</h3>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Share & Download</h3>
               <button onClick={() => setIsShareModalOpen(false)} className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-full transition-colors cursor-pointer">
-                <X size={20} className="text-slate-600 dark:text-slate-400" />
+                <X size={18} className="text-slate-600 dark:text-slate-400" />
               </button>
             </div>
-            
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 text-center">
-              Scan to open this tool on any device and share it with others.
-            </p>
 
-            <div className="flex justify-center mb-8">
-              <div className="p-4 bg-white rounded-2xl shadow-sm border border-slate-100 ring-4 ring-slate-50 dark:ring-slate-800">
-                {qrCodeDataUrl ? (
-                  <img src={qrCodeDataUrl} alt="QR Code" className="w-48 h-48 rounded-lg" />
-                ) : (
-                  <div className="w-48 h-48 bg-slate-100 animate-pulse rounded-lg flex items-center justify-center text-slate-400">Loading...</div>
-                )}
+            {isUploading ? (
+              <div className="flex flex-col items-center gap-4 py-10">
+                <Loader2 size={36} className="animate-spin text-[#e52521]" />
+                <p className="text-sm text-slate-500 font-medium text-center">Uploading to tmpfiles.org for sharing...</p>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Share Link</label>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-600 dark:text-slate-300 font-medium truncate select-all">
-                  {shareLink}
+            ) : uploadError ? (
+              <p className="text-sm text-red-500 text-center py-4">{uploadError}</p>
+            ) : (
+              <>
+                <p className="text-xs text-slate-400 mb-4 text-center">
+                  Scan QR or copy link to download directly — expires in 60 minutes.
+                </p>
+                <div className="flex justify-center mb-6">
+                  <div className="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 ring-4 ring-slate-50 dark:ring-slate-800">
+                    {qrCodeDataUrl ? (
+                      <img src={qrCodeDataUrl} alt="QR Code" className="w-44 h-44 rounded-lg" />
+                    ) : (
+                      <div className="w-44 h-44 bg-slate-100 animate-pulse rounded-lg flex items-center justify-center text-slate-400 text-xs">Generating...</div>
+                    )}
+                  </div>
                 </div>
-                <button
-                  onClick={handleCopyLink}
-                  className="w-12 h-12 shrink-0 bg-[#e52521] hover:bg-[#d01f1c] text-white rounded-xl flex items-center justify-center shadow-md transition-all active:scale-95 cursor-pointer"
-                  title="Copy Link"
-                >
-                  {isCopied ? <Check size={20} strokeWidth={3} /> : <Copy size={20} strokeWidth={2.5} />}
-                </button>
-              </div>
-            </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Direct Download Link</label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-600 dark:text-slate-300 font-medium truncate select-all">
+                      {shareLink || 'Generating...'}
+                    </div>
+                    <button
+                      onClick={handleCopyLink}
+                      disabled={!shareLink}
+                      className="w-10 h-10 shrink-0 bg-[#e52521] hover:bg-[#d01f1c] disabled:bg-slate-200 text-white rounded-xl flex items-center justify-center shadow-md transition-all active:scale-95 cursor-pointer"
+                      title="Copy Link"
+                    >
+                      {isCopied ? <Check size={16} strokeWidth={3} /> : <Copy size={16} strokeWidth={2.5} />}
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-slate-400">Link expires in 60 minutes · Hosted by tmpfiles.org</p>
+                </div>
+              </>
+            )}
+          </div>
           </div>
         </div>
       )}
