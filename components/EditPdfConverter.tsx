@@ -313,7 +313,7 @@ export const EditPdfConverter: React.FC = () => {
     setSelectedElementId(null);
   };
 
-  // Click on existing PDF text block -> Convert to editable TextOverlay with white cover underneath
+  // Click on existing PDF text block -> Convert to editable TextOverlay
   const handleEditTextBlock = (block: { text: string; bbox: [number, number, number, number]; fontSize: number; color: number }) => {
     const blockW = block.bbox[2] - block.bbox[0];
     const blockH = block.bbox[3] - block.bbox[1];
@@ -331,22 +331,12 @@ export const EditPdfConverter: React.FC = () => {
       isBold: false,
       isItalic: false,
       align: 'left',
-      coverBackground: true
-    };
-
-    const newCover: CoverOverlay = {
-      id: elementId,
-      x0: block.bbox[0] - 2,
-      y0: block.bbox[1] - 2,
-      x1: block.bbox[2] + 4,
-      y1: block.bbox[3] + 4,
-      color: '#ffffff'
+      coverBackground: false
     };
 
     updatePageEdits(currentPage, prev => ({
       ...prev,
-      texts: [...prev.texts, newText],
-      covers: [...prev.covers, newCover]
+      texts: [...prev.texts, newText]
     }));
 
     setSelectedElementId(elementId);
@@ -836,7 +826,7 @@ export const EditPdfConverter: React.FC = () => {
                         minHeight: `${t.height * scaleY}px`,
                       }}
                       className={`absolute z-25 p-1 rounded-sm cursor-text transition-all ${
-                        isSelected ? 'border-2 border-dashed border-[#e52521] bg-red-50/30' : 'hover:border hover:border-slate-400'
+                        isSelected ? 'border-2 border-dashed border-[#e52521] bg-transparent' : 'hover:border hover:border-slate-400/50'
                       }`}
                     >
                       <textarea
