@@ -172,6 +172,17 @@ export const EditPdfConverter: React.FC = () => {
       setTotalPages(doc.numPages);
       setCurrentPage(1);
 
+      // Auto calculate fit zoom based on screen container width matching iLovePDF auto-fit
+      try {
+        const firstPage = await doc.getPage(1);
+        const unscaledVp = firstPage.getViewport({ scale: 1.0 });
+        const screenW = window.innerWidth - 360;
+        if (screenW > 300 && unscaledVp.width > 0) {
+          const autoFit = Math.min(Math.max(screenW / unscaledVp.width, 0.35), 1.0);
+          setZoom(Number(autoFit.toFixed(2)));
+        }
+      } catch (e) {}
+
       // Render thumbnails for all pages
       const thumbs: Record<number, string> = {};
       for (let i = 1; i <= Math.min(doc.numPages, 30); i++) {
@@ -882,9 +893,38 @@ export const EditPdfConverter: React.FC = () => {
                         minHeight: `${t.height * scaleY}px`,
                       }}
                       className={`absolute z-25 p-1 rounded-sm cursor-text transition-all ${
-                        isSelected ? 'border-2 border-dashed border-[#e52521] bg-transparent shadow-xs' : 'hover:border hover:border-slate-400/50'
+                        isSelected ? 'border-2 border-dashed border-[#e52521] bg-transparent shadow-xs ring-1 ring-[#e52521]/30' : 'hover:border hover:border-slate-400/50'
                       }`}
                     >
+                      {/* Corner handles matching iLovePDF */}
+                      {isSelected && (
+                        <>
+                          <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#e52521] border-2 border-white rounded-full z-30" />
+                          <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#e52521] border-2 border-white rounded-full z-30" />
+                          <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#e52521] border-2 border-white rounded-full z-30" />
+                          <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#e52521] border-2 border-white rounded-full z-30" />
+
+                          {/* Floating iLovePDF Quick Bar underneath */}
+                          <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-md rounded-lg p-1 flex items-center gap-1 z-40">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); duplicateSelectedElement(); }}
+                              className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-300 transition-colors"
+                              title="Duplicate"
+                            >
+                              <Copy size={13} />
+                            </button>
+                            <div className="w-[1px] h-3 bg-slate-200 dark:bg-slate-700" />
+                            <button
+                              onClick={(e) => { e.stopPropagation(); deleteSelectedElement(); }}
+                              className="p-1 hover:bg-red-50 dark:hover:bg-red-950/40 rounded text-red-600 dark:text-red-400 transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </>
+                      )}
+
                       <textarea
                         value={t.text}
                         onChange={(e) => {
