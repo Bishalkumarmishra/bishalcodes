@@ -4,12 +4,18 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   FileText, Loader2, ChevronRight, KeyRound, AlertCircle, Type, Pencil,
   Square, Circle, Image as ImageIcon, Highlighter, Eraser, Trash2, ZoomIn, ZoomOut,
-  Maximize2, ChevronLeft, Bold, Italic, Check, Plus, Move, MousePointer
+  Maximize2, ChevronLeft, Bold, Italic, Check, Plus, Move, MousePointer, Copy, Sliders
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
 import { SeoGuideSection } from './SeoGuideSection';
 import { ToolHeroUpload } from './ToolHeroUpload';
 import { ToolDownloadStep } from './ToolDownloadStep';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Configure pdfjs worker
+if (typeof window !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || '3.11.174'}/pdf.worker.min.js`;
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type ToolMode = 'select' | 'text' | 'draw' | 'rect' | 'circle' | 'image' | 'highlight' | 'whiteout';
@@ -23,10 +29,11 @@ interface TextOverlay {
   text: string;
   fontSize: number;
   fontColor: string;
+  fontFamily: string;
   isBold: boolean;
   isItalic: boolean;
   align: 'left' | 'center' | 'right';
-  coverBackground?: boolean;
+  bgColor?: string;
 }
 
 interface ShapeOverlay {
@@ -74,32 +81,29 @@ interface PageEdits {
   covers: CoverOverlay[];
 }
 
-interface PdfPageInfo {
-  pageNumber: number;
-  width: number;
-  height: number;
-  bgImage: string;
-  thumbnail: string;
-  textBlocks: Array<{ text: string; bbox: [number, number, number, number]; fontSize: number; color: number }>;
-}
-
 export const EditPdfConverter: React.FC = () => {
   const { navigate } = useNavigation();
 
-  // Workflow steps: 'upload' | 'editor' | 'download'
+  // Step: 'upload' | 'editor' | 'download'
   const [step, setStep] = useState<'upload' | 'editor' | 'download'>('upload');
 
-  // File state
+  // File & Document State
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfName, setPdfName] = useState('');
-  const [pagesInfo, setPagesInfo] = useState<PdfPageInfo[]>([]);
+  const [pdfArrayBuffer, setPdfArrayBuffer] = useState<ArrayBuffer | null>(null);
+  const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageViewport, setPageViewport] = useState<{ width: number; height: number } | null>(null);
+  const [pageThumbnails, setPageThumbnails] = useState<Record<number, string>>({});
   const [isLoadingPages, setIsLoadingPages] = useState(false);
 
-  // Editor states
+  // Editor Controls
   const [zoom, setZoom] = useState(1.0); // 1.0 = 100%
   const [activeMode, setActiveMode] = useState<ToolMode>('select');
+
+  // Active Tool Styling
+  const [fontFamily, setFontFamily] = useState('Helvetica');
   const [fontSize, setFontSize] = useState(16);
   const [activeColor, setActiveColor] = useState('#e52521');
   const [isBold, setIsBold] = useState(false);
@@ -114,7 +118,7 @@ export const EditPdfConverter: React.FC = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentPath, setCurrentPath] = useState<[number, number][]>([]);
 
-  // Processing / Output states
+  // Processing & Output
   const [isProcessing, setIsProcessing] = useState(false);
   const [processStatus, setProcessStatus] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -122,9 +126,9 @@ export const EditPdfConverter: React.FC = () => {
   const [downloadName, setDownloadName] = useState('');
 
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
 
-  // Helpers
   const formatSize = (bytes: number) => {
     if (bytes === 0) return '0 B';
     const k = 1024, sizes = ['B', 'KB', 'MB', 'GB'];
@@ -143,39 +147,41 @@ export const EditPdfConverter: React.FC = () => {
     }));
   };
 
-  // ─── Step 1: Upload & Fetch Page Previews ────────────────────────────────
-  const loadPdfData = useCallback(async (file: File) => {
+  // ─── 1. Load PDF Document via PDF.js in the DOM ──────────────────────────
+  const loadPdfDocument = useCallback(async (file: File) => {
     setIsLoadingPages(true);
     setError(null);
 
     try {
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve((reader.result as string).split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      const buffer = await file.arrayBuffer();
+      setPdfArrayBuffer(buffer);
 
-      const res = await fetch('/api/edit-pdf-internal', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pdf: base64 }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'Failed to read PDF pages.');
-      }
-
-      const data = await res.json();
-      setTotalPages(data.totalPages || 0);
-      setPagesInfo(data.pages || []);
+      const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(buffer) });
+      const doc = await loadingTask.promise;
+      setPdfDoc(doc);
+      setTotalPages(doc.numPages);
       setCurrentPage(1);
-      setAllEdits({});
+
+      // Render thumbnails for all pages
+      const thumbs: Record<number, string> = {};
+      for (let i = 1; i <= Math.min(doc.numPages, 30); i++) {
+        const page = await doc.getPage(i);
+        const vp = page.getViewport({ scale: 0.3 });
+        const thumbCanvas = document.createElement('canvas');
+        thumbCanvas.width = vp.width;
+        thumbCanvas.height = vp.height;
+        const ctx = thumbCanvas.getContext('2d');
+        if (ctx) {
+          await page.render({ canvasContext: ctx, viewport: vp }).promise;
+          thumbs[i] = thumbCanvas.toDataURL('image/png');
+        }
+      }
+      setPageThumbnails(thumbs);
       setStep('editor');
 
     } catch (err: any) {
-      setError(`Failed to read PDF: ${err.message}`);
+      console.error('PDF.js load error:', err);
+      setError(`Failed to parse PDF document: ${err.message}`);
     } finally {
       setIsLoadingPages(false);
     }
@@ -190,21 +196,46 @@ export const EditPdfConverter: React.FC = () => {
     }
     setPdfFile(file);
     setPdfName(file.name);
-    loadPdfData(file);
-  }, [loadPdfData]);
+    loadPdfDocument(file);
+  }, [loadPdfDocument]);
 
-  // ─── Canvas Coordinates & Mouse Handlers ─────────────────────────────────
-  const activePageInfo = pagesInfo[currentPage - 1];
+  // ─── 2. Render Active Page onto DOM Canvas ──────────────────────────────
+  const renderCurrentPageCanvas = useCallback(async () => {
+    if (!pdfDoc || !canvasRef.current) return;
+    try {
+      const page = await pdfDoc.getPage(currentPage);
+      const vp = page.getViewport({ scale: zoom * 1.5 }); // High-DPI canvas
+      setPageViewport({ width: page.getViewport({ scale: 1.0 }).width, height: page.getViewport({ scale: 1.0 }).height });
 
-  const getCanvasCoordinates = (e: React.MouseEvent<HTMLDivElement>): { x: number; y: number } | null => {
-    if (!canvasContainerRef.current || !activePageInfo) return null;
+      const canvas = canvasRef.current;
+      canvas.width = vp.width;
+      canvas.height = vp.height;
+
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        await page.render({ canvasContext: ctx, viewport: vp }).promise;
+      }
+    } catch (err: any) {
+      console.error('Canvas render error:', err);
+    }
+  }, [pdfDoc, currentPage, zoom]);
+
+  useEffect(() => {
+    if (step === 'editor' && pdfDoc) {
+      renderCurrentPageCanvas();
+    }
+  }, [step, pdfDoc, currentPage, zoom, renderCurrentPageCanvas]);
+
+  // ─── 3. Canvas Mouse Events & Coordinate Calculation ─────────────────────
+  const getCanvasCoords = (e: React.MouseEvent<HTMLDivElement>): { x: number; y: number } | null => {
+    if (!canvasContainerRef.current || !pageViewport) return null;
     const rect = canvasContainerRef.current.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
 
-    // Convert from rendered canvas pixels to native PDF point coordinates (width x height)
-    const scaleX = activePageInfo.width / rect.width;
-    const scaleY = activePageInfo.height / rect.height;
+    const scaleX = pageViewport.width / rect.width;
+    const scaleY = pageViewport.height / rect.height;
 
     return {
       x: Math.round(clickX * scaleX),
@@ -213,8 +244,8 @@ export const EditPdfConverter: React.FC = () => {
   };
 
   const handleCanvasMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    const coords = getCanvasCoordinates(e);
-    if (!coords || !activePageInfo) return;
+    const coords = getCanvasCoords(e);
+    if (!coords || !pageViewport) return;
 
     if (activeMode === 'text') {
       const newText: TextOverlay = {
@@ -226,6 +257,7 @@ export const EditPdfConverter: React.FC = () => {
         text: 'Text',
         fontSize: fontSize,
         fontColor: activeColor,
+        fontFamily: fontFamily,
         isBold: isBold,
         isItalic: isItalic,
         align: 'left'
@@ -268,7 +300,7 @@ export const EditPdfConverter: React.FC = () => {
 
   const handleCanvasMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isDrawing || (activeMode !== 'draw' && activeMode !== 'highlight')) return;
-    const coords = getCanvasCoordinates(e);
+    const coords = getCanvasCoords(e);
     if (!coords) return;
     setCurrentPath(prev => [...prev, [coords.x, coords.y]]);
   };
@@ -287,11 +319,10 @@ export const EditPdfConverter: React.FC = () => {
     setCurrentPath([]);
   };
 
-  // Image Upload Handler
+  // Image upload overlay handler
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = () => {
       const b64 = reader.result as string;
@@ -311,7 +342,7 @@ export const EditPdfConverter: React.FC = () => {
     if (imageInputRef.current) imageInputRef.current.value = '';
   };
 
-  // Delete active element
+  // Element actions
   const deleteSelectedElement = () => {
     if (!selectedElementId) return;
     updatePageEdits(currentPage, prev => ({
@@ -325,41 +356,35 @@ export const EditPdfConverter: React.FC = () => {
     setSelectedElementId(null);
   };
 
-  // Click on existing PDF text block -> Convert to editable TextOverlay
-  const handleEditTextBlock = (block: { text: string; bbox: [number, number, number, number]; fontSize: number; color: number }) => {
-    const blockW = block.bbox[2] - block.bbox[0];
-    const blockH = block.bbox[3] - block.bbox[1];
-    const elementId = Math.random().toString(36).substring(2, 9);
-
-    const newText: TextOverlay = {
-      id: elementId,
-      x: Math.round(block.bbox[0]),
-      y: Math.round(block.bbox[1]),
-      width: Math.max(Math.round(blockW + 16), 80),
-      height: Math.max(Math.round(blockH + 6), 24),
-      text: block.text, // PRESERVE AND EDIT ORIGINAL TEXT!
-      fontSize: Math.max(Math.round(block.fontSize), 10),
-      fontColor: activeColor || '#000000',
-      isBold: false,
-      isItalic: false,
-      align: 'left',
-      coverBackground: false
-    };
-
-    updatePageEdits(currentPage, prev => ({
-      ...prev,
-      texts: [...prev.texts, newText]
-    }));
-
-    setSelectedElementId(elementId);
+  const duplicateSelectedElement = () => {
+    if (!selectedElementId) return;
+    const pEdits = getPageEdits(currentPage);
+    const selText = pEdits.texts.find(t => t.id === selectedElementId);
+    if (selText) {
+      const dup: TextOverlay = { ...selText, id: Math.random().toString(36).substring(2, 9), x: selText.x + 20, y: selText.y + 20 };
+      updatePageEdits(currentPage, prev => ({ ...prev, texts: [...prev.texts, dup] }));
+      setSelectedElementId(dup.id);
+    }
   };
 
-  // ─── Step 3: Process & Apply Edits ──────────────────────────────────────
+  // Selected text properties sync
+  const currentEdits = getPageEdits(currentPage);
+  const selectedText = currentEdits.texts.find(t => t.id === selectedElementId);
+
+  const updateSelectedTextProp = (key: keyof TextOverlay, value: any) => {
+    if (!selectedElementId) return;
+    updatePageEdits(currentPage, prev => ({
+      ...prev,
+      texts: prev.texts.map(t => t.id === selectedElementId ? { ...t, [key]: value } : t)
+    }));
+  };
+
+  // ─── Save Changes & Burn Edits via Backend API ───────────────────────────
   const processSaveEdits = async () => {
     if (!pdfFile) return;
     setIsProcessing(true);
     setError(null);
-    setProcessStatus('Applying edits to PDF pages...');
+    setProcessStatus('Applying edits to PDF document...');
 
     try {
       const base64 = await new Promise<string>((resolve, reject) => {
@@ -369,7 +394,6 @@ export const EditPdfConverter: React.FC = () => {
         reader.readAsDataURL(pdfFile);
       });
 
-      // Prepare payload of edits
       const payloadEdits = Object.entries(allEdits).map(([pNum, edits]) => ({
         pageNumber: Number(pNum),
         texts: edits.texts,
@@ -379,7 +403,7 @@ export const EditPdfConverter: React.FC = () => {
         covers: edits.covers
       }));
 
-      setProcessStatus('Rendering native PDF vectors...');
+      setProcessStatus('Generating native PDF vectors...');
       const res = await fetch('/api/edit-pdf-internal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -424,8 +448,10 @@ export const EditPdfConverter: React.FC = () => {
     if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     setPdfFile(null);
     setPdfName('');
-    setPagesInfo([]);
+    setPdfArrayBuffer(null);
+    setPdfDoc(null);
     setTotalPages(0);
+    setPageThumbnails({});
     setAllEdits({});
     setError(null);
     setDownloadUrl(null);
@@ -433,10 +459,10 @@ export const EditPdfConverter: React.FC = () => {
     setStep('upload');
   };
 
-  // Color Swatches
-  const COLORS = ['#000000', '#e52521', '#2563eb', '#16a34a', '#eab308', '#ffffff'];
+  const PRESET_COLORS = ['#000000', '#e52521', '#2563eb', '#16a34a', '#eab308', '#ffffff'];
+  const FONT_FAMILIES = ['Helvetica', 'Times New Roman', 'Courier New', 'Georgia', 'Impact'];
 
-  // ─── RENDER: STEP 3 (Download) ───────────────────────────────────────────
+  // ─── RENDER STEP 3: Download ─────────────────────────────────────────────
   if (step === 'download' && downloadUrl) {
     return (
       <div className="w-full font-sans">
@@ -451,7 +477,7 @@ export const EditPdfConverter: React.FC = () => {
     );
   }
 
-  // ─── RENDER: STEP 1 (Upload) ─────────────────────────────────────────────
+  // ─── RENDER STEP 1: Upload ───────────────────────────────────────────────
   if (step === 'upload' || isLoadingPages) {
     return (
       <div className="w-full font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300">
@@ -464,13 +490,13 @@ export const EditPdfConverter: React.FC = () => {
         {isLoadingPages ? (
           <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
             <Loader2 size={40} className="animate-spin text-[#e52521]" />
-            <p className="text-sm font-bold text-slate-600 dark:text-slate-300">Reading PDF document pages...</p>
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-300">Loading PDF document pages...</p>
           </div>
         ) : (
           <div className="w-full px-4 md:px-8 xl:px-12 pb-12">
             <ToolHeroUpload
               title="PDF Editor"
-              description="Edit PDF documents online. Add text, freehand drawings, shapes, images, and highlights natively."
+              description="Edit PDF documents online. Add text, freehand drawings, shapes, images, and whiteouts natively."
               buttonText="Select PDF file"
               dropText="or drop PDF file here"
               accept=".pdf"
@@ -486,16 +512,14 @@ export const EditPdfConverter: React.FC = () => {
     );
   }
 
-  // ─── RENDER: STEP 2 (Full PDF Workbench Editor) ──────────────────────────
-  const currentEdits = getPageEdits(currentPage);
-
+  // ─── RENDER STEP 2: Workbench Editor ──────────────────────────────────────
   return (
     <div className="w-full font-sans text-slate-800 dark:text-slate-100 min-h-screen bg-slate-100 dark:bg-slate-950 flex flex-col">
 
-      {/* Hidden image input for Add Image tool */}
+      {/* Hidden file input for image upload */}
       <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
 
-      {/* ── Top Bar ── */}
+      {/* ── Top Header ── */}
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 md:px-6 py-3 flex items-center justify-between gap-4 sticky top-0 z-40 shadow-sm">
         <div className="flex items-center gap-3">
           <button onClick={handleReset} className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold uppercase tracking-wider cursor-pointer border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg transition-colors">
@@ -507,7 +531,7 @@ export const EditPdfConverter: React.FC = () => {
           </div>
         </div>
 
-        {/* Action Button */}
+        {/* Primary Save Action */}
         <div className="flex items-center gap-3">
           {error && (
             <span className="text-xs text-red-600 dark:text-red-400 font-medium hidden md:inline truncate max-w-xs">{error}</span>
@@ -526,7 +550,7 @@ export const EditPdfConverter: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Toolbar Bar (Tools & Styling Controls) ── */}
+      {/* ── Toolbar Bar ── */}
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 md:px-6 py-2 flex flex-wrap items-center justify-between gap-3 sticky top-[57px] z-30 shadow-xs">
         
         {/* Modes */}
@@ -569,118 +593,114 @@ export const EditPdfConverter: React.FC = () => {
           </button>
         </div>
 
-        {/* Styling controls (Font, Color, Bold, Italic) */}
+        {/* Quick Styling Controls */}
         <div className="flex items-center gap-3">
-          {/* Color swatches */}
+          {/* Color swatches + Custom color picker */}
           <div className="flex items-center gap-1 border-r border-slate-200 dark:border-slate-800 pr-3">
-            {COLORS.map(c => (
+            {PRESET_COLORS.map(c => (
               <button
                 key={c}
-                onClick={() => setActiveColor(c)}
+                onClick={() => {
+                  setActiveColor(c);
+                  if (selectedText) updateSelectedTextProp('fontColor', c);
+                }}
                 className={`w-5 h-5 rounded-full border-2 transition-transform cursor-pointer ${
                   activeColor === c ? 'scale-125 border-slate-900 dark:border-white shadow-sm' : 'border-transparent hover:scale-110'
                 }`}
                 style={{ backgroundColor: c }}
-                title={`Select color ${c}`}
               />
             ))}
+            {/* Custom color picker */}
+            <label className="relative w-5 h-5 rounded-full border border-slate-300 dark:border-slate-600 cursor-pointer overflow-hidden flex items-center justify-center bg-gradient-to-tr from-indigo-500 via-pink-500 to-yellow-400">
+              <input
+                type="color"
+                value={activeColor}
+                onChange={e => {
+                  setActiveColor(e.target.value);
+                  if (selectedText) updateSelectedTextProp('fontColor', e.target.value);
+                }}
+                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                title="Custom color"
+              />
+            </label>
           </div>
 
-          {/* Font Size Selector */}
-          <div className="flex items-center gap-1">
-            <span className="text-[11px] font-bold text-slate-400">Size:</span>
-            <select
-              value={fontSize}
-              onChange={e => setFontSize(Number(e.target.value))}
-              className="text-xs font-bold border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none"
-            >
-              {[10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 72].map(s => (
-                <option key={s} value={s}>{s}px</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Bold / Italic Toggles */}
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setIsBold(!isBold)}
-              className={`p-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-colors ${
-                isBold ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900' : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400'
-              }`}
-              title="Bold"
-            >
-              <Bold size={13} />
-            </button>
-            <button
-              onClick={() => setIsItalic(!isItalic)}
-              className={`p-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-colors ${
-                isItalic ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900' : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400'
-              }`}
-              title="Italic"
-            >
-              <Italic size={13} />
-            </button>
-          </div>
-
-          {/* Delete Selected Element */}
+          {/* Delete / Duplicate */}
           {selectedElementId && (
-            <button
-              onClick={deleteSelectedElement}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400 text-xs font-bold transition-colors cursor-pointer"
-              title="Delete Selected Element"
-            >
-              <Trash2 size={14} /> Delete
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={duplicateSelectedElement}
+                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition-colors cursor-pointer"
+                title="Duplicate Element"
+              >
+                <Copy size={14} />
+              </button>
+              <button
+                onClick={deleteSelectedElement}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400 text-xs font-bold transition-colors cursor-pointer"
+                title="Delete Selected Element"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
           )}
         </div>
       </div>
 
-      {/* ── Main Canvas Workbench Body ── */}
+      {/* ── Main Workspace Body ── */}
       <div className="flex-1 flex overflow-hidden relative">
 
-        {/* ── Left Sidebar: Page Thumbnails ── */}
+        {/* Left Thumbnails Sidebar */}
         <div className="w-24 sm:w-28 md:w-36 shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-3 overflow-y-auto space-y-3">
           <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">
             Pages ({totalPages})
           </p>
-          {pagesInfo.map((p) => {
-            const isCurr = p.pageNumber === currentPage;
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pNum) => {
+            const isCurr = pNum === currentPage;
+            const thumb = pageThumbnails[pNum];
             return (
               <div
-                key={p.pageNumber}
-                onClick={() => { setCurrentPage(p.pageNumber); setSelectedElementId(null); }}
+                key={pNum}
+                onClick={() => { setCurrentPage(pNum); setSelectedElementId(null); }}
                 className={`group flex flex-col items-center gap-1 cursor-pointer p-1.5 rounded-xl border-2 transition-all ${
                   isCurr
                     ? 'border-[#e52521] bg-red-50/30 dark:bg-red-950/20 shadow-xs'
                     : 'border-transparent hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
-                <div className="w-full aspect-3/4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50">
-                  <img src={p.thumbnail} alt={`Page ${p.pageNumber}`} className="w-full h-full object-cover" />
+                <div className="w-full aspect-3/4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 flex items-center justify-center">
+                  {thumb ? (
+                    <img src={thumb} alt={`Page ${pNum}`} className="w-full h-full object-cover" />
+                  ) : (
+                    <FileText size={20} className="text-slate-300" />
+                  )}
                 </div>
                 <span className={`text-[11px] font-bold ${isCurr ? 'text-[#e52521]' : 'text-slate-500 dark:text-slate-400'}`}>
-                  {p.pageNumber}
+                  {pNum}
                 </span>
               </div>
             );
           })}
         </div>
 
-        {/* ── Center Stage: PDF Page Canvas ── */}
+        {/* Center Stage: Native DOM PDF Canvas */}
         <div className="flex-1 overflow-auto p-4 md:p-8 flex justify-center items-start bg-slate-200/60 dark:bg-slate-950">
-          {activePageInfo && (
+          {pageViewport && (
             <div
               style={{
-                width: `${activePageInfo.width * zoom}px`,
-                height: `${activePageInfo.height * zoom}px`,
+                width: `${pageViewport.width * zoom}px`,
+                height: `${pageViewport.height * zoom}px`,
               }}
               className="relative shadow-2xl rounded-sm bg-white overflow-hidden transition-all duration-150 select-none"
             >
-              {/* Background PDF page render */}
-              <img
-                src={activePageInfo.bgImage}
-                alt={`PDF Page ${currentPage}`}
-                className="w-full h-full object-contain pointer-events-none"
+              {/* Native PDF.js DOM Canvas */}
+              <canvas
+                ref={canvasRef}
+                style={{
+                  width: `${pageViewport.width * zoom}px`,
+                  height: `${pageViewport.height * zoom}px`,
+                }}
+                className="w-full h-full block pointer-events-none"
               />
 
               {/* Interactive Canvas Overlay */}
@@ -692,18 +712,19 @@ export const EditPdfConverter: React.FC = () => {
                 className={`absolute inset-0 ${
                   activeMode === 'text' ? 'cursor-text' :
                   activeMode === 'draw' || activeMode === 'highlight' ? 'cursor-crosshair' :
-                  activeMode === 'rect' || activeMode === 'circle' ? 'cursor-crosshair' :
+                  activeMode === 'rect' || activeMode === 'circle' || activeMode === 'whiteout' ? 'cursor-crosshair' :
                   'cursor-default'
                 }`}
               >
-
-                {/* 2. Cover rects (white background overlays to erase text) */}
+                {/* 1. Whiteout Covers */}
                 {currentEdits.covers.map((c) => {
-                  const scaleX = (activePageInfo.width * zoom) / activePageInfo.width;
-                  const scaleY = (activePageInfo.height * zoom) / activePageInfo.height;
+                  const scaleX = (pageViewport.width * zoom) / pageViewport.width;
+                  const scaleY = (pageViewport.height * zoom) / pageViewport.height;
+                  const isSelected = selectedElementId === c.id;
                   return (
                     <div
                       key={c.id}
+                      onClick={(e) => { e.stopPropagation(); setSelectedElementId(c.id); }}
                       style={{
                         left: `${c.x0 * scaleX}px`,
                         top: `${c.y0 * scaleY}px`,
@@ -711,16 +732,16 @@ export const EditPdfConverter: React.FC = () => {
                         height: `${(c.y1 - c.y0) * scaleY}px`,
                         backgroundColor: c.color
                       }}
-                      className="absolute z-10 border border-slate-100/50"
+                      className={`absolute z-10 border ${isSelected ? 'border-[#e52521] ring-1 ring-[#e52521]' : 'border-slate-200/40'}`}
                     />
                   );
                 })}
 
-                {/* 3. Rendered Freehand Drawings (SVG paths) */}
+                {/* 2. Freehand Drawings (SVG) */}
                 <svg className="absolute inset-0 w-full h-full pointer-events-none z-15">
                   {currentEdits.drawings.map((dwg) => {
-                    const scaleX = (activePageInfo.width * zoom) / activePageInfo.width;
-                    const scaleY = (activePageInfo.height * zoom) / activePageInfo.height;
+                    const scaleX = (pageViewport.width * zoom) / pageViewport.width;
+                    const scaleY = (pageViewport.height * zoom) / pageViewport.height;
                     const pathData = dwg.points
                       .map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt[0] * scaleX} ${pt[1] * scaleY}`)
                       .join(' ');
@@ -737,10 +758,10 @@ export const EditPdfConverter: React.FC = () => {
                     );
                   })}
 
-                  {/* Active drawing stroke in progress */}
+                  {/* Active stroke in progress */}
                   {isDrawing && currentPath.length > 1 && (
                     <path
-                      d={currentPath.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${(pt[0] * activePageInfo.width * zoom) / activePageInfo.width} ${(pt[1] * activePageInfo.height * zoom) / activePageInfo.height}`).join(' ')}
+                      d={currentPath.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${(pt[0] * pageViewport.width * zoom) / pageViewport.width} ${(pt[1] * pageViewport.height * zoom) / pageViewport.height}`).join(' ')}
                       stroke={activeMode === 'highlight' ? 'rgba(253, 224, 71, 0.5)' : activeColor}
                       strokeWidth={(activeMode === 'highlight' ? 14 : strokeWidth) * zoom}
                       fill="none"
@@ -750,10 +771,10 @@ export const EditPdfConverter: React.FC = () => {
                   )}
                 </svg>
 
-                {/* 4. Shapes (Rectangle / Circle) */}
+                {/* 3. Shapes */}
                 {currentEdits.shapes.map((s) => {
-                  const scaleX = (activePageInfo.width * zoom) / activePageInfo.width;
-                  const scaleY = (activePageInfo.height * zoom) / activePageInfo.height;
+                  const scaleX = (pageViewport.width * zoom) / pageViewport.width;
+                  const scaleY = (pageViewport.height * zoom) / pageViewport.height;
                   const isSelected = selectedElementId === s.id;
                   return (
                     <div
@@ -776,10 +797,10 @@ export const EditPdfConverter: React.FC = () => {
                   );
                 })}
 
-                {/* 5. Images */}
+                {/* 4. Images */}
                 {currentEdits.images.map((img) => {
-                  const scaleX = (activePageInfo.width * zoom) / activePageInfo.width;
-                  const scaleY = (activePageInfo.height * zoom) / activePageInfo.height;
+                  const scaleX = (pageViewport.width * zoom) / pageViewport.width;
+                  const scaleY = (pageViewport.height * zoom) / pageViewport.height;
                   const isSelected = selectedElementId === img.id;
                   return (
                     <div
@@ -800,10 +821,10 @@ export const EditPdfConverter: React.FC = () => {
                   );
                 })}
 
-                {/* 6. Text Overlays (Editable text boxes) */}
+                {/* 5. Clean Floating Text Box Overlays */}
                 {currentEdits.texts.map((t) => {
-                  const scaleX = (activePageInfo.width * zoom) / activePageInfo.width;
-                  const scaleY = (activePageInfo.height * zoom) / activePageInfo.height;
+                  const scaleX = (pageViewport.width * zoom) / pageViewport.width;
+                  const scaleY = (pageViewport.height * zoom) / pageViewport.height;
                   const isSelected = selectedElementId === t.id;
 
                   return (
@@ -817,7 +838,7 @@ export const EditPdfConverter: React.FC = () => {
                         minHeight: `${t.height * scaleY}px`,
                       }}
                       className={`absolute z-25 p-1 rounded-sm cursor-text transition-all ${
-                        isSelected ? 'border-2 border-dashed border-[#e52521] bg-transparent' : 'hover:border hover:border-slate-400/50'
+                        isSelected ? 'border-2 border-dashed border-[#e52521] bg-transparent shadow-xs' : 'hover:border hover:border-slate-400/50'
                       }`}
                     >
                       <textarea
@@ -832,6 +853,7 @@ export const EditPdfConverter: React.FC = () => {
                         style={{
                           fontSize: `${t.fontSize * zoom}px`,
                           color: t.fontColor,
+                          fontFamily: t.fontFamily || 'Helvetica',
                           fontWeight: t.isBold ? 'bold' : 'normal',
                           fontStyle: t.isItalic ? 'italic' : 'normal',
                           textAlign: t.align,
@@ -846,12 +868,129 @@ export const EditPdfConverter: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* ── Right Text Styles Sidebar (Matching iLovePDF Sidebar) ── */}
+        {selectedText && (
+          <div className="w-64 md:w-72 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 p-5 shrink-0 overflow-y-auto space-y-5 shadow-lg z-30">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                <Sliders size={16} className="text-[#e52521]" /> Text Styles
+              </h3>
+              <button onClick={() => setSelectedElementId(null)} className="text-slate-400 hover:text-slate-600 text-xs font-bold">
+                Close
+              </button>
+            </div>
+
+            {/* Font Family */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Font Family</label>
+              <select
+                value={selectedText.fontFamily || 'Helvetica'}
+                onChange={e => updateSelectedTextProp('fontFamily', e.target.value)}
+                className="w-full text-xs font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#e52521]"
+              >
+                {FONT_FAMILIES.map(f => (
+                  <option key={f} value={f}>{f}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Font Size */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Font Size</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={8}
+                  max={120}
+                  value={selectedText.fontSize}
+                  onChange={e => updateSelectedTextProp('fontSize', Number(e.target.value))}
+                  className="w-full text-sm font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-center focus:outline-none"
+                />
+                <span className="text-xs text-slate-400 font-bold">px</span>
+              </div>
+            </div>
+
+            {/* Formatting (Bold, Italic, Alignment) */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Formatting</label>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => updateSelectedTextProp('isBold', !selectedText.isBold)}
+                  className={`flex-1 py-2 rounded-xl border text-xs font-bold flex justify-center items-center cursor-pointer transition-colors ${
+                    selectedText.isBold ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900' : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400'
+                  }`}
+                >
+                  <Bold size={15} />
+                </button>
+                <button
+                  onClick={() => updateSelectedTextProp('isItalic', !selectedText.isItalic)}
+                  className={`flex-1 py-2 rounded-xl border text-xs font-bold flex justify-center items-center cursor-pointer transition-colors ${
+                    selectedText.isItalic ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900' : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400'
+                  }`}
+                >
+                  <Italic size={15} />
+                </button>
+              </div>
+            </div>
+
+            {/* Align */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Alignment</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(['left', 'center', 'right'] as const).map(a => (
+                  <button
+                    key={a}
+                    onClick={() => updateSelectedTextProp('align', a)}
+                    className={`py-1.5 rounded-xl border text-xs font-bold capitalize cursor-pointer transition-colors ${
+                      selectedText.align === a ? 'bg-[#e52521] text-white border-[#e52521]' : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400'
+                    }`}
+                  >
+                    {a}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Text Color */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Text Color</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={selectedText.fontColor}
+                  onChange={e => updateSelectedTextProp('fontColor', e.target.value)}
+                  className="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-700 cursor-pointer bg-transparent p-0.5"
+                />
+                <span className="text-xs font-mono font-bold text-slate-600 dark:text-slate-300">{selectedText.fontColor}</span>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
+              <button
+                onClick={duplicateSelectedElement}
+                className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Copy size={15} /> Duplicate Text
+              </button>
+              <button
+                onClick={deleteSelectedElement}
+                className="w-full py-2.5 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors"
+              >
+                <Trash2 size={15} /> Delete Text
+              </button>
+            </div>
+
+          </div>
+        )}
+
       </div>
 
-      {/* ── Bottom Floating Bar (Page Nav & Zoom Controls) ── */}
+      {/* ── Bottom Nav Bar (Page & Zoom) ── */}
       <div className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-6 py-2 flex items-center justify-between z-30 shadow-md">
         
-        {/* Page Navigator */}
+        {/* Page Navigation */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
@@ -894,7 +1033,7 @@ export const EditPdfConverter: React.FC = () => {
           <button
             onClick={() => setZoom(1.0)}
             className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold cursor-pointer"
-            title="Reset Zoom (100%)"
+            title="Reset Zoom"
           >
             100%
           </button>
