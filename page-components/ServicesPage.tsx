@@ -12,6 +12,7 @@ import { WordToPdfConverter } from '../components/WordToPdfConverter';
 import { ExcelToPdfConverter } from '../components/ExcelToPdfConverter';
 import { PdfToExcelConverter } from '../components/PdfToExcelConverter';
 import { SplitPdfConverter } from '../components/SplitPdfConverter';
+import { EditPdfConverter } from '../components/EditPdfConverter';
 import AiSummarizer from '../components/AiSummarizer';
 import ImageCompressor from '../components/ImageCompressor';
 import EmiCalculator from '../components/EmiCalculator';
@@ -300,6 +301,15 @@ const STATIC_TOOLS: StaticTool[] = [
     accentColor: 'red',
     iconUrl: '/spit pdf.svg',
   },
+  {
+    id: 'edit-pdf',
+    name: 'PDF Editor',
+    emoji: '✏️',
+    description: 'Edit PDF documents online by adding text, shapes, comments, drawings, and images natively.',
+    badge: 'NEW',
+    accentColor: 'red',
+    iconUrl: '/edit pdf.svg',
+  },
 ];
 
 // ─── Accent color map ────────────────────────────────────────────────────────
@@ -546,7 +556,7 @@ const ServicesPage: React.FC = () => {
         const snap = await getDocs(q);
         setServices(snap.docs
           .map(doc => ({ id: doc.id, ...doc.data() } as ServiceTool))
-          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover' && service.linkUrl !== 'scan-pdf' && service.linkUrl !== 'pdf-to-word' && service.linkUrl !== 'word-to-pdf' && service.linkUrl !== 'excel-to-pdf' && service.linkUrl !== 'pdf-to-excel' && service.linkUrl !== 'split-pdf')
+          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover' && service.linkUrl !== 'scan-pdf' && service.linkUrl !== 'pdf-to-word' && service.linkUrl !== 'word-to-pdf' && service.linkUrl !== 'excel-to-pdf' && service.linkUrl !== 'pdf-to-excel' && service.linkUrl !== 'split-pdf' && service.linkUrl !== 'edit-pdf')
         );
       } catch (err) {
         console.error("Failed to fetch services", err);
@@ -667,6 +677,7 @@ const ServicesPage: React.FC = () => {
       case 'excel-to-pdf': return <ExcelToPdfConverter />;
       case 'pdf-to-excel': return <PdfToExcelConverter />;
       case 'split-pdf': return <SplitPdfConverter />;
+      case 'edit-pdf': return <EditPdfConverter />;
       case 'ai-summarizer': return <AiSummarizer />;
       case 'image-compressor': return <ImageCompressor />;
       case 'emi-calculator': return <EmiCalculator />;

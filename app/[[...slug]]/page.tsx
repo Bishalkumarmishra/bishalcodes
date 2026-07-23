@@ -136,6 +136,12 @@ export default async function CatchAllPage(props: PageProps) {
             a: "Yes! Upload any PDF and split it by custom page ranges, fixed page intervals (every N pages), or extract every single page as its own individual PDF file."
           }
         ],
+        'edit-pdf': [
+          {
+            q: "Can I edit text and add annotations to a PDF?",
+            a: "Yes! Upload any PDF and add text overlays, freehand drawings, shapes, images, and highlights natively. Save and download your edited PDF instantly."
+          }
+        ],
         'image-compressor': [
           {
             q: "Is the image compression private and secure?",
@@ -732,6 +738,31 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
             title: "Split PDF Online Free | Split PDF by Pages or Ranges",
             description: "Split PDF files into multiple documents by custom page ranges, fixed intervals, or extract every page.",
             images: ["https://bishalcodes.com/seo-images/split-pdf.png"]
+          }
+        };
+      }
+
+      if (subpage === 'edit-pdf') {
+        return {
+          title: "PDF Editor Online Free | Edit PDF Text, Shapes & Drawings | Bishal Codes",
+          description: "Edit PDF documents online by adding text, freehand drawings, shapes, images, and highlights natively. Free, secure, and instant.",
+          keywords: "PDF editor, edit PDF online, add text to PDF, PDF annotator, edit PDF free, draw on PDF, Bishal Codes",
+          alternates: { canonical: "https://bishalcodes.com/tools/edit-pdf" },
+          openGraph: {
+            title: "PDF Editor Online Free | Edit PDF Text, Shapes & Drawings",
+            description: "Edit PDF documents online by adding text, freehand drawings, shapes, images, and highlights natively. Free, secure, and instant.",
+            url: "https://bishalcodes.com/tools/edit-pdf",
+            siteName: "Bishal Codes",
+            type: "website",
+            images: [{ url: "https://bishalcodes.com/seo-images/edit-pdf.png", width: 1200, height: 630, alt: "PDF Editor Online" }],
+          },
+          twitter: {
+            card: "summary_large_image",
+            site: "@bishalmishra",
+            creator: "@bishalmishra",
+            title: "PDF Editor Online Free | Edit PDF Text, Shapes & Drawings",
+            description: "Edit PDF documents online by adding text, freehand drawings, shapes, images, and highlights natively.",
+            images: ["https://bishalcodes.com/seo-images/edit-pdf.png"]
           }
         };
       }

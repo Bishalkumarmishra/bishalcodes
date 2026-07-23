@@ -519,6 +519,44 @@ const GUIDES_DATABASE: Record<string, GuideData> = {
       }
     ]
   },
+  'edit-pdf': {
+    title: "Online PDF Editor — Add Text, Shapes, Images & Annotations Natively",
+    subtitle: "Modify PDF documents directly in your browser. Add text boxes, freehand pen drawings, shapes, uploaded images, and highlights.",
+    sections: [
+      {
+        title: "Full-Featured Online Workbench",
+        icon: "✏️",
+        content: [
+          "Text Overlays: Add custom text boxes with full font size, color, bold, italic, and alignment controls.",
+          "Original Text Editing: Hover over existing text blocks in your PDF and click to erase or override them cleanly.",
+          "Freehand Annotations & Drawings: Use the pen tool to draw diagrams, signatures, or notes directly onto any page.",
+          "Shapes & Stamps: Draw clean rectangles, circles, or stamp images directly onto your document."
+        ]
+      },
+      {
+        title: "High-Resolution Native Vector Output",
+        icon: "⚡",
+        content: [
+          "Your edits are rendered natively into the PDF structure using PyMuPDF vector engines — ensuring maximum clarity and small file size.",
+          "Pages are processed securely without quality degradation, preserving all original vector text and formatting."
+        ]
+      }
+    ],
+    faqs: [
+      {
+        q: "Can I edit existing text in a PDF?",
+        a: "Yes! Hover over any text block on your PDF canvas to select it. Click to erase the original text and replace it with your own formatted text box."
+      },
+      {
+        q: "Are my documents kept private?",
+        a: "Yes. All file processing takes place in a sandboxed server session. Your uploaded and edited PDF files are automatically deleted immediately after download."
+      },
+      {
+        q: "Can I draw signatures on my PDF?",
+        a: "Yes. Use the Draw tool with custom line thickness and color to draw hand-written signatures or annotations onto any page."
+      }
+    ]
+  },
   'dev-card-studio': {
     title: "Developer Card & OpenGraph Social Banner Studio",
     subtitle: "Design stunning social preview cards, GitHub README headers, and LinkedIn cover banners with real-time visual canvas controls.",
