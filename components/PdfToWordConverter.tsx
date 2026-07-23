@@ -28,6 +28,7 @@ export const PdfToWordConverter: React.FC = () => {
   // Options State
   const [ocrMode, setOcrMode] = useState<boolean>(false);
   const [ocrLanguage, setOcrLanguage] = useState<string>('eng');
+  const [scannedDetected, setScannedDetected] = useState<boolean>(false);
   const [isMobileSettingsOpen, setIsMobileSettingsOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,6 +55,7 @@ export const PdfToWordConverter: React.FC = () => {
     setSuccess(false);
     setDownloadUrl(null);
     setPages([]);
+    setScannedDetected(false);
     setIsMobileSettingsOpen(false);
 
     const file = files[0];
@@ -85,11 +87,19 @@ export const PdfToWordConverter: React.FC = () => {
       const pdfDocument = await loadingTask.promise;
       const numPages = pdfDocument.numPages;
 
+      let totalTextItems = 0;
       const thumbs: PagePreview[] = [];
+      
       // Render up to 12 pages for preview to maintain high performance
       for (let i = 1; i <= numPages; i++) {
+        const page = await pdfDocument.getPage(i);
+        const textContent = await page.getTextContent();
+        
+        // Count non-empty text items
+        const textItems = textContent.items.filter((item: any) => item && typeof item.str === 'string' && item.str.trim() !== '');
+        totalTextItems += textItems.length;
+
         if (i <= 12) {
-          const page = await pdfDocument.getPage(i);
           const viewport = page.getViewport({ scale: 0.3 }); // Small preview scale
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
@@ -107,6 +117,16 @@ export const PdfToWordConverter: React.FC = () => {
         }
       }
       setPages(thumbs);
+
+      // Auto-detect scanned PDF (average text items per page < 6)
+      const avgTextItems = totalTextItems / numPages;
+      if (avgTextItems < 6) {
+        setOcrMode(true);
+        setScannedDetected(true);
+      } else {
+        setOcrMode(false);
+        setScannedDetected(false);
+      }
     } catch (err: any) {
       console.error('Error generating PDF thumbnails:', err);
       setError('Could not render page previews, but you can still proceed with the conversion.');
@@ -148,7 +168,9 @@ export const PdfToWordConverter: React.FC = () => {
         
         const page = await pdfDocument.getPage(i);
         const textContent = await page.getTextContent();
-        const textItems = textContent.items.filter((item: any) => 'str' in item) as any[];
+        
+        // Clean check for text items
+        const textItems = textContent.items.filter((item: any) => item && typeof item.str === 'string' && item.str.trim() !== '') as any[];
 
         // Render page canvas for OCR/Image fallbacks
         const viewport = page.getViewport({ scale: 1.5 }); // 1.5 scale is ideal resolution for extracting OCR or page images
@@ -165,7 +187,7 @@ export const PdfToWordConverter: React.FC = () => {
         };
         await page.render(renderContext).promise;
 
-        // If vector page with selectable text and OCR is NOT forced
+        // If vector page with selectable text AND OCR is NOT forced/enabled
         if (textItems.length > 0 && !ocrMode) {
           // Sort items top-to-bottom, left-to-right
           const sortedItems = [...textItems].sort((a: any, b: any) => {
@@ -275,40 +297,45 @@ export const PdfToWordConverter: React.FC = () => {
           // If page has NO selectable text (scanned PDF page) OR OCR Mode is explicitly enabled
           let ocrSuccess = false;
 
-          if (ocrMode) {
-            try {
-              setGenerationStep(`Running local OCR on page ${i}...`);
-              const worker = await createWorker(ocrLanguage);
-              const { data } = await worker.recognize(canvas);
-              await worker.terminate();
+          // Always run OCR if page text content is empty or OCR is forced
+          try {
+            setGenerationStep(`Running local OCR on page ${i}...`);
+            const worker = await createWorker(ocrLanguage, 1, {
+              logger: m => {
+                if (m.status === 'recognizing text') {
+                  setGenerationStep(`OCR page ${i}: ${Math.round(m.progress * 100)}%`);
+                }
+              }
+            });
+            const { data } = await worker.recognize(canvas);
+            await worker.terminate();
 
-              const ocrParagraphs = (data as any).paragraphs || [];
-              
-              if (ocrParagraphs.length > 0) {
-                ocrSuccess = true;
-                for (const p of ocrParagraphs) {
-                  const textLines = p.lines || [];
-                  const runs: TextRun[] = [];
-                  for (const l of textLines) {
-                    runs.push(
-                      new TextRun({
-                        text: l.text + '\n',
-                        font: 'Arial',
-                        size: 22
-                      })
-                    );
-                  }
-                  docxParagraphs.push(
-                    new Paragraph({
-                      children: runs,
-                      spacing: { after: 140, line: 276 }
+            const ocrParagraphs = (data as any).paragraphs || [];
+            
+            if (ocrParagraphs.length > 0) {
+              ocrSuccess = true;
+              for (const p of ocrParagraphs) {
+                const textLines = p.lines || [];
+                const runs: TextRun[] = [];
+                for (const l of textLines) {
+                  runs.push(
+                    new TextRun({
+                      text: l.text + '\n',
+                      font: 'Arial',
+                      size: 22
                     })
                   );
                 }
+                docxParagraphs.push(
+                  new Paragraph({
+                    children: runs,
+                    spacing: { after: 140, line: 276 }
+                  })
+                );
               }
-            } catch (ocrErr) {
-              console.error('Offline OCR failed, falling back to image embedding:', ocrErr);
             }
+          } catch (ocrErr) {
+            console.error('Offline OCR failed, falling back to image embedding:', ocrErr);
           }
 
           // Fallback if OCR is disabled, failed, or generated blank text (ensure the Word document is NEVER blank!)
@@ -404,6 +431,7 @@ export const PdfToWordConverter: React.FC = () => {
     setPdf(null);
     setPages([]);
     setSuccess(false);
+    setScannedDetected(false);
     setError(null);
     setProgress(0);
     setIsMobileSettingsOpen(false);
@@ -546,6 +574,18 @@ export const PdfToWordConverter: React.FC = () => {
             <div className="mb-6 flex items-start gap-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60 rounded-xl p-4 text-sm text-red-700 dark:text-red-400">
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
               <p className="font-medium">{error}</p>
+            </div>
+          )}
+
+          {scannedDetected && (
+            <div className="mb-6 flex items-start gap-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800/60 rounded-xl p-4 text-sm text-amber-700 dark:text-amber-400 animate-in slide-in-from-top duration-300">
+              <AlertCircle size={18} className="shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+              <div>
+                <p className="font-bold text-amber-800 dark:text-amber-300">Scanned Document Auto-Detected</p>
+                <p className="text-xs mt-0.5 opacity-90 leading-relaxed font-medium">
+                  This PDF does not contain selectable vector text. We have automatically enabled the **Offline OCR Engine** to extract and reconstruct editable paragraphs inside your Word document.
+                </p>
+              </div>
             </div>
           )}
 
