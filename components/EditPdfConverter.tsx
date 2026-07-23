@@ -4,7 +4,8 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   FileText, Loader2, ChevronRight, KeyRound, AlertCircle, Type, Pencil,
   Square, Circle, Image as ImageIcon, Highlighter, Eraser, Trash2, ZoomIn, ZoomOut,
-  Maximize2, ChevronLeft, Bold, Italic, Check, Plus, Move, MousePointer, Copy, Sliders
+  Maximize2, ChevronLeft, Bold, Italic, Check, Plus, Move, MousePointer, Copy, Sliders,
+  RotateCw, Search, Edit3
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
 import { SeoGuideSection } from './SeoGuideSection';
@@ -99,8 +100,17 @@ export const EditPdfConverter: React.FC = () => {
   const [isLoadingPages, setIsLoadingPages] = useState(false);
 
   // Editor Controls
+  const [editorTab, setEditorTab] = useState<'annotate' | 'edit'>('annotate');
+  const [pageRotations, setPageRotations] = useState<Record<number, number>>({});
   const [zoom, setZoom] = useState(1.0); // 1.0 = 100%
   const [activeMode, setActiveMode] = useState<ToolMode>('select');
+
+  const rotateCurrentPage = (pNum: number) => {
+    setPageRotations(prev => ({
+      ...prev,
+      [pNum]: ((prev[pNum] || 0) + 90) % 360
+    }));
+  };
 
   // Active Tool Styling
   const [fontFamily, setFontFamily] = useState('Helvetica');
@@ -172,7 +182,7 @@ export const EditPdfConverter: React.FC = () => {
         thumbCanvas.height = vp.height;
         const ctx = thumbCanvas.getContext('2d');
         if (ctx) {
-          await page.render({ canvasContext: ctx, viewport: vp }).promise;
+          await page.render({ canvasContext: ctx, viewport: vp, canvas: thumbCanvas } as any).promise;
           thumbs[i] = thumbCanvas.toDataURL('image/png');
         }
       }
@@ -214,7 +224,7 @@ export const EditPdfConverter: React.FC = () => {
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        await page.render({ canvasContext: ctx, viewport: vp }).promise;
+        await page.render({ canvasContext: ctx, viewport: vp, canvas: canvas } as any).promise;
       }
     } catch (err: any) {
       console.error('Canvas render error:', err);
@@ -525,6 +535,27 @@ export const EditPdfConverter: React.FC = () => {
           <button onClick={handleReset} className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold uppercase tracking-wider cursor-pointer border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg transition-colors">
             &larr; New File
           </button>
+          
+          {/* iLovePDF-style Mode Switcher: Annotate vs Edit */}
+          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+            <button
+              onClick={() => setEditorTab('annotate')}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                editorTab === 'annotate' ? 'bg-[#e52521] text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+              }`}
+            >
+              <Pencil size={13} /> Annotate
+            </button>
+            <button
+              onClick={() => setEditorTab('edit')}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                editorTab === 'edit' ? 'bg-[#e52521] text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+              }`}
+            >
+              <Edit3 size={13} /> Edit
+            </button>
+          </div>
+
           <div className="hidden sm:block min-w-0">
             <p className="text-sm font-extrabold text-slate-900 dark:text-white truncate max-w-[200px] md:max-w-[300px]">{pdfName}</p>
             <p className="text-[11px] text-slate-400 font-medium">{totalPages} Pages · {pdfFile ? formatSize(pdfFile.size) : ''}</p>
@@ -668,12 +699,25 @@ export const EditPdfConverter: React.FC = () => {
                     : 'border-transparent hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
-                <div className="w-full aspect-3/4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 flex items-center justify-center">
+                <div className="w-full aspect-3/4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 flex items-center justify-center relative group/thumb">
                   {thumb ? (
-                    <img src={thumb} alt={`Page ${pNum}`} className="w-full h-full object-cover" />
+                    <img
+                      src={thumb}
+                      alt={`Page ${pNum}`}
+                      style={{ transform: `rotate(${pageRotations[pNum] || 0}deg)` }}
+                      className="w-full h-full object-cover transition-transform duration-200"
+                    />
                   ) : (
                     <FileText size={20} className="text-slate-300" />
                   )}
+                  {/* Rotate button hover overlay */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); rotateCurrentPage(pNum); }}
+                    className="absolute top-1 right-1 p-1 bg-slate-900/80 hover:bg-[#e52521] text-white rounded-md opacity-0 group-hover/thumb:opacity-100 transition-opacity cursor-pointer shadow-xs"
+                    title="Rotate Page"
+                  >
+                    <RotateCw size={11} />
+                  </button>
                 </div>
                 <span className={`text-[11px] font-bold ${isCurr ? 'text-[#e52521]' : 'text-slate-500 dark:text-slate-400'}`}>
                   {pNum}
