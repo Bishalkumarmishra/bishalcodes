@@ -1029,6 +1029,21 @@ export const EditPdfConverter: React.FC = () => {
           </div>
         )}
 
+        {/* Floating Bottom Right "Save changes" Button (iLovePDF Style) */}
+        <div className="absolute bottom-6 right-6 z-40">
+          <button
+            onClick={processSaveEdits}
+            disabled={isProcessing}
+            className="bg-[#e52521] hover:bg-[#d01f1c] disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white px-6 py-3.5 rounded-2xl text-base font-extrabold shadow-xl hover:shadow-2xl transition-all active:scale-[0.98] cursor-pointer flex items-center gap-3 border-2 border-white/20"
+          >
+            {isProcessing ? (
+              <><Loader2 className="w-5 h-5 animate-spin" /> {processStatus || 'Saving...'}</>
+            ) : (
+              <>Save changes <ChevronRight size={20} strokeWidth={3} /></>
+            )}
+          </button>
+        </div>
+
       </div>
 
       {/* ── Bottom Nav Bar (Page & Zoom) ── */}
