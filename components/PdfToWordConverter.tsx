@@ -1,14 +1,22 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { FileText, Download, X, AlertCircle, RefreshCw, KeyRound, CheckCircle, Sparkles } from 'lucide-react';
+import { FileText, Download, X, AlertCircle, RefreshCw, KeyRound, CheckCircle, Sparkles, ChevronRight, Settings, Trash2, ArrowLeft, Loader2 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
 import { SeoGuideSection } from './SeoGuideSection';
 import { ToolHeroUpload } from './ToolHeroUpload';
-import { Document, Packer, Paragraph, TextRun } from 'docx';
+import { ToolDownloadStep } from './ToolDownloadStep';
+import { Document, Packer, Paragraph, TextRun, ImageRun } from 'docx';
 import { createWorker } from 'tesseract.js';
+
+interface PagePreview {
+  pageNum: number;
+  dataUrl: string;
+}
 
 export const PdfToWordConverter: React.FC = () => {
   const { navigate } = useNavigation();
   const [pdf, setPdf] = useState<{ id: string; file: File; name: string; size: number } | null>(null);
+  const [pages, setPages] = useState<PagePreview[]>([]);
+  const [loadingPages, setLoadingPages] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStep, setGenerationStep] = useState<string>('');
   const [progress, setProgress] = useState(0);
@@ -17,8 +25,12 @@ export const PdfToWordConverter: React.FC = () => {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [downloadName, setDownloadName] = useState<string>('');
 
-  // Options
-  const [ocrMode, setOcrMode] = useState<boolean>(false); // false = No OCR, true = OCR
+  // Options State
+  const [ocrMode, setOcrMode] = useState<boolean>(false);
+  const [ocrLanguage, setOcrLanguage] = useState<string>('eng');
+  const [isMobileSettingsOpen, setIsMobileSettingsOpen] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -36,24 +48,71 @@ export const PdfToWordConverter: React.FC = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
-  const handleFiles = useCallback((files: FileList | File[] | null) => {
+  const handleFiles = useCallback(async (files: FileList | File[] | null) => {
     if (!files || files.length === 0) return;
     setError(null);
     setSuccess(false);
     setDownloadUrl(null);
-    
+    setPages([]);
+    setIsMobileSettingsOpen(false);
+
     const file = files[0];
     if (file.type !== 'application/pdf') {
       setError('Only PDF files are supported.');
       return;
     }
 
-    setPdf({
+    const newPdf = {
       id: Math.random().toString(36).substring(2, 9),
       file,
       name: file.name,
       size: file.size
-    });
+    };
+    
+    setPdf(newPdf);
+    setLoadingPages(true);
+
+    try {
+      const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as ArrayBuffer);
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+      });
+
+      const pdfjsLib = await import('pdfjs-dist');
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      const pdfDocument = await loadingTask.promise;
+      const numPages = pdfDocument.numPages;
+
+      const thumbs: PagePreview[] = [];
+      // Render up to 12 pages for preview to maintain high performance
+      for (let i = 1; i <= numPages; i++) {
+        if (i <= 12) {
+          const page = await pdfDocument.getPage(i);
+          const viewport = page.getViewport({ scale: 0.3 }); // Small preview scale
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            await page.render({ canvasContext: ctx, viewport, canvas: canvas as any }).promise;
+            thumbs.push({ pageNum: i, dataUrl: canvas.toDataURL('image/jpeg', 0.85) });
+          } else {
+            thumbs.push({ pageNum: i, dataUrl: '' });
+          }
+        } else {
+          // Placeholder for page > 12 to prevent heavy rendering in browser
+          thumbs.push({ pageNum: i, dataUrl: '' });
+        }
+      }
+      setPages(thumbs);
+    } catch (err: any) {
+      console.error('Error generating PDF thumbnails:', err);
+      setError('Could not render page previews, but you can still proceed with the conversion.');
+    } finally {
+      setLoadingPages(false);
+    }
   }, []);
 
   const processPdf = async () => {
@@ -63,9 +122,10 @@ export const PdfToWordConverter: React.FC = () => {
     setSuccess(false);
     setDownloadUrl(null);
     setProgress(0);
+    setIsMobileSettingsOpen(false);
 
     try {
-      setGenerationStep('Reading document structures...');
+      setGenerationStep('Reading PDF file structure...');
       const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result as ArrayBuffer);
@@ -82,16 +142,32 @@ export const PdfToWordConverter: React.FC = () => {
 
       // Loop through all pages to parse content
       for (let i = 1; i <= numPages; i++) {
-        setProgress(Math.round((i / numPages) * 70)); // Reserve last 30% for docx compiling
+        const pageProgress = Math.round((i / numPages) * 70); // Reserve last 30% for docx packaging
+        setProgress(pageProgress);
         setGenerationStep(`Processing page ${i} of ${numPages}...`);
         
         const page = await pdfDocument.getPage(i);
         const textContent = await page.getTextContent();
         const textItems = textContent.items.filter((item: any) => 'str' in item) as any[];
-        
-        // If regular vector page with selectable text, parse layout
+
+        // Render page canvas for OCR/Image fallbacks
+        const viewport = page.getViewport({ scale: 1.5 }); // 1.5 scale is ideal resolution for extracting OCR or page images
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Canvas rendering context not found.');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        const renderContext = {
+          canvasContext: ctx,
+          viewport: viewport,
+          canvas: canvas as unknown as HTMLCanvasElement,
+        };
+        await page.render(renderContext).promise;
+
+        // If vector page with selectable text and OCR is NOT forced
         if (textItems.length > 0 && !ocrMode) {
-          // Sort items top-to-bottom (y descending), left-to-right (x ascending)
+          // Sort items top-to-bottom, left-to-right
           const sortedItems = [...textItems].sort((a: any, b: any) => {
             const yA = a.transform[5];
             const yB = b.transform[5];
@@ -121,7 +197,7 @@ export const PdfToWordConverter: React.FC = () => {
           }
           if (currentLine.length > 0) lines.push(currentLine);
 
-          // Group lines into paragraphs based on vertical spacing
+          // Group lines into paragraphs based on spacing
           const pageParagraphs: any[] = [];
           let currentParagraph: any[] = [];
           let lastY = -1;
@@ -183,7 +259,7 @@ export const PdfToWordConverter: React.FC = () => {
                   text: run.text + ' ',
                   bold: run.isBold,
                   italics: run.isItalic,
-                  size: Math.min(72, Math.max(16, Math.round(run.fontSize * 2))), // clamp to reasonable Word font sizes
+                  size: Math.min(72, Math.max(16, Math.round(run.fontSize * 2))),
                   font: 'Arial'
                 })
               );
@@ -195,58 +271,95 @@ export const PdfToWordConverter: React.FC = () => {
               })
             );
           }
-
         } else {
-          // If page is scanned or OCR mode is enabled, run optical character recognition
-          setGenerationStep(`Extracting OCR text from page ${i}...`);
-          
-          // Render page to high-res canvas
-          const viewport = page.getViewport({ scale: 2.0 });
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          if (!ctx) throw new Error('Canvas rendering engine not loaded.');
-          
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          
-          const renderContext = {
-            canvasContext: ctx,
-            viewport: viewport,
-            canvas: canvas as unknown as HTMLCanvasElement,
-          };
-          await page.render(renderContext).promise;
+          // If page has NO selectable text (scanned PDF page) OR OCR Mode is explicitly enabled
+          let ocrSuccess = false;
 
-          // Process text recognition via local Tesseract worker
-          const worker = await createWorker('eng');
-          const { data } = await worker.recognize(canvas);
-          await worker.terminate();
+          if (ocrMode) {
+            try {
+              setGenerationStep(`Running local OCR on page ${i}...`);
+              const worker = await createWorker(ocrLanguage);
+              const { data } = await worker.recognize(canvas);
+              await worker.terminate();
 
-          const ocrParagraphs = (data as any).paragraphs || [];
-
-          for (const p of ocrParagraphs) {
-            const textLines = p.lines || [];
-            const runs: TextRun[] = [];
-            
-            for (const l of textLines) {
-              runs.push(
-                new TextRun({
-                  text: l.text + '\n',
-                  font: 'Arial',
-                  size: 22 // Standard 11pt size
-                })
-              );
+              const ocrParagraphs = (data as any).paragraphs || [];
+              
+              if (ocrParagraphs.length > 0) {
+                ocrSuccess = true;
+                for (const p of ocrParagraphs) {
+                  const textLines = p.lines || [];
+                  const runs: TextRun[] = [];
+                  for (const l of textLines) {
+                    runs.push(
+                      new TextRun({
+                        text: l.text + '\n',
+                        font: 'Arial',
+                        size: 22
+                      })
+                    );
+                  }
+                  docxParagraphs.push(
+                    new Paragraph({
+                      children: runs,
+                      spacing: { after: 140, line: 276 }
+                    })
+                  );
+                }
+              }
+            } catch (ocrErr) {
+              console.error('Offline OCR failed, falling back to image embedding:', ocrErr);
             }
+          }
+
+          // Fallback if OCR is disabled, failed, or generated blank text (ensure the Word document is NEVER blank!)
+          if (!ocrSuccess) {
+            setGenerationStep(`Converting page ${i} layout to image...`);
+            
+            const blob = await new Promise<Blob>((resolve, reject) => {
+              canvas.toBlob((b) => {
+                if (b) resolve(b);
+                else reject(new Error('Failed to render page to image blob'));
+              }, 'image/jpeg', 0.85);
+            });
+            const pageArrayBuffer = await blob.arrayBuffer();
+
+            // Set constraints to fit standard Word document margins nicely (max printable width/height)
+            const maxWidth = 500;
+            const maxHeight = 700;
+            let drawWidth = viewport.width / 1.5;
+            let drawHeight = viewport.height / 1.5;
+
+            if (drawWidth > maxWidth) {
+              const ratio = maxWidth / drawWidth;
+              drawWidth = maxWidth;
+              drawHeight = drawHeight * ratio;
+            }
+            if (drawHeight > maxHeight) {
+              const ratio = maxHeight / drawHeight;
+              drawHeight = maxHeight;
+              drawWidth = drawWidth * ratio;
+            }
+
             docxParagraphs.push(
               new Paragraph({
-                children: runs,
-                spacing: { after: 140, line: 276 }
+                children: [
+                  new ImageRun({
+                    data: pageArrayBuffer,
+                    type: 'jpg',
+                    transformation: {
+                      width: drawWidth,
+                      height: drawHeight
+                    }
+                  })
+                ],
+                spacing: { after: 140 }
               })
             );
           }
         }
       }
 
-      setGenerationStep('Packaging editable DOCX document...');
+      setGenerationStep('Packaging Word document file structure...');
       setProgress(85);
 
       const docxDoc = new Document({
@@ -267,7 +380,7 @@ export const PdfToWordConverter: React.FC = () => {
       setSuccess(true);
       setProgress(100);
       
-      // Auto download
+      // Auto-trigger download
       const link = document.createElement('a');
       link.href = url;
       link.download = outName;
@@ -277,192 +390,388 @@ export const PdfToWordConverter: React.FC = () => {
 
     } catch (err: any) {
       console.error('PDF to Word Conversion Error:', err);
-      setError(`An error occurred during conversion: ${err.message || 'Unknown error'}. Please verify your PDF is not encrypted.`);
+      setError(`An error occurred during conversion: ${err.message || 'Unknown error'}. Please verify your PDF is not password-protected.`);
     } finally {
       setIsGenerating(false);
     }
   };
 
   const handleReset = () => {
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
     setPdf(null);
+    setPages([]);
     setSuccess(false);
     setError(null);
-    setDownloadUrl(null);
     setProgress(0);
+    setIsMobileSettingsOpen(false);
   };
 
-  return (
-    <div className="w-full text-slate-800 dark:text-slate-100 transition-colors duration-300">
-      <div className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 pt-20 pb-4 md:pt-24 md:pb-6 shrink-0">
-        <div className="w-full px-4 md:px-6 mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('services')}
-              className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm font-semibold transition-colors"
-            >
-              &larr; Back
-            </button>
-            <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
-            <div className="flex items-center gap-2">
-              <div className="text-[#e52521] flex items-center justify-center">
-                <FileText size={18} />
-              </div>
-              <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-                PDF to Word Converter
-              </h1>
+  const renderOptionsForm = () => (
+    <div className="space-y-6">
+      {/* Conversion Engine Mode */}
+      <div>
+        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">
+          CONVERSION MODE
+        </label>
+        <div className="space-y-3">
+          <button
+            type="button"
+            disabled={isGenerating}
+            onClick={() => setOcrMode(false)}
+            className={`w-full text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
+              !ocrMode
+                ? 'border-[#e52521] bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold'
+                : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-950 hover:border-slate-350'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-black uppercase tracking-wider">No OCR</span>
             </div>
-          </div>
+            <p className="text-[10px] font-medium leading-relaxed opacity-80">
+              Convert vector layouts, structures and texts directly. Scanned PDF sheets are converted as high-resolution embedded pages.
+            </p>
+          </button>
+
+          <button
+            type="button"
+            disabled={isGenerating}
+            onClick={() => setOcrMode(true)}
+            className={`w-full text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
+              ocrMode
+                ? 'border-[#e52521] bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold'
+                : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-950 hover:border-slate-350'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-black uppercase tracking-wider">OCR Engine</span>
+              <span className="text-[8px] px-1.5 py-0.5 bg-red-100 dark:bg-red-950 text-[#e52521] rounded font-bold uppercase tracking-wider border border-red-200 dark:border-red-900/50">
+                OFFLINE OCR
+              </span>
+            </div>
+            <p className="text-[10px] font-medium leading-relaxed opacity-80">
+              Analyze scanned paper sheets or flattened pages using built-in OCR text engine to produce editable Word sentences.
+            </p>
+          </button>
         </div>
       </div>
 
-      <div className="w-full px-4 md:px-8 xl:px-12 py-6">
-        {error && (
-          <div className="mb-6 flex items-start gap-3 bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-800/60 rounded-lg p-4 text-sm text-red-700 dark:text-red-400">
-            <AlertCircle size={16} className="shrink-0 mt-0.5" />
-            <p className="font-medium">{error}</p>
-          </div>
+      {/* OCR Language Dropdown */}
+      {ocrMode && (
+        <div className="animate-in fade-in duration-200">
+          <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">
+            OCR LANGUAGE
+          </label>
+          <select
+            value={ocrLanguage}
+            disabled={isGenerating}
+            onChange={(e) => setOcrLanguage(e.target.value)}
+            className="w-full bg-[#f8fafc] dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-semibold text-slate-900 dark:text-white outline-none focus:border-[#e52521] cursor-pointer"
+          >
+            <option value="eng">English (Standard)</option>
+            <option value="spa">Spanish (Español)</option>
+            <option value="fra">French (Français)</option>
+            <option value="deu">German (Deutsch)</option>
+            <option value="hin">Hindi (हिन्दी)</option>
+            <option value="chi_sim">Chinese Simplified (简体中文)</option>
+          </select>
+        </div>
+      )}
+    </div>
+  );
+
+  if (downloadUrl) {
+    return (
+      <div className="w-full font-sans">
+        <ToolDownloadStep
+          title="The PDF has been converted to Word"
+          downloadUrl={downloadUrl}
+          downloadFileName={downloadName}
+          onReset={handleReset}
+        />
+        <SeoGuideSection toolId="pdf-to-word" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300">
+      
+      {/* Top Header Bar */}
+      <div className="w-full px-4 md:px-8 xl:px-12 pt-20 pb-4 flex items-center justify-between">
+        <button
+          onClick={() => navigate('services')}
+          className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-lg"
+        >
+          &larr; Back to Services
+        </button>
+
+        {pdf && (
+          <button
+            onClick={handleReset}
+            className="text-xs font-bold text-red-600 hover:text-red-700 dark:text-red-400 uppercase tracking-wider flex items-center gap-1 cursor-pointer"
+          >
+            <Trash2 size={14} /> Clear File
+          </button>
         )}
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Upload Area */}
-          <div className="lg:col-span-2 space-y-6">
-            {!pdf ? (
-              <ToolHeroUpload
-                title="Convert PDF to Word"
-                description="Convert PDF to fully editable DOCX Word files with maximum layout precision."
-                buttonText="Select PDF file"
-                dropText="or drop PDF file here"
-                accept="application/pdf"
-                multiple={false}
-                onFilesSelected={(files) => handleFiles(files)}
-                error={error}
-              />
-            ) : (
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <FileText size={18} className="text-slate-500" />
-                    Selected Document
-                  </h4>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/pdf"
+        onChange={(e) => handleFiles(e.target.files)}
+        className="hidden"
+      />
+
+      {/* Upload Phase or Workbench Phase */}
+      {!pdf ? (
+        <div className="w-full px-4 md:px-8 xl:px-12 pb-12">
+          <ToolHeroUpload
+            title="PDF to Word Converter"
+            description="Convert PDF files into fully editable Microsoft Word DOCX files with native layout reconstruction and offline client-side OCR."
+            buttonText="Select PDF file"
+            dropText="or drop PDF file here"
+            accept="application/pdf"
+            multiple={false}
+            onFilesSelected={(files) => handleFiles(files)}
+            error={error}
+          />
+        </div>
+      ) : (
+        <div className="w-full px-4 md:px-8 xl:px-12 pb-12">
+          {error && (
+            <div className="mb-6 flex items-start gap-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60 rounded-xl p-4 text-sm text-red-700 dark:text-red-400">
+              <AlertCircle size={16} className="shrink-0 mt-0.5" />
+              <p className="font-medium">{error}</p>
+            </div>
+          )}
+
+          <div className="flex flex-col lg:flex-row gap-6 w-full items-start">
+            
+            {/* Left Content Area: Page Previews */}
+            <div className="w-full lg:flex-1 bg-[#f4f5f8] dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 min-h-[520px] relative flex flex-col justify-between">
+              
+              {loadingPages ? (
+                <div className="flex-1 flex flex-col items-center justify-center min-h-[400px]">
+                  <Loader2 className="w-10 h-10 animate-spin text-[#e52521] mb-3" />
+                  <p className="text-sm font-bold text-slate-600 dark:text-slate-400">Rendering page previews...</p>
                 </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start pb-20 lg:pb-0">
+                  {pages.map((p, idx) => (
+                    <div 
+                      key={idx}
+                      className="group bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-sm hover:shadow-md transition-all flex flex-col items-center relative"
+                    >
+                      {/* Page number badge */}
+                      <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-slate-900/80 text-white text-[11px] font-bold flex items-center justify-center z-10 shadow">
+                        {p.pageNum}
+                      </div>
 
-                <div className="group flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 rounded-lg">
-                  <div className="w-10 h-10 rounded bg-red-100 dark:bg-red-950/30 text-[#e52521] dark:text-[#d01f1c] flex items-center justify-center shrink-0">
-                    <FileText size={20} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-slate-900 dark:text-white truncate" title={pdf.name}>{pdf.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{formatSize(pdf.size)}</p>
-                  </div>
-                  <button onClick={handleReset} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors cursor-pointer" title="Remove PDF">
-                    <X size={20} />
+                      {/* PDF Thumbnail rendering */}
+                      <div className="w-full aspect-[3/4] rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-900 flex items-center justify-center mb-2.5">
+                        {p.dataUrl ? (
+                          <img 
+                            src={p.dataUrl} 
+                            alt={`Page ${p.pageNum}`}
+                            className="max-w-full max-h-full object-contain"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-slate-400">
+                            <FileText size={32} strokeWidth={1.5} className="mb-1 text-slate-350 dark:text-slate-600" />
+                            <span className="text-[10px] font-extrabold uppercase">Page {p.pageNum}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* File Details (shown only on first card) */}
+                      {idx === 0 ? (
+                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate w-full text-center px-1" title={pdf.name}>
+                          {pdf.name}
+                        </p>
+                      ) : (
+                        <p className="text-xs font-semibold text-slate-400 dark:text-slate-600 truncate w-full text-center px-1">
+                          Page {p.pageNum}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Floating Action Controls Stack on Right Side */}
+              <div className="fixed lg:absolute top-1/3 right-4 sm:right-6 z-30 flex flex-col items-center gap-3">
+                {/* Floating settings gear icon (triggers mobile options slideover drawer) */}
+                <div className="relative group lg:hidden">
+                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-3 px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    Conversion options
+                  </span>
+                  <button
+                    onClick={() => setIsMobileSettingsOpen(true)}
+                    className="w-12 h-12 rounded-full bg-white dark:bg-slate-950 text-slate-800 dark:text-white flex items-center justify-center shadow-xl border border-slate-200 dark:border-slate-800 transition-transform active:scale-95 cursor-pointer animate-none"
+                    title="Conversion options"
+                  >
+                    <Settings size={22} className="text-slate-855 dark:text-white animate-none" />
                   </button>
                 </div>
 
-                {isGenerating && (
-                  <div className="mt-6 space-y-2">
-                    <div className="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-400">
-                      <span>{generationStep}</span>
-                      <span>{progress}%</span>
-                    </div>
-                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                      <div className="h-full bg-[#e52521] transition-all duration-300" style={{ width: `${progress}%` }}></div>
-                    </div>
-                  </div>
-                )}
+                {/* Floating change file button */}
+                <div className="relative group">
+                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-3 px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    Select different file
+                  </span>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-14 h-14 rounded-full bg-[#e52521] hover:bg-[#d01f1c] text-white flex items-center justify-center shadow-xl transition-transform active:scale-95 cursor-pointer"
+                  >
+                    <FileText size={24} />
+                  </button>
+                </div>
 
-                {success && downloadUrl && (
-                  <div className="mt-6 space-y-4">
-                    <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-300 dark:border-emerald-800/60 rounded-lg p-4 flex gap-3 text-sm text-emerald-800 dark:text-emerald-400">
-                      <CheckCircle size={18} className="shrink-0 mt-0.5 text-emerald-600" />
-                      <div>
-                        <span className="font-bold">Conversion Completed!</span> Your file has been downloaded. If the download didn't trigger automatically, click the button below.
-                      </div>
-                    </div>
-                    <a
-                      href={downloadUrl}
-                      download={downloadName}
-                      className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold shadow-md shadow-emerald-600/10 transition-colors"
-                    >
-                      <Download size={16} />
-                      Download Word Document
-                    </a>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Right Column: Settings & Info */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-              <h3 className="font-bold text-slate-900 dark:text-white mb-4">Conversion Options</h3>
-              
-              <div className="space-y-4">
-                <button
-                  type="button"
-                  disabled={!pdf || isGenerating}
-                  onClick={() => setOcrMode(false)}
-                  className={`w-full text-left p-3.5 rounded-xl border transition-all ${
-                    !ocrMode
-                      ? 'border-[#e52521] bg-red-50/50 dark:bg-red-950/20 text-slate-900 dark:text-white font-bold'
-                      : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-950/40 text-slate-650 dark:text-slate-400'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-black uppercase tracking-wider">No OCR</span>
-                  </div>
-                  <p className="text-[11px] font-medium leading-relaxed opacity-80">
-                    Reconstruct layouts, structures, and fonts directly from vector text documents. Best for native PDFs.
-                  </p>
-                </button>
-
-                <button
-                  type="button"
-                  disabled={!pdf || isGenerating}
-                  onClick={() => setOcrMode(true)}
-                  className={`w-full text-left p-3.5 rounded-xl border transition-all ${
-                    ocrMode
-                      ? 'border-[#e52521] bg-red-50/50 dark:bg-red-950/20 text-slate-900 dark:text-white font-bold'
-                      : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-950/40 text-slate-650 dark:text-slate-400'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-black uppercase tracking-wider">OCR Engine</span>
-                    <span className="text-[9px] px-1.5 py-0.5 bg-red-100 dark:bg-red-950 text-[#e52521] rounded font-bold uppercase tracking-wider border border-red-200 dark:border-red-900/50">
-                      OCR
-                    </span>
-                  </div>
-                  <p className="text-[11px] font-medium leading-relaxed opacity-80">
-                    Analyze scanned paper docs or flattened pages using built-in OCR text extraction.
-                  </p>
-                </button>
+                {/* Floating Clear Button */}
+                <div className="relative group">
+                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-3 px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    Remove PDF
+                  </span>
+                  <button
+                    onClick={handleReset}
+                    className="w-11 h-11 rounded-full bg-white dark:bg-slate-950 text-red-650 hover:bg-slate-50 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shadow-lg transition-transform active:scale-95 cursor-pointer"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
 
-              {pdf && !isGenerating && !success && (
+              {/* Mobile Fixed Bottom Action Button */}
+              <div className="fixed bottom-[90px] left-4 right-4 z-40 lg:hidden">
                 <button
                   onClick={processPdf}
-                  className="w-full mt-6 flex items-center justify-center gap-1.5 px-6 py-3 bg-[#e52521] hover:bg-[#d01f1c] text-white rounded-lg text-sm font-bold shadow-md shadow-red-600/10 transition-all active:scale-98 cursor-pointer"
+                  disabled={isGenerating}
+                  className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white py-3.5 px-4 rounded-2xl text-sm font-extrabold shadow-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
                 >
-                  <Sparkles size={16} />
-                  Convert to WORD
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      <span>{generationStep} ({progress}%)</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Convert to WORD</span>
+                      <ChevronRight size={18} strokeWidth={3} />
+                    </>
+                  )}
                 </button>
-              )}
+              </div>
+
             </div>
 
-            {/* Privacy Alert */}
-            <div className="bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/50 rounded-xl p-4 flex gap-3 text-xs leading-normal">
-              <KeyRound size={16} className="text-[#e52521] dark:text-[#d01f1c] shrink-0 mt-0.5" />
+            {/* Right Column: Settings Sidebar (lg and up screens) */}
+            <div className="hidden lg:flex w-[360px] shrink-0 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-sm flex-col justify-between space-y-8 min-h-[520px]">
               <div>
-                <span className="font-bold text-red-900 dark:text-red-300 block mb-0.5">Secure edge processing</span>
-                <span className="text-red-800/90 dark:text-red-400/80 font-medium">
-                  Document parsing, layout mapping, and OCR calculations run 100% locally in your sandbox browser. Files are never uploaded to our server.
-                </span>
+                <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-6 font-heading">
+                  PDF to Word options
+                </h3>
+                {renderOptionsForm()}
               </div>
+
+              {/* Action convert button */}
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  onClick={processPdf}
+                  disabled={isGenerating}
+                  className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white py-4 rounded-xl text-base font-extrabold shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin text-white" />
+                      <span>{progress}% Converting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Convert to WORD</span>
+                      <ChevronRight size={20} strokeWidth={3} />
+                    </>
+                  )}
+                </button>
+                {isGenerating && (
+                  <p className="text-[10px] text-slate-400 text-center mt-2 font-medium animate-pulse">
+                    {generationStep}
+                  </p>
+                )}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Slide-Over options drawer */}
+      {isMobileSettingsOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div 
+            onClick={() => setIsMobileSettingsOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200" 
+          />
+
+          <div className="fixed inset-y-0 right-0 w-[85vw] max-w-[360px] bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 p-6 pt-[88px] shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-300">
+            <div>
+              <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-100 dark:border-slate-800">
+                <h3 className="text-xl font-extrabold text-slate-900 dark:text-white font-heading">
+                  PDF to Word options
+                </h3>
+                <button
+                  onClick={() => setIsMobileSettingsOpen(false)}
+                  className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-white bg-transparent hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors cursor-pointer"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {renderOptionsForm()}
+            </div>
+
+            <div className="pt-6 mt-6 border-t border-slate-100 dark:border-slate-800">
+              <button
+                onClick={processPdf}
+                disabled={isGenerating}
+                className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white py-4 rounded-xl text-base font-extrabold shadow-lg flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin text-white" />
+                    <span>{progress}% Converting...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Convert to WORD</span>
+                    <ChevronRight size={20} strokeWidth={3} />
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Privacy Policy and Info Alert */}
+      <div className="w-full px-4 md:px-8 xl:px-12 mb-8">
+        <div className="w-full max-w-4xl bg-red-50/50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/40 rounded-xl p-4 flex gap-3 text-xs leading-normal">
+          <KeyRound size={16} className="text-[#e52521] dark:text-[#d01f1c] shrink-0 mt-0.5" />
+          <div>
+            <span className="font-bold text-red-900 dark:text-red-300 block mb-0.5">Secure local sandboxing</span>
+            <span className="text-red-800/95 dark:text-red-400/80 font-medium">
+              Your files never touch any servers. All PDF decoding, text parsing, OCR recognition, and DOCX document packing runs 100% locally in your secure browser sandbox.
+            </span>
+          </div>
+        </div>
       </div>
+
+      <SeoGuideSection toolId="pdf-to-word" />
     </div>
   );
 };
+
+export default PdfToWordConverter;

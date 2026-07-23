@@ -132,7 +132,9 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
           className="w-full sm:flex-1 sm:max-w-[400px] h-16 sm:h-[72px] bg-[#e52521] hover:bg-[#d01f1c] text-white rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-transform hover:scale-105 active:scale-95 px-6 font-extrabold text-xl sm:text-2xl cursor-pointer"
         >
           <Download strokeWidth={3} className="w-6 h-6 sm:w-7 sm:h-7" />
-          Download PDF
+          {downloadFileName.toLowerCase().endsWith('.docx') ? 'Download Word' :
+           downloadFileName.toLowerCase().endsWith('.zip') ? 'Download ZIP' :
+           'Download PDF'}
         </a>
 
         {/* Quick Actions (Link, Dropbox, Delete) */}
