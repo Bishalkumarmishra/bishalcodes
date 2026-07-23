@@ -313,17 +313,43 @@ export const EditPdfConverter: React.FC = () => {
     setSelectedElementId(null);
   };
 
-  // Erase existing PDF text block
-  const handleCoverTextBlock = (block: { bbox: [number, number, number, number] }) => {
+  // Click on existing PDF text block -> Convert to editable TextOverlay with white cover underneath
+  const handleEditTextBlock = (block: { text: string; bbox: [number, number, number, number]; fontSize: number; color: number }) => {
+    const blockW = block.bbox[2] - block.bbox[0];
+    const blockH = block.bbox[3] - block.bbox[1];
+    const elementId = Math.random().toString(36).substring(2, 9);
+
+    const newText: TextOverlay = {
+      id: elementId,
+      x: Math.round(block.bbox[0]),
+      y: Math.round(block.bbox[1]),
+      width: Math.max(Math.round(blockW + 16), 80),
+      height: Math.max(Math.round(blockH + 6), 24),
+      text: block.text, // PRESERVE AND EDIT ORIGINAL TEXT!
+      fontSize: Math.max(Math.round(block.fontSize), 10),
+      fontColor: activeColor || '#000000',
+      isBold: false,
+      isItalic: false,
+      align: 'left',
+      coverBackground: true
+    };
+
     const newCover: CoverOverlay = {
-      id: Math.random().toString(36).substring(2, 9),
+      id: elementId,
       x0: block.bbox[0] - 2,
       y0: block.bbox[1] - 2,
-      x1: block.bbox[2] + 2,
-      y1: block.bbox[3] + 2,
+      x1: block.bbox[2] + 4,
+      y1: block.bbox[3] + 4,
       color: '#ffffff'
     };
-    updatePageEdits(currentPage, prev => ({ ...prev, covers: [...prev.covers, newCover] }));
+
+    updatePageEdits(currentPage, prev => ({
+      ...prev,
+      texts: [...prev.texts, newText],
+      covers: [...prev.covers, newCover]
+    }));
+
+    setSelectedElementId(elementId);
   };
 
   // ─── Step 3: Process & Apply Edits ──────────────────────────────────────
@@ -681,11 +707,11 @@ export const EditPdfConverter: React.FC = () => {
                       key={`blk-${idx}`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleCoverTextBlock(blk);
+                        handleEditTextBlock(blk);
                       }}
                       style={{ left: `${left}px`, top: `${top}px`, width: `${w}px`, height: `${h}px` }}
                       className="absolute opacity-0 hover:opacity-100 hover:bg-[#e52521]/15 hover:border hover:border-[#e52521] rounded-xs cursor-pointer transition-opacity"
-                      title="Click to erase/override original text"
+                      title="Click to edit text directly"
                     />
                   );
                 })}
