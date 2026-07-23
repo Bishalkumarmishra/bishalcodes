@@ -144,7 +144,68 @@ export const PdfToWordConverter: React.FC = () => {
     setIsMobileSettingsOpen(false);
 
     try {
-      setGenerationStep('Reading PDF file structure...');
+      setGenerationStep('Preparing file for high-precision conversion...');
+      
+      // Convert file to base64
+      const base64Pdf = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = (reader.result as string).split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(pdf.file);
+      });
+
+      setProgress(20);
+      setGenerationStep('Converting document layout, tables, and images on server...');
+
+      let response: Response;
+      try {
+        response = await fetch('/api/pdf-to-word-internal', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            pdf: base64Pdf,
+            filename: pdf.name,
+          }),
+        });
+
+        if (response.ok) {
+          setProgress(90);
+          setGenerationStep('Downloading converted Word document...');
+          
+          const docxBlob = await response.blob();
+          const url = URL.createObjectURL(docxBlob);
+          const outName = pdf.name.replace(/\.pdf$/i, '') + '.docx';
+
+          setDownloadUrl(url);
+          setDownloadName(outName);
+          setSuccess(true);
+          setProgress(100);
+          
+          // Auto-trigger download
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = outName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          return; // Success! Exit early.
+        } else {
+          const errData = await response.json().catch(() => ({}));
+          console.warn('Server-side layout conversion returned error, falling back to client engine:', errData.error);
+        }
+      } catch (apiErr) {
+        console.warn('Server-side layout conversion failed to connect, falling back to client engine:', apiErr);
+      }
+
+      // FALLBACK: Client-side JS converter (if backend fails, serverless timeout, or on Vercel production without Python setup)
+      setGenerationStep('Using client-side fallback engine. Reading structure...');
+      setProgress(30);
+
       const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result as ArrayBuffer);
