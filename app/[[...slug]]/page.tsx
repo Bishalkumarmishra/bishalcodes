@@ -118,6 +118,12 @@ export default async function CatchAllPage(props: PageProps) {
             a: "Yes, you can upload any Microsoft Word document (.docx, .doc) and convert it into a high-fidelity PDF document with exact margins, layout preservation, and font embedding."
           }
         ],
+        'excel-to-pdf': [
+          {
+            q: "Can I convert Excel spreadsheets to PDF?",
+            a: "Yes, you can upload any Microsoft Excel spreadsheet (.xlsx, .xls) and convert it into a high-fidelity PDF document with exact sheet layout preservation, gridlines, and charts."
+          }
+        ],
         'image-compressor': [
           {
             q: "Is the image compression private and secure?",
@@ -635,6 +641,33 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
             title: "Word to PDF Converter | Convert DOCX to PDF Online Free",
             description: "Convert Word documents (.docx, .doc) into high-fidelity PDF documents with exact layout, margins, and formatting preservation.",
             images: ["https://bishalcodes.com/seo-images/word-to-pdf.png"]
+          }
+        };
+      }
+
+      if (subpage === 'excel-to-pdf') {
+        return {
+          title: "Excel to PDF Converter | Convert XLSX to PDF Online Free | Bishal Codes",
+          description: "Free online Excel to PDF converter. Convert Microsoft Excel spreadsheets (.xlsx, .xls) into high-fidelity PDF documents with exact gridlines, tables, and formatting preservation.",
+          keywords: "Excel to PDF, XLSX to PDF, convert excel to PDF, online PDF tools, spreadsheet converter, free Excel converter, Bishal Codes",
+          alternates: {
+            canonical: "https://bishalcodes.com/tools/excel-to-pdf",
+          },
+          openGraph: {
+            title: "Excel to PDF Converter | Convert XLSX to PDF Online Free",
+            description: "Convert Microsoft Excel spreadsheets (.xlsx, .xls) into high-fidelity PDF documents with exact gridlines, tables, and formatting preservation.",
+            url: "https://bishalcodes.com/tools/excel-to-pdf",
+            siteName: "Bishal Codes",
+            type: "website",
+            images: [{ url: "https://bishalcodes.com/seo-images/excel-to-pdf.png", width: 1200, height: 630, alt: "Excel to PDF Converter" }],
+          },
+          twitter: {
+            card: "summary_large_image",
+            site: "@bishalmishra",
+            creator: "@bishalmishra",
+            title: "Excel to PDF Converter | Convert XLSX to PDF Online Free",
+            description: "Convert Microsoft Excel spreadsheets (.xlsx, .xls) into high-fidelity PDF documents with exact gridlines, tables, and formatting preservation.",
+            images: ["https://bishalcodes.com/seo-images/excel-to-pdf.png"]
           }
         };
       }

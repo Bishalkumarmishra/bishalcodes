@@ -393,6 +393,48 @@ const GUIDES_DATABASE: Record<string, GuideData> = {
       }
     ]
   },
+  'excel-to-pdf': {
+    title: "High-Fidelity Excel to PDF Converter",
+    subtitle: "Convert Excel spreadsheets (.xlsx, .xls) into high-fidelity PDF documents with exact layout, gridline, and chart preservation.",
+    sections: [
+      {
+        title: "Exact Sheet Scaling Preservation",
+        icon: "📊",
+        content: [
+          "Our conversion engine reads spreadsheet alignments, font choices, custom columns, and page break properties to compile them into PDF sheets.",
+          "It maintains exact gridline alignments, merged cells, custom column widths, and cell background fills just as they appear in Microsoft Excel.",
+          "This local processing is quick, secure, and preserves data privacy by converting files cleanly without third-party exposure."
+        ]
+      },
+      {
+        title: "Formula Representation & Charts Support",
+        icon: "📈",
+        content: [
+          "Supports rendering calculated outputs, complex table cells, and multi-sheet workbooks.",
+          "Embedded vector charts, graphs, and drawings are grouped and rasterized dynamically into high-resolution graphics, ensuring all page data is fully visible.",
+          "Outputs compliant PDF documents ready for professional printing, sharing, or archiving."
+        ]
+      }
+    ],
+    faqs: [
+      {
+        q: "Are my Excel sheets safe?",
+        a: "Yes. The backend processing environment executes the conversion and instantly deletes your uploaded spreadsheets. Your cell values and data remain 100% private."
+      },
+      {
+        q: "Will my custom gridlines and formatting show up in the PDF?",
+        a: "Yes. The conversion maps exact gridlines, merged headers, border widths, background color fills, and font configurations to render an identical layout."
+      },
+      {
+        q: "Does it support multiple sheets in a workbook?",
+        a: "Yes. The compiler loops through all worksheets in the Excel file and packages them sequentially into the final PDF."
+      },
+      {
+        q: "Does it support legacy .xls format?",
+        a: "Yes, it supports both modern Excel (.xlsx) and legacy Excel (.xls) formats."
+      }
+    ]
+  },
   'dev-card-studio': {
     title: "Developer Card & OpenGraph Social Banner Studio",
     subtitle: "Design stunning social preview cards, GitHub README headers, and LinkedIn cover banners with real-time visual canvas controls.",

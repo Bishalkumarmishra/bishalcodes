@@ -9,6 +9,7 @@ import PdfPageNumberAdder from '../components/PdfPageNumberAdder';
 import PdfToImageConverter from '../components/PdfToImageConverter';
 import { PdfToWordConverter } from '../components/PdfToWordConverter';
 import { WordToPdfConverter } from '../components/WordToPdfConverter';
+import { ExcelToPdfConverter } from '../components/ExcelToPdfConverter';
 import AiSummarizer from '../components/AiSummarizer';
 import ImageCompressor from '../components/ImageCompressor';
 import EmiCalculator from '../components/EmiCalculator';
@@ -100,6 +101,11 @@ const toolSeoData: Record<string, { title: string; desc: string; keywords: strin
     title: 'Word to PDF Converter - Convert DOCX to PDF Online',
     desc: 'Convert Microsoft Word documents (.docx, .doc) into high-fidelity PDF documents. Runs entirely secure with exact layout, font, and formatting preservation.',
     keywords: ['word to pdf converter', 'convert docx to pdf', 'convert word to pdf online', 'doc to pdf converter', 'free docx to pdf']
+  },
+  'excel-to-pdf': {
+    title: 'Excel to PDF Converter - Convert XLSX to PDF Online',
+    desc: 'Convert Microsoft Excel spreadsheets (.xlsx, .xls) into high-fidelity PDF documents. Preserves gridlines, formulas representation, alignments, and chart graphics.',
+    keywords: ['excel to pdf converter', 'convert xlsx to pdf', 'convert excel to pdf online', 'xls to pdf converter', 'free excel to pdf']
   },
   'ai-summarizer': {
     title: 'AI Document Summarizer - PDF Abstract Generator',
@@ -259,6 +265,14 @@ const STATIC_TOOLS: StaticTool[] = [
     badge: 'NEW',
     accentColor: 'indigo',
     iconUrl: '/word to pdf.svg',
+  },
+  {
+    id: 'excel-to-pdf',
+    name: 'Excel to PDF Converter',
+    emoji: '📊',
+    description: 'Convert Excel spreadsheets (.xlsx, .xls) into high-fidelity PDF files with exact sheet scaling, layout preservation, and charts.',
+    badge: 'NEW',
+    accentColor: 'emerald',
   },
 ];
 
@@ -506,7 +520,7 @@ const ServicesPage: React.FC = () => {
         const snap = await getDocs(q);
         setServices(snap.docs
           .map(doc => ({ id: doc.id, ...doc.data() } as ServiceTool))
-          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover' && service.linkUrl !== 'scan-pdf' && service.linkUrl !== 'pdf-to-word' && service.linkUrl !== 'word-to-pdf')
+          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover' && service.linkUrl !== 'scan-pdf' && service.linkUrl !== 'pdf-to-word' && service.linkUrl !== 'word-to-pdf' && service.linkUrl !== 'excel-to-pdf')
         );
       } catch (err) {
         console.error("Failed to fetch services", err);
@@ -624,6 +638,7 @@ const ServicesPage: React.FC = () => {
       case 'pdf-to-image': return <PdfToImageConverter />;
       case 'pdf-to-word': return <PdfToWordConverter />;
       case 'word-to-pdf': return <WordToPdfConverter />;
+      case 'excel-to-pdf': return <ExcelToPdfConverter />;
       case 'ai-summarizer': return <AiSummarizer />;
       case 'image-compressor': return <ImageCompressor />;
       case 'emi-calculator': return <EmiCalculator />;
