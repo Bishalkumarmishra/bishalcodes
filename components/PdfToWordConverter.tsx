@@ -5,7 +5,6 @@ import { SeoGuideSection } from './SeoGuideSection';
 import { ToolHeroUpload } from './ToolHeroUpload';
 import { ToolDownloadStep } from './ToolDownloadStep';
 import { Document, Packer, Paragraph, TextRun, ImageRun } from 'docx';
-import { createWorker } from 'tesseract.js';
 
 interface PagePreview {
   pageNum: number;
@@ -297,30 +296,41 @@ export const PdfToWordConverter: React.FC = () => {
           // If page has NO selectable text (scanned PDF page) OR OCR Mode is explicitly enabled
           let ocrSuccess = false;
 
-          // Always run OCR if page text content is empty or OCR is forced
+          // Always run high-precision server-side OCR if page text content is empty or OCR is forced
           try {
-            setGenerationStep(`Running local OCR on page ${i}...`);
-            const worker = await createWorker(ocrLanguage, 1, {
-              logger: m => {
-                if (m.status === 'recognizing text') {
-                  setGenerationStep(`OCR page ${i}: ${Math.round(m.progress * 100)}%`);
-                }
-              }
-            });
-            const { data } = await worker.recognize(canvas);
-            await worker.terminate();
+            setGenerationStep(`Running server OCR on page ${i}...`);
+            const base64Image = canvas.toDataURL('image/jpeg', 0.85);
 
-            const ocrParagraphs = (data as any).paragraphs || [];
+            const response = await fetch('/api/ocr-internal', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                image: base64Image,
+                mimeType: 'image/jpeg',
+              }),
+            });
+
+            if (!response.ok) {
+              throw new Error(`Server returned status ${response.status}`);
+            }
+
+            const resData = await response.json();
+            const extractedText = resData.text || '';
             
-            if (ocrParagraphs.length > 0) {
+            if (extractedText.trim() !== '') {
               ocrSuccess = true;
-              for (const p of ocrParagraphs) {
-                const textLines = p.lines || [];
+              const textParagraphs = extractedText.split(/\n\s*\n/);
+
+              for (const p of textParagraphs) {
+                if (p.trim() === '') continue;
+                const lines = p.split('\n');
                 const runs: TextRun[] = [];
-                for (const l of textLines) {
+                for (const l of lines) {
                   runs.push(
                     new TextRun({
-                      text: l.text + '\n',
+                      text: l + ' ',
                       font: 'Arial',
                       size: 22
                     })
@@ -335,7 +345,7 @@ export const PdfToWordConverter: React.FC = () => {
               }
             }
           } catch (ocrErr) {
-            console.error('Offline OCR failed, falling back to image embedding:', ocrErr);
+            console.error('Server-side OCR failed, falling back to layout parser:', ocrErr);
           }
 
           // Fallback if OCR is disabled, failed, or generated blank text (ensure the Word document is NEVER blank!)
