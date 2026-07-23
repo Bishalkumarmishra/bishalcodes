@@ -351,6 +351,48 @@ const GUIDES_DATABASE: Record<string, GuideData> = {
       }
     ]
   },
+  'word-to-pdf': {
+    title: "High-Fidelity Word to PDF Converter",
+    subtitle: "Convert Word documents (.docx, .doc) into high-fidelity PDF documents with exact layout, margin, and formatting preservation.",
+    sections: [
+      {
+        title: "Exact Layout Preservation",
+        icon: "📄",
+        content: [
+          "Our conversion engine reads the Word document styling, alignments, custom margins, and headers directly to compile them into matching PDF vector definitions.",
+          "This guarantees that your document margins, page breaks, text justifications, and line spacings look exactly like they did in Microsoft Word.",
+          "This local method is highly optimized, ensuring rapid processing without exposing your files to external security risks."
+        ]
+      },
+      {
+        title: "Rich Content Formatting Support",
+        icon: "🎨",
+        content: [
+          "It supports complex tables, embedded images, dynamic header/footer labels, bulleted lists, and multiple column sections.",
+          "Custom fonts and typography styles are dynamically mapped and embedded inside the output PDF document, ensuring universal display compatibility.",
+          "Produces standard, search-optimized PDF files compliant with modern PDF readers."
+        ]
+      }
+    ],
+    faqs: [
+      {
+        q: "Are my Word files safe?",
+        a: "Yes. The conversion engine runs on a secure environment where files are immediately deleted from storage after the conversion task completes. Your data is 100% private."
+      },
+      {
+        q: "Will the PDF layout look exactly like my Word file?",
+        a: "Yes. The conversion system maintains font choices, table styles, paragraph properties, alignments, headers, and image formatting to deliver an identical layout."
+      },
+      {
+        q: "Is there a limit on Word file size?",
+        a: "The system easily handles files up to 50MB. Large files may take a few additional seconds to compile layouts."
+      },
+      {
+        q: "Does it support .doc format?",
+        a: "Yes, it supports both modern Word (.docx) and legacy Word (.doc) document formats."
+      }
+    ]
+  },
   'dev-card-studio': {
     title: "Developer Card & OpenGraph Social Banner Studio",
     subtitle: "Design stunning social preview cards, GitHub README headers, and LinkedIn cover banners with real-time visual canvas controls.",

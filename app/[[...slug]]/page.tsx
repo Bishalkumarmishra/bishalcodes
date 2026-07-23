@@ -112,6 +112,12 @@ export default async function CatchAllPage(props: PageProps) {
             a: "Yes, you can upload any PDF file and convert it into a fully editable Microsoft Word DOCX document. It supports layout reconstruction and offline OCR for scanned documents."
           }
         ],
+        'word-to-pdf': [
+          {
+            q: "Can I convert Word documents to PDF?",
+            a: "Yes, you can upload any Microsoft Word document (.docx, .doc) and convert it into a high-fidelity PDF document with exact margins, layout preservation, and font embedding."
+          }
+        ],
         'image-compressor': [
           {
             q: "Is the image compression private and secure?",
@@ -602,6 +608,33 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
             title: "PDF to Word Converter | Convert PDF to Word Online Free",
             description: "Convert vector PDF files and scanned paper sheets into fully editable Microsoft Word DOCX files with offline OCR support.",
             images: ["https://bishalcodes.com/seo-images/pdf-to-word.png"]
+          }
+        };
+      }
+
+      if (subpage === 'word-to-pdf') {
+        return {
+          title: "Word to PDF Converter | Convert DOCX to PDF Online Free | Bishal Codes",
+          description: "Free online Word to PDF converter. Convert Word documents (.docx, .doc) into high-fidelity PDF documents with exact layout, margins, and formatting preservation.",
+          keywords: "Word to PDF, DOCX to PDF, convert docx to PDF, online PDF tools, document converter, free Word converter, Bishal Codes",
+          alternates: {
+            canonical: "https://bishalcodes.com/tools/word-to-pdf",
+          },
+          openGraph: {
+            title: "Word to PDF Converter | Convert DOCX to PDF Online Free",
+            description: "Convert Word documents (.docx, .doc) into high-fidelity PDF documents with exact layout, margins, and formatting preservation.",
+            url: "https://bishalcodes.com/tools/word-to-pdf",
+            siteName: "Bishal Codes",
+            type: "website",
+            images: [{ url: "https://bishalcodes.com/seo-images/word-to-pdf.png", width: 1200, height: 630, alt: "Word to PDF Converter" }],
+          },
+          twitter: {
+            card: "summary_large_image",
+            site: "@bishalmishra",
+            creator: "@bishalmishra",
+            title: "Word to PDF Converter | Convert DOCX to PDF Online Free",
+            description: "Convert Word documents (.docx, .doc) into high-fidelity PDF documents with exact layout, margins, and formatting preservation.",
+            images: ["https://bishalcodes.com/seo-images/word-to-pdf.png"]
           }
         };
       }

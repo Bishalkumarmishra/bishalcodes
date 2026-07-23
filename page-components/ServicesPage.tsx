@@ -8,6 +8,7 @@ import PdfMerger from '../components/PdfMerger';
 import PdfPageNumberAdder from '../components/PdfPageNumberAdder';
 import PdfToImageConverter from '../components/PdfToImageConverter';
 import { PdfToWordConverter } from '../components/PdfToWordConverter';
+import { WordToPdfConverter } from '../components/WordToPdfConverter';
 import AiSummarizer from '../components/AiSummarizer';
 import ImageCompressor from '../components/ImageCompressor';
 import EmiCalculator from '../components/EmiCalculator';
@@ -94,6 +95,11 @@ const toolSeoData: Record<string, { title: string; desc: string; keywords: strin
     title: 'PDF to Word Converter - Edit PDF Text Online',
     desc: 'Convert any PDF document to fully editable Microsoft Word DOCX files. Running 100% client-side with native layout reconstruction and built-in OCR.',
     keywords: ['pdf to word converter', 'convert pdf to docx', 'convert scanned pdf to editable word', 'local pdf to word ocr', 'pdf converter']
+  },
+  'word-to-pdf': {
+    title: 'Word to PDF Converter - Convert DOCX to PDF Online',
+    desc: 'Convert Microsoft Word documents (.docx, .doc) into high-fidelity PDF documents. Runs entirely secure with exact layout, font, and formatting preservation.',
+    keywords: ['word to pdf converter', 'convert docx to pdf', 'convert word to pdf online', 'doc to pdf converter', 'free docx to pdf']
   },
   'ai-summarizer': {
     title: 'AI Document Summarizer - PDF Abstract Generator',
@@ -240,6 +246,14 @@ const STATIC_TOOLS: StaticTool[] = [
     name: 'PDF to Word Converter',
     emoji: '📝',
     description: 'Convert PDF documents into fully editable Microsoft Word DOCX files with native layout reconstruction and offline client-side OCR.',
+    badge: 'NEW',
+    accentColor: 'indigo',
+  },
+  {
+    id: 'word-to-pdf',
+    name: 'Word to PDF Converter',
+    emoji: '📄',
+    description: 'Convert Word documents (.docx, .doc) into high-fidelity PDF files with exact margins, layout preservation, and font embedding.',
     badge: 'NEW',
     accentColor: 'indigo',
   },
@@ -485,7 +499,7 @@ const ServicesPage: React.FC = () => {
         const snap = await getDocs(q);
         setServices(snap.docs
           .map(doc => ({ id: doc.id, ...doc.data() } as ServiceTool))
-          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover' && service.linkUrl !== 'scan-pdf' && service.linkUrl !== 'pdf-to-word')
+          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover' && service.linkUrl !== 'scan-pdf' && service.linkUrl !== 'pdf-to-word' && service.linkUrl !== 'word-to-pdf')
         );
       } catch (err) {
         console.error("Failed to fetch services", err);
@@ -602,6 +616,7 @@ const ServicesPage: React.FC = () => {
       case 'add-page-numbers': return <PdfPageNumberAdder />;
       case 'pdf-to-image': return <PdfToImageConverter />;
       case 'pdf-to-word': return <PdfToWordConverter />;
+      case 'word-to-pdf': return <WordToPdfConverter />;
       case 'ai-summarizer': return <AiSummarizer />;
       case 'image-compressor': return <ImageCompressor />;
       case 'emi-calculator': return <EmiCalculator />;
