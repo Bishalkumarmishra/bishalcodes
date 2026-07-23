@@ -26,10 +26,11 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const link = `${window.location.origin}/download/${Math.random().toString(36).substring(2, 9)}`;
+      // Use the real current page URL — scannable and shareable
+      const link = window.location.href;
       setShareLink(link);
       
-      // Generate QR Code for the link
+      // Generate QR Code for the real page link
       QRCode.toDataURL(link, { width: 256, margin: 2, color: { dark: '#1e293b', light: '#ffffff' } })
         .then(url => setQrCodeDataUrl(url))
         .catch(err => console.error(err));
@@ -109,7 +110,7 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
     <div className="relative z-50 w-full min-h-screen bg-white dark:bg-slate-900 flex flex-col items-center pt-16 sm:pt-24 pb-12 px-4 sm:px-6">
       
       {/* 1. Main Title */}
-      <h1 className="text-3xl sm:text-[40px] font-extrabold text-[#333333] dark:text-white mb-8 sm:mb-10 text-center font-heading tracking-tight">
+      <h1 className="text-2xl sm:text-3xl font-bold text-[#333333] dark:text-white mb-7 sm:mb-9 text-center font-heading tracking-tight">
         {title}
       </h1>
 
@@ -119,19 +120,19 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
         {/* Back Button */}
         <button 
           onClick={onReset}
-          className="w-14 h-14 sm:w-[72px] sm:h-[72px] bg-[#333333] hover:bg-[#222222] text-white rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95 shrink-0 cursor-pointer"
+          className="w-12 h-12 sm:w-14 sm:h-14 bg-[#333333] hover:bg-[#222222] text-white rounded-full flex items-center justify-center shadow-md transition-transform hover:scale-105 active:scale-95 shrink-0 cursor-pointer"
           title="Start over"
         >
-          <ArrowLeft strokeWidth={2.5} className="w-6 h-6 sm:w-8 sm:h-8" />
+          <ArrowLeft strokeWidth={2} className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
 
         {/* Huge Download Button */}
-        <a
+          <a
           href={downloadUrl}
           download={downloadFileName}
-          className="w-full sm:flex-1 sm:max-w-[400px] h-16 sm:h-[72px] bg-[#e52521] hover:bg-[#d01f1c] text-white rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-transform hover:scale-105 active:scale-95 px-6 font-extrabold text-xl sm:text-2xl cursor-pointer"
+          className="w-full sm:flex-1 sm:max-w-[380px] h-14 sm:h-16 bg-[#e52521] hover:bg-[#d01f1c] text-white rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-transform hover:scale-105 active:scale-95 px-6 font-bold text-lg sm:text-xl cursor-pointer"
         >
-          <Download strokeWidth={3} className="w-6 h-6 sm:w-7 sm:h-7" />
+          <Download strokeWidth={2.5} className="w-5 h-5 sm:w-6 sm:h-6" />
           {downloadFileName.toLowerCase().endsWith('.docx') ? 'Download Word' :
            downloadFileName.toLowerCase().endsWith('.zip') ? 'Download ZIP' :
            'Download PDF'}
@@ -289,8 +290,8 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
               </button>
             </div>
             
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 text-center font-medium">
-              Scan the QR code with your mobile device to download the file directly on your phone!
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 text-center">
+              Scan this QR code to open the tool on your mobile device and re-process your file.
             </p>
 
             <div className="flex justify-center mb-8">
