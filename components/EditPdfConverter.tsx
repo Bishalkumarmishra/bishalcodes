@@ -3,7 +3,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   FileText, Loader2, ChevronRight, KeyRound, AlertCircle, Type, Pencil,
-  Square, Circle, Image as ImageIcon, Highlighting, Trash2, ZoomIn, ZoomOut,
+  Square, Circle, Image as ImageIcon, Highlighter, Trash2, ZoomIn, ZoomOut,
   Maximize2, ChevronLeft, Bold, Italic, Check, Plus, Move, MousePointer
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
@@ -509,7 +509,7 @@ export const EditPdfConverter: React.FC = () => {
             { id: 'draw', label: 'Draw', icon: Pencil },
             { id: 'rect', label: 'Rectangle', icon: Square },
             { id: 'circle', label: 'Circle', icon: Circle },
-            { id: 'highlight', label: 'Highlight', icon: Highlighting },
+            { id: 'highlight', label: 'Highlight', icon: Highlighter },
           ].map(m => {
             const Icon = m.icon;
             const active = activeMode === m.id;
