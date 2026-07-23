@@ -340,49 +340,129 @@ export const PdfToWordConverter: React.FC = () => {
 
           // Fallback if OCR is disabled, failed, or generated blank text (ensure the Word document is NEVER blank!)
           if (!ocrSuccess) {
-            setGenerationStep(`Converting page ${i} layout to image...`);
+            setGenerationStep(`Parsing vector text layout for page ${i} (fallback)...`);
             
-            const blob = await new Promise<Blob>((resolve, reject) => {
-              canvas.toBlob((b) => {
-                if (b) resolve(b);
-                else reject(new Error('Failed to render page to image blob'));
-              }, 'image/jpeg', 0.85);
-            });
-            const pageArrayBuffer = await blob.arrayBuffer();
+            // Reconstruct text layout from vector items
+            if (textItems.length > 0) {
+              const sortedItems = [...textItems].sort((a: any, b: any) => {
+                const yA = a.transform[5];
+                const yB = b.transform[5];
+                if (Math.abs(yA - yB) < 6) {
+                  return a.transform[4] - b.transform[4];
+                }
+                return yB - yA;
+              });
 
-            // Set constraints to fit standard Word document margins nicely (max printable width/height)
-            const maxWidth = 500;
-            const maxHeight = 700;
-            let drawWidth = viewport.width / 1.5;
-            let drawHeight = viewport.height / 1.5;
+              const lines: any[] = [];
+              let currentLine: any[] = [];
+              let currentY = -1;
 
-            if (drawWidth > maxWidth) {
-              const ratio = maxWidth / drawWidth;
-              drawWidth = maxWidth;
-              drawHeight = drawHeight * ratio;
-            }
-            if (drawHeight > maxHeight) {
-              const ratio = maxHeight / drawHeight;
-              drawHeight = maxHeight;
-              drawWidth = drawWidth * ratio;
-            }
+              for (const item of sortedItems) {
+                const y = item.transform[5];
+                if (currentLine.length === 0) {
+                  currentLine.push(item);
+                  currentY = y;
+                } else if (Math.abs(y - currentY) < 6) {
+                  currentLine.push(item);
+                } else {
+                  lines.push(currentLine);
+                  currentLine = [item];
+                  currentY = y;
+                }
+              }
+              if (currentLine.length > 0) lines.push(currentLine);
 
-            docxParagraphs.push(
-              new Paragraph({
-                children: [
-                  new ImageRun({
-                    data: pageArrayBuffer,
-                    type: 'jpg',
-                    transformation: {
-                      width: drawWidth,
-                      height: drawHeight
-                    }
+              const pageParagraphs: any[] = [];
+              let currentParagraph: any[] = [];
+              let lastY = -1;
+
+              for (const line of lines) {
+                let lineText = '';
+                let lastXEnd = -1;
+                let maxFontSize = 10;
+                let isBold = false;
+                let isItalic = false;
+
+                for (const item of line) {
+                  const x = item.transform[4];
+                  const width = item.width || 0;
+                  const fontSize = Math.sqrt(item.transform[0]**2 + item.transform[1]**2) || item.transform[3] || 10;
+                  if (fontSize > maxFontSize) maxFontSize = fontSize;
+
+                  const fontNameLower = (item.fontName || '').toLowerCase();
+                  if (fontNameLower.includes('bold') || fontNameLower.includes('black') || fontNameLower.includes('heavy') || fontNameLower.includes('medium')) {
+                    isBold = true;
+                  }
+                  if (fontNameLower.includes('italic') || fontNameLower.includes('oblique')) {
+                    isItalic = true;
+                  }
+
+                  if (lineText !== '' && lastXEnd !== -1 && x - lastXEnd > fontSize * 0.25) {
+                    lineText += ' ';
+                  }
+                  lineText += item.str;
+                  lastXEnd = x + width;
+                }
+
+                const y = line[0].transform[5];
+                const fontSize = maxFontSize;
+
+                if (pageParagraphs.length === 0 && currentParagraph.length === 0) {
+                  currentParagraph.push({ text: lineText, fontSize, isBold, isItalic });
+                  lastY = y;
+                } else {
+                  const gap = Math.abs(lastY - y);
+                  if (gap > fontSize * 1.8) {
+                    pageParagraphs.push(currentParagraph);
+                    currentParagraph = [{ text: lineText, fontSize, isBold, isItalic }];
+                    lastY = y;
+                  } else {
+                    currentParagraph.push({ text: lineText, fontSize, isBold, isItalic });
+                    lastY = y;
+                  }
+                }
+              }
+              if (currentParagraph.length > 0) pageParagraphs.push(currentParagraph);
+
+              for (const para of pageParagraphs) {
+                const runs: TextRun[] = [];
+                for (const run of para) {
+                  runs.push(
+                    new TextRun({
+                      text: run.text + ' ',
+                      bold: run.isBold,
+                      italics: run.isItalic,
+                      size: Math.min(72, Math.max(16, Math.round(run.fontSize * 2))),
+                      font: 'Arial'
+                    })
+                  );
+                }
+                docxParagraphs.push(
+                  new Paragraph({
+                    children: runs,
+                    spacing: { after: 140, line: 276 }
                   })
-                ],
-                spacing: { after: 140 }
-              })
-            );
+                );
+              }
+            } else {
+              // Scanned page fallback: display editable message notifying text recognition empty
+              docxParagraphs.push(
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: `[Page ${i}: Scanned document page with empty text content. Please try turning on OCR Mode to perform layout character recognition.]`,
+                      italics: true,
+                      size: 20,
+                      color: '999999',
+                      font: 'Arial'
+                    })
+                  ],
+                  spacing: { after: 140 }
+                })
+              );
+            }
           }
+
         }
       }
 
