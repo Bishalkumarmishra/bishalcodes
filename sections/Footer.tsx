@@ -94,7 +94,7 @@ const Footer: React.FC = () => {
             type="submit"
             disabled={newsletterSubmitting}
             style={{
-              background: '#6366f1',
+              background: '#e52521',
               color: '#ffffff',
               border: 'none',
               borderRadius: '6px',
@@ -107,8 +107,8 @@ const Footer: React.FC = () => {
               justifyContent: 'center',
               transition: 'background-color 0.15s'
             }}
-            onMouseEnter={e => (e.currentTarget.style.background = '#4f46e5')}
-            onMouseLeave={e => (e.currentTarget.style.background = '#6366f1')}
+            onMouseEnter={e => (e.currentTarget.style.background = '#d01f1c')}
+            onMouseLeave={e => (e.currentTarget.style.background = '#e52521')}
           >
             {newsletterSubmitting ? <Loader2 size={13} className="animate-spin" /> : 'Subscribe'}
           </button>

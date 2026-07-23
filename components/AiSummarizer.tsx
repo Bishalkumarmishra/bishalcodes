@@ -232,7 +232,7 @@ export const AiSummarizer: React.FC = () => {
             </button>
             <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
             <div className="flex items-center gap-2">
-              <div className="text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+              <div className="text-[#e52521] dark:text-[#d01f1c] flex items-center justify-center">
                 <Sparkles size={18} />
               </div>
               <h1 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -295,7 +295,7 @@ export const AiSummarizer: React.FC = () => {
             <div className="w-full flex-1 h-1/2 lg:h-full bg-white dark:bg-slate-900 overflow-y-auto relative">
               {isSummarizing || scanProgress === 100 && !summary ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-slate-900 z-20">
-                  <Loader2 size={32} className="text-indigo-600 dark:text-indigo-400 animate-spin mb-4" />
+                  <Loader2 size={32} className="text-[#e52521] dark:text-[#d01f1c] animate-spin mb-4" />
                   <div className="text-center">
                     <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
                       Processing document... {scanProgress}%
@@ -306,7 +306,7 @@ export const AiSummarizer: React.FC = () => {
                 <div className="p-6 md:p-8 max-w-3xl mx-auto w-full">
                   <div className="mb-6 pb-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <Sparkles size={18} className="text-indigo-600 dark:text-indigo-400" />
+                      <Sparkles size={18} className="text-[#e52521] dark:text-[#d01f1c]" />
                       AI Summary
                     </h2>
                     
@@ -320,7 +320,7 @@ export const AiSummarizer: React.FC = () => {
                       </button>
                       <button 
                         onClick={handleDownloadPdf}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 py-1.5 px-3 rounded-md transition-colors shadow-sm"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#e52521] hover:bg-[#d01f1c] py-1.5 px-3 rounded-md transition-colors shadow-sm"
                       >
                         <Download size={14} />
                         Save PDF
@@ -348,7 +348,7 @@ export const AiSummarizer: React.FC = () => {
                   </p>
                   <button 
                     onClick={summarizePdf}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md transition-colors cursor-pointer"
+                    className="bg-[#e52521] hover:bg-[#d01f1c] text-white font-medium py-2 px-6 rounded-md transition-colors cursor-pointer"
                   >
                     Generate AI Summary
                   </button>

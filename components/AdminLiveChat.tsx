@@ -491,7 +491,7 @@ const AdminLiveChat: React.FC = () => {
         <div className="p-4 border-b border-slate-200 bg-white flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+              <div className="p-2 bg-red-50 text-[#e52521] rounded-lg">
                 <MessageSquare size={18} />
               </div>
               <div>
@@ -516,7 +516,7 @@ const AdminLiveChat: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search leads by name, gmail, mobile..."
-              className="w-full bg-slate-100 border border-slate-200/80 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-indigo-600 focus:bg-white transition-all font-medium"
+              className="w-full bg-slate-100 border border-slate-200/80 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#e52521] focus:bg-white transition-all font-medium"
             />
           </div>
         </div>
@@ -538,7 +538,7 @@ const AdminLiveChat: React.FC = () => {
                 <div
                   key={s.lead.sessionId}
                   onClick={() => { setActiveSessionId(s.lead.sessionId); setMobileChatOpen(true); }}
-                  className={`p-3.5 cursor-pointer transition-all flex items-start gap-3 relative hover:bg-slate-100/80 ${isSelected ? 'bg-indigo-50/90 border-l-4 border-indigo-600' : ''}`}
+                  className={`p-3.5 cursor-pointer transition-all flex items-start gap-3 relative hover:bg-slate-100/80 ${isSelected ? 'bg-red-50/90 border-l-4 border-[#e52521]' : ''}`}
                 >
                   <div className="w-10 h-10 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center shrink-0 text-xs shadow-xs">
                     {s.lead.name.substring(0, 2).toUpperCase()}
@@ -554,7 +554,7 @@ const AdminLiveChat: React.FC = () => {
 
                     <div className="flex items-center gap-2 mt-0.5 text-[10.5px] text-slate-500">
                       <span className="truncate flex items-center gap-1">
-                        <Mail size={10} className="text-indigo-600 shrink-0" />
+                        <Mail size={10} className="text-[#e52521] shrink-0" />
                         {s.lead.email}
                       </span>
                     </div>
@@ -577,7 +577,7 @@ const AdminLiveChat: React.FC = () => {
                   </div>
 
                   {s.unreadAdminCount > 0 && (
-                    <span className="w-4 h-4 bg-indigo-600 text-white font-bold text-[9px] rounded-full flex items-center justify-center shrink-0 shadow-xs">
+                    <span className="w-4 h-4 bg-[#e52521] text-white font-bold text-[9px] rounded-full flex items-center justify-center shrink-0 shadow-xs">
                       {s.unreadAdminCount}
                     </span>
                   )}
@@ -617,7 +617,7 @@ const AdminLiveChat: React.FC = () => {
                   </div>
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-slate-500 mt-0.5 font-medium">
                     <span className="flex items-center gap-1 truncate">
-                      <Mail size={10} className="text-indigo-600 shrink-0" /> {activeSession.lead.email}
+                      <Mail size={10} className="text-[#e52521] shrink-0" /> {activeSession.lead.email}
                     </span>
                     <span className="flex items-center gap-1 shrink-0">
                       <Phone size={10} className="text-emerald-600 shrink-0" /> {activeSession.lead.phone}
@@ -631,7 +631,7 @@ const AdminLiveChat: React.FC = () => {
               <div className="flex items-center gap-1.5 flex-wrap">
                 <button
                   onClick={initiateAdminCall}
-                  className="flex-1 min-w-[100px] px-2 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] rounded-lg flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                  className="flex-1 min-w-[100px] px-2 py-1.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold text-[11px] rounded-lg flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                   title="Make direct in-app voice call to customer"
                 >
                   <PhoneCall size={12} /> <span>Live Call</span>
@@ -665,7 +665,7 @@ const AdminLiveChat: React.FC = () => {
 
             {/* AI vs Live Mode Banner */}
             <div className="px-3 py-1.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2 text-xs flex-wrap">
-              <Sparkles size={12} className="text-indigo-600 shrink-0" />
+              <Sparkles size={12} className="text-[#e52521] shrink-0" />
               <span className="text-slate-700 font-medium text-[11px]">
                 <strong className="text-slate-900">{activeSession.adminHandled ? "Admin Live" : "AI Standby"}</strong>
                 {' — '}{activeSession.adminHandled ? "Your replies take priority" : "AI assists if admin is away"}
@@ -698,7 +698,7 @@ const AdminLiveChat: React.FC = () => {
                         isUser
                           ? 'bg-slate-900 text-white rounded-tl-none'
                           : isAdmin
-                          ? 'bg-indigo-600 text-white rounded-tr-none'
+                          ? 'bg-[#e52521] text-white rounded-tr-none'
                           : 'bg-white text-slate-800 border border-slate-200/90 rounded-tr-none'
                       }`}>
                         {m.image && (
@@ -712,7 +712,7 @@ const AdminLiveChat: React.FC = () => {
 
                     {!isUser && (
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] mt-0.5 shadow-xs ${
-                        isAdmin ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-white'
+                        isAdmin ? 'bg-[#e52521] text-white' : 'bg-slate-900 text-white'
                       }`}>
                         {isAdmin ? <User size={12} /> : <Bot size={12} />}
                       </div>
@@ -752,12 +752,12 @@ const AdminLiveChat: React.FC = () => {
                 onChange={(e) => setReplyText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendAdminReply()}
                 placeholder={`Reply to ${activeSession.lead.name}...`}
-                className="flex-1 px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-indigo-600 focus:bg-white transition-all font-medium"
+                className="flex-1 px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#e52521] focus:bg-white transition-all font-medium"
               />
               <button
                 onClick={() => handleSendAdminReply()}
                 disabled={!replyText.trim()}
-                className="p-2.5 bg-slate-900 hover:bg-indigo-600 text-white font-bold rounded-xl flex items-center gap-1 transition-all disabled:opacity-40 shrink-0 shadow-xs"
+                className="p-2.5 bg-slate-900 hover:bg-[#e52521] text-white font-bold rounded-xl flex items-center gap-1 transition-all disabled:opacity-40 shrink-0 shadow-xs"
               >
                 <Send size={14} />
               </button>

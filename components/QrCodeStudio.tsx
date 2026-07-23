@@ -456,7 +456,7 @@ export const QrCodeStudio: React.FC = () => {
             onClick={() => { stopScanner(); setActiveSubTab('generate'); }}
             className={`flex-1 pb-3 text-sm font-bold flex items-center justify-center gap-2 border-b-2 transition-all cursor-pointer ${
               activeSubTab === 'generate'
-                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
+                ? 'border-[#e52521] text-[#e52521] dark:text-[#d01f1c]'
                 : 'border-transparent text-slate-400 hover:text-slate-800 dark:hover:text-slate-100'
             }`}
           >
@@ -467,7 +467,7 @@ export const QrCodeStudio: React.FC = () => {
             onClick={() => setActiveSubTab('scan')}
             className={`flex-1 pb-3 text-sm font-bold flex items-center justify-center gap-2 border-b-2 transition-all cursor-pointer ${
               activeSubTab === 'scan'
-                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
+                ? 'border-[#e52521] text-[#e52521] dark:text-[#d01f1c]'
                 : 'border-transparent text-slate-400 hover:text-slate-800 dark:hover:text-slate-100'
             }`}
           >
@@ -488,7 +488,7 @@ export const QrCodeStudio: React.FC = () => {
                   onClick={() => setGenType('text')}
                   className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
                     genType === 'text'
-                      ? 'bg-white dark:bg-slate-950 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                      ? 'bg-white dark:bg-slate-950 text-[#e52521] dark:text-[#d01f1c] shadow-sm'
                       : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                   }`}
                 >
@@ -499,7 +499,7 @@ export const QrCodeStudio: React.FC = () => {
                   onClick={() => setGenType('wifi')}
                   className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
                     genType === 'wifi'
-                      ? 'bg-white dark:bg-slate-950 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                      ? 'bg-white dark:bg-slate-950 text-[#e52521] dark:text-[#d01f1c] shadow-sm'
                       : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                   }`}
                 >
@@ -510,7 +510,7 @@ export const QrCodeStudio: React.FC = () => {
                   onClick={() => setGenType('vcard')}
                   className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
                     genType === 'vcard'
-                      ? 'bg-white dark:bg-slate-950 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                      ? 'bg-white dark:bg-slate-950 text-[#e52521] dark:text-[#d01f1c] shadow-sm'
                       : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                   }`}
                 >
@@ -674,7 +674,7 @@ export const QrCodeStudio: React.FC = () => {
                           </button>
                         </div>
                       ) : (
-                        <label className="flex items-center gap-1.5 text-[10px] font-bold cursor-pointer text-indigo-500 hover:text-indigo-600 w-full py-1">
+                        <label className="flex items-center gap-1.5 text-[10px] font-bold cursor-pointer text-[#e52521] hover:text-[#d01f1c] w-full py-1">
                           <Upload size={12} />
                           <span>Insert Logo</span>
                           <input
@@ -711,7 +711,7 @@ export const QrCodeStudio: React.FC = () => {
               <div className="w-full space-y-3 pt-2">
                 <button
                   onClick={handleDownload}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-3 px-5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                  className="w-full bg-[#e52521] hover:bg-[#d01f1c] dark:bg-[#e52521] dark:hover:bg-[#e52521] text-white font-semibold py-3 px-5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                 >
                   <Download size={16} />
                   Download QR Image (PNG)
@@ -734,7 +734,7 @@ export const QrCodeStudio: React.FC = () => {
               
               <div className="flex justify-between items-center w-full pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
                 <h3 className="text-sm font-bold flex items-center gap-2">
-                  <Camera size={16} className="text-indigo-500" />
+                  <Camera size={16} className="text-[#e52521]" />
                   Live Camera Scanner
                 </h3>
                 
@@ -749,7 +749,7 @@ export const QrCodeStudio: React.FC = () => {
                 ) : (
                   <button
                     onClick={startScanner}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-600 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#e52521] dark:text-[#d01f1c] hover:text-[#d01f1c] cursor-pointer"
                   >
                     <Camera size={14} />
                     Activate Camera
@@ -775,11 +775,11 @@ export const QrCodeStudio: React.FC = () => {
                     <div className="absolute inset-x-0 h-0.5 bg-rose-500 shadow-md shadow-rose-500/50 animate-scan" />
                     
                     {/* Reticle guide overlay */}
-                    <div className="absolute w-48 h-48 border-2 border-indigo-500/50 rounded-2xl flex items-center justify-center">
-                      <div className="w-4 h-4 border-t-2 border-l-2 border-indigo-500 absolute top-0 left-0" />
-                      <div className="w-4 h-4 border-t-2 border-r-2 border-indigo-500 absolute top-0 right-0" />
-                      <div className="w-4 h-4 border-b-2 border-l-2 border-indigo-500 absolute bottom-0 left-0" />
-                      <div className="w-4 h-4 border-b-2 border-r-2 border-indigo-500 absolute bottom-0 right-0" />
+                    <div className="absolute w-48 h-48 border-2 border-[#e52521]/50 rounded-2xl flex items-center justify-center">
+                      <div className="w-4 h-4 border-t-2 border-l-2 border-[#e52521] absolute top-0 left-0" />
+                      <div className="w-4 h-4 border-t-2 border-r-2 border-[#e52521] absolute top-0 right-0" />
+                      <div className="w-4 h-4 border-b-2 border-l-2 border-[#e52521] absolute bottom-0 left-0" />
+                      <div className="w-4 h-4 border-b-2 border-r-2 border-[#e52521] absolute bottom-0 right-0" />
                     </div>
                   </>
                 ) : (
@@ -798,7 +798,7 @@ export const QrCodeStudio: React.FC = () => {
               {/* File scan selector */}
               {!scannerActive && (
                 <div className="mt-6 w-full pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
-                  <label className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-500 hover:text-indigo-600 cursor-pointer bg-slate-50 dark:bg-slate-950 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl">
+                  <label className="inline-flex items-center gap-1.5 text-xs font-bold text-[#e52521] hover:text-[#d01f1c] cursor-pointer bg-slate-50 dark:bg-slate-950 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl">
                     <Upload size={14} />
                     <span>Upload Image to Decode</span>
                     <input
@@ -827,7 +827,7 @@ export const QrCodeStudio: React.FC = () => {
                 <div className="space-y-4">
                   {wifiData ? (
                     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-5 relative overflow-hidden">
-                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-500" />
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-[#e52521]" />
                       
                       <div className="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-slate-800">
                         <div className="flex items-center gap-2.5">
@@ -946,7 +946,7 @@ export const QrCodeStudio: React.FC = () => {
                             href={scanResult}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex-1 inline-flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-600 text-white text-xs font-semibold py-2.5 rounded-xl text-center"
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 bg-[#e52521] hover:bg-[#e52521] text-white text-xs font-semibold py-2.5 rounded-xl text-center"
                           >
                             <LinkIcon size={14} />
                             <span>Open Link Address</span>
@@ -999,8 +999,8 @@ export const QrCodeStudio: React.FC = () => {
                             </div>
                           ) : (
                             <div className="space-y-3">
-                              <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3 text-[11px] text-indigo-700 dark:text-indigo-400 font-semibold leading-relaxed flex items-center gap-2">
-                                <KeyRound size={16} className="shrink-0 text-indigo-500" />
+                              <div className="bg-[#e52521]/10 border border-[#e52521]/20 rounded-xl p-3 text-[11px] text-[#e52521] dark:text-[#d01f1c] font-semibold leading-relaxed flex items-center gap-2">
+                                <KeyRound size={16} className="shrink-0 text-[#e52521]" />
                                 <span>Password copied to clipboard!</span>
                               </div>
                               <div className="space-y-2.5 text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">

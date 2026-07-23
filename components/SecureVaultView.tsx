@@ -52,14 +52,14 @@ const getFileIconInfo = (type: string, name: string) => {
   if (type.startsWith('image/') || ['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext))
     return { icon: FileImage, color: 'text-pink-400', bg: 'bg-pink-500/10', label: 'Image' };
   if (type.startsWith('video/') || ['mp4','mkv','mov','avi','webm'].includes(ext))
-    return { icon: Film, color: 'text-purple-400', bg: 'bg-purple-500/10', label: 'Video' };
+    return { icon: Film, color: 'text-purple-400', bg: 'bg-red-500/10', label: 'Video' };
   if (type.startsWith('audio/') || ['mp3','wav','flac','aac','ogg'].includes(ext))
     return { icon: Music, color: 'text-sky-400', bg: 'bg-sky-500/10', label: 'Audio' };
   if (type === 'application/pdf' || ext === 'pdf')
     return { icon: FileText, color: 'text-red-400', bg: 'bg-red-500/10', label: 'PDF' };
   if (['zip','rar','7z','tar','gz'].includes(ext))
     return { icon: Archive, color: 'text-amber-400', bg: 'bg-amber-500/10', label: 'Archive' };
-  return { icon: File, color: 'text-indigo-400', bg: 'bg-indigo-500/10', label: 'File' };
+  return { icon: File, color: 'text-[#d01f1c]', bg: 'bg-[#e52521]/10', label: 'File' };
 };
 
 // ─── Web Crypto Decrypt ────────────────────────────────────────────────────────
@@ -384,18 +384,18 @@ const SecureVaultView: React.FC<SecureVaultViewProps> = ({ vaultId }) => {
           <div className="text-center space-y-4">
             <div className={`w-20 h-20 rounded-xl mx-auto flex items-center justify-center border transition-all duration-300
               ${stage === 'downloading' || stage === 'decrypting'
-                ? 'bg-indigo-500/10 border-indigo-500/30 scale-105'
+                ? 'bg-[#e52521]/10 border-[#e52521]/30 scale-105'
                 : stage === 'wrong-password'
                   ? 'bg-red-500/10 border-red-500/20'
                   : 'bg-zinc-900 border-zinc-800'
               }`}
             >
               {stage === 'downloading' || stage === 'decrypting' ? (
-                <Loader2 size={32} className="text-indigo-400 animate-spin" />
+                <Loader2 size={32} className="text-[#d01f1c] animate-spin" />
               ) : stage === 'wrong-password' ? (
                 <Lock size={32} className="text-red-400" />
               ) : (
-                <Lock size={32} className="text-indigo-400" />
+                <Lock size={32} className="text-[#d01f1c]" />
               )}
             </div>
 
@@ -498,7 +498,7 @@ const SecureVaultView: React.FC<SecureVaultViewProps> = ({ vaultId }) => {
               onClick={handleUnlock}
               disabled={!password.trim() || stage === 'downloading' || stage === 'decrypting'}
               className="w-full py-3 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2
-                bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white"
+                bg-[#e52521] hover:bg-[#e52521] disabled:opacity-40 disabled:cursor-not-allowed text-white"
             >
               {stage === 'downloading' ? (
                 <><Loader2 size={16} className="animate-spin text-white" /> Downloading... {progress}%</>
@@ -545,7 +545,7 @@ const SecureVaultView: React.FC<SecureVaultViewProps> = ({ vaultId }) => {
             </div>
             <button
               onClick={handleDownload}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-bold transition-all flex-shrink-0 text-white border-none"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#e52521] hover:bg-[#e52521] text-xs font-bold transition-all flex-shrink-0 text-white border-none"
             >
               <Download size={14} />
               <span>Download</span>
@@ -600,7 +600,7 @@ const SecureVaultView: React.FC<SecureVaultViewProps> = ({ vaultId }) => {
                   </div>
                   <button
                     onClick={handleDownload}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-bold transition-all text-white border-none"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-[#e52521] hover:bg-[#e52521] text-xs font-bold transition-all text-white border-none"
                   >
                     <Download size={14} /> Download File
                   </button>
@@ -625,7 +625,7 @@ const SecureVaultView: React.FC<SecureVaultViewProps> = ({ vaultId }) => {
             <button
               onClick={handleDownload}
               className="w-full py-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2
-                bg-indigo-600 hover:bg-indigo-500 text-white"
+                bg-[#e52521] hover:bg-[#e52521] text-white"
             >
               <Download size={18} /> Download {record.fileName}
             </button>
@@ -634,7 +634,7 @@ const SecureVaultView: React.FC<SecureVaultViewProps> = ({ vaultId }) => {
               <p className="text-zinc-500 text-xs font-bold">Want to protect your own files?</p>
               <button
                 onClick={() => navigate('services', 'secure-vault')}
-                className="mt-2 text-indigo-400 hover:text-indigo-300 text-xs font-bold underline underline-offset-2 transition-colors"
+                className="mt-2 text-[#d01f1c] hover:text-red-400 text-xs font-bold underline underline-offset-2 transition-colors"
               >
                 Create a Secure Vault →
               </button>

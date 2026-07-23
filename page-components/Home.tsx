@@ -22,13 +22,41 @@ const Home: React.FC = () => {
       <Navbar />
       <Hero />
       <Overview />
-      <About />
-      <Skills />
       <Services />
       <ServiceTools />
       <AIStudioTeaser />
-      <Timeline />
       <Pricing />
+
+      {/* Meet the Builder Divider */}
+      <div className="relative py-20 bg-slate-950 border-t border-b border-slate-900 text-center overflow-hidden">
+        {/* Code Background Image with Dark Vignette */}
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center opacity-15" 
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1920')" }}
+        />
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950 opacity-90"></div>
+        
+        {/* Central Crimson Ambient Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[250px] bg-red-600/10 rounded-full blur-[80px] z-0 pointer-events-none"></div>
+
+        {/* Diagonal Tech Accents */}
+        <div className="absolute top-0 left-10 w-32 h-[1px] bg-gradient-to-r from-transparent via-[#e52521]/30 to-transparent"></div>
+        <div className="absolute bottom-0 right-10 w-32 h-[1px] bg-gradient-to-r from-transparent via-[#e52521]/30 to-transparent"></div>
+
+        <div className="relative max-w-6xl mx-auto px-4 z-10">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-2 tracking-tight">
+            Meet the Builder Behind the Platform
+          </h2>
+          <p className="text-slate-400 text-xs md:text-sm mt-3.5 max-w-lg mx-auto leading-relaxed font-medium">
+            Explore the developer skills, engineering principles, and experience timeline that power this platform.
+          </p>
+        </div>
+      </div>
+
+      <About />
+      <Skills />
+      <Timeline />
+      
       <Blog />
       <Testimonials />
       <FAQ />

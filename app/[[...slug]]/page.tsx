@@ -106,6 +106,12 @@ export default async function CatchAllPage(props: PageProps) {
             a: "Yes, you can select any PDF file and convert its pages to high-quality JPG or PNG images entirely inside your browser for free."
           }
         ],
+        'pdf-to-word': [
+          {
+            q: "Can I convert PDF pages to editable Word documents?",
+            a: "Yes, you can upload any PDF file and convert it into a fully editable Microsoft Word DOCX document. It supports layout reconstruction and offline OCR for scanned documents."
+          }
+        ],
         'image-compressor': [
           {
             q: "Is the image compression private and secure?",
@@ -569,6 +575,33 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
             title: "PDF to Image Converter | Convert PDF to JPG Online Free",
             description: "Easily extract pages from any PDF document and save them as high-quality JPG images instantly.",
             images: ["https://bishalcodes.com/seo-images/pdf-to-image.png"]
+          }
+        };
+      }
+
+      if (subpage === 'pdf-to-word') {
+        return {
+          title: "PDF to Word Converter | Convert PDF to Word Online Free | Bishal Codes",
+          description: "Free online PDF to Word converter. Convert vector PDF files and scanned paper sheets into fully editable Microsoft Word DOCX files with offline OCR support.",
+          keywords: "PDF to Word, PDF to DOCX, convert PDF to editable document, online PDF tools, OCR converter, free PDF converter, Bishal Codes",
+          alternates: {
+            canonical: "https://bishalcodes.com/tools/pdf-to-word",
+          },
+          openGraph: {
+            title: "PDF to Word Converter | Convert PDF to Word Online Free",
+            description: "Convert vector PDF files and scanned paper sheets into fully editable Microsoft Word DOCX files with offline OCR support.",
+            url: "https://bishalcodes.com/tools/pdf-to-word",
+            siteName: "Bishal Codes",
+            type: "website",
+            images: [{ url: "https://bishalcodes.com/seo-images/pdf-to-word.png", width: 1200, height: 630, alt: "PDF to Word Converter" }],
+          },
+          twitter: {
+            card: "summary_large_image",
+            site: "@bishalmishra",
+            creator: "@bishalmishra",
+            title: "PDF to Word Converter | Convert PDF to Word Online Free",
+            description: "Convert vector PDF files and scanned paper sheets into fully editable Microsoft Word DOCX files with offline OCR support.",
+            images: ["https://bishalcodes.com/seo-images/pdf-to-word.png"]
           }
         };
       }

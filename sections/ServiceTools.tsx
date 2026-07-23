@@ -30,11 +30,11 @@ const ServiceTools: React.FC = () => {
 
   // Curated accent colors per card index for visual variety
   const accents = [
-    { from: '#6366f1', to: '#818cf8', ring: 'ring-indigo-500/30', text: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-50 dark:bg-indigo-500/10' },
+    { from: '#e52521', to: '#ef4444', ring: 'ring-red-500/30', text: 'text-[#e52521] dark:text-red-400', bg: 'bg-red-50 dark:bg-red-500/10' },
     { from: '#f59e0b', to: '#fbbf24', ring: 'ring-amber-500/30', text: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-500/10' },
     { from: '#10b981', to: '#34d399', ring: 'ring-emerald-500/30', text: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
     { from: '#ec4899', to: '#f472b6', ring: 'ring-pink-500/30', text: 'text-pink-600 dark:text-pink-400', bg: 'bg-pink-50 dark:bg-pink-500/10' },
-    { from: '#8b5cf6', to: '#a78bfa', ring: 'ring-violet-500/30', text: 'text-violet-600 dark:text-violet-400', bg: 'bg-violet-50 dark:bg-violet-500/10' },
+    { from: '#0f172a', to: '#475569', ring: 'ring-slate-500/30', text: 'text-slate-900 dark:text-slate-300', bg: 'bg-slate-50 dark:bg-slate-900/40' },
     { from: '#14b8a6', to: '#2dd4bf', ring: 'ring-teal-500/30', text: 'text-teal-600 dark:text-teal-400', bg: 'bg-teal-50 dark:bg-teal-500/10' },
     { from: '#f97316', to: '#fb923c', ring: 'ring-orange-500/30', text: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-500/10' },
     { from: '#0ea5e9', to: '#38bdf8', ring: 'ring-sky-500/30', text: 'text-sky-600 dark:text-sky-400', bg: 'bg-sky-50 dark:bg-sky-500/10' },
@@ -101,7 +101,7 @@ const ServiceTools: React.FC = () => {
         <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 mb-2">
-              <p className="text-indigo-600 font-semibold uppercase tracking-wider text-[10px]">Free Utilities</p>
+              <p className="text-[#e52521] font-semibold uppercase tracking-wider text-[10px]">Free Utilities</p>
             </div>
             <h2 className="text-slate-900 dark:text-white text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
               Developer Tools & Services
@@ -113,7 +113,7 @@ const ServiceTools: React.FC = () => {
 
           <button
             onClick={() => navigate('services')}
-            className="w-fit bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-xs font-semibold shadow-sm transition-colors uppercase tracking-wider shrink-0 flex items-center gap-2"
+            className="w-fit bg-slate-900 dark:bg-[#e52521] hover:bg-slate-800 dark:hover:bg-[#d01f1c] text-white px-5 py-2.5 rounded-lg text-xs font-semibold shadow-sm transition-colors uppercase tracking-wider shrink-0 flex items-center gap-2"
           >
             <Wrench size={14} />
             All Tools
@@ -123,7 +123,7 @@ const ServiceTools: React.FC = () => {
         {/* Content */}
         {loading ? (
           <div className="py-20 text-center">
-            <Loader2 className="animate-spin text-indigo-600 mx-auto" size={28} />
+            <Loader2 className="animate-spin text-[#e52521] mx-auto" size={28} />
             <p className="text-slate-400 mt-3 font-semibold text-xs uppercase tracking-wider">Loading Tools...</p>
           </div>
         ) : displayServices.length === 0 ? (
@@ -142,7 +142,7 @@ const ServiceTools: React.FC = () => {
                     e.preventDefault();
                     navigate('services', service.linkUrl);
                   }}
-                  className="group relative pure-white-card border-2 border-slate-950 dark:border-slate-800 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 hover:border-indigo-600 dark:hover:border-indigo-500 hover:-translate-y-0.5 block"
+                  className="group relative pure-white-card border-2 border-slate-950 dark:border-slate-800 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 hover:border-[#e52521] dark:hover:border-red-500 hover:-translate-y-0.5 block"
                 >
                   {/* Background image overlay (subtle) */}
                   {service.bgImageUrl && (

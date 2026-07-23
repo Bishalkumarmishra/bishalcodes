@@ -25,7 +25,7 @@ const dispatchEditFocus = (el: HTMLElement) => {
 const TechSkillCard: React.FC<TechSkillCardProps> = ({ id, name, icon, onClick, isEditMode, onNameSave }) => {
   return (
     <div 
-      className="p-3 sm:p-4 rounded-xl border border-slate-200 bg-white flex items-center gap-2 sm:gap-3.5 transition-all duration-200 hover:border-indigo-400 hover:shadow-sm cursor-pointer"
+      className="p-3 sm:p-4 rounded-xl border border-slate-200 bg-white flex items-center gap-2 sm:gap-3.5 transition-all duration-200 hover:border-red-400 hover:shadow-sm cursor-pointer"
       onClick={() => !isEditMode && onClick(id, name)}
     >
       <img src={icon} alt={name} className="w-6 h-6 sm:w-8 sm:h-8 object-contain shrink-0" />
@@ -176,7 +176,7 @@ const SkillDetailModal: React.FC<SkillDetailModalProps> = ({ mainTitle, icon, su
                 <ul className="space-y-2 text-slate-600 text-sm md:text-base font-normal">
                   {topic.subContent.map((item, itemIndex) => (
                     <li key={itemIndex} className="flex items-start gap-2.5">
-                      <CheckCircle2 size={16} className="text-indigo-600 shrink-0 mt-0.5" />
+                      <CheckCircle2 size={16} className="text-[#e52521] shrink-0 mt-0.5" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -188,7 +188,7 @@ const SkillDetailModal: React.FC<SkillDetailModalProps> = ({ mainTitle, icon, su
           {/* AI Learning Assistant Section */}
           <div className="pt-6 mt-6 border-t border-slate-200">
             <div className="flex items-center gap-2 mb-4">
-              <Bot size={20} className="text-indigo-600" />
+              <Bot size={20} className="text-[#e52521]" />
               <h3 className="text-base font-bold text-slate-900 tracking-tight">AI Learning Assistant</h3>
             </div>
 
@@ -209,7 +209,7 @@ const SkillDetailModal: React.FC<SkillDetailModalProps> = ({ mainTitle, icon, su
               {aiLoading && (
                 <div className="flex justify-start">
                   <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm">
-                    <Loader2 className="animate-spin text-indigo-600" size={14} />
+                    <Loader2 className="animate-spin text-[#e52521]" size={14} />
                   </div>
                 </div>
               )}
@@ -222,7 +222,7 @@ const SkillDetailModal: React.FC<SkillDetailModalProps> = ({ mainTitle, icon, su
                 onChange={(e) => setAiInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAiSend()}
                 placeholder={`Ask about ${selectedSkillName}...`}
-                className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-indigo-500 placeholder:text-slate-400 font-normal"
+                className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-[#e52521] placeholder:text-slate-400 font-normal"
                 disabled={aiLoading}
               />
               <button 
@@ -247,10 +247,10 @@ const Overview: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
 
   const [overviewData, setOverviewData] = useState({
-    tag: 'Introduction',
-    title: 'Overview',
-    bioParagraph1: 'As a Full-Stack Developer, I focus on building responsive, highly functional web ecosystems. My passion lies in engineering robust backend architectures paired with clean, accessible frontends.',
-    bioParagraph2: 'I collaborate with businesses to deploy software solutions that solve real-world problems, with codebases that are optimized for performance, scalability, and long-term maintainability.',
+    tag: 'Platform Architecture',
+    title: 'Privacy & Client-Side Edge Power',
+    bioParagraph1: 'Bishal Codes Developer Suite is designed to bring premium software services directly to your browser. By running file compression, cryptographic vaults, PDF compilation, and schema checking locally, your data never leaves your device.',
+    bioParagraph2: 'We bridge browser-based execution with high-throughput backend APIs to offer secure, latency-free developer workflows without compromising data privacy or requiring expensive server resources.',
     coreTechTitle: 'Core Technologies',
     coreTechnologies: [
       { id: "javascript", name: "JavaScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" },
@@ -280,10 +280,10 @@ const Overview: React.FC = () => {
         if (snap.exists() && isMounted) {
           const data = snap.data();
           setOverviewData({
-            tag: data.tag || 'Introduction',
-            title: data.title || 'Overview',
-            bioParagraph1: data.bioParagraph1 || 'As a Full-Stack Developer, I focus on building responsive, highly functional web ecosystems. My passion lies in engineering robust backend architectures paired with clean, accessible frontends.',
-            bioParagraph2: data.bioParagraph2 || 'I collaborate with businesses to deploy software solutions that solve real-world problems, with codebases that are optimized for performance, scalability, and long-term maintainability.',
+            tag: data.tag || 'Platform Architecture',
+            title: data.title || 'Privacy & Client-Side Edge Power',
+            bioParagraph1: data.bioParagraph1 || 'Bishal Codes Developer Suite is designed to bring premium software services directly to your device. By running file compression, cryptographic vaults, PDF compilation, and schema checking locally, your data never leaves your browser.',
+            bioParagraph2: data.bioParagraph2 || 'We bridge browser-based execution with high-throughput backend APIs to offer secure, latency-free developer workflows without compromising data privacy or requiring expensive server resources.',
             coreTechTitle: data.coreTechTitle || 'Core Technologies',
             coreTechnologies: data.coreTechnologies || [
               { id: "javascript", name: "JavaScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" },
@@ -578,7 +578,7 @@ const Overview: React.FC = () => {
             onBlur={(e) => handleInlineSave('tag', e.currentTarget.textContent || '')}
             onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
             onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
-            className={`text-indigo-600 font-semibold text-xs uppercase tracking-wider mb-2 w-fit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+            className={`text-[#e52521] font-semibold text-xs uppercase tracking-wider mb-2 w-fit ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
           >
             {overviewData.tag}
           </p>

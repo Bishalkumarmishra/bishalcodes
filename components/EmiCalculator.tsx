@@ -189,7 +189,7 @@ export const EmiCalculator: React.FC = () => {
             
             <div className="pb-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <h2 className="text-base font-bold flex items-center gap-2">
-                <Landmark size={18} className="text-indigo-500" />
+                <Landmark size={18} className="text-[#e52521]" />
                 Loan Parameters
               </h2>
               <div className="flex bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200/50 dark:border-slate-700">
@@ -197,7 +197,7 @@ export const EmiCalculator: React.FC = () => {
                   onClick={() => { setTenureType('years'); if (tenure > 30) setTenure(5); }}
                   className={`px-2.5 py-1 text-[10px] font-black uppercase rounded-md transition-colors ${
                     tenureType === 'years'
-                      ? 'bg-white dark:bg-slate-950 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                      ? 'bg-white dark:bg-slate-950 text-[#e52521] dark:text-[#d01f1c] shadow-sm'
                       : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-250'
                   }`}
                 >
@@ -207,7 +207,7 @@ export const EmiCalculator: React.FC = () => {
                   onClick={() => { setTenureType('months'); setTenure(Math.min(360, tenure * 12)); }}
                   className={`px-2.5 py-1 text-[10px] font-black uppercase rounded-md transition-colors ${
                     tenureType === 'months'
-                      ? 'bg-white dark:bg-slate-950 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                      ? 'bg-white dark:bg-slate-950 text-[#e52521] dark:text-[#d01f1c] shadow-sm'
                       : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-250'
                   }`}
                 >
@@ -220,7 +220,7 @@ export const EmiCalculator: React.FC = () => {
             <div className="space-y-2">
               <div className="flex justify-between text-xs font-bold">
                 <span className="text-slate-500 dark:text-slate-400">Loan Amount (रू)</span>
-                <span className="text-indigo-600 dark:text-indigo-400">{formatCurrency(loanAmount)}</span>
+                <span className="text-[#e52521] dark:text-[#d01f1c]">{formatCurrency(loanAmount)}</span>
               </div>
               <input
                 type="range"
@@ -229,7 +229,7 @@ export const EmiCalculator: React.FC = () => {
                 step="10000"
                 value={loanAmount}
                 onChange={(e) => setLoanAmount(parseInt(e.target.value))}
-                className="w-full accent-indigo-600 dark:accent-indigo-500 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer"
+                className="w-full accent-[#e52521] dark:accent-red-500 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer"
               />
               <div className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center overflow-hidden">
                 <span className="pl-3.5 text-slate-400"><DollarSign size={14} /></span>
@@ -248,7 +248,7 @@ export const EmiCalculator: React.FC = () => {
             <div className="space-y-2">
               <div className="flex justify-between text-xs font-bold">
                 <span className="text-slate-500 dark:text-slate-400">Interest Rate (%)</span>
-                <span className="text-indigo-600 dark:text-indigo-400">{interestRate}% p.a.</span>
+                <span className="text-[#e52521] dark:text-[#d01f1c]">{interestRate}% p.a.</span>
               </div>
               <input
                 type="range"
@@ -257,7 +257,7 @@ export const EmiCalculator: React.FC = () => {
                 step="0.05"
                 value={interestRate}
                 onChange={(e) => setInterestRate(parseFloat(e.target.value))}
-                className="w-full accent-indigo-600 dark:accent-indigo-500 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer"
+                className="w-full accent-[#e52521] dark:accent-red-500 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer"
               />
               <div className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center overflow-hidden">
                 <span className="pl-3.5 text-slate-400"><Percent size={14} /></span>
@@ -277,7 +277,7 @@ export const EmiCalculator: React.FC = () => {
             <div className="space-y-2">
               <div className="flex justify-between text-xs font-bold">
                 <span className="text-slate-500 dark:text-slate-400">Tenure ({tenureType})</span>
-                <span className="text-indigo-600 dark:text-indigo-400">
+                <span className="text-[#e52521] dark:text-[#d01f1c]">
                   {tenure} {tenureType === 'years' ? (tenure === 1 ? 'Year' : 'Years') : (tenure === 1 ? 'Month' : 'Months')}
                 </span>
               </div>
@@ -287,7 +287,7 @@ export const EmiCalculator: React.FC = () => {
                 max={tenureType === 'years' ? 30 : 360}
                 value={tenure}
                 onChange={(e) => setTenure(parseInt(e.target.value))}
-                className="w-full accent-indigo-600 dark:accent-indigo-500 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer"
+                className="w-full accent-[#e52521] dark:accent-red-500 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer"
               />
               <div className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center overflow-hidden">
                 <span className="pl-3.5 text-slate-400"><Calendar size={14} /></span>
@@ -325,7 +325,7 @@ export const EmiCalculator: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div className="space-y-0.5">
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded bg-indigo-500 shrink-0 inline-block" />
+                      <span className="w-2.5 h-2.5 rounded bg-[#e52521] shrink-0 inline-block" />
                       Principal Amount
                     </div>
                     <div className="text-sm font-bold text-slate-800 dark:text-slate-100">
@@ -361,7 +361,7 @@ export const EmiCalculator: React.FC = () => {
                       cx="50"
                       cy="50"
                       r="40"
-                      className="text-indigo-600 dark:text-indigo-500"
+                      className="text-[#e52521] dark:text-[#e52521]"
                       strokeWidth="11"
                       stroke="currentColor"
                       fill="transparent"
@@ -388,7 +388,7 @@ export const EmiCalculator: React.FC = () => {
                 </div>
                 
                 <div className="flex gap-4 mt-4 text-[10px] font-bold text-slate-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-indigo-600" />Principal</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-[#e52521]" />Principal</span>
                   <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-amber-500" />Interest</span>
                 </div>
               </div>
@@ -400,7 +400,7 @@ export const EmiCalculator: React.FC = () => {
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Amortization Ledger</h3>
               <button 
                 onClick={handlePrint}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3.5 py-2 rounded-xl cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-[#d01f1c] dark:hover:text-[#d01f1c] transition-colors bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3.5 py-2 rounded-xl cursor-pointer"
               >
                 <Printer size={14} />
                 Print Statement
@@ -430,7 +430,7 @@ export const EmiCalculator: React.FC = () => {
                           className="hover:bg-slate-50/40 dark:hover:bg-slate-800/20 transition-colors cursor-pointer select-none font-semibold text-slate-900 dark:text-slate-250 group print:bg-slate-50"
                         >
                           <td className="py-4 px-5 flex items-center gap-2">
-                            <span className="text-slate-400 dark:text-slate-500 group-hover:text-indigo-500 font-bold">
+                            <span className="text-slate-400 dark:text-slate-500 group-hover:text-[#e52521] font-bold">
                               {expandedYear === yr.year ? '▼' : '▶'}
                             </span>
                             Year {yr.year}

@@ -7,6 +7,7 @@ import JpgToPdfConverter from '../components/JpgToPdfConverter';
 import PdfMerger from '../components/PdfMerger';
 import PdfPageNumberAdder from '../components/PdfPageNumberAdder';
 import PdfToImageConverter from '../components/PdfToImageConverter';
+import { PdfToWordConverter } from '../components/PdfToWordConverter';
 import AiSummarizer from '../components/AiSummarizer';
 import ImageCompressor from '../components/ImageCompressor';
 import EmiCalculator from '../components/EmiCalculator';
@@ -88,6 +89,11 @@ const toolSeoData: Record<string, { title: string; desc: string; keywords: strin
     title: 'PDF to Image Converter - Extract Pages as JPG/PNG',
     desc: 'Extract all pages from any PDF document and download them as high-quality PNG or JPG image archives. Runs 100% client-side.',
     keywords: ['pdf to image converter', 'extract pdf pages', 'pdf to jpg zip', 'convert pdf to png', 'local pdf extraction']
+  },
+  'pdf-to-word': {
+    title: 'PDF to Word Converter - Edit PDF Text Online',
+    desc: 'Convert any PDF document to fully editable Microsoft Word DOCX files. Running 100% client-side with native layout reconstruction and built-in OCR.',
+    keywords: ['pdf to word converter', 'convert pdf to docx', 'convert scanned pdf to editable word', 'local pdf to word ocr', 'pdf converter']
   },
   'ai-summarizer': {
     title: 'AI Document Summarizer - PDF Abstract Generator',
@@ -229,20 +235,28 @@ const STATIC_TOOLS: StaticTool[] = [
     badge: 'REAL TIME',
     accentColor: 'indigo',
   },
+  {
+    id: 'pdf-to-word',
+    name: 'PDF to Word Converter',
+    emoji: '📝',
+    description: 'Convert PDF documents into fully editable Microsoft Word DOCX files with native layout reconstruction and offline client-side OCR.',
+    badge: 'NEW',
+    accentColor: 'indigo',
+  },
 ];
 
 // ─── Accent color map ────────────────────────────────────────────────────────
 const ACCENT: Record<string, { border: string; hoverBorder: string; glow: string; bg: string; iconBg: string; iconBorder: string; text: string; badgeBg: string; badgeText: string }> = {
   indigo: {
     border: 'border-slate-950 dark:border-slate-800',
-    hoverBorder: 'hover:border-indigo-500 dark:hover:border-indigo-400',
-    glow: 'rgba(99,102,241,0.07)',
-    bg: 'bg-indigo-50 dark:bg-indigo-500/10',
-    iconBg: 'bg-indigo-50 dark:bg-indigo-500/10',
-    iconBorder: 'border-indigo-100 dark:border-indigo-800/40',
-    text: 'text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700',
-    badgeBg: 'bg-indigo-100 dark:bg-indigo-900/50',
-    badgeText: 'text-indigo-700 dark:text-indigo-300',
+    hoverBorder: 'hover:border-[#e52521] dark:hover:border-red-500',
+    glow: 'rgba(229,37,33,0.07)',
+    bg: 'bg-red-50 dark:bg-[#e52521]/10',
+    iconBg: 'bg-red-50 dark:bg-[#e52521]/10',
+    iconBorder: 'border-red-100 dark:border-red-800/40',
+    text: 'text-[#e52521] dark:text-[#d01f1c] group-hover:text-red-600',
+    badgeBg: 'bg-red-100 dark:bg-red-900/50',
+    badgeText: 'text-red-700 dark:text-red-300',
   },
   emerald: {
     border: 'border-slate-950 dark:border-slate-800',
@@ -259,11 +273,11 @@ const ACCENT: Record<string, { border: string; hoverBorder: string; glow: string
     border: 'border-slate-950 dark:border-slate-800',
     hoverBorder: 'hover:border-purple-500 dark:hover:border-purple-400',
     glow: 'rgba(168,85,247,0.06)',
-    bg: 'bg-purple-50 dark:bg-purple-500/10',
-    iconBg: 'bg-purple-50 dark:bg-purple-500/10',
+    bg: 'bg-red-50 dark:bg-red-500/10',
+    iconBg: 'bg-red-50 dark:bg-red-500/10',
     iconBorder: 'border-purple-100 dark:border-purple-800/40',
-    text: 'text-purple-600 dark:text-purple-400 group-hover:text-purple-700',
-    badgeBg: 'bg-purple-100 dark:bg-purple-900/50',
+    text: 'text-[#e52521] dark:text-purple-400 group-hover:text-purple-700',
+    badgeBg: 'bg-red-100 dark:bg-purple-900/50',
     badgeText: 'text-purple-700 dark:text-purple-300',
   },
   amber: {
@@ -369,7 +383,7 @@ const DynCard: React.FC<DynCardProps> = ({ service, pinned, onPin, onOpen, compa
     href={`/tools/${service.linkUrl}`}
     id={`tool-card-${service.linkUrl}`}
     onClick={(e) => { e.preventDefault(); onOpen(service.linkUrl); }}
-    className={`group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-4 sm:p-5 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden ${compact ? 'min-h-[180px]' : 'min-h-[200px] sm:min-h-[220px]'} hover:border-indigo-600 dark:hover:border-indigo-500 block`}
+    className={`group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-4 sm:p-5 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden ${compact ? 'min-h-[180px]' : 'min-h-[200px] sm:min-h-[220px]'} hover:border-[#e52521] dark:hover:border-[#e52521] block`}
   >
     {service.bgImageUrl && (
       <div
@@ -398,15 +412,15 @@ const DynCard: React.FC<DynCardProps> = ({ service, pinned, onPin, onOpen, compa
       </div>
       <div className="space-y-1">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{service.title}</h3>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#e52521] dark:group-hover:text-[#d01f1c] transition-colors">{service.title}</h3>
           {service.badge && (
-            <span className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full">{service.badge}</span>
+            <span className="bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full">{service.badge}</span>
           )}
         </div>
         <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-[13px] leading-relaxed font-medium">{service.description}</p>
       </div>
     </div>
-    <div className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors relative z-10">
+    <div className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 group-hover:text-[#e52521] dark:group-hover:text-[#d01f1c] transition-colors relative z-10">
       <span>Open Tool</span>
       <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
     </div>
@@ -471,7 +485,7 @@ const ServicesPage: React.FC = () => {
         const snap = await getDocs(q);
         setServices(snap.docs
           .map(doc => ({ id: doc.id, ...doc.data() } as ServiceTool))
-          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover' && service.linkUrl !== 'scan-pdf')
+          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover' && service.linkUrl !== 'scan-pdf' && service.linkUrl !== 'pdf-to-word')
         );
       } catch (err) {
         console.error("Failed to fetch services", err);
@@ -587,6 +601,7 @@ const ServicesPage: React.FC = () => {
       case 'merge-pdf': return <PdfMerger />;
       case 'add-page-numbers': return <PdfPageNumberAdder />;
       case 'pdf-to-image': return <PdfToImageConverter />;
+      case 'pdf-to-word': return <PdfToWordConverter />;
       case 'ai-summarizer': return <AiSummarizer />;
       case 'image-compressor': return <ImageCompressor />;
       case 'emi-calculator': return <EmiCalculator />;
@@ -695,7 +710,7 @@ const ServicesPage: React.FC = () => {
         )}
         {loading ? (
           <div className="flex justify-center items-center h-full pt-10">
-            <Loader2 className="animate-spin text-indigo-600" size={32} />
+            <Loader2 className="animate-spin text-[#e52521]" size={32} />
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 w-full max-w-none">
@@ -734,7 +749,7 @@ const ServicesPage: React.FC = () => {
   const isFullBleed = selectedId === 'file-transfer' || selectedId === 'font-downloader' || selectedId === 'ocr-converter' || selectedId === 'bg-remover' || selectedId === 'scan-pdf';
 
   return (
-    <div className="min-h-screen bg-[#FDF9F3] dark:bg-slate-950 font-sans transition-colors duration-300 selection:bg-indigo-500/30 flex flex-col justify-between">
+    <div className="min-h-screen bg-[#FDF9F3] dark:bg-slate-950 font-sans transition-colors duration-300 selection:bg-[#e52521]/30 flex flex-col justify-between">
       {!isEmbed && <Navbar />}
       <main className={`w-full flex-grow flex flex-col ${isEmbed ? 'pt-0 pb-0 mt-0' : isFullBleed ? 'pt-0 pb-0' : selectedId ? 'pt-0 pb-12' : 'pb-12 pt-20 sm:pt-28'}`}>
         {renderActiveService()}

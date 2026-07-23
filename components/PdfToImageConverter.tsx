@@ -34,7 +34,7 @@ export const PdfToImageConverter: React.FC = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
-  const handleFiles = useCallback((files: FileList | null) => {
+  const handleFiles = useCallback((files: FileList | File[] | null) => {
     if (!files || files.length === 0) return;
     setError(null);
     
@@ -188,7 +188,7 @@ export const PdfToImageConverter: React.FC = () => {
                 </div>
                 
                 <div className="group flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 rounded-lg">
-                  <div className="w-10 h-10 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded bg-red-100 dark:bg-red-950/30 text-[#e52521] dark:text-[#d01f1c] flex items-center justify-center shrink-0">
                     <FileImage size={20} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -206,13 +206,13 @@ export const PdfToImageConverter: React.FC = () => {
                     <div className="flex gap-3">
                       <button 
                         onClick={() => setFormat('jpeg')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${format === 'jpeg' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-500' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${format === 'jpeg' ? 'border-[#e52521] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-[#d01f1c] dark:border-[#e52521]' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                       >
                         <ImageIcon size={16} /> JPG
                       </button>
                       <button 
                         onClick={() => setFormat('png')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${format === 'png' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-500' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${format === 'png' ? 'border-[#e52521] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-[#d01f1c] dark:border-[#e52521]' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                       >
                         <ImageIcon size={16} /> PNG
                       </button>
@@ -224,13 +224,13 @@ export const PdfToImageConverter: React.FC = () => {
                     <div className="flex gap-3">
                       <button 
                         onClick={() => setQuality(1)}
-                        className={`flex-1 flex justify-center items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${quality === 1 ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-500' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                        className={`flex-1 flex justify-center items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${quality === 1 ? 'border-[#e52521] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-[#d01f1c] dark:border-[#e52521]' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                       >
                         Standard
                       </button>
                       <button 
                         onClick={() => setQuality(2)}
-                        className={`flex-1 flex justify-center items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${quality === 2 ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-500' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                        className={`flex-1 flex justify-center items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${quality === 2 ? 'border-[#e52521] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-[#d01f1c] dark:border-[#e52521]' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                       >
                         High (HD)
                       </button>
@@ -256,8 +256,8 @@ export const PdfToImageConverter: React.FC = () => {
                     !pdf
                       ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed' 
                       : isGenerating 
-                        ? 'bg-indigo-600/70 text-white cursor-wait'
-                        : 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer shadow-sm'
+                        ? 'bg-[#e52521]/70 text-white cursor-wait'
+                        : 'bg-[#e52521] hover:bg-[#d01f1c] text-white cursor-pointer shadow-sm'
                   }`}
                 >
                   {isGenerating ? (

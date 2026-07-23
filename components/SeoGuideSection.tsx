@@ -309,6 +309,48 @@ const GUIDES_DATABASE: Record<string, GuideData> = {
       }
     ]
   },
+  'pdf-to-word': {
+    title: "Sleek and Fast PDF to Word Converter",
+    subtitle: "Convert PDF files into fully editable Microsoft Word DOCX files with native layout preservation and offline client-side OCR.",
+    sections: [
+      {
+        title: "Native Layout Reconstruction",
+        icon: "📄",
+        content: [
+          "Our offline tool reads the structural elements (such as vector lines, fonts, and text items) directly from your PDF and translates them into matching Word paragraph and style formats.",
+          "Unlike standard screenshot converters that generate flat images, our tool preserves font styles, bold/italic weights, paragraph breaks, and text spacings, giving you a real editable document.",
+          "This local method is lightning-fast and respects your data privacy since files are never uploaded to our servers."
+        ]
+      },
+      {
+        title: "Client-Side OCR Processing",
+        icon: "🔍",
+        content: [
+          "If you upload scanned paper sheets or image-based PDFs, you can select the 'OCR Engine' option. This runs Optical Character Recognition directly in your browser sandbox.",
+          "The OCR engine reads letters and lines, converts them into digital text strings, and packs them cleanly into DOCX paragraphs.",
+          "This ensures that scanned text is fully searchable and editable inside Microsoft Word."
+        ]
+      }
+    ],
+    faqs: [
+      {
+        q: "Are my PDF documents uploaded to any external server?",
+        a: "No. The entire conversion process (layout reconstruction and OCR engine) runs 100% locally in your browser sandbox. None of your data is ever uploaded or stored."
+      },
+      {
+        q: "Will the formatting and layout be identical to the PDF?",
+        a: "Our parser reconstructs headings, paragraphs, bold/italic text, and line breaks. While minor font offsets can occur depending on system fonts, the resulting text and images are fully editable."
+      },
+      {
+        q: "Can I convert scanned PDFs?",
+        a: "Yes. Simply choose the 'OCR Engine' setting. It will run high-performance optical character recognition on the pages to extract text."
+      },
+      {
+        q: "What file format is downloaded?",
+        a: "The tool generates a standard `.docx` document which is fully compatible with Microsoft Word, Google Docs, and LibreOffice."
+      }
+    ]
+  },
   'dev-card-studio': {
     title: "Developer Card & OpenGraph Social Banner Studio",
     subtitle: "Design stunning social preview cards, GitHub README headers, and LinkedIn cover banners with real-time visual canvas controls.",
@@ -1082,7 +1124,7 @@ export const SeoGuideSection: React.FC<SeoGuideSectionProps> = ({ toolId }) => {
                   className="w-full flex items-center justify-between p-4 font-semibold text-slate-855 dark:text-white text-sm sm:text-base hover:bg-slate-50 dark:hover:bg-slate-800/40 text-left transition-colors cursor-pointer"
                 >
                   <span>{faq.q}</span>
-                  <span className="text-indigo-500 dark:text-indigo-400 font-bold ml-4">
+                  <span className="text-[#e52521] dark:text-[#d01f1c] font-bold ml-4">
                     {openFaqIdx === i ? '−' : '+'}
                   </span>
                 </button>

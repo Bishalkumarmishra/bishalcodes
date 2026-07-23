@@ -931,7 +931,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                     placeholder="Search docs..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-9 pr-3 text-xs font-normal text-slate-800 placeholder-slate-400 outline-none focus:border-indigo-600 transition-colors"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-9 pr-3 text-xs font-normal text-slate-800 placeholder-slate-400 outline-none focus:border-[#e52521] transition-colors"
                   />
                   <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
@@ -958,14 +958,14 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                                   id={`docs-nav-link-${sec.id}`}
                                   onClick={() => handleSectionSelect(sec.id)}
                                   className={`w-full text-left px-2 py-1.5 rounded-md text-xs font-medium transition-all flex items-center justify-between group ${isActive
-                                      ? 'bg-slate-100 dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 font-semibold'
+                                      ? 'bg-slate-100 dark:bg-slate-900 text-[#e52521] dark:text-[#d01f1c] font-semibold'
                                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/40 hover:text-slate-900 dark:hover:text-slate-200'
                                     }`}
                                 >
                                   <span>{sec.title}</span>
                                   <ChevronRight
                                     size={12}
-                                    className={`opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'text-indigo-600 opacity-100' : 'text-slate-400'
+                                    className={`opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'text-[#e52521] opacity-100' : 'text-slate-400'
                                       }`}
                                   />
                                 </button>
@@ -987,14 +987,14 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                 {/* Mobile Navigation Header Trigger */}
                 <div className="lg:hidden mb-6 flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg p-3 shadow-sm">
                   <div className="flex items-center gap-2">
-                    <BookOpen size={16} className="text-indigo-600" />
+                    <BookOpen size={16} className="text-[#e52521]" />
                     <span className="text-xs font-semibold text-slate-800">
                       {activeSection.title}
                     </span>
                   </div>
                   <button
                     onClick={() => setIsMobileSidebarOpen(true)}
-                    className="bg-indigo-600 text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-indigo-700 transition-colors shadow-sm"
+                    className="bg-[#e52521] text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-[#d01f1c] transition-colors shadow-sm"
                   >
                     Topics
                   </button>
@@ -1002,9 +1002,9 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
 
                 {/* Breadcrumb */}
                 <div className="mb-4 text-xs text-slate-500 flex items-center gap-1.5 flex-wrap">
-                  <span onClick={() => navigate('home')} className="cursor-pointer hover:text-indigo-600 transition-colors">Home</span>
+                  <span onClick={() => navigate('home')} className="cursor-pointer hover:text-[#d01f1c] transition-colors">Home</span>
                   <ChevronRight size={10} className="text-slate-400" />
-                  <span onClick={() => navigate('docs')} className="cursor-pointer hover:text-indigo-600 transition-colors">Docs</span>
+                  <span onClick={() => navigate('docs')} className="cursor-pointer hover:text-[#d01f1c] transition-colors">Docs</span>
                   <ChevronRight size={10} className="text-slate-400" />
                   <span className="text-slate-800 font-medium">{activeSection.category}</span>
                 </div>
@@ -1025,7 +1025,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                 {activeSection.id === 'developer-apis' && (
                   <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 mb-8 shadow-sm">
                     <p className="text-[10px] font-bold text-slate-555 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                      <Terminal size={12} className="text-indigo-600" />
+                      <Terminal size={12} className="text-[#e52521]" />
                       API Platform Architecture Flow Diagram
                     </p>
                     <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-center">
@@ -1035,8 +1035,8 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                       </div>
                       <div className="text-slate-400 text-xs font-bold leading-none select-none hidden md:block">➔</div>
                       <div className="text-slate-400 text-xs font-bold leading-none select-none md:hidden">▼</div>
-                      <div className="flex-grow p-3 bg-indigo-50 border border-indigo-200 rounded-lg w-full md:w-auto">
-                        <div className="text-[9px] font-bold text-indigo-600 uppercase tracking-wider">Auth Gate (validateApiKey)</div>
+                      <div className="flex-grow p-3 bg-red-50 border border-red-200 rounded-lg w-full md:w-auto">
+                        <div className="text-[9px] font-bold text-[#e52521] uppercase tracking-wider">Auth Gate (validateApiKey)</div>
                         <div className="text-[11px] font-bold text-slate-700 mt-1">Checks origin / bc_prod_ key</div>
                       </div>
                       <div className="text-slate-400 text-xs font-bold leading-none select-none hidden md:block">➔</div>
@@ -1077,7 +1077,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
 
                 {/* Quick Info Box Callout */}
                 <div className="mt-8 p-4 bg-slate-50 border border-slate-200 rounded-lg flex items-start gap-3">
-                  <AlertCircle className="text-indigo-600 shrink-0 mt-0.5" size={16} />
+                  <AlertCircle className="text-[#e52521] shrink-0 mt-0.5" size={16} />
                   <div className="space-y-1">
                     <h5 className="text-xs font-bold text-slate-900">Need Further Custom Specifications?</h5>
                     <p className="text-slate-500 text-xs font-normal leading-relaxed">
@@ -1085,7 +1085,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                     </p>
                     <button
                       onClick={() => navigate('contact')}
-                      className="text-indigo-600 hover:text-indigo-700 font-semibold text-xs transition-colors inline-flex items-center gap-1 mt-1.5"
+                      className="text-[#e52521] hover:text-indigo-700 font-semibold text-xs transition-colors inline-flex items-center gap-1 mt-1.5"
                     >
                       Go to Contact Page <ExternalLink size={12} />
                     </button>
@@ -1120,7 +1120,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
               placeholder="Search docs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-9 pr-3 text-xs font-normal text-slate-800 placeholder-slate-400 outline-none focus:border-indigo-600 transition-colors"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-9 pr-3 text-xs font-normal text-slate-800 placeholder-slate-400 outline-none focus:border-[#e52521] transition-colors"
             />
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           </div>
@@ -1149,12 +1149,12 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
                               setIsMobileSidebarOpen(false);
                             }}
                             className={`w-full text-left px-2 py-1.5 rounded-md text-xs font-medium transition-all flex items-center justify-between ${isActive
-                                ? 'bg-slate-100 dark:bg-slate-900 text-indigo-650 dark:text-indigo-400 font-semibold'
+                                ? 'bg-slate-100 dark:bg-slate-900 text-indigo-650 dark:text-[#d01f1c] font-semibold'
                                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/40 hover:text-slate-900 dark:hover:text-slate-205'
                               }`}
                           >
                             <span>{sec.title}</span>
-                            <ChevronRight size={12} className={isActive ? 'text-indigo-600' : 'text-slate-400'} />
+                            <ChevronRight size={12} className={isActive ? 'text-[#e52521]' : 'text-slate-400'} />
                           </button>
                         </li>
                       );

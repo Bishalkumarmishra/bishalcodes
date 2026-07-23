@@ -89,8 +89,8 @@ const Navbar: React.FC = () => {
 
   const navLinks: { name: string; id: PathPage; icon: React.ReactNode }[] = [
     { name: 'Home', id: 'home', icon: <Home size={16} /> },
-    { name: 'About', id: 'about', icon: <User size={16} /> },
-    { name: 'Work', id: 'projects', icon: <Briefcase size={16} /> },
+    { name: 'Creator', id: 'about', icon: <User size={16} /> },
+    { name: 'Showcase', id: 'projects', icon: <Briefcase size={16} /> },
     { name: 'Blogs', id: 'blog', icon: <FileText size={16} /> },
     { name: 'Docs', id: 'docs', icon: <BookOpen size={16} /> },
     { name: 'APIs', id: 'developers', icon: <Terminal size={16} /> },
@@ -182,7 +182,7 @@ const Navbar: React.FC = () => {
                         className={`${textLinkClass(isServicesActive)} flex items-center gap-1`}
                         onClick={() => handleLinkClick('services')}
                       >
-                        <span>Services</span>
+                        <span>Products</span>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${servicesDropdownOpen ? 'rotate-180' : ''}`}>
                           <polyline points="6 9 12 15 18 9" />
                         </svg>
@@ -308,7 +308,7 @@ const Navbar: React.FC = () => {
               <div className={`p-1 rounded-full transition-all ${theme === 'light' ? 'bg-amber-500 text-white shadow-sm' : 'text-slate-500'}`}>
                 <Sun size={12} />
               </div>
-              <div className={`p-1 rounded-full transition-all ${theme === 'dark' ? 'bg-indigo-500 text-white shadow-sm' : 'text-slate-500'}`}>
+              <div className={`p-1 rounded-full transition-all ${theme === 'dark' ? 'bg-[#e52521] text-white shadow-sm' : 'text-slate-500'}`}>
                 <Moon size={12} />
               </div>
             </button>
@@ -475,7 +475,7 @@ const Navbar: React.FC = () => {
             ) : (
               <button 
                 onClick={() => handleLinkClick('login')} 
-                className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium text-sm hover:bg-indigo-700 transition-colors shadow-sm animate-none"
+                className="w-full bg-[#e52521] text-white py-3 rounded-lg font-medium text-sm hover:bg-[#d01f1c] transition-colors shadow-sm animate-none"
               >
                 Client Access Portal
               </button>

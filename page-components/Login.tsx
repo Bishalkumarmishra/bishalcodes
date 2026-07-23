@@ -297,7 +297,7 @@ const Login: React.FC = () => {
     if (platform.isIOS) {
       // Official Apple Face ID Brackets with dynamic CSS eyes blinking animation
       return (
-        <svg viewBox="0 0 24 24" className="w-5 h-5 text-slate-800 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 24 24" className="w-5 h-5 text-slate-800 group-hover:text-[#e52521] transition-colors" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <style>{`
             @keyframes faceid-blink {
               0%, 88%, 100% { transform: scaleY(1); }
@@ -333,7 +333,7 @@ const Login: React.FC = () => {
     } else if (platform.isAndroid) {
       // Official Android Fingerprint concentric circles style icon (Material design)
       return (
-        <svg viewBox="0 0 24 24" className="w-5 h-5 text-slate-800 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 24 24" className="w-5 h-5 text-slate-800 group-hover:text-[#e52521] transition-colors" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 22a7 7 0 0 0 7-7c0-4.3-3-7-7-7s-7 2.7-7 7" />
           <path d="M12 19a4 4 0 0 0 4-4c0-2.5-1.7-4.5-4-4.5s-4 2-4 4.5" />
           <path d="M12 15a1 1 0 0 0 1-1" />
@@ -345,7 +345,7 @@ const Login: React.FC = () => {
     } else {
       // Official FIDO / Passkey alliance key logo (person silhouette merged with key)
       return (
-        <svg viewBox="0 0 24 24" className="w-5 h-5 text-slate-800 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 24 24" className="w-5 h-5 text-slate-800 group-hover:text-[#e52521] transition-colors" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           {/* Key Head (Circle on the Left) */}
           <circle cx="8" cy="12" r="5" />
           
@@ -367,7 +367,7 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
       <div className="max-w-md w-full bg-white rounded-xl border border-slate-200 p-8 md:p-10 shadow-sm relative">
-        <button onClick={() => navigate('home')} className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-indigo-600 transition-colors mb-6">
+        <button onClick={() => navigate('home')} className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-[#d01f1c] transition-colors mb-6">
           <ArrowLeft size={14} /> Back to site
         </button>
 
@@ -400,7 +400,7 @@ const Login: React.FC = () => {
                 required 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-600 outline-none transition-colors text-sm font-normal"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:border-[#e52521] outline-none transition-colors text-sm font-normal"
                 placeholder="bishal@example.com"
               />
             </div>
@@ -410,7 +410,7 @@ const Login: React.FC = () => {
             <div className="flex justify-between items-center mb-1.5 ml-0.5">
               <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Password</label>
               {isLogin && (
-                <button type="button" onClick={handleResetPassword} className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 transition-colors uppercase tracking-wider">
+                <button type="button" onClick={handleResetPassword} className="text-[10px] font-bold text-[#e52521] hover:text-[#d01f1c] transition-colors uppercase tracking-wider">
                   Forgot?
                 </button>
               )}
@@ -422,7 +422,7 @@ const Login: React.FC = () => {
                 required 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-600 outline-none transition-colors text-sm font-normal"
+                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:border-[#e52521] outline-none transition-colors text-sm font-normal"
                 placeholder="••••••••"
               />
               <button
@@ -462,7 +462,7 @@ const Login: React.FC = () => {
                   id="enableBiometrics" 
                   checked={enableBiometricsOnLogin}
                   onChange={(e) => setEnableBiometricsOnLogin(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  className="w-4 h-4 rounded border-slate-300 text-[#e52521] focus:ring-[#e52521] cursor-pointer"
                 />
                 <label htmlFor="enableBiometrics" className="text-xs text-slate-500 font-medium select-none cursor-pointer">
                   Enable {platform.isIOS ? 'Face ID' : platform.isAndroid ? 'Fingerprint' : 'Passkey'} for next time
@@ -486,11 +486,11 @@ const Login: React.FC = () => {
                 type="button"
                 onClick={handleBiometricAuth}
                 disabled={biometricLoading || loading}
-                className="w-[42px] h-[42px] shrink-0 border border-slate-200 rounded-lg hover:border-indigo-500 hover:bg-slate-50 transition-all flex items-center justify-center shadow-sm group"
+                className="w-[42px] h-[42px] shrink-0 border border-slate-200 rounded-lg hover:border-[#e52521] hover:bg-slate-50 transition-all flex items-center justify-center shadow-sm group"
                 title={platform.isIOS ? 'Sign in with Face ID' : platform.isAndroid ? 'Sign in with Fingerprint' : 'Sign in with Passkey'}
               >
                 {biometricLoading ? (
-                  <Loader2 className="animate-spin text-indigo-600" size={18} />
+                  <Loader2 className="animate-spin text-[#e52521]" size={18} />
                 ) : (
                   getBiometricIcon()
                 )}
@@ -511,7 +511,7 @@ const Login: React.FC = () => {
             onClick={() => handleProviderLogin(googleProvider)}
             className="flex items-center justify-center gap-1.5 py-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors font-semibold text-xs text-slate-700 shadow-sm"
           >
-            <Chrome size={14} className="text-indigo-600" /> Google
+            <Chrome size={14} className="text-[#e52521]" /> Google
           </button>
           <button 
             onClick={() => handleProviderLogin(githubProvider)}
@@ -526,7 +526,7 @@ const Login: React.FC = () => {
             {isLogin ? "Don't have an account?" : "Already have an account?"}
             <button 
               onClick={() => setIsLogin(!isLogin)}
-              className="ml-1.5 font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
+              className="ml-1.5 font-bold text-[#e52521] hover:text-[#d01f1c] transition-colors"
             >
               {isLogin ? 'Sign Up' : 'Login'}
             </button>

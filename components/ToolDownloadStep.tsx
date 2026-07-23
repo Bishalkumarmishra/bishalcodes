@@ -176,7 +176,7 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             <Link href="/file-transfer" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded bg-[#f2f2f2] dark:bg-slate-800 flex items-center justify-center text-blue-600">
+                <div className="w-8 h-8 rounded bg-[#f2f2f2] dark:bg-slate-800 flex items-center justify-center text-[#e52521]">
                   <Send size={18} strokeWidth={2.5} />
                 </div>
                 <span className="font-bold text-sm text-slate-700 dark:text-slate-300 group-hover:text-[#e52521]">File Transfer</span>
@@ -196,7 +196,7 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
 
             <Link href="/ocr-converter" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded bg-[#f2f2f2] dark:bg-slate-800 flex items-center justify-center text-purple-600">
+                <div className="w-8 h-8 rounded bg-[#f2f2f2] dark:bg-slate-800 flex items-center justify-center text-[#e52521]">
                   <FileText size={18} strokeWidth={2.5} />
                 </div>
                 <span className="font-bold text-sm text-slate-700 dark:text-slate-300 group-hover:text-[#e52521]">OCR Converter</span>
@@ -216,7 +216,7 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
 
             <Link href="/dev-card" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded bg-[#f2f2f2] dark:bg-slate-800 flex items-center justify-center text-indigo-500">
+                <div className="w-8 h-8 rounded bg-[#f2f2f2] dark:bg-slate-800 flex items-center justify-center text-[#e52521]">
                   <Code2 size={18} strokeWidth={2.5} />
                 </div>
                 <span className="font-bold text-sm text-slate-700 dark:text-slate-300 group-hover:text-[#e52521]">Dev Card Studio</span>

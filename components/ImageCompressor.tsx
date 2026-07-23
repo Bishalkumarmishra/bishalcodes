@@ -733,7 +733,7 @@ export const ImageCompressor: React.FC = () => {
             }}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border transition-all duration-200 cursor-pointer ${
               compressMode === 'image'
-                ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600 dark:border-indigo-600 shadow-md shadow-indigo-600/10'
+                ? 'bg-[#e52521] dark:bg-[#e52521] text-white border-[#e52521] dark:border-[#e52521] shadow-md shadow-[#e52521]/10'
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
@@ -747,7 +747,7 @@ export const ImageCompressor: React.FC = () => {
             }}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border transition-all duration-200 cursor-pointer ${
               compressMode === 'zip'
-                ? 'bg-indigo-600 dark:bg-indigo-500 text-white border-indigo-600 dark:border-indigo-600 shadow-md shadow-indigo-600/10'
+                ? 'bg-[#e52521] dark:bg-[#e52521] text-white border-[#e52521] dark:border-[#e52521] shadow-md shadow-[#e52521]/10'
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
@@ -902,7 +902,7 @@ export const ImageCompressor: React.FC = () => {
                           max="100"
                           value={quality}
                           onChange={(e) => setQuality(parseInt(e.target.value))}
-                          className="w-full accent-indigo-600 dark:accent-indigo-500 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer"
+                          className="w-full accent-[#e52521] dark:accent-red-500 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer"
                         />
                         <p className="text-[10px] text-slate-400 leading-normal">
                           Lowering quality reduces file size significantly with minor visual loss.
@@ -920,7 +920,7 @@ export const ImageCompressor: React.FC = () => {
                           max="100"
                           value={scale}
                           onChange={(e) => setScale(parseInt(e.target.value))}
-                          className="w-full accent-indigo-600 dark:accent-indigo-500 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer"
+                          className="w-full accent-[#e52521] dark:accent-red-500 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer"
                         />
                         <div className="flex justify-between text-[10px] text-slate-400 leading-normal">
                           <span>Target Resolution:</span>
@@ -1060,13 +1060,13 @@ export const ImageCompressor: React.FC = () => {
                   </div>
 
                   {/* Helpful Tips Card */}
-                  <div className="bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 rounded-2xl p-5 flex items-start gap-4">
-                    <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
+                  <div className="bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/50 rounded-2xl p-5 flex items-start gap-4">
+                    <div className="p-2 bg-red-100 dark:bg-red-900/50 rounded-xl text-red-600 dark:text-red-400 shrink-0">
                       <ZoomIn size={20} />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="text-sm font-bold text-indigo-900 dark:text-indigo-300">Privacy & Performance Note</h4>
-                      <p className="text-xs text-indigo-600 dark:text-indigo-400/80 leading-relaxed font-medium">
+                      <h4 className="text-sm font-bold text-red-900 dark:text-red-300">Privacy & Performance Note</h4>
+                      <p className="text-xs text-red-600 dark:text-red-400/80 leading-relaxed font-medium">
                         All file compression happens completely client-side in your browser. Your images are never uploaded to any remote server, ensuring complete confidentiality, data privacy, and instant processing speeds.
                       </p>
                     </div>
@@ -1120,7 +1120,7 @@ export const ImageCompressor: React.FC = () => {
                         max="9"
                         value={zipCompressionLevel}
                         onChange={(e) => setZipCompressionLevel(parseInt(e.target.value))}
-                        className="w-full accent-indigo-600 dark:accent-indigo-500 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer"
+                        className="w-full accent-[#e52521] dark:accent-red-500 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer"
                       />
                       <p className="text-[10px] text-slate-400 leading-normal">
                         Store level completes instantly without size reductions. High levels (6-9) yield smallest archives but take longer.
@@ -1265,11 +1265,11 @@ export const ImageCompressor: React.FC = () => {
                   )}
 
                   {/* Privacy Alert */}
-                  <div className="bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 rounded-xl p-4 flex gap-3 text-xs leading-normal">
-                    <HardDrive size={16} className="text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
+                  <div className="bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/50 rounded-xl p-4 flex gap-3 text-xs leading-normal">
+                    <HardDrive size={16} className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold text-indigo-900 dark:text-indigo-300 block mb-0.5">Zip Compressor</span>
-                      <span className="text-indigo-600/90 dark:text-indigo-400/80">
+                      <span className="font-bold text-red-900 dark:text-red-300 block mb-0.5">Zip Compressor</span>
+                      <span className="text-red-600/90 dark:text-red-400/80">
                         Recursive folder trees are parsed. Output file compression runs entirely in memory without remote server involvement.
                       </span>
                     </div>

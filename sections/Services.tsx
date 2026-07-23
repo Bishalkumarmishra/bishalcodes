@@ -108,7 +108,7 @@ const ProjectMediaGallery: React.FC<ProjectMediaGalleryProps> = ({ project, onCl
               ></iframe>
             ) : currentMedia.type === 'pdf' || currentMedia.type === 'raw' ? (
               <div className="flex flex-col items-center justify-center text-slate-300 gap-4 p-8 bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full mx-4 shadow-xl">
-                <FileText size={48} className="text-indigo-400" />
+                <FileText size={48} className="text-red-400" />
                 <div className="text-center space-y-1">
                   <p className="text-base font-bold text-white">Document File</p>
                   <p className="text-xs text-slate-400 font-medium">Format: {currentMedia.type.toUpperCase()}</p>
@@ -117,7 +117,7 @@ const ProjectMediaGallery: React.FC<ProjectMediaGalleryProps> = ({ project, onCl
                   href={currentMedia.url} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-all animate-none"
+                  className="w-full text-center bg-[#e52521] hover:bg-[#d01f1c] text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-all animate-none"
                 >
                   Open Document
                 </a>
@@ -176,7 +176,7 @@ const ProjectMediaGallery: React.FC<ProjectMediaGalleryProps> = ({ project, onCl
             )}
             <button
               onClick={handleInquireClick}
-              className="inline-flex items-center justify-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-indigo-700 transition-all shadow-sm"
+              className="inline-flex items-center justify-center gap-1.5 bg-[#e52521] text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-[#d01f1c] transition-all shadow-sm"
             >
               <span>Inquire</span> <MessageSquare size={14} />
             </button>
@@ -271,7 +271,7 @@ const Services: React.FC = () => {
         <div className="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 mb-2">
-               <p className="text-indigo-600 font-semibold uppercase tracking-wider text-[10px]">Showcase</p>
+               <p className="text-[#e52521] font-semibold uppercase tracking-wider text-[10px]">Showcase</p>
             </div>
             <h2 className="text-slate-900 text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
               Featured Projects
@@ -291,7 +291,7 @@ const Services: React.FC = () => {
 
         {loading ? (
           <div className="py-24 text-center">
-            <Loader2 className="animate-spin text-indigo-600 mx-auto" size={28} />
+            <Loader2 className="animate-spin text-[#e52521] mx-auto" size={28} />
             <p className="text-slate-400 mt-3 font-semibold text-xs uppercase tracking-wider">Loading Projects...</p>
           </div>
         ) : (
@@ -303,7 +303,7 @@ const Services: React.FC = () => {
               projects.map((project) => (
                 <div 
                   key={project.id} 
-                  className="group relative bg-white rounded-xl overflow-hidden border border-slate-200 hover:border-indigo-400 transition-all duration-300 hover:shadow-md shrink-0 w-[82vw] md:w-full snap-center flex flex-col h-full cursor-pointer" 
+                  className="group relative bg-white rounded-xl overflow-hidden border border-slate-200 hover:border-red-400 transition-all duration-300 hover:shadow-md shrink-0 w-[82vw] md:w-full snap-center flex flex-col h-full cursor-pointer" 
                   onClick={() => openGallery(project)}
                 >
                   <div className="relative aspect-[16/9] overflow-hidden bg-slate-50 border-b border-slate-200 flex items-center justify-center">
@@ -315,11 +315,11 @@ const Services: React.FC = () => {
                   </div>
 
                   <div className="p-5 flex flex-col flex-grow">
-                    <h3 className="text-slate-900 font-bold text-base mb-1.5 group-hover:text-indigo-600 transition-colors line-clamp-1">{project.title}</h3>
+                    <h3 className="text-slate-900 font-bold text-base mb-1.5 group-hover:text-[#e52521] transition-colors line-clamp-1">{project.title}</h3>
                     <p className="text-slate-500 text-xs sm:text-sm mb-4 line-clamp-2 font-normal flex-grow">{project.description}</p>
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
                       <span>Explore details</span>
-                      <ExternalLink size={12} className="text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                      <ExternalLink size={12} className="text-slate-400 group-hover:text-[#e52521] transition-colors" />
                     </div>
                   </div>
                 </div>

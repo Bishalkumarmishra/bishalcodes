@@ -157,7 +157,7 @@ export default function FontDownloader() {
           <button
             onClick={() => handleDownloadZip(allFontsDB, 'all_1100_nepali_english_fonts.zip')}
             disabled={isDownloading}
-            className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white rounded-xl text-xs font-bold shadow transition-all shrink-0"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#e52521] hover:bg-[#d01f1c] disabled:opacity-60 text-white rounded-xl text-xs font-bold shadow transition-all shrink-0"
           >
             {isDownloading ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
             Download All 1100
@@ -180,7 +180,7 @@ export default function FontDownloader() {
             </div>
             <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-300 ${downloadProgress.status === 'error' ? 'bg-rose-500' : 'bg-indigo-500'}`}
+                className={`h-full rounded-full transition-all duration-300 ${downloadProgress.status === 'error' ? 'bg-rose-500' : 'bg-[#e52521]'}`}
                 style={{ width: `${downloadProgress.status === 'done' ? 100 : downloadProgress.status === 'zipping' ? 95 : downloadProgress.total > 0 ? (downloadProgress.current / downloadProgress.total) * 100 : 0}%` }}
               />
             </div>
@@ -198,7 +198,7 @@ export default function FontDownloader() {
                 value={previewText}
                 onChange={e => setPreviewText(e.target.value)}
                 placeholder="Preview text..."
-                className="w-full pl-7 pr-3 py-1.5 border border-slate-200 dark:border-slate-700 dark:bg-slate-950 rounded-lg outline-none focus:ring-1 focus:ring-indigo-500 text-xs text-slate-800 dark:text-white"
+                className="w-full pl-7 pr-3 py-1.5 border border-slate-200 dark:border-slate-700 dark:bg-slate-950 rounded-lg outline-none focus:ring-1 focus:ring-[#e52521] text-xs text-slate-800 dark:text-white"
               />
               <Type size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             </div>
@@ -206,7 +206,7 @@ export default function FontDownloader() {
             {/* Size */}
             <div className="flex items-center gap-1.5 shrink-0">
               <span className="text-[10px] text-slate-400 font-semibold">{fontSize}px</span>
-              <input type="range" min="12" max="48" value={fontSize} onChange={e => setFontSize(+e.target.value)} className="w-20 accent-indigo-600 h-1" />
+              <input type="range" min="12" max="48" value={fontSize} onChange={e => setFontSize(+e.target.value)} className="w-20 accent-[#e52521] h-1" />
             </div>
 
             <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 shrink-0" />
@@ -218,7 +218,7 @@ export default function FontDownloader() {
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-32 text-xs pl-7 pr-3 py-1.5 border border-slate-200 dark:border-slate-700 dark:bg-slate-950 rounded-lg outline-none text-slate-700 dark:text-white focus:border-indigo-500 transition-all"
+                className="w-32 text-xs pl-7 pr-3 py-1.5 border border-slate-200 dark:border-slate-700 dark:bg-slate-950 rounded-lg outline-none text-slate-700 dark:text-white focus:border-[#e52521] transition-all"
               />
               <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             </div>
@@ -241,7 +241,7 @@ export default function FontDownloader() {
                   onClick={() => setActiveCategory(cat.value)}
                   className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ${
                     activeCategory === cat.value
-                      ? 'bg-slate-900 text-white dark:bg-indigo-600'
+                      ? 'bg-slate-900 text-white dark:bg-[#e52521]'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400'
                   }`}
                 >
@@ -288,7 +288,7 @@ export default function FontDownloader() {
               </button>
               <button
                 onClick={() => handleDownloadSingle(deepLinkedFont)}
-                className="flex items-center justify-center gap-1.5 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-lg transition-all"
+                className="flex items-center justify-center gap-1.5 px-6 py-2.5 bg-[#e52521] hover:bg-[#d01f1c] text-white rounded-xl text-xs font-black shadow-lg transition-all"
               >
                 <Download size={14} /> Download {deepLinkedFont.name}
               </button>
@@ -301,7 +301,7 @@ export default function FontDownloader() {
       {selectedFontIds.length > 0 && (
         <div className="w-full bg-slate-900 text-white px-5 py-2 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <CheckSquare size={13} className="text-indigo-400" />
+            <CheckSquare size={13} className="text-[#d01f1c]" />
             <span className="text-xs font-bold">{selectedFontIds.length} selected</span>
           </div>
           <div className="flex gap-2">
@@ -310,7 +310,7 @@ export default function FontDownloader() {
             </button>
             <button
               onClick={() => handleDownloadZip(allFontsDB.filter(f => selectedFontIds.includes(f.id)), `selected_${selectedFontIds.length}_fonts.zip`)}
-              className="flex items-center gap-1.5 px-3 py-1 bg-indigo-500 hover:bg-indigo-600 rounded-lg text-[10px] font-bold text-white transition-all"
+              className="flex items-center gap-1.5 px-3 py-1 bg-[#e52521] hover:bg-[#e52521] rounded-lg text-[10px] font-bold text-white transition-all"
             >
               <Download size={10} /> Download Selected
             </button>
@@ -328,7 +328,7 @@ export default function FontDownloader() {
           </p>
           <button
             onClick={handleSelectAllVisible}
-            className="text-[10px] text-indigo-600 hover:underline font-bold"
+            className="text-[10px] text-[#e52521] hover:underline font-bold"
           >
             {filteredFonts.every(f => selectedFontIds.includes(f.id)) ? 'Deselect All Visible' : 'Select All Visible'}
           </button>
@@ -348,7 +348,7 @@ export default function FontDownloader() {
                 key={font.id}
                 onMouseEnter={() => handleLoadPreview(font)}
                 className={`bg-white dark:bg-slate-900 border rounded-2xl p-4 flex flex-col gap-3 transition-all hover:shadow-md ${
-                  isSelected ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-slate-200 dark:border-slate-800'
+                  isSelected ? 'border-[#e52521] ring-1 ring-[#e52521]' : 'border-slate-200 dark:border-slate-800'
                 }`}
               >
                 {/* Header */}
@@ -356,9 +356,9 @@ export default function FontDownloader() {
                   <div className="flex items-start gap-2 min-w-0">
                     <button
                       onClick={() => toggleSelectFont(font.id)}
-                      className="shrink-0 mt-0.5 text-slate-400 hover:text-indigo-600 transition-colors"
+                      className="shrink-0 mt-0.5 text-slate-400 hover:text-[#d01f1c] transition-colors"
                     >
-                      {isSelected ? <CheckSquare size={14} className="text-indigo-600" /> : <Square size={14} />}
+                      {isSelected ? <CheckSquare size={14} className="text-[#e52521]" /> : <Square size={14} />}
                     </button>
                     <div className="min-w-0">
                       <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">{font.name}</h4>
@@ -379,7 +379,7 @@ export default function FontDownloader() {
                   ) : (
                     <div className="w-full flex justify-between items-center">
                       <span className="text-[10px] text-slate-300 dark:text-slate-600 italic">hover to preview</span>
-                      <button onClick={() => handleLoadPreview(font)} className="text-[9px] text-indigo-500 hover:underline font-bold">Load</button>
+                      <button onClick={() => handleLoadPreview(font)} className="text-[9px] text-[#e52521] hover:underline font-bold">Load</button>
                     </div>
                   )}
                 </div>
@@ -389,7 +389,7 @@ export default function FontDownloader() {
                   <span className="text-[9px] text-slate-400">{font.size} · <span className="uppercase font-bold">{font.license}</span></span>
                   <button
                     onClick={() => handleDownloadSingle(font)}
-                    className="flex items-center gap-1 text-[10px] text-indigo-600 hover:text-indigo-800 font-bold hover:underline"
+                    className="flex items-center gap-1 text-[10px] text-[#e52521] hover:text-[#d01f1c] font-bold hover:underline"
                   >
                     <Download size={10} /> Download
                   </button>

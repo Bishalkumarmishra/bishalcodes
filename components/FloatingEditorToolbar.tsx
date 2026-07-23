@@ -448,7 +448,7 @@ export const FloatingEditorToolbar: React.FC = () => {
       <button 
         onMouseDown={(e) => { e.preventDefault(); setActivePopover(activePopover === 'background' ? null : 'background'); }}
         title="Background Color"
-        className={`p-1.5 hover:bg-slate-800 rounded-md transition-colors ${activePopover === 'background' ? 'bg-indigo-600 hover:bg-indigo-600' : 'text-slate-200 hover:text-white'}`}
+        className={`p-1.5 hover:bg-slate-800 rounded-md transition-colors ${activePopover === 'background' ? 'bg-[#e52521] hover:bg-[#e52521]' : 'text-slate-200 hover:text-white'}`}
       >
         <PaintBucket size={14} />
       </button>
@@ -457,7 +457,7 @@ export const FloatingEditorToolbar: React.FC = () => {
       <button 
         onMouseDown={(e) => { e.preventDefault(); setActivePopover(activePopover === 'borderStyle' ? null : 'borderStyle'); }}
         title="Border Styles"
-        className={`p-1.5 hover:bg-slate-800 rounded-md transition-colors ${activePopover === 'borderStyle' ? 'bg-indigo-600 hover:bg-indigo-600' : 'text-slate-200 hover:text-white'}`}
+        className={`p-1.5 hover:bg-slate-800 rounded-md transition-colors ${activePopover === 'borderStyle' ? 'bg-[#e52521] hover:bg-[#e52521]' : 'text-slate-200 hover:text-white'}`}
       >
         <Sliders size={14} />
       </button>
@@ -466,7 +466,7 @@ export const FloatingEditorToolbar: React.FC = () => {
       <button 
         onMouseDown={(e) => { e.preventDefault(); setActivePopover(activePopover === 'borderColor' ? null : 'borderColor'); }}
         title="Border Color"
-        className={`p-1.5 hover:bg-slate-800 rounded-md transition-colors ${activePopover === 'borderColor' ? 'bg-indigo-600 hover:bg-indigo-600' : 'text-slate-200 hover:text-white'}`}
+        className={`p-1.5 hover:bg-slate-800 rounded-md transition-colors ${activePopover === 'borderColor' ? 'bg-[#e52521] hover:bg-[#e52521]' : 'text-slate-200 hover:text-white'}`}
       >
         <Type size={14} className="border border-slate-500 rounded px-0.5" />
       </button>
@@ -475,7 +475,7 @@ export const FloatingEditorToolbar: React.FC = () => {
       <button 
         onMouseDown={(e) => { e.preventDefault(); setActivePopover(activePopover === 'typography' ? null : 'typography'); }}
         title="Typography Options"
-        className={`p-1.5 hover:bg-slate-800 rounded-md transition-colors text-xs font-black px-2 ${activePopover === 'typography' ? 'bg-indigo-600 hover:bg-indigo-600' : 'text-slate-200 hover:text-white'}`}
+        className={`p-1.5 hover:bg-slate-800 rounded-md transition-colors text-xs font-black px-2 ${activePopover === 'typography' ? 'bg-[#e52521] hover:bg-[#e52521]' : 'text-slate-200 hover:text-white'}`}
       >
         Aa
       </button>
@@ -484,7 +484,7 @@ export const FloatingEditorToolbar: React.FC = () => {
       <button 
         onMouseDown={(e) => { e.preventDefault(); setActivePopover(activePopover === 'spacing' ? null : 'spacing'); }}
         title="Layout Spacing"
-        className={`p-1.5 hover:bg-slate-800 rounded-md transition-colors ${activePopover === 'spacing' ? 'bg-indigo-600 hover:bg-indigo-600' : 'text-slate-200 hover:text-white'}`}
+        className={`p-1.5 hover:bg-slate-800 rounded-md transition-colors ${activePopover === 'spacing' ? 'bg-[#e52521] hover:bg-[#e52521]' : 'text-slate-200 hover:text-white'}`}
       >
         <Maximize size={14} className="rotate-45" />
       </button>
@@ -528,7 +528,7 @@ export const FloatingEditorToolbar: React.FC = () => {
               type="checkbox" 
               checked={hasBgColor} 
               onChange={(e) => handleBgToggle(e.target.checked)}
-              className="rounded text-indigo-600 focus:ring-indigo-500" 
+              className="rounded text-[#e52521] focus:ring-[#e52521]" 
             />
             <span>Background color</span>
           </label>
@@ -576,7 +576,7 @@ export const FloatingEditorToolbar: React.FC = () => {
               type="text" 
               value={bgColor.toUpperCase()}
               onChange={(e) => handleBgColorChange(e.target.value)}
-              className="border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" 
+              className="border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-1 focus:ring-[#e52521] text-slate-800 dark:text-slate-100" 
             />
           </div>
 
@@ -657,7 +657,7 @@ export const FloatingEditorToolbar: React.FC = () => {
               type="checkbox" 
               checked={hasBorderColor} 
               onChange={(e) => handleBorderColorToggle(e.target.checked)}
-              className="rounded text-indigo-600 focus:ring-indigo-500" 
+              className="rounded text-[#e52521] focus:ring-[#e52521]" 
             />
             <span>Border color</span>
           </label>
@@ -703,7 +703,7 @@ export const FloatingEditorToolbar: React.FC = () => {
               type="text" 
               value={borderColor.toUpperCase()}
               onChange={(e) => handleBorderColorChange(e.target.value)}
-              className="border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" 
+              className="border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-1 focus:ring-[#e52521] text-slate-800 dark:text-slate-100" 
             />
           </div>
 

@@ -67,7 +67,7 @@ const Projects: React.FC = () => {
 
   if (loading) return (
     <div className="min-h-[50vh] py-20 bg-white flex flex-col items-center justify-center">
-      <Loader2 className="animate-spin text-indigo-600 mb-4" size={32} />
+      <Loader2 className="animate-spin text-[#e52521] mb-4" size={32} />
       <p className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Loading Projects...</p>
     </div>
   );
@@ -77,7 +77,7 @@ const Projects: React.FC = () => {
       <div className="w-full px-[5vw] relative z-10">
         <div className="mb-12">
           <div className="flex items-center gap-2 mb-2">
-            <p className="text-indigo-600 font-semibold uppercase tracking-wider text-[10px]">Showcase</p>
+            <p className="text-[#e52521] font-semibold uppercase tracking-wider text-[10px]">Showcase</p>
           </div>
           <h2 className="text-slate-900 text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
             All Projects
@@ -97,7 +97,7 @@ const Projects: React.FC = () => {
                 placeholder="Search projects by title, description or technology..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 pl-4 pr-10 text-xs font-normal outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 pl-4 pr-10 text-xs font-normal outline-none focus:border-[#e52521] transition-colors"
               />
               <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                 <span className="block w-4 h-4 bg-[url('https://api.iconify.design/lucide:search.svg')] bg-contain bg-no-repeat opacity-45" />
@@ -151,7 +151,7 @@ const Projects: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
-              <div key={project.id} className="group flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden hover:border-indigo-400 hover:shadow-md transition-all duration-300">
+              <div key={project.id} className="group flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden hover:border-red-400 hover:shadow-md transition-all duration-300">
                 <div className="relative aspect-[16/9] overflow-hidden bg-slate-50 border-b border-slate-200 flex items-center justify-center">
                   <img 
                     src={project.images[0]?.url || FALLBACK_IMAGE_URL}
@@ -170,7 +170,7 @@ const Projects: React.FC = () => {
                 </div>
                 
                 <div className="p-5 flex-grow flex flex-col">
-                  <h3 className="text-base font-bold mb-1.5 text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">{project.title}</h3>
+                  <h3 className="text-base font-bold mb-1.5 text-slate-900 group-hover:text-[#e52521] transition-colors line-clamp-1">{project.title}</h3>
                   <p className="text-slate-500 mb-5 text-xs sm:text-sm leading-relaxed font-normal line-clamp-2">
                     {project.description}
                   </p>

@@ -1529,8 +1529,8 @@ const AIStudio: React.FC = () => {
                                                                             </a>
                                                                         )}
                                                                         {site.githubUrl && (
-                                                                            <a href={site.githubUrl} target="_blank" rel="noopener noreferrer" className="text-[9px] bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 px-1.5 py-0.5 rounded font-bold transition-all flex items-center gap-0.5">
-                                                                                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></span>GitHub Live
+                                                                            <a href={site.githubUrl} target="_blank" rel="noopener noreferrer" className="text-[9px] bg-red-50 border border-red-200 text-[#e52521] hover:bg-red-100 px-1.5 py-0.5 rounded font-bold transition-all flex items-center gap-0.5">
+                                                                                <span className="w-1.5 h-1.5 rounded-full bg-[#e52521] shrink-0"></span>GitHub Live
                                                                             </a>
                                                                         )}
                                                                     </div>
@@ -1621,9 +1621,9 @@ const AIStudio: React.FC = () => {
                                                                    href={site.githubUrl} 
                                                                    target="_blank" 
                                                                    rel="noopener noreferrer" 
-                                                                   className="text-[9px] bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 px-1.5 py-0.5 rounded font-bold transition-all flex items-center gap-0.5"
+                                                                   className="text-[9px] bg-red-50 border border-red-200 text-[#e52521] hover:bg-red-100 px-1.5 py-0.5 rounded font-bold transition-all flex items-center gap-0.5"
                                                                >
-                                                                   <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></span>
+                                                                   <span className="w-1.5 h-1.5 rounded-full bg-[#e52521] shrink-0"></span>
                                                                    GitHub Live
                                                                </a>
                                                            )}

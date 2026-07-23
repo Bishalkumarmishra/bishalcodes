@@ -80,7 +80,7 @@ export async function GET() {
     // Include all hardcoded developer tools to ensure they rank extremely fast on Google
     const HARDCODED_TOOLS = [
       'date-converter', 'currency-converter', 'translator', 'ai-summarizer',
-      'pdf-to-image', 'add-page-numbers', 'merge-pdf', 'jpg-to-pdf',
+      'pdf-to-image', 'pdf-to-word', 'add-page-numbers', 'merge-pdf', 'jpg-to-pdf',
       'image-compressor', 'emi-calculator', 'qr-studio', 'json-formatter',
       'diff-checker', 'code-runner', 'screenshot-studio'
     ];

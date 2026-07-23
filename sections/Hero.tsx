@@ -39,17 +39,17 @@ interface HeroSlide {
 
 const buildDefaultSlide = (slide: string, index: number): HeroSlide => ({
   imageUrl: slide,
-  title: index === 0 ? "Hey, I'm Bishal Mishra" : `Project Focus #${index + 1}`,
-  subtitle: index === 0 ? 'Full-Stack Developer & Web Architect' : `What I love building`,
+  title: index === 0 ? "Bishal Codes Developer Suite" : `Enterprise Web Utilities #${index + 1}`,
+  subtitle: index === 0 ? 'Browser-Native SaaS Tools & APIs' : `Edge Compute Solutions`,
   description:
     index === 0
-      ? "I write code, design interfaces, and ship products that actually work. Not just pretty templates — real, fast, production-ready web apps."
-      : 'Clean code, real results. Every project is built to solve an actual problem.',
-  primaryBtnText: 'See My Work',
-  primaryBtnLink: 'projects',
-  primaryBtnColor: '#111827',
-  secondaryBtnText: "Let's Talk",
-  secondaryBtnLink: 'contact',
+      ? "Process files locally, generate assets, and access robust developer APIs instantly. Complete client-side security without remote server storage."
+      : 'Perform format conversions, schema validation, and secure storage in millisecond speeds.',
+  primaryBtnText: 'Explore Tools',
+  primaryBtnLink: 'services',
+  primaryBtnColor: '#e52521',
+  secondaryBtnText: "Developer API keys",
+  secondaryBtnLink: 'developers',
   secondaryBtnColor: 'transparent',
   titleColor: '#ffffff',
   subtitleColor: '#d1d5db',
@@ -114,15 +114,15 @@ const Hero: React.FC = () => {
     sliderHeightMobile?: number;
     sliderHeightDesktop?: number;
   }>({
-    title: "Hey, I'm Bishal Mishra",
-    subtitle: 'Full-Stack Developer & Web Architect',
+    title: "Bishal Codes Developer Suite",
+    subtitle: 'Browser-Native SaaS Tools & APIs',
     description:
-      "I write code, design interfaces, and ship products that actually work. Not just pretty templates — real, fast, production-ready web apps.",
+      "Process files locally, generate assets, and access robust developer APIs instantly. Complete client-side security.",
     slides: defaultMappedSlides,
     stats: [
-      { num: '30+', label: 'Projects shipped' },
-      { num: '3+', label: 'Years coding' },
-      { num: '100%', label: 'Client satisfaction' },
+      { num: '24+', label: 'Web Utilities' },
+      { num: '100% local', label: 'Edge Compute' },
+      { num: 'Secure', label: 'End-to-End Keys' },
     ],
     sliderHeightMobile: 50,
     sliderHeightDesktop: 100,
@@ -194,16 +194,16 @@ const Hero: React.FC = () => {
           });
 
           setHeroData({
-            title: data.title || "Hey, I'm Bishal Mishra",
-            subtitle: data.subtitle || 'Full-Stack Developer & Web Architect',
+            title: data.title || "Bishal Codes Developer Suite",
+            subtitle: data.subtitle || 'Browser-Native SaaS Tools & APIs',
             description:
               data.description ||
-              "I write code, design interfaces, and ship products that actually work.",
+              "Process files locally, generate assets, and access robust developer APIs instantly. Complete client-side security.",
             slides: mappedSlides,
             stats: data.stats && data.stats.length > 0 ? data.stats : [
-              { num: '30+', label: 'Projects shipped' },
-              { num: '3+', label: 'Years coding' },
-              { num: '100%', label: 'Client satisfaction' },
+              { num: '24+', label: 'Web Utilities' },
+              { num: '100% local', label: 'Edge Compute' },
+              { num: 'Secure', label: 'End-to-End Keys' },
             ],
             sliderHeightMobile:
               data.sliderHeightMobile !== undefined ? Number(data.sliderHeightMobile) : 50,
@@ -307,7 +307,7 @@ const Hero: React.FC = () => {
 
   // Typing words for the subtitle area (played only when NOT editing)
   const typedText = useTyping(
-    ['Full-Stack Developer', 'Web Architect', 'UI/UX Thinker', 'Problem Solver'],
+    ['24+ Web Utilities', 'Browser-Native APIs', 'Confidential Edge Tools', 'AI-Powered Actions'],
     75,
     2200,
     !isEditMode

@@ -313,7 +313,7 @@ export const CodeRunner: React.FC = () => {
           <div className="flex flex-wrap items-center gap-3">
             {/* Presets Select */}
             <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-250 dark:border-slate-800 px-3 py-1.5 rounded-xl">
-              <Sparkles size={14} className="text-indigo-500 dark:text-indigo-400" />
+              <Sparkles size={14} className="text-[#e52521] dark:text-[#d01f1c]" />
               <select
                 value={templateKey}
                 onChange={(e) => setTemplateKey(e.target.value)}
@@ -343,7 +343,7 @@ export const CodeRunner: React.FC = () => {
             {/* Run Trigger */}
             <button
               onClick={compilePreview}
-              className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-indigo-600/10 transition active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-1.5 bg-[#e52521] hover:bg-[#d01f1c] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-indigo-600/10 transition active:scale-95 cursor-pointer"
             >
               <Play size={14} fill="currentColor" />
               <span>Run Code</span>
@@ -457,7 +457,7 @@ export const CodeRunner: React.FC = () => {
             }`}
             title="Drag to Resize Panels"
           >
-            <div className="w-1.5 h-20 bg-slate-200 dark:bg-slate-800 group-hover:bg-indigo-500/50 group-active:bg-indigo-500 rounded-full transition-all" />
+            <div className="w-1.5 h-20 bg-slate-200 dark:bg-slate-800 group-hover:bg-[#e52521]/50 group-active:bg-[#e52521] rounded-full transition-all" />
           </div>
 
           {/* Interactive Live Preview & Console Output */}
@@ -474,7 +474,7 @@ export const CodeRunner: React.FC = () => {
               {/* Preview Header Controls */}
               <div className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
-                  <Monitor size={14} className="text-indigo-500" />
+                  <Monitor size={14} className="text-[#e52521]" />
                   <span>Interactive Preview Canvas</span>
                 </div>
                 

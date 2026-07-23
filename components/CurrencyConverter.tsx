@@ -420,7 +420,7 @@ export const CurrencyConverter: React.FC = () => {
               <button
                 onClick={() => fetchRates(true)}
                 disabled={isLoading || isRefreshing}
-                className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer disabled:opacity-40 transition-colors shrink-0"
+                className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#d01f1c] dark:hover:text-[#d01f1c] cursor-pointer disabled:opacity-40 transition-colors shrink-0"
               >
                 <RefreshCw size={13} className={isRefreshing ? 'animate-spin' : ''} />
                 Refresh

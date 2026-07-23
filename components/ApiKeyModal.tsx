@@ -28,7 +28,7 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSave, isSa
         </button>
 
         <div className="p-8 sm:p-12 text-center">
-            <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-indigo-100">
+            <div className="w-20 h-20 bg-red-50 text-[#e52521] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-red-100">
                 <KeyRound size={40} />
             </div>
             <h2 className="text-2xl font-semibold text-slate-900 tracking-tight mb-3">API Key Required</h2>
@@ -42,7 +42,7 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSave, isSa
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="Paste your API key here..."
-                    className="w-full text-center bg-slate-100 border border-slate-200 px-4 py-3 rounded-xl text-slate-900 font-normal outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-all text-xs"
+                    className="w-full text-center bg-slate-100 border border-slate-200 px-4 py-3 rounded-xl text-slate-900 font-normal outline-none focus:border-[#e52521] focus:ring-2 focus:ring-indigo-100 transition-all text-xs"
                 />
                 <button 
                     onClick={handleSave}
@@ -53,7 +53,7 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSave, isSa
                 </button>
             </div>
             
-            <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-indigo-600 hover:underline">
+            <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#e52521] hover:underline">
                 Get your Free API Key <ExternalLink size={14} />
             </a>
         </div>

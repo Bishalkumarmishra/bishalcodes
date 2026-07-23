@@ -42,11 +42,11 @@ const formatBytes = (bytes: number): string => {
 const getFileIcon = (type: string, name: string) => {
   const ext = name.split('.').pop()?.toLowerCase() || '';
   if (type.startsWith('image/') || ['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext)) return { icon: FileImage, color: 'text-pink-400', bg: 'bg-pink-500/10' };
-  if (type.startsWith('video/') || ['mp4','mkv','mov','avi','webm'].includes(ext)) return { icon: Film, color: 'text-purple-400', bg: 'bg-purple-500/10' };
+  if (type.startsWith('video/') || ['mp4','mkv','mov','avi','webm'].includes(ext)) return { icon: Film, color: 'text-purple-400', bg: 'bg-red-500/10' };
   if (type.startsWith('audio/') || ['mp3','wav','flac','aac','ogg'].includes(ext)) return { icon: Music, color: 'text-sky-400', bg: 'bg-sky-500/10' };
   if (type === 'application/pdf' || ext === 'pdf') return { icon: FileText, color: 'text-red-400', bg: 'bg-red-500/10' };
   if (['zip','rar','7z','tar','gz'].includes(ext)) return { icon: Archive, color: 'text-amber-400', bg: 'bg-amber-500/10' };
-  return { icon: File, color: 'text-indigo-400', bg: 'bg-indigo-500/10' };
+  return { icon: File, color: 'text-[#d01f1c]', bg: 'bg-[#e52521]/10' };
 };
 
 // ─── Web Crypto AES-256-GCM Encryption ────────────────────────────────────────
@@ -383,7 +383,7 @@ const SecureVault: React.FC = () => {
                   onDrop={handleDrop}
                   onClick={() => !file && fileInputRef.current?.click()}
                   className={`relative rounded-xl border-2 border-dashed transition-all duration-300 cursor-pointer overflow-hidden
-                    ${isDragging ? 'border-indigo-500 bg-indigo-500/10' : 'border-zinc-800 bg-zinc-900/40 hover:border-zinc-700 hover:bg-zinc-900/60'}
+                    ${isDragging ? 'border-[#e52521] bg-[#e52521]/10' : 'border-zinc-800 bg-zinc-900/40 hover:border-zinc-700 hover:bg-zinc-900/60'}
                     ${file ? 'cursor-default' : ''}`}
                   style={{ minHeight: '180px' }}
                 >
@@ -423,7 +423,7 @@ const SecureVault: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-white font-bold text-sm">Drop your file here</p>
-                        <p className="text-zinc-400 text-xs mt-1">or <span className="text-indigo-400 underline underline-offset-2 font-semibold">click to browse</span></p>
+                        <p className="text-zinc-400 text-xs mt-1">or <span className="text-[#d01f1c] underline underline-offset-2 font-semibold">click to browse</span></p>
                         <p className="text-zinc-500 text-[11px] mt-2 font-bold">Any file type · Max 500 MB</p>
                       </div>
                       <div className="flex flex-wrap justify-center gap-1.5 text-[10px] font-bold text-zinc-500">
@@ -526,7 +526,7 @@ const SecureVault: React.FC = () => {
                         onClick={() => setExpiryHours(value)}
                         className={`py-2 px-3 rounded-lg text-xs font-bold transition-all border
                           ${expiryHours === value
-                            ? 'bg-indigo-600 border-indigo-500 text-white'
+                            ? 'bg-[#e52521] border-[#e52521] text-white'
                             : 'bg-zinc-950 border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white'
                           }`}
                       >
@@ -550,7 +550,7 @@ const SecureVault: React.FC = () => {
                         onClick={() => setMaxDownloads(v)}
                         className={`py-2 rounded-lg text-xs font-bold transition-all border
                           ${maxDownloads === v
-                            ? 'bg-indigo-600 border-indigo-500 text-white'
+                            ? 'bg-[#e52521] border-[#e52521] text-white'
                             : 'bg-zinc-950 border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white'
                           }`}
                       >
@@ -586,14 +586,14 @@ const SecureVault: React.FC = () => {
               <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2 text-zinc-300 font-bold">
-                    <Loader2 size={16} className="animate-spin text-indigo-400" />
+                    <Loader2 size={16} className="animate-spin text-[#d01f1c]" />
                     {stage === 'encrypting' ? 'Encrypting file client-side...' : 'Uploading encrypted file to vault...'}
                   </div>
                   <span className="text-white text-xs font-bold">{progress}%</span>
                 </div>
                 <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-indigo-650 transition-all duration-300"
+                    className="h-full bg-[#e52521] transition-all duration-300"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -605,7 +605,7 @@ const SecureVault: React.FC = () => {
               onClick={handleEncryptAndUpload}
               disabled={!file || !password || !confirmPassword || stage === 'encrypting' || stage === 'uploading'}
               className="w-full py-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2
-                bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white"
+                bg-[#e52521] hover:bg-[#e52521] disabled:opacity-40 disabled:cursor-not-allowed text-white"
             >
               {stage === 'encrypting' || stage === 'uploading' ? (
                 <><Loader2 size={18} className="animate-spin" /> Processing...</>
@@ -655,7 +655,7 @@ const SecureVault: React.FC = () => {
                     Shareable Link
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-indigo-300 font-mono truncate select-all">
+                    <div className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-red-300 font-mono truncate select-all">
                       {shareUrl}
                     </div>
                     <button
@@ -690,7 +690,7 @@ const SecureVault: React.FC = () => {
                       const body = `I've shared a password-protected file with you.\n\nFile: ${file?.name}\nLink: ${shareUrl}\n\nYou'll need the password to access it.`;
                       window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
                     }}
-                    className="py-3 px-4 rounded-xl bg-blue-600/10 border border-blue-600/20 text-blue-400 text-xs font-bold hover:bg-blue-600/20 transition-all flex items-center justify-center gap-2"
+                    className="py-3 px-4 rounded-xl bg-[#e52521]/10 border border-blue-600/20 text-blue-400 text-xs font-bold hover:bg-[#e52521]/20 transition-all flex items-center justify-center gap-2"
                   >
                     ✉️ Share via Email
                   </button>

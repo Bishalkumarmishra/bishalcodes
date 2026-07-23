@@ -55,7 +55,7 @@ const Blog: React.FC = () => {
 
   if (loading) return (
     <div className="py-24 bg-slate-50 flex flex-col items-center justify-center">
-       <Loader2 className="animate-spin text-indigo-600 mb-3" size={28} />
+       <Loader2 className="animate-spin text-[#e52521] mb-3" size={28} />
        <p className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Loading Articles...</p>
     </div>
   );

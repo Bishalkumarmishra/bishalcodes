@@ -63,7 +63,7 @@ const BlogPage: React.FC = () => {
 
   if (loading) return (
     <div className="h-screen bg-slate-50 flex flex-col items-center justify-center">
-       <Loader2 className="animate-spin text-indigo-600 mb-3" size={28} />
+       <Loader2 className="animate-spin text-[#e52521] mb-3" size={28} />
        <p className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Loading Articles...</p>
     </div>
   );
@@ -115,15 +115,15 @@ const BlogPage: React.FC = () => {
                 
                 <div className="p-6 flex-1 flex flex-col">
                   <div className="flex items-center gap-2 mb-2 text-xs text-slate-500">
-                    <span className="font-medium text-indigo-600">{post.tag || 'Tech'}</span>
+                    <span className="font-medium text-[#e52521]">{post.tag || 'Tech'}</span>
                     <span>•</span>
                     <span>{new Date(post.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                   </div>
                   
-                  <h3 className="text-slate-900 text-lg font-semibold mb-2 group-hover:text-indigo-600 transition-colors leading-snug line-clamp-2">{post.title}</h3>
+                  <h3 className="text-slate-900 text-lg font-semibold mb-2 group-hover:text-[#e52521] transition-colors leading-snug line-clamp-2">{post.title}</h3>
                   <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 line-clamp-2 font-normal">{post.excerpt}</p>
                   
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 mt-auto">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#e52521] mt-auto">
                     <span>Read article</span>
                     <ArrowRight size={14} className="transform group-hover:translate-x-0.5 transition-transform" />
                   </div>

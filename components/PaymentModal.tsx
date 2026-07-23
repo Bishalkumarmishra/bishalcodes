@@ -83,16 +83,16 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) => {
                     <p className="text-slate-500 font-medium max-w-md mx-auto mb-8">Select a package to continue. Generation costs 1 credit.</p>
                     <div className="space-y-4 mb-8 text-left">
                         {creditPackages.map(pkg => (
-                            <div key={pkg.name} onClick={() => setSelectedPackage(pkg)} className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex justify-between items-center ${selectedPackage.name === pkg.name ? 'border-indigo-600 bg-indigo-50 shadow-sm' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}>
+                            <div key={pkg.name} onClick={() => setSelectedPackage(pkg)} className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex justify-between items-center ${selectedPackage.name === pkg.name ? 'border-[#e52521] bg-red-50 shadow-sm' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}>
                                 <div>
                                     <p className="font-bold text-slate-900 text-sm">{pkg.name}</p>
-                                    <p className="font-medium text-indigo-600 text-xs">{pkg.credits} Credits</p>
+                                    <p className="font-medium text-[#e52521] text-xs">{pkg.credits} Credits</p>
                                 </div>
                                 <span className="font-bold text-slate-900 text-base">Rs. {pkg.price}</span>
                             </div>
                         ))}
                     </div>
-                    <button onClick={() => setStatus('paying')} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold text-sm transition-colors shadow-sm">Proceed to Pay</button>
+                    <button onClick={() => setStatus('paying')} className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white py-3 rounded-lg font-semibold text-sm transition-colors shadow-sm">Proceed to Pay</button>
                 </>
             );
         case 'paying':
@@ -101,7 +101,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) => {
                     <h2 className="text-2xl font-semibold text-slate-900 tracking-tight mb-3">Scan to Pay</h2>
                     <p className="text-slate-500 font-medium max-w-md mx-auto mb-6">Pay Rs. {selectedPackage.price} for {selectedPackage.credits} credits using Fonepay. <strong className="text-rose-600 font-semibold">Take a screenshot</strong> after payment.</p>
                     <img src="https://ik.imagekit.io/bishalc/Screenshot%202026-01-09%20224952.png" alt="Fonepay QR Code" className="w-64 h-64 mx-auto rounded-2xl border-4 border-white shadow-md mb-6"/>
-                    <button onClick={() => setStatus('uploading')} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold text-sm transition-colors shadow-sm">I have paid, upload proof</button>
+                    <button onClick={() => setStatus('uploading')} className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white py-3 rounded-lg font-semibold text-sm transition-colors shadow-sm">I have paid, upload proof</button>
                     <button onClick={() => setStatus('selecting')} className="mt-3 text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors">Back to packages</button>
                 </>
             );
@@ -118,7 +118,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) => {
                         </label>
                         {paymentProof && <p className="text-xs text-slate-500 mt-2 text-center font-medium">File: {paymentProof.name}</p>}
                     </div>
-                    <button onClick={handleSubmitProof} disabled={!paymentProof || submitting} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold text-sm transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
+                    <button onClick={handleSubmitProof} disabled={!paymentProof || submitting} className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white py-3 rounded-lg font-semibold text-sm transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
                         {submitting ? <Loader2 className="animate-spin" size={16} /> : 'Submit for Verification'}
                     </button>
                     <button onClick={() => setStatus('paying')} className="mt-3 text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors">Back to QR</button>
@@ -130,7 +130,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) => {
                     <div className="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={40} /></div>
                     <h3 className="text-xl font-semibold text-slate-900 mb-2">Submission Received!</h3>
                     <p className="text-slate-500 font-medium">Your payment is pending verification. Credits will be added to your account within a few hours. Thank you!</p>
-                    <button onClick={resetFlow} className="mt-8 bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold">Close</button>
+                    <button onClick={resetFlow} className="mt-8 bg-[#e52521] text-white px-8 py-3 rounded-lg font-bold">Close</button>
                 </div>
              );
         case 'error':
@@ -138,7 +138,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) => {
                 <div className="py-10 text-center">
                     <h3 className="text-xl font-semibold text-rose-600 mb-2">Submission Failed</h3>
                     <p className="text-slate-500 font-medium">There was an error submitting your request. Please try again or contact support.</p>
-                    <button onClick={() => setStatus('uploading')} className="mt-8 bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold">Try Again</button>
+                    <button onClick={() => setStatus('uploading')} className="mt-8 bg-[#e52521] text-white px-8 py-3 rounded-lg font-bold">Try Again</button>
                 </div>
             );
     }
@@ -152,7 +152,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) => {
         </button>
 
         <div className="p-8 sm:p-12 text-center">
-            <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-indigo-100">
+            <div className="w-20 h-20 bg-red-50 text-[#e52521] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-red-100">
                 <ShieldCheck size={40} />
             </div>
             {renderContent()}

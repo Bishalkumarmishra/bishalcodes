@@ -211,7 +211,7 @@ const Testimonials: React.FC = () => {
         {/* Section Header */}
         <div className="mb-10 text-center max-w-2xl mx-auto">
           <p
-            className="text-xs font-bold uppercase tracking-[0.25em] mb-3 text-indigo-600 dark:text-indigo-400"
+            className="text-xs font-bold uppercase tracking-[0.25em] mb-3 text-[#e52521] dark:text-red-400"
           >
             What people say
           </p>
@@ -315,7 +315,7 @@ const Testimonials: React.FC = () => {
 
                 {/* Double Quote Quote Marks */}
                 <div className="mt-6 mb-2 text-left">
-                  <span className="text-[36px] font-serif text-indigo-400/25 leading-none block select-none">“</span>
+                  <span className="text-[36px] font-serif text-[#e52521]/25 leading-none block select-none">“</span>
                 </div>
 
                 {/* Review Text */}

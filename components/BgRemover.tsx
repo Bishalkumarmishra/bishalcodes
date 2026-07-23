@@ -126,7 +126,7 @@ export default function BgRemover() {
           
           <div>
             <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white flex items-center gap-3">
-              Background <span className="text-indigo-600 dark:text-indigo-400 font-normal">Remover</span>
+              Background <span className="text-[#e52521] dark:text-[#d01f1c] font-normal">Remover</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-xl font-medium leading-relaxed">
               Remove image backgrounds automatically in seconds. Runs entirely on your browser for absolute data privacy and zero quality loss.
@@ -186,11 +186,11 @@ export default function BgRemover() {
                         <div className="flex flex-col items-center justify-center text-center p-4">
                           {loading ? (
                             <div className="flex flex-col items-center justify-center gap-3">
-                              <Loader2 className="animate-spin text-indigo-500" size={28} />
+                              <Loader2 className="animate-spin text-[#e52521]" size={28} />
                               <p className="text-xs font-bold text-slate-600 dark:text-slate-300">{statusText}</p>
                               {progress > 0 && (
                                 <div className="w-40 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                  <div className="h-full bg-indigo-500 transition-all duration-300" style={{ width: `${progress}%` }} />
+                                  <div className="h-full bg-[#e52521] transition-all duration-300" style={{ width: `${progress}%` }} />
                                 </div>
                               )}
                             </div>
@@ -209,7 +209,7 @@ export default function BgRemover() {
                 {/* Workspace Actions */}
                 <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
                   <div className="flex items-center gap-2">
-                    <FileImage size={15} className="text-indigo-500 shrink-0" />
+                    <FileImage size={15} className="text-[#e52521] shrink-0" />
                     <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate max-w-[180px]">{image?.name}</span>
                   </div>
 
@@ -227,7 +227,7 @@ export default function BgRemover() {
                       <button
                         onClick={removeBg}
                         disabled={loading}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white disabled:bg-slate-200 disabled:dark:bg-slate-800 disabled:text-slate-400 rounded-xl text-xs font-bold shadow-md transition-all shrink-0"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#e52521] hover:bg-[#d01f1c] text-white disabled:bg-slate-200 disabled:dark:bg-slate-800 disabled:text-slate-400 rounded-xl text-xs font-bold shadow-md transition-all shrink-0"
                       >
                         {loading ? (
                           <>
@@ -275,8 +275,8 @@ export default function BgRemover() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border border-indigo-500/10 dark:border-indigo-400/10 rounded-3xl p-6 text-xs space-y-3">
-              <h4 className="font-bold text-indigo-700 dark:text-indigo-400">Model Download Note</h4>
+            <div className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border border-[#e52521]/10 dark:border-indigo-400/10 rounded-3xl p-6 text-xs space-y-3">
+              <h4 className="font-bold text-indigo-700 dark:text-[#d01f1c]">Model Download Note</h4>
               <p className="text-slate-500 dark:text-slate-400 leading-normal font-medium">
                 The first time you click <strong>Remove Background</strong>, your browser will download a ~75MB machine learning model. This model is cached locally on your machine, so subsequent removals will run almost instantly!
               </p>

@@ -84,12 +84,12 @@ export default function DesktopDownloadModal({ isOpen, onClose }: { isOpen: bool
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
                     placeholder="Tell us what went wrong or what's missing..."
-                    className="w-full h-32 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none mb-4 resize-none"
+                    className="w-full h-32 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm focus:ring-2 focus:ring-[#e52521] outline-none mb-4 resize-none"
                   ></textarea>
                   <button
                     onClick={() => submitFeedback(rating)}
                     disabled={isSubmitting || !feedback.trim()}
-                    className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-colors disabled:opacity-50"
+                    className="w-full py-2.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold rounded-lg transition-colors disabled:opacity-50"
                   >
                     {isSubmitting ? 'Sending...' : 'Send Feedback'}
                   </button>

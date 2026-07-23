@@ -258,7 +258,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
   if (loading && id) {
     return (
       <div className="h-screen bg-slate-50 flex flex-col items-center justify-center">
-         <Loader2 className="animate-spin text-indigo-600 mb-3" size={28} />
+         <Loader2 className="animate-spin text-[#e52521] mb-3" size={28} />
          <p className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Loading Article...</p>
       </div>
     );
@@ -278,7 +278,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
       <div 
-        className="fixed top-0 left-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 z-[100] transition-all duration-75"
+        className="fixed top-0 left-0 h-1 bg-gradient-to-r from-slate-950 via-[#e52521] to-[#e52521] z-[100] transition-all duration-75"
         style={{ width: `${scrollProgress}%` }}
       />
       <Navbar />
@@ -291,9 +291,9 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
             <article className="bg-white sm:rounded-lg sm:border sm:border-slate-200 p-0 sm:p-6 sm:shadow-sm">
               {/* Breadcrumb */}
               <div className="mb-6 text-xs text-slate-500 flex items-center gap-1.5 flex-wrap px-4 sm:px-0">
-                <span onClick={() => navigate('home')} className="cursor-pointer hover:text-indigo-600 transition-colors">Home</span>
+                <span onClick={() => navigate('home')} className="cursor-pointer hover:text-[#d01f1c] transition-colors">Home</span>
                 <span>/</span>
-                <span onClick={() => navigate('blog')} className="cursor-pointer hover:text-indigo-600 transition-colors">Blog</span>
+                <span onClick={() => navigate('blog')} className="cursor-pointer hover:text-[#d01f1c] transition-colors">Blog</span>
                 <span>/</span>
                 <span className="text-slate-700 truncate max-w-[200px] sm:max-w-none">{post.title}</span>
               </div>
@@ -356,7 +356,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
                 <span>•</span>
                 <span>{new Date(post.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                 <span>•</span>
-                <span className="text-indigo-600 font-medium">
+                <span className="text-[#e52521] font-medium">
                   <span
                     contentEditable={isEditMode}
                     suppressContentEditableWarning
@@ -520,7 +520,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-400">Your Name</label>
-                    <input required type="text" value={commentForm.name} onChange={e => setCommentForm({...commentForm, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-slate-900 outline-none focus:border-indigo-600 transition-colors text-sm font-normal"/>
+                    <input required type="text" value={commentForm.name} onChange={e => setCommentForm({...commentForm, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-slate-900 outline-none focus:border-[#e52521] transition-colors text-sm font-normal"/>
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-400">Rating</label>
@@ -535,7 +535,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-slate-400">Message</label>
-                  <textarea required rows={4} value={commentForm.text} onChange={e => setCommentForm({...commentForm, text: e.target.value})} className="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-lg text-slate-900 outline-none focus:border-indigo-600 transition-colors resize-none text-sm font-normal"/>
+                  <textarea required rows={4} value={commentForm.text} onChange={e => setCommentForm({...commentForm, text: e.target.value})} className="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-lg text-slate-900 outline-none focus:border-[#e52521] transition-colors resize-none text-sm font-normal"/>
                 </div>
                 <button disabled={submitting} className="w-full bg-slate-900 hover:bg-slate-800 text-white py-2 rounded-lg font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm">
                   {submitting ? <Loader2 className="animate-spin" size={16} /> : <><Send size={14} /> Submit Comment</>}
@@ -545,7 +545,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
               <div className="space-y-4">
                 {comments.map((c, i) => (
                   <div key={i} className="bg-white border border-slate-200 p-5 rounded-lg flex gap-4 items-start shadow-sm">
-                    <div className="w-9 h-9 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm shrink-0">
+                    <div className="w-9 h-9 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center text-[#e52521] font-bold text-sm shrink-0">
                       {c.name?.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -579,9 +579,9 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
                     placeholder="Search blogs..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-3 pr-8 text-xs font-normal outline-none focus:border-indigo-500 transition-colors"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-3 pr-8 text-xs font-normal outline-none focus:border-[#e52521] transition-colors"
                   />
-                  <button type="submit" aria-label="Search" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors">
+                  <button type="submit" aria-label="Search" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#d01f1c] transition-colors">
                     <span className="block w-4 h-4 bg-[url('https://api.iconify.design/lucide:search.svg')] bg-contain bg-no-repeat opacity-50 hover:opacity-100 transition-opacity" />
                   </button>
                 </form>
@@ -589,7 +589,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
 
               {/* Newsletter subscription widget */}
               <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-950 via-[#e52521] to-[#e52521]" />
                 <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Newsletter</h3>
                 <p className="text-slate-500 text-xs leading-relaxed mb-4">
                   Get the latest tech, web design, and digital agency updates straight to your inbox.
@@ -601,7 +601,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
                     placeholder="Your email address" 
                     value={newsletterEmail}
                     onChange={(e) => setNewsletterEmail(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs font-normal outline-none focus:border-indigo-500 transition-colors"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs font-normal outline-none focus:border-[#e52521] transition-colors"
                   />
                   <button 
                     type="submit" 
@@ -625,8 +625,8 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
                     <div key={rp.id} onClick={() => navigate('blog-post', rp.id)} className="cursor-pointer group flex items-center gap-3">
                       <img src={rp.imageUrl} alt={rp.title} className="w-14 h-14 object-cover rounded-lg bg-slate-100 shrink-0 border border-slate-200"/>
                       <div className="min-w-0 flex-grow">
-                        <span className="text-[9px] font-semibold text-indigo-600 mb-1 inline-block uppercase">{rp.tag || 'Tech'}</span>
-                        <h4 className="text-slate-800 font-semibold text-xs leading-snug group-hover:text-indigo-600 transition-colors line-clamp-2">{rp.title}</h4>
+                        <span className="text-[9px] font-semibold text-[#e52521] mb-1 inline-block uppercase">{rp.tag || 'Tech'}</span>
+                        <h4 className="text-slate-800 font-semibold text-xs leading-snug group-hover:text-[#e52521] transition-colors line-clamp-2">{rp.title}</h4>
                       </div>
                     </div>
                   ))}

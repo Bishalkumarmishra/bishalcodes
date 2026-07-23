@@ -173,7 +173,7 @@ const WebVoiceCallModal: React.FC<WebVoiceCallModalProps> = ({
         
         {/* Ambient Glow */}
         <div className={`absolute -top-24 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl opacity-30 pointer-events-none transition-all duration-500 ${
-          isConnected ? 'bg-emerald-500' : isIncoming ? 'bg-indigo-500 animate-pulse' : 'bg-indigo-600'
+          isConnected ? 'bg-emerald-500' : isIncoming ? 'bg-[#e52521] animate-pulse' : 'bg-[#e52521]'
         }`} />
 
         {/* Top Badge */}
@@ -209,7 +209,7 @@ const WebVoiceCallModal: React.FC<WebVoiceCallModalProps> = ({
 
         <p className="text-xs font-semibold text-slate-300 mt-1 z-10 flex items-center justify-center gap-1.5">
           {callState.status === 'calling' && (
-            <span className="flex items-center gap-1.5 text-indigo-400">
+            <span className="flex items-center gap-1.5 text-[#d01f1c]">
               <Loader2 size={13} className="animate-spin" /> Calling...
             </span>
           )}

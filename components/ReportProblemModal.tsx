@@ -87,7 +87,7 @@ const ReportProblemModal: React.FC<ReportProblemModalProps> = ({ isOpen, onClose
                   <input 
                     required type="text" placeholder="John Doe"
                     value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-                    className="w-full bg-white border border-slate-300 px-4 py-2.5 rounded-lg text-slate-900 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                    className="w-full bg-white border border-slate-300 px-4 py-2.5 rounded-lg text-slate-900 text-sm outline-none focus:border-[#e52521] focus:ring-1 focus:ring-[#e52521] transition-all"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -95,7 +95,7 @@ const ReportProblemModal: React.FC<ReportProblemModalProps> = ({ isOpen, onClose
                   <input 
                     type="email" placeholder="john@example.com"
                     value={form.email} onChange={e => setForm({...form, email: e.target.value})}
-                    className="w-full bg-white border border-slate-300 px-4 py-2.5 rounded-lg text-slate-900 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                    className="w-full bg-white border border-slate-300 px-4 py-2.5 rounded-lg text-slate-900 text-sm outline-none focus:border-[#e52521] focus:ring-1 focus:ring-[#e52521] transition-all"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -103,13 +103,13 @@ const ReportProblemModal: React.FC<ReportProblemModalProps> = ({ isOpen, onClose
                   <textarea 
                     required rows={4} placeholder="Please describe the issue you encountered..."
                     value={form.problem} onChange={e => setForm({...form, problem: e.target.value})}
-                    className="w-full bg-white border border-slate-300 px-4 py-3 rounded-lg text-slate-900 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none"
+                    className="w-full bg-white border border-slate-300 px-4 py-3 rounded-lg text-slate-900 text-sm outline-none focus:border-[#e52521] focus:ring-1 focus:ring-[#e52521] transition-all resize-none"
                   />
                 </div>
 
                 <button 
                   disabled={status === 'submitting'}
-                  className="w-full mt-2 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+                  className="w-full mt-2 bg-[#e52521] text-white py-2.5 rounded-lg font-medium hover:bg-[#d01f1c] transition-all flex items-center justify-center gap-2 disabled:opacity-70"
                 >
                   {status === 'submitting' ? <Loader2 className="animate-spin" size={18} /> : <><Send size={16} /> Submit Report</>}
                 </button>

@@ -78,7 +78,7 @@ const TechBadge: React.FC<{
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           className={`px-3 py-1.5 rounded-xl border bg-gradient-to-br ${color} border-slate-200/20 shadow-lg cursor-pointer transition-all duration-300 select-none ${
-            hovered ? 'scale-110 ring-4 ring-indigo-500/30' : 'scale-100 opacity-90'
+            hovered ? 'scale-110 ring-4 ring-[#e52521]/30' : 'scale-100 opacity-90'
           }`}
           style={{ transformOrigin: 'center center' }}
         >

@@ -52,10 +52,10 @@ const themeStylesMap: Record<TemplateType, ThemeStyles> = {
   },
   'neon-cyberpunk': {
     bg: 'bg-slate-950',
-    text: 'text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400',
+    text: 'text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-red-400',
     subtext: 'text-cyan-400/90',
-    border: 'border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.25)]',
-    badgeBg: 'bg-indigo-950/30 border border-indigo-500/30 shadow-[0_0_5px_rgba(99,102,241,0.15)]',
+    border: 'border-[#e52521]/40 shadow-[0_0_15px_rgba(229,37,33,0.25)]',
+    badgeBg: 'bg-red-950/30 border border-[#e52521]/30 shadow-[0_0_5px_rgba(229,37,33,0.15)]',
     badgeText: 'text-cyan-300'
   },
   'technical-console': {
@@ -99,7 +99,7 @@ const themeStylesMap: Record<TemplateType, ThemeStyles> = {
     badgeText: 'text-neutral-300'
   },
   'gradient-mesh': {
-    bg: 'bg-slate-950 border border-indigo-500/20',
+    bg: 'bg-slate-950 border border-[#e52521]/20',
     text: 'text-white',
     subtext: 'text-slate-200/90',
     border: 'border-white/10',
@@ -907,10 +907,10 @@ export const DevCard = () => {
               gap: `${12 * m}px`,
               borderRightWidth: `${1 * m}px`
             }}
-            className="bg-indigo-600 dark:bg-indigo-950/60 border-slate-800"
+            className="bg-[#e52521] dark:bg-red-950/60 border-slate-800"
           >
             {avatarBlock}
-            <div style={{ fontSize: `${8 * m}px`, letterSpacing: '0.15em' }} className="text-center font-mono font-bold uppercase text-indigo-200 opacity-60">
+            <div style={{ fontSize: `${8 * m}px`, letterSpacing: '0.15em' }} className="text-center font-mono font-bold uppercase text-red-200 opacity-60">
               dev profile
             </div>
           </div>
@@ -944,7 +944,7 @@ export const DevCard = () => {
               </h2>
               <p 
                 style={{ fontSize: `${titleFontSize * m}px`, lineHeight: 1.3 }}
-                className="font-bold text-indigo-400"
+                className="font-bold text-[#d01f1c]"
               >
                 {title || 'Software Engineer'}
               </p>
@@ -1043,7 +1043,7 @@ export const DevCard = () => {
             position: 'relative',
             borderWidth: `${1 * m}px`
           }}
-          className="border-indigo-500/30 rounded-xl animate-none"
+          className="border-[#e52521]/30 rounded-xl animate-none"
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(168,85,247,0.15),transparent_40%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(34,211,238,0.12),transparent_40%)]" />
@@ -1063,7 +1063,7 @@ export const DevCard = () => {
             >
               <h2 
                 style={{ fontSize: `${nameFontSize * m}px`, lineHeight: 1.25 }} 
-                className="font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-400"
+                className="font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-red-300 to-pink-400"
               >
                 {name || 'Developer Name'}
               </h2>
@@ -1082,7 +1082,7 @@ export const DevCard = () => {
                   rowGap: `${4 * m}px`,
                   fontSize: `${metaSize}px`
                 }}
-                className="font-semibold uppercase tracking-wider text-indigo-300/80"
+                className="font-semibold uppercase tracking-wider text-red-300/80"
               >
                 {renderMetadataItems()}
               </div>
@@ -1321,7 +1321,7 @@ export const DevCard = () => {
               </h2>
               <p 
                 style={{ fontSize: `${titleFontSize * m}px`, lineHeight: 1.3 }}
-                className="font-semibold text-indigo-200"
+                className="font-semibold text-red-200"
               >
                 {title || 'Software Engineer'}
               </p>
@@ -1432,7 +1432,7 @@ export const DevCard = () => {
                   width: `${280 * 3}px`, 
                   height: `${280 * 3}px` 
                 }} 
-                className="rounded-full bg-indigo-600/30 blur-3xl animate-none" 
+                className="rounded-full bg-[#e52521]/30 blur-3xl animate-none" 
               />
               <div 
                 style={{ 
@@ -1498,7 +1498,7 @@ export const DevCard = () => {
                     onClick={() => setActiveTab(tab)}
                     className={`flex-1 text-center py-3 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border-b-2 ${
                       activeTab === tab
-                        ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-900'
+                        ? 'border-[#e52521] text-[#e52521] dark:text-[#d01f1c] bg-white dark:bg-slate-900'
                         : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-350 hover:bg-slate-100/40 dark:hover:bg-slate-800/40'
                     }`}
                   >
@@ -1516,7 +1516,7 @@ export const DevCard = () => {
                     {/* Presets */}
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                        <Layout size={14} className="text-indigo-500" />
+                        <Layout size={14} className="text-[#e52521]" />
                         Canvas Dimensions Presets
                       </label>
                       <div className="grid grid-cols-2 gap-2">
@@ -1526,7 +1526,7 @@ export const DevCard = () => {
                             onClick={() => setActivePreset(preset)}
                             className={`text-xs py-2.5 px-2 rounded-lg border font-semibold transition-all cursor-pointer text-center ${
                               activePreset === preset
-                                ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 font-bold shadow-sm'
+                                ? 'border-[#e52521] bg-red-50 dark:bg-red-950/30 text-[#e52521] dark:text-[#d01f1c] font-bold shadow-sm'
                                 : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:border-slate-350 text-slate-650 dark:text-slate-400'
                             }`}
                           >
@@ -1556,7 +1556,7 @@ export const DevCard = () => {
                     {/* Styles List */}
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                        <Palette size={14} className="text-indigo-500" />
+                        <Palette size={14} className="text-[#e52521]" />
                         Canva Designer Templates
                       </label>
                       
@@ -1567,7 +1567,7 @@ export const DevCard = () => {
                             onClick={() => setActiveTemplate(temp)}
                             className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border text-left transition-all cursor-pointer ${
                               activeTemplate === temp
-                                ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 font-bold shadow-sm'
+                                ? 'border-[#e52521] bg-red-50/50 dark:bg-red-950/20 text-[#e52521] dark:text-[#d01f1c] font-bold shadow-sm'
                                 : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-950/50 text-slate-700 dark:text-slate-300'
                             }`}
                           >
@@ -1615,7 +1615,7 @@ export const DevCard = () => {
                           type="text"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-[#e52521] focus:outline-none"
                         />
                       </div>
                       <div className="space-y-1">
@@ -1624,7 +1624,7 @@ export const DevCard = () => {
                           type="text"
                           value={title}
                           onChange={(e) => setTitle(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-[#e52521] focus:outline-none"
                         />
                       </div>
                     </div>
@@ -1637,7 +1637,7 @@ export const DevCard = () => {
                           value={location}
                           onChange={(e) => setLocation(e.target.value)}
                           placeholder="e.g. Kathmandu, Nepal"
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-[#e52521] focus:outline-none"
                         />
                       </div>
                       <div className="space-y-1">
@@ -1647,7 +1647,7 @@ export const DevCard = () => {
                           value={github}
                           onChange={(e) => setGithub(e.target.value)}
                           placeholder="Username"
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-[#e52521] focus:outline-none"
                         />
                       </div>
                       <div className="space-y-1">
@@ -1657,7 +1657,7 @@ export const DevCard = () => {
                           value={website}
                           onChange={(e) => setWebsite(e.target.value)}
                           placeholder="domain.com"
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-[#e52521] focus:outline-none"
                         />
                       </div>
                     </div>
@@ -1665,7 +1665,7 @@ export const DevCard = () => {
                     {/* Social Media Link Inputs */}
                     <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800/80">
                       <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                        <Globe size={14} className="text-indigo-500" />
+                        <Globe size={14} className="text-[#e52521]" />
                         Official Social Links
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1676,7 +1676,7 @@ export const DevCard = () => {
                             value={linkedin}
                             onChange={(e) => setLinkedin(e.target.value)}
                             placeholder="e.g. bishalkumarmishra"
-                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-[#e52521] focus:outline-none"
                           />
                         </div>
                         <div className="space-y-1">
@@ -1686,7 +1686,7 @@ export const DevCard = () => {
                             value={twitter}
                             onChange={(e) => setTwitter(e.target.value)}
                             placeholder="e.g. BishalMishra"
-                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-[#e52521] focus:outline-none"
                           />
                         </div>
                         <div className="space-y-1">
@@ -1696,7 +1696,7 @@ export const DevCard = () => {
                             value={youtube}
                             onChange={(e) => setYoutube(e.target.value)}
                             placeholder="e.g. @bishalcodes"
-                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-[#e52521] focus:outline-none"
                           />
                         </div>
                         <div className="space-y-1">
@@ -1706,7 +1706,7 @@ export const DevCard = () => {
                             value={instagram}
                             onChange={(e) => setInstagram(e.target.value)}
                             placeholder="e.g. bishalmishra"
-                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-[#e52521] focus:outline-none"
                           />
                         </div>
                         <div className="space-y-1">
@@ -1716,7 +1716,7 @@ export const DevCard = () => {
                             value={discord}
                             onChange={(e) => setDiscord(e.target.value)}
                             placeholder="e.g. bishal#1234"
-                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-[#e52521] focus:outline-none"
                           />
                         </div>
                         <div className="space-y-1">
@@ -1726,7 +1726,7 @@ export const DevCard = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="e.g. bishal@domain.com"
-                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-[#e52521] focus:outline-none"
                           />
                         </div>
                       </div>
@@ -1735,7 +1735,7 @@ export const DevCard = () => {
                     {/* Tag badging setup */}
                     <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
                       <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                        <FileCode size={14} className="text-indigo-500" />
+                        <FileCode size={14} className="text-[#e52521]" />
                         Tech Tags ({tags.length}/8)
                       </label>
                       <form onSubmit={handleAddTag} className="flex gap-2">
@@ -1745,11 +1745,11 @@ export const DevCard = () => {
                           onChange={(e) => setNewTag(e.target.value)}
                           placeholder="e.g. Docker, Rust..."
                           maxLength={15}
-                          className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-[#e52521] focus:outline-none"
                         />
                         <button
                           type="submit"
-                          className="px-3 bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white font-bold rounded-lg text-xs cursor-pointer flex items-center justify-center"
+                          className="px-3 bg-slate-900 hover:bg-slate-800 dark:bg-[#e52521] dark:hover:bg-[#d01f1c] text-white font-bold rounded-lg text-xs cursor-pointer flex items-center justify-center"
                         >
                           <Plus size={15} />
                         </button>
@@ -1784,7 +1784,7 @@ export const DevCard = () => {
                     {/* Font Selector */}
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                        <Type size={14} className="text-indigo-500" />
+                        <Type size={14} className="text-[#e52521]" />
                         Select Font Styling
                       </label>
                       <div className="grid grid-cols-2 gap-2">
@@ -1794,7 +1794,7 @@ export const DevCard = () => {
                             onClick={() => setActiveFont(font)}
                             className={`text-xs py-2 px-1.5 rounded-lg border font-semibold capitalize transition-all cursor-pointer ${
                               activeFont === font
-                                ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 font-bold'
+                                ? 'border-[#e52521] bg-red-50 dark:bg-red-950/30 text-[#e52521] dark:text-[#d01f1c] font-bold'
                                 : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:border-slate-350 text-slate-600 dark:text-slate-400'
                             }`}
                           >
@@ -1807,7 +1807,7 @@ export const DevCard = () => {
                     {/* Gradient backdrop selector */}
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                        <Palette size={14} className="text-indigo-500" />
+                        <Palette size={14} className="text-[#e52521]" />
                         Background Presets
                       </label>
                       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-2">
@@ -1817,7 +1817,7 @@ export const DevCard = () => {
                             onClick={() => setBgPreset(preset)}
                             className={`text-xs py-2 px-1 rounded-lg border font-semibold transition-all cursor-pointer capitalize ${
                               bgPreset === preset
-                                ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 font-bold'
+                                ? 'border-[#e52521] bg-red-50 dark:bg-red-950/30 text-[#e52521] dark:text-[#d01f1c] font-bold'
                                 : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:border-slate-350 text-slate-600 dark:text-slate-400'
                             }`}
                           >
@@ -1872,7 +1872,7 @@ export const DevCard = () => {
                     {/* Font sizes sliders */}
                     <div className="space-y-4 pt-3 border-t border-slate-100 dark:border-slate-800/80">
                       <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                        <Sliders size={14} className="text-indigo-500" />
+                        <Sliders size={14} className="text-[#e52521]" />
                         Font Sizes
                       </label>
                       
@@ -1918,19 +1918,19 @@ export const DevCard = () => {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                          <User size={14} className="text-indigo-500" />
+                          <User size={14} className="text-[#e52521]" />
                           Display Avatar Image
                         </label>
                         <input
                           type="checkbox"
                           checked={showAvatar}
                           onChange={(e) => setShowAvatar(e.target.checked)}
-                          className="w-4 h-4 text-indigo-600 bg-slate-100 border-slate-350 rounded focus:ring-indigo-500 cursor-pointer"
+                          className="w-4 h-4 text-[#e52521] bg-slate-100 border-slate-350 rounded focus:ring-[#e52521] cursor-pointer"
                         />
                       </div>
 
                       {showAvatar && (
-                        <div className="space-y-4 pl-3 border-l-2 border-indigo-500/20">
+                        <div className="space-y-4 pl-3 border-l-2 border-[#e52521]/20">
                           
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
@@ -1939,7 +1939,7 @@ export const DevCard = () => {
                                 <button
                                   onClick={() => setAvatarShape('circle')}
                                   className={`text-[10px] px-3 py-1 rounded-md border font-semibold cursor-pointer transition-all ${
-                                    avatarShape === 'circle' ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400' : 'border-slate-200 dark:border-slate-800 text-slate-500'
+                                    avatarShape === 'circle' ? 'border-[#e52521] bg-red-50 dark:bg-indigo-950/20 text-[#e52521] dark:text-[#d01f1c]' : 'border-slate-200 dark:border-slate-800 text-slate-500'
                                   }`}
                                 >
                                   Circle
@@ -1947,7 +1947,7 @@ export const DevCard = () => {
                                 <button
                                   onClick={() => setAvatarShape('rounded')}
                                   className={`text-[10px] px-3 py-1 rounded-md border font-semibold cursor-pointer transition-all ${
-                                    avatarShape === 'rounded' ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400' : 'border-slate-200 dark:border-slate-800 text-slate-500'
+                                    avatarShape === 'rounded' ? 'border-[#e52521] bg-red-50 dark:bg-indigo-950/20 text-[#e52521] dark:text-[#d01f1c]' : 'border-slate-200 dark:border-slate-800 text-slate-500'
                                   }`}
                                 >
                                   Square
@@ -1961,7 +1961,7 @@ export const DevCard = () => {
                                 <button
                                   onClick={() => setAvatarFit('cover')}
                                   className={`text-[10px] px-3 py-1 rounded-md border font-semibold cursor-pointer transition-all ${
-                                    avatarFit === 'cover' ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400' : 'border-slate-200 dark:border-slate-800 text-slate-500'
+                                    avatarFit === 'cover' ? 'border-[#e52521] bg-red-50 dark:bg-indigo-950/20 text-[#e52521] dark:text-[#d01f1c]' : 'border-slate-200 dark:border-slate-800 text-slate-500'
                                   }`}
                                 >
                                   Crop
@@ -1969,7 +1969,7 @@ export const DevCard = () => {
                                 <button
                                   onClick={() => setAvatarFit('contain')}
                                   className={`text-[10px] px-3 py-1 rounded-md border font-semibold cursor-pointer transition-all ${
-                                    avatarFit === 'contain' ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400' : 'border-slate-200 dark:border-slate-800 text-slate-500'
+                                    avatarFit === 'contain' ? 'border-[#e52521] bg-red-50 dark:bg-indigo-950/20 text-[#e52521] dark:text-[#d01f1c]' : 'border-slate-200 dark:border-slate-800 text-slate-500'
                                   }`}
                                 >
                                   Fit
@@ -2014,7 +2014,7 @@ export const DevCard = () => {
                     {/* Card border layout options */}
                     <div className="space-y-4 pt-3 border-t border-slate-100 dark:border-slate-800/80">
                       <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                        <SettingsIcon size={14} className="text-indigo-500" />
+                        <SettingsIcon size={14} className="text-[#e52521]" />
                         Card Border Sizing
                       </label>
                       <div className="space-y-2">
@@ -2037,7 +2037,7 @@ export const DevCard = () => {
                     <div className="space-y-4 pt-3 border-t border-slate-100 dark:border-slate-800/80">
                       <div className="flex items-center justify-between">
                         <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                          <Pencil size={14} className="text-indigo-500" />
+                          <Pencil size={14} className="text-[#e52521]" />
                           Visual Layout Editor
                         </label>
                         <button
@@ -2045,7 +2045,7 @@ export const DevCard = () => {
                           onClick={() => setIsDragModeEnabled(!isDragModeEnabled)}
                           className={`text-xs px-3 py-1.5 rounded-full font-bold cursor-pointer transition-all border ${
                             isDragModeEnabled
-                              ? 'bg-indigo-600 border-indigo-650 text-white shadow-sm'
+                              ? 'bg-[#e52521] border-indigo-650 text-white shadow-sm'
                               : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 hover:bg-slate-100 dark:text-slate-400'
                           }`}
                         >
@@ -2112,7 +2112,7 @@ export const DevCard = () => {
                   {/* Glowing backdrops for glassmorphism layout */}
                   {activeTemplate === 'glassmorphism' && (
                     <>
-                      <div className="absolute top-10 left-10 w-96 h-96 rounded-full bg-indigo-600/30 blur-3xl" />
+                      <div className="absolute top-10 left-10 w-96 h-96 rounded-full bg-[#e52521]/30 blur-3xl" />
                       <div className="absolute bottom-10 right-10 w-96 h-96 rounded-full bg-emerald-500/20 blur-3xl" />
                     </>
                   )}
@@ -2127,7 +2127,7 @@ export const DevCard = () => {
                 <button
                   onClick={handleDownloadPng}
                   disabled={exporting}
-                  className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-5 py-2.5 rounded-lg text-xs font-bold tracking-wider uppercase shadow-sm cursor-pointer transition-colors flex items-center justify-center gap-2 animate-none"
+                  className="bg-[#e52521] hover:bg-[#d01f1c] disabled:bg-indigo-400 text-white px-5 py-2.5 rounded-lg text-xs font-bold tracking-wider uppercase shadow-sm cursor-pointer transition-colors flex items-center justify-center gap-2 animate-none"
                 >
                   {exporting ? (
                     <>Creating HD Canvas...</>

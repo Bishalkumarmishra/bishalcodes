@@ -89,7 +89,7 @@ const PaymentProofViewer: React.FC<PaymentProofViewerProps> = ({ base64Image, on
         <div className="p-8 sm:p-12 text-center">
           <h2 id="payment-proof-title" className="text-3xl font-black text-slate-900 italic tracking-tighter mb-8">Payment Proof</h2>
           <div className="relative w-full h-96 bg-slate-100 flex items-center justify-center rounded-2xl border border-slate-200 overflow-hidden">
-            {imageLoading && <Loader2 className="animate-spin text-indigo-600" size={48} role="status" aria-label="Loading image" />}
+            {imageLoading && <Loader2 className="animate-spin text-[#e52521]" size={48} role="status" aria-label="Loading image" />}
             <img
               src={`data:image/jpeg;base64,${base64Image}`}
               alt="Payment Proof"
@@ -101,7 +101,7 @@ const PaymentProofViewer: React.FC<PaymentProofViewerProps> = ({ base64Image, on
               }}
             />
           </div>
-          <button onClick={onClose} className="mt-8 bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold">Close Viewer</button>
+          <button onClick={onClose} className="mt-8 bg-[#e52521] text-white px-8 py-3 rounded-lg font-bold">Close Viewer</button>
         </div>
       </div>
     </div>
@@ -199,6 +199,13 @@ const PaymentProofViewer: React.FC<PaymentProofViewerProps> = ({ base64Image, on
       keywords: "PDF to JPG, PDF to PNG, extract images from PDF, convert PDF pages",
       canonical: "https://bishalcodes.com/tools/pdf-to-image",
       ogImage: "https://bishalcodes.com/seo-images/pdf-to-image.png",
+    },
+    'tools-pdf-to-word': {
+      title: "PDF to Word Converter | Edit PDF Text Online Free | Bishal Codes",
+      description: "Convert PDF documents to editable Microsoft Word DOCX files with native layout preservation and offline client-side OCR.",
+      keywords: "PDF to Word, convert PDF to Docx, PDF to editable Word, local PDF to Word OCR",
+      canonical: "https://bishalcodes.com/tools/pdf-to-word",
+      ogImage: "https://bishalcodes.com/seo-images/pdf-to-word.png",
     },
     'tools-dev-card-studio': {
       title: "Developer Card Studio | Design Business Cards Online | Bishal Codes",
@@ -360,6 +367,7 @@ const Admin: React.FC = () => {
     { id: 'tools-translator', name: 'Tool: Translator' },
     { id: 'tools-ai-summarizer', name: 'Tool: AI Summarizer' },
     { id: 'tools-pdf-to-image', name: 'Tool: PDF to Image' },
+    { id: 'tools-pdf-to-word', name: 'Tool: PDF to Word' },
     { id: 'tools-dev-card-studio', name: 'Tool: Dev Card Studio' },
     { id: 'tools-add-page-numbers', name: 'Tool: Add Page Numbers' },
     { id: 'tools-merge-pdf', name: 'Tool: Merge PDF' },
@@ -1695,6 +1703,7 @@ Output ONLY the final humanized text in Markdown format. Do NOT wrap it in extra
           { title: 'Merge PDF', description: 'Combine multiple PDF documents into a single file instantly. Maintains 100% original ultra-high quality. Works completely offline.', iconUrl: '/merge pdf.svg', bgImageUrl: 'https://www.adobe.com/acrobat/online/media_103939bb66e443fe831b451a36fcb4af8e954e67a.png?width=1200&format=pjpg&optimize=medium', linkUrl: 'merge-pdf', badge: '', order: 5 },
           { title: 'Add Page Numbers', description: 'Natively stamp standard or Roman numeral page numbers onto any PDF file instantly. Maintains original vector quality.', iconUrl: '/page number.svg', bgImageUrl: 'https://www.adobe.com/dc-shared/assets/images/frictionless/how-to-images/add-pdf-page-numbers.svg', linkUrl: 'add-page-numbers', badge: '', order: 6 },
           { title: 'PDF to Image', description: 'Extract high-quality JPG or PNG images from any PDF document. Bundles all pages into a convenient .zip download.', iconUrl: '/pdf to png jpg.svg', bgImageUrl: 'https://s.smallpdf.com/static/cms/f/102628/300x180/a73f80f984/62ac088ae0f9e2098a7b.svg', linkUrl: 'pdf-to-image', badge: '', order: 7 },
+          { title: 'PDF to Word', description: 'Convert PDF documents into fully editable Microsoft Word DOCX documents with maximum precision. Runs entirely offline in your browser.', iconUrl: '/word.svg', bgImageUrl: 'https://s.smallpdf.com/static/cms/f/102628/300x180/0cf4630611/bb46b97de13eb9b590de.svg', linkUrl: 'pdf-to-word', badge: '', order: 8 },
           { title: 'AI PDF Summarizer', description: 'Upload any PDF and our AI will instantly read it, analyze it, and generate a beautifully structured markdown summary.', iconUrl: '/ai summairaizer.svg', bgImageUrl: 'https://s.smallpdf.com/static/cms/f/102628/600x520/c4a4255f01/ai-summarizer-3.svg', linkUrl: 'ai-summarizer', badge: 'NEW', order: 8 },
           { title: 'Smart Image Compressor', description: 'Reduce image file sizes (JPEG, PNG, WebP) to target levels (like 200 KB or 100 KB) instantly client-side without quality loss.', iconUrl: '/image-compressor.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'image-compressor', badge: 'NEW', order: 9 },
           { title: 'EMI & Loan Calculator', description: 'Plan your loans with sliders for principal, rates, and tenure. Instantly shows EMI breakdown charts and yearly amortization ledgers.', iconUrl: '/emi-calculator.svg', bgImageUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=600&auto=format&fit=crop', linkUrl: 'emi-calculator', badge: 'NEW', order: 10 },
@@ -2142,7 +2151,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
   if (isAuthorized !== true) {
     return (
       <div className="h-screen bg-slate-50 flex flex-col items-center justify-center">
-         <Loader2 className="animate-spin text-indigo-600 mb-3" size={24} />
+         <Loader2 className="animate-spin text-[#e52521] mb-3" size={24} />
          <p className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Verifying access...</p>
       </div>
     );
@@ -2218,9 +2227,9 @@ If you have any questions about this Data Deletion Policy or your data deletion 
             {activeTab === 'dashboard' || activeTab === 'system' ? (
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                  {[
-                   { label: 'Total Visits', val: dailyVisits.reduce((sum, d) => sum + (d.visits || 0), 0), icon: <Globe size={14} />, color: 'text-indigo-600' },
+                   { label: 'Total Visits', val: dailyVisits.reduce((sum, d) => sum + (d.visits || 0), 0), icon: <Globe size={14} />, color: 'text-[#e52521]' },
                    { label: 'Visits Today', val: dailyVisits.find(d => d.date === new Date().toISOString().split('T')[0])?.visits || 0, icon: <Activity size={14} />, color: 'text-sky-600' },
-                   { label: 'Leads / Inquiries', val: submissions.length, icon: <Inbox size={14} />, color: 'text-purple-600' },
+                   { label: 'Leads / Inquiries', val: submissions.length, icon: <Inbox size={14} />, color: 'text-[#e52521]' },
                    { label: 'Pending Payments', val: payments.filter(p => p.status === 'pending').length, icon: <Coins size={14} />, color: 'text-amber-600' },
                    { label: 'Total Projects', val: projects.length, icon: <Layout size={14} />, color: 'text-emerald-600' },
                  ].map((stat, i) => (
@@ -2246,7 +2255,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
                       <h3 className="text-slate-900 font-semibold text-base flex items-center gap-2">
-                        <Activity size={18} className="text-indigo-600 animate-pulse" />
+                        <Activity size={18} className="text-[#e52521] animate-pulse" />
                         Traffic Trend & Analytics
                       </h3>
                       <p className="text-[10px] text-slate-500 mt-0.5">Historical traffic data of visitors and tool interactions saved for a lifetime.</p>
@@ -2265,7 +2274,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                           onClick={() => setTrafficRange(opt.value)}
                           className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
                             trafficRange === opt.value
-                              ? 'bg-white text-indigo-600 shadow-sm border border-slate-200/40'
+                              ? 'bg-white text-[#e52521] shadow-sm border border-slate-200/40'
                               : 'hover:bg-slate-200/50 text-slate-500'
                           }`}
                         >
@@ -2505,7 +2514,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                       <span className="text-slate-300 font-medium">
                                         {new Date(p.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
                                       </span>
-                                      <span className="text-indigo-400 text-xs font-black mt-1">{p.visits} visits</span>
+                                      <span className="text-[#d01f1c] text-xs font-black mt-1">{p.visits} visits</span>
                                       {totalVisits > 0 && (
                                         <span className="text-slate-400 text-[8px] mt-0.5">
                                           {((p.visits / totalVisits) * 100).toFixed(1)}% of total
@@ -2541,7 +2550,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                   <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm space-y-4">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-2">
                       <h3 className="text-slate-900 font-semibold text-sm flex items-center gap-2">
-                        <Globe size={16} className="text-indigo-600" />
+                        <Globe size={16} className="text-[#e52521]" />
                         Lifetime Traffic Log
                       </h3>
                       <div className="relative w-full sm:w-28 shrink-0">
@@ -2550,7 +2559,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                           placeholder="Search date..."
                           value={trafficLogSearch}
                           onChange={(e) => setTrafficLogSearch(e.target.value)}
-                          className="w-full text-[10px] pl-5 pr-4 py-1 bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 rounded-lg outline-none text-slate-700 focus:border-indigo-500 transition-all font-semibold"
+                          className="w-full text-[10px] pl-5 pr-4 py-1 bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 rounded-lg outline-none text-slate-700 focus:border-[#e52521] transition-all font-semibold"
                         />
                         <Search size={10} className="absolute left-1.5 top-1/2 -translate-y-1/2 text-slate-400" />
                         {trafficLogSearch && (
@@ -2575,10 +2584,10 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                             <div key={idx} className="space-y-1">
                               <div className="flex justify-between text-xs font-semibold text-slate-700">
                                 <span>{formattedDate}</span>
-                                <span className="text-indigo-600">{d.visits || 0} visits</span>
+                                <span className="text-[#e52521]">{d.visits || 0} visits</span>
                               </div>
                               <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                <div className="bg-indigo-600 h-full rounded-full" style={{ width: `${percent}%` }} />
+                                <div className="bg-[#e52521] h-full rounded-full" style={{ width: `${percent}%` }} />
                               </div>
                             </div>
                           );
@@ -2591,7 +2600,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                   <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm space-y-4 lg:col-span-2 text-left">
                     <div className="flex justify-between items-center border-b border-slate-100 pb-2">
                       <h3 className="text-slate-900 font-semibold text-sm flex items-center gap-2">
-                        <Cpu size={16} className="text-indigo-600" />
+                        <Cpu size={16} className="text-[#e52521]" />
                         Tool Usage Leaderboard
                       </h3>
                       {toolClicks.length > 0 && (
@@ -2606,7 +2615,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         const percent = ((tc.clicks || 0) / (totalClicks || 1)) * 100;
                         
                         let rankBadgeStyle = 'bg-slate-50 text-slate-600 border-slate-200';
-                        let progressColor = 'bg-gradient-to-r from-indigo-500 to-purple-500';
+                        let progressColor = 'bg-[#e52521]';
                         let rankLabel = `#${idx + 1}`;
                         
                         if (idx === 0) {
@@ -2632,7 +2641,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                               <div className="flex justify-between items-baseline">
                                 <span className="capitalize font-bold text-slate-800">{tc.toolSlug.replace(/-/g, ' ')}</span>
                                 <span className="text-[10px] text-slate-500 font-medium">
-                                  <strong className="text-indigo-600 font-extrabold">{tc.clicks || 0}</strong> clicks ({percent.toFixed(0)}%)
+                                  <strong className="text-[#e52521] font-extrabold">{tc.clicks || 0}</strong> clicks ({percent.toFixed(0)}%)
                                 </span>
                               </div>
                               <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden shadow-inner">
@@ -2658,7 +2667,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                             <p className="font-semibold text-slate-900 text-xs">{s.name}</p>
                             <p className="text-[10px] text-slate-500">{s.email || s.phone}</p>
                           </div>
-                          <span className="text-[10px] font-semibold text-indigo-600">{new Date(s.timestamp).toLocaleDateString()}</span>
+                          <span className="text-[10px] font-semibold text-[#e52521]">{new Date(s.timestamp).toLocaleDateString()}</span>
                         </div>
                       )) : <div className="py-10 text-center text-slate-400 font-semibold uppercase tracking-widest text-xs">No Recent Leads</div>}
                     </div>
@@ -2672,7 +2681,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                             <p className="font-semibold text-slate-900 text-xs">{p.title}</p>
                             <p className="text-[10px] text-slate-500 line-clamp-1">{p.description}</p>
                           </div>
-                          <span className="text-[10px] font-semibold text-purple-600">{p.techStack && p.techStack.slice(0, 2).join(', ')}</span>
+                          <span className="text-[10px] font-semibold text-[#e52521]">{p.techStack && p.techStack.slice(0, 2).join(', ')}</span>
                         </div>
                       )) : <div className="py-10 text-center text-slate-400 font-semibold uppercase tracking-widest text-xs">No Projects Found</div>}
                     </div>
@@ -2694,27 +2703,27 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Project Title</label>
-                          <input placeholder="Project Title" value={projectForm.title} onChange={e => setProjectForm({...projectForm, title: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input placeholder="Project Title" value={projectForm.title} onChange={e => setProjectForm({...projectForm, title: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Live URL</label>
-                          <input placeholder="Live URL" value={projectForm.liveUrl} onChange={e => setProjectForm({...projectForm, liveUrl: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input placeholder="Live URL" value={projectForm.liveUrl} onChange={e => setProjectForm({...projectForm, liveUrl: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">GitHub URL</label>
-                          <input placeholder="GitHub URL" value={projectForm.githubUrl || ''} onChange={e => setProjectForm({...projectForm, githubUrl: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input placeholder="GitHub URL" value={projectForm.githubUrl || ''} onChange={e => setProjectForm({...projectForm, githubUrl: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Tech Stack (CSV)</label>
-                          <input placeholder="Tech Stack (CSV)" value={Array.isArray(projectForm.techStack) ? projectForm.techStack.join(', ') : projectForm.techStack} onChange={e => setProjectForm({...projectForm, techStack: e.target.value.split(',').map(s => s.trim()).filter(Boolean) as any})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input placeholder="Tech Stack (CSV)" value={Array.isArray(projectForm.techStack) ? projectForm.techStack.join(', ') : projectForm.techStack} onChange={e => setProjectForm({...projectForm, techStack: e.target.value.split(',').map(s => s.trim()).filter(Boolean) as any})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="md:col-span-2 space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Short Description</label>
-                          <textarea placeholder="Description" value={projectForm.description} onChange={e => setProjectForm({...projectForm, description: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" rows={2} />
+                          <textarea placeholder="Description" value={projectForm.description} onChange={e => setProjectForm({...projectForm, description: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" rows={2} />
                         </div>
                         <div className="md:col-span-2 space-y-1">
                           <label className="text-xs font-semibold text-slate-700">SEO Description</label>
-                          <textarea placeholder="SEO Description" value={projectForm.seoDescription || ''} onChange={e => setProjectForm({...projectForm, seoDescription: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" rows={2} />
+                          <textarea placeholder="SEO Description" value={projectForm.seoDescription || ''} onChange={e => setProjectForm({...projectForm, seoDescription: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" rows={2} />
                         </div>
                         
                         <div className="md:col-span-2 p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4 text-left">
@@ -2722,7 +2731,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                           <input type="file" ref={fileInputRef} multiple accept="image/*,video/*,application/pdf" onChange={handleFileUpload} className="block w-full text-[10px] text-slate-600 file:bg-slate-100 file:text-slate-900 file:border-0 file:px-4 file:py-2 file:rounded-lg file:mr-4 file:font-semibold cursor-pointer" />
                           
                           <div className="flex gap-2">
-                             <input placeholder="External Image/Video URL" value={mediaLinkInput} onChange={e => setMediaLinkInput(e.target.value)} className="flex-1 bg-white border border-slate-200 p-2 rounded-lg text-slate-900 text-xs outline-none focus:border-indigo-500 transition-all font-medium" />
+                             <input placeholder="External Image/Video URL" value={mediaLinkInput} onChange={e => setMediaLinkInput(e.target.value)} className="flex-1 bg-white border border-slate-200 p-2 rounded-lg text-slate-900 text-xs outline-none focus:border-[#e52521] transition-all font-medium" />
                              <button onClick={() => { if(mediaLinkInput) setProjectForm(p=>({...p, images:[...p.images, {url: mediaLinkInput, type: mediaLinkInput.includes('youtube')?'video':'image'}]})); setMediaLinkInput(''); }} className="bg-slate-900 text-white px-4 py-2 rounded-lg font-semibold text-xs hover:bg-slate-800 transition-all">Add URL</button>
                           </div>
     
@@ -2767,7 +2776,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         )}
                         <button 
                             onClick={() => { setProjectForm(defaultProjectForm); setFormModalTitle('Add New Project'); setIsFormModalOpen(true); }}
-                            className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-indigo-700 transition-all active:scale-95">
+                            className="bg-[#e52521] text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-[#d01f1c] transition-all active:scale-95">
                             <Plus size={12}/> Add Project
                         </button>
                       </div>
@@ -2785,8 +2794,8 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                              </div>
                            </div>
                            <div className="flex items-center gap-2">
-                             <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-slate-100 text-sky-600 rounded-lg hover:bg-indigo-100 hover:text-indigo-700 transition-all"><ExternalLink size={14}/></a>
-                             <button onClick={() => startEdit(p, setProjectForm)} className="p-2 bg-slate-100 text-indigo-600 rounded-lg hover:bg-indigo-100 hover:text-indigo-700 transition-all"><Edit3 size={14}/></button>
+                             <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-slate-100 text-sky-600 rounded-lg hover:bg-red-100 hover:text-[#e52521] transition-all"><ExternalLink size={14}/></a>
+                             <button onClick={() => startEdit(p, setProjectForm)} className="p-2 bg-slate-100 text-[#e52521] rounded-lg hover:bg-red-100 hover:text-[#e52521] transition-all"><Edit3 size={14}/></button>
                              <button onClick={() => deleteItem('projects', p.id)} className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-500 hover:text-white transition-all"><Trash2 size={14}/></button>
                            </div>
                          </div>
@@ -2816,21 +2825,21 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Service Title</label>
-                          <input placeholder="Title" value={serviceForm.title} onChange={e => setServiceForm({...serviceForm, title: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input placeholder="Title" value={serviceForm.title} onChange={e => setServiceForm({...serviceForm, title: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Link URL / Slug</label>
-                          <input placeholder="Link URL (slug)" value={serviceForm.linkUrl} onChange={e => setServiceForm({...serviceForm, linkUrl: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input placeholder="Link URL (slug)" value={serviceForm.linkUrl} onChange={e => setServiceForm({...serviceForm, linkUrl: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Icon URL</label>
-                          <input placeholder="Icon URL" value={serviceForm.iconUrl} onChange={e => setServiceForm({...serviceForm, iconUrl: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input placeholder="Icon URL" value={serviceForm.iconUrl} onChange={e => setServiceForm({...serviceForm, iconUrl: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="md:col-span-2 space-y-2 border-t border-slate-100 pt-4 mt-2">
                           <label className="text-xs font-semibold text-slate-700 block">Background Image</label>
                           <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
                             {serviceForm.bgImageUrl && (
-                              <div className="w-20 h-12 rounded-lg bg-indigo-50 border-2 border-indigo-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                              <div className="w-20 h-12 rounded-lg bg-red-50 border-2 border-red-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                                 <img src={serviceForm.bgImageUrl} alt="Preview" className="w-full h-full object-cover" />
                               </div>
                             )}
@@ -2841,7 +2850,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                 placeholder="Paste background image URL link here..." 
                                 value={serviceForm.bgImageUrl || ''} 
                                 onChange={e => setServiceForm({...serviceForm, bgImageUrl: e.target.value})} 
-                                className="w-full bg-white border border-slate-300 p-2 rounded-lg text-slate-900 font-medium outline-none focus:border-indigo-500 transition-all text-xs" 
+                                className="w-full bg-white border border-slate-300 p-2 rounded-lg text-slate-900 font-medium outline-none focus:border-[#e52521] transition-all text-xs" 
                               />
                               
                               <div className="flex items-center gap-2">
@@ -2884,15 +2893,15 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         </div>
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Badge</label>
-                          <input placeholder="Badge (e.g., NEW) Optional" value={serviceForm.badge} onChange={e => setServiceForm({...serviceForm, badge: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input placeholder="Badge (e.g., NEW) Optional" value={serviceForm.badge} onChange={e => setServiceForm({...serviceForm, badge: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Order</label>
-                          <input type="number" placeholder="Order" value={serviceForm.order} onChange={e => setServiceForm({...serviceForm, order: Number(e.target.value)})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input type="number" placeholder="Order" value={serviceForm.order} onChange={e => setServiceForm({...serviceForm, order: Number(e.target.value)})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="md:col-span-2 space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Description</label>
-                          <textarea placeholder="Description" value={serviceForm.description} onChange={e => setServiceForm({...serviceForm, description: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs md:col-span-2" rows={3} />
+                          <textarea placeholder="Description" value={serviceForm.description} onChange={e => setServiceForm({...serviceForm, description: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs md:col-span-2" rows={3} />
                         </div>
                         <button onClick={async () => {
                           if (!serviceForm.title || !serviceForm.linkUrl) { alert('Title and Link URL are required!'); return; }
@@ -2923,7 +2932,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                     <h3 className="text-slate-900 font-semibold text-sm">Existing Services</h3>
                     <button 
                         onClick={() => { setServiceForm({ title: '', description: '', iconUrl: '', bgImageUrl: '', linkUrl: '', badge: '', order: 0 }); setFormModalTitle('Add New Service'); setIsFormModalOpen(true); }}
-                        className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-indigo-700 transition-all active:scale-95">
+                        className="bg-[#e52521] text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-[#d01f1c] transition-all active:scale-95">
                         <Plus size={12}/> Add Service
                     </button>
                   </div>
@@ -2942,7 +2951,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         <tr key={srv.id} className="border-b border-slate-100 text-sm">
                           <td className="p-3 font-medium text-slate-800">{srv.order}</td>
                           <td className="p-3"><img src={srv.iconUrl} className="w-8 h-8 object-contain rounded" /></td>
-                          <td className="p-3 font-semibold text-slate-900">{srv.title} {srv.badge && <span className="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full ml-2">{srv.badge}</span>}</td>
+                          <td className="p-3 font-semibold text-slate-900">{srv.title} {srv.badge && <span className="bg-red-100 text-[#e52521] text-[10px] px-2 py-0.5 rounded-full ml-2">{srv.badge}</span>}</td>
                           <td className="p-3 text-slate-500 text-xs">{srv.linkUrl}</td>
                           <td className="p-3 text-right">
                             <button onClick={() => startEdit(srv, setServiceForm)} className="text-blue-500 hover:text-blue-700 mr-3"><Edit3 size={16}/></button>
@@ -2978,7 +2987,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                             <button
                               onClick={() => setBlogPreviewMode('preview')}
                               className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${
-                                blogPreviewMode === 'preview' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                blogPreviewMode === 'preview' ? 'bg-white text-[#e52521] shadow-sm' : 'text-slate-500 hover:text-slate-700'
                               }`}
                             >
                               👁 Live Preview
@@ -2993,18 +3002,18 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="md:col-span-2 flex justify-between items-center pb-2">
                             <span className="text-xs font-semibold text-slate-400">AI Assistance Available</span>
-                            <button onClick={handleDeepBlogGen} disabled={aiLoading} className="bg-slate-100 text-slate-800 border border-slate-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 px-3 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 transition-all">
+                            <button onClick={handleDeepBlogGen} disabled={aiLoading} className="bg-slate-100 text-slate-800 border border-slate-200 hover:bg-red-50 hover:text-[#d01f1c] hover:border-red-200 px-3 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 transition-all">
                                {aiLoading ? <Loader2 size={14} className="animate-spin"/> : <><Wand2 size={14}/> Generate Content</>}
                             </button>
                           </div>
                           <div className="md:col-span-2 space-y-1">
                             <label className="text-xs font-semibold text-slate-700">Article Title</label>
-                            <input placeholder="Title" value={blogForm.title} onChange={e => setBlogForm({...blogForm, title: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                            <input placeholder="Title" value={blogForm.title} onChange={e => setBlogForm({...blogForm, title: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                           </div>
                           <div className="space-y-1">
                             <label className="text-xs font-semibold text-slate-700">Banner URL</label>
                             <div className="flex gap-2">
-                              <input placeholder="Banner URL" value={blogForm.imageUrl} onChange={e => setBlogForm({...blogForm, imageUrl: e.target.value})} className="flex-1 bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                              <input placeholder="Banner URL" value={blogForm.imageUrl} onChange={e => setBlogForm({...blogForm, imageUrl: e.target.value})} className="flex-1 bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                               <div className="relative flex items-center">
                                 <input 
                                   type="file" 
@@ -3033,7 +3042,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                           </div>
                           <div className="space-y-1">
                             <label className="text-xs font-semibold text-slate-700">Tag</label>
-                            <input placeholder="Tag" value={blogForm.tag} onChange={e => setBlogForm({...blogForm, tag: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                            <input placeholder="Tag" value={blogForm.tag} onChange={e => setBlogForm({...blogForm, tag: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                           </div>
                           <div className="md:col-span-2 space-y-1">
                             <div className="flex justify-between items-center mb-1">
@@ -3043,12 +3052,12 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                   type="button"
                                   onClick={handleHumanizeBlogContent}
                                   disabled={humanizeLoading || !blogForm.content.trim()}
-                                  className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 border border-indigo-200 px-3 py-1.5 rounded-lg font-bold text-[10px] flex items-center gap-1.5 transition-all select-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="bg-red-50 text-[#e52521] hover:bg-red-100 hover:text-[#d01f1c] border border-red-200 px-3 py-1.5 rounded-lg font-bold text-[10px] flex items-center gap-1.5 transition-all select-none disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                   {humanizeLoading ? (
-                                    <Loader2 size={11} className="animate-spin text-indigo-700" />
+                                    <Loader2 size={11} className="animate-spin text-[#e52521]" />
                                   ) : (
-                                    <Sparkles size={11} className="text-indigo-700" />
+                                    <Sparkles size={11} className="text-[#e52521]" />
                                   )}
                                   AI Humanizer (Undetectable.ai)
                                 </button>
@@ -3067,7 +3076,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                 </div>
                               </div>
                             </div>
-                            <textarea ref={textareaRef} placeholder="Content (Markdown)" value={blogForm.content} onChange={e => setBlogForm({...blogForm, content: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs font-mono" rows={14} />
+                            <textarea ref={textareaRef} placeholder="Content (Markdown)" value={blogForm.content} onChange={e => setBlogForm({...blogForm, content: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs font-mono" rows={14} />
                           </div>
                           <button onClick={() => saveItem('blog', blogForm, setBlogForm, {id:'', title:'', excerpt:'', tag:'', content:'', imageUrl:'', seoDescription:'', views:0})} className="md:col-span-2 bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-lg font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"><Save size={14} className="inline" /> Save Blog Post</button>
                         </div>
@@ -3087,7 +3096,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                   placeholder="https://... paste image URL here"
                                   value={imageReplaceUrl}
                                   onChange={e => setImageReplaceUrl(e.target.value)}
-                                  className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs"
+                                  className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs"
                                 />
                                 <div className="flex gap-2">
                                   <label className="flex-1 cursor-pointer">
@@ -3120,7 +3129,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                       setImageReplaceTarget(null);
                                       setImageReplaceUrl('');
                                     }}
-                                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 px-3 rounded-lg text-xs font-bold transition-all"
+                                    className="flex-1 bg-[#e52521] hover:bg-[#d01f1c] text-white py-2.5 px-3 rounded-lg text-xs font-bold transition-all"
                                   >
                                     ✓ Apply
                                   </button>
@@ -3145,7 +3154,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                 <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/40 transition-all duration-200 flex items-center justify-center gap-3 opacity-0 group-hover/img:opacity-100">
                                   <button
                                     onClick={() => { setImageReplaceTarget({ oldUrl: blogForm.imageUrl }); setImageReplaceUrl(blogForm.imageUrl); }}
-                                    className="bg-white text-slate-900 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-lg hover:bg-indigo-50 transition-all flex items-center gap-1"
+                                    className="bg-white text-slate-900 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-lg hover:bg-red-50 transition-all flex items-center gap-1"
                                   >
                                     <ImageIcon size={11} /> Change Image
                                   </button>
@@ -3169,7 +3178,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                     <span className="absolute inset-0 bg-black/0 group-hover/img:bg-black/50 transition-all duration-200 rounded-xl flex items-center justify-center gap-3 opacity-0 group-hover/img:opacity-100">
                                       <button
                                         onClick={() => { setImageReplaceTarget({ oldUrl: src || '' }); setImageReplaceUrl(src || ''); }}
-                                        className="bg-white text-slate-900 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-lg hover:bg-indigo-50 transition-all flex items-center gap-1"
+                                        className="bg-white text-slate-900 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-lg hover:bg-red-50 transition-all flex items-center gap-1"
                                       >
                                         <ImageIcon size={11} /> Change Image
                                       </button>
@@ -3191,13 +3200,13 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                 h3: ({ children }) => <h3 className="text-base font-bold text-slate-800 mt-5 mb-2">{children}</h3>,
                                 p: ({ children }) => <p className="text-slate-700 leading-relaxed mb-4 text-sm">{children}</p>,
                                 strong: ({ children }) => <strong className="font-bold text-slate-900">{children}</strong>,
-                                a: ({ href, children }) => <a href={href} className="text-indigo-600 underline underline-offset-2 hover:text-indigo-800" target="_blank" rel="noopener noreferrer">{children}</a>,
-                                code: ({ children }) => <code className="bg-slate-100 text-indigo-700 px-1.5 py-0.5 rounded text-[11px] font-mono">{children}</code>,
+                                a: ({ href, children }) => <a href={href} className="text-[#e52521] underline underline-offset-2 hover:text-[#d01f1c]" target="_blank" rel="noopener noreferrer">{children}</a>,
+                                code: ({ children }) => <code className="bg-slate-100 text-[#e52521] px-1.5 py-0.5 rounded text-[11px] font-mono">{children}</code>,
                                 pre: ({ children }) => <pre className="bg-slate-900 text-slate-100 p-4 rounded-xl overflow-x-auto text-[11px] font-mono my-4">{children}</pre>,
                                 ul: ({ children }) => <ul className="list-disc list-inside text-slate-700 text-sm space-y-1 mb-4 ml-2">{children}</ul>,
                                 ol: ({ children }) => <ol className="list-decimal list-inside text-slate-700 text-sm space-y-1 mb-4 ml-2">{children}</ol>,
                                 li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-                                blockquote: ({ children }) => <blockquote className="border-l-4 border-indigo-400 pl-4 italic text-slate-600 my-4">{children}</blockquote>,
+                                blockquote: ({ children }) => <blockquote className="border-l-4 border-[#e52521] pl-4 italic text-slate-600 my-4">{children}</blockquote>,
                                 hr: () => <hr className="border-slate-200 my-6" />,
                                 table: ({ children }) => <div className="overflow-x-auto my-4"><table className="w-full text-xs border-collapse border border-slate-200 rounded-lg">{children}</table></div>,
                                 th: ({ children }) => <th className="bg-slate-100 border border-slate-200 p-2 font-bold text-slate-800 text-left">{children}</th>,
@@ -3218,7 +3227,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                     <h3 className="text-slate-900 font-semibold text-sm">Existing Blog Posts</h3>
                     <button 
                         onClick={() => { setBlogForm({ id: '', title: '', excerpt: '', tag: '', content: '', imageUrl: '', seoDescription: '', views: 0 }); setFormModalTitle('Write Blog Post'); setIsFormModalOpen(true); }}
-                        className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-indigo-700 transition-all active:scale-95">
+                        className="bg-[#e52521] text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-[#d01f1c] transition-all active:scale-95">
                         <Plus size={12}/> Write Post
                     </button>
                   </div>
@@ -3227,7 +3236,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                     <div key={b.id} className="bg-white border border-slate-200 p-4 rounded-xl flex justify-between items-center group hover:bg-slate-100 transition-colors">
                       <p className="text-slate-900 font-semibold truncate">{b.title}</p>
                       <div className="flex gap-2">
-                        <button onClick={() => startEdit(b, setBlogForm)} className="p-2 bg-slate-100 text-indigo-600 rounded-lg hover:bg-indigo-100 hover:text-indigo-700 transition-all"><Edit3 size={14}/></button>
+                        <button onClick={() => startEdit(b, setBlogForm)} className="p-2 bg-slate-100 text-[#e52521] rounded-lg hover:bg-red-100 hover:text-[#e52521] transition-all"><Edit3 size={14}/></button>
                         <button onClick={() => deleteItem('blog', b.id)} className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-500 hover:text-white transition-all"><Trash2 size={14}/></button>
                       </div>
                     </div>
@@ -3250,11 +3259,11 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Client Name</label>
-                          <input placeholder="Client Name" value={testimonialForm.name} onChange={e => setTestimonialForm({...testimonialForm, name: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input placeholder="Client Name" value={testimonialForm.name} onChange={e => setTestimonialForm({...testimonialForm, name: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Company</label>
-                          <input placeholder="Company Name" value={testimonialForm.company} onChange={e => setTestimonialForm({...testimonialForm, company: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input placeholder="Company Name" value={testimonialForm.company} onChange={e => setTestimonialForm({...testimonialForm, company: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="md:col-span-2 space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Rating (1-5 Stars)</label>
@@ -3265,11 +3274,11 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         <div className="md:col-span-2 space-y-2 border-t border-slate-100 pt-4 mt-2">
                           <label className="text-xs font-semibold text-slate-700 block">Client Profile Image (Avatar)</label>
                           <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                            <div className="w-14 h-14 rounded-full bg-indigo-50 border-2 border-indigo-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                            <div className="w-14 h-14 rounded-full bg-red-50 border-2 border-red-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                               {testimonialForm.avatarUrl ? (
                                 <img src={testimonialForm.avatarUrl} alt="Preview" className="w-full h-full object-cover" />
                               ) : (
-                                <span className="text-indigo-600 font-bold text-xl">{testimonialForm.name ? testimonialForm.name.charAt(0).toUpperCase() : 'C'}</span>
+                                <span className="text-[#e52521] font-bold text-xl">{testimonialForm.name ? testimonialForm.name.charAt(0).toUpperCase() : 'C'}</span>
                               )}
                             </div>
                             
@@ -3279,7 +3288,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                 placeholder="Or paste direct image URL link here..." 
                                 value={testimonialForm.avatarUrl || ''} 
                                 onChange={e => setTestimonialForm({...testimonialForm, avatarUrl: e.target.value})} 
-                                className="w-full bg-white border border-slate-300 p-2 rounded-lg text-slate-900 font-medium outline-none focus:border-indigo-500 transition-all text-xs" 
+                                className="w-full bg-white border border-slate-300 p-2 rounded-lg text-slate-900 font-medium outline-none focus:border-[#e52521] transition-all text-xs" 
                               />
                               
                               <div className="flex items-center gap-2">
@@ -3319,7 +3328,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         </div>
                         <div className="md:col-span-2 space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Testimonial Text</label>
-                          <textarea placeholder="Client feedback..." value={testimonialForm.text} onChange={e => setTestimonialForm({...testimonialForm, text: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 font-medium resize-none outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" rows={4} />
+                          <textarea placeholder="Client feedback..." value={testimonialForm.text} onChange={e => setTestimonialForm({...testimonialForm, text: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 font-medium resize-none outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" rows={4} />
                         </div>
                         <button onClick={() => saveItem('testimonials', testimonialForm, setTestimonialForm, defaultTestimonialForm)} className="md:col-span-2 bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-lg font-semibold text-xs transition-colors flex items-center justify-center gap-2"><Save size={14} className="inline" /> Save Testimonial</button>
                       </div>
@@ -3332,7 +3341,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                     <h3 className="text-slate-900 font-semibold text-sm">Testimonials</h3>
                     <button 
                         onClick={() => { setTestimonialForm(defaultTestimonialForm); setFormModalTitle('Add Testimonial'); setIsFormModalOpen(true); }}
-                        className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-indigo-700 transition-all active:scale-95">
+                        className="bg-[#e52521] text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-[#d01f1c] transition-all active:scale-95">
                         <Plus size={12}/> Add Testimonial
                     </button>
                   </div>
@@ -3340,7 +3349,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                     {testimonials.length > 0 ? testimonials.map(t => (
                     <div key={t.id} className="bg-white border border-slate-200 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 group hover:bg-slate-100 transition-colors">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="w-10 h-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center overflow-hidden shrink-0 font-bold text-indigo-700">
+                        <div className="w-10 h-10 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center overflow-hidden shrink-0 font-bold text-indigo-700">
                           {t.avatarUrl ? (
                             <img src={t.avatarUrl} alt={t.name} className="w-full h-full object-cover" />
                           ) : (
@@ -3357,7 +3366,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <button onClick={() => startEdit(t, setTestimonialForm)} className="p-2 bg-slate-100 text-indigo-600 rounded-lg hover:bg-indigo-100 hover:text-indigo-700 transition-all"><Edit3 size={14}/></button>
+                        <button onClick={() => startEdit(t, setTestimonialForm)} className="p-2 bg-slate-100 text-[#e52521] rounded-lg hover:bg-red-100 hover:text-indigo-700 transition-all"><Edit3 size={14}/></button>
                         <button onClick={() => deleteItem('testimonials', t.id)} className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-500 hover:text-white transition-all"><Trash2 size={14}/></button>
                       </div>
                     </div>
@@ -3380,23 +3389,23 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Job Title</label>
-                          <input placeholder="e.g., Senior Full-Stack Developer" value={experienceForm.title} onChange={e => setExperienceForm({...experienceForm, title: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input placeholder="e.g., Senior Full-Stack Developer" value={experienceForm.title} onChange={e => setExperienceForm({...experienceForm, title: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Company</label>
-                          <input placeholder="e.g., Tech Solutions" value={experienceForm.company} onChange={e => setExperienceForm({...experienceForm, company: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input placeholder="e.g., Tech Solutions" value={experienceForm.company} onChange={e => setExperienceForm({...experienceForm, company: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Period</label>
-                          <input placeholder="e.g., Jan 2023 - Present" value={experienceForm.period} onChange={e => setExperienceForm({...experienceForm, period: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input placeholder="e.g., Jan 2023 - Present" value={experienceForm.period} onChange={e => setExperienceForm({...experienceForm, period: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Order (Lower = First)</label>
-                          <input type="number" placeholder="e.g., 1" value={experienceForm.order} onChange={e => setExperienceForm({...experienceForm, order: Number(e.target.value)})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                          <input type="number" placeholder="e.g., 1" value={experienceForm.order} onChange={e => setExperienceForm({...experienceForm, order: Number(e.target.value)})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="md:col-span-2 space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Description</label>
-                          <textarea placeholder="Key responsibilities and achievements..." value={experienceForm.description} onChange={e => setExperienceForm({...experienceForm, description: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" rows={4} />
+                          <textarea placeholder="Key responsibilities and achievements..." value={experienceForm.description} onChange={e => setExperienceForm({...experienceForm, description: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" rows={4} />
                         </div>
                         <button onClick={() => saveItem('experience', experienceForm, setExperienceForm, defaultExperienceForm)} className="md:col-span-2 bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-lg font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"><Save size={14} className="inline" /> Save Experience</button>
                       </div>
@@ -3409,7 +3418,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                     <h3 className="text-slate-900 font-semibold text-sm">Work Experiences</h3>
                     <button 
                         onClick={() => { setExperienceForm(defaultExperienceForm); setFormModalTitle('Add Experience'); setIsFormModalOpen(true); }}
-                        className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-indigo-700 transition-all active:scale-95">
+                        className="bg-[#e52521] text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-[#d01f1c] transition-all active:scale-95">
                         <Plus size={12}/> Add Experience
                     </button>
                   </div>
@@ -3425,7 +3434,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         <p className="text-slate-400 text-[8px] font-semibold uppercase tracking-widest mt-1">Order: {exp.order}</p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <button onClick={() => startEdit(exp, setExperienceForm)} className="p-2 bg-slate-100 text-indigo-600 rounded-lg hover:bg-indigo-100 hover:text-indigo-700 transition-all"><Edit3 size={14}/></button>
+                        <button onClick={() => startEdit(exp, setExperienceForm)} className="p-2 bg-slate-100 text-[#e52521] rounded-lg hover:bg-red-100 hover:text-indigo-700 transition-all"><Edit3 size={14}/></button>
                         <button onClick={() => deleteItem('experience', exp.id)} className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-500 hover:text-white transition-all"><Trash2 size={14}/></button>
                       </div>
                     </div>
@@ -3469,10 +3478,10 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                           <p className="text-slate-500 text-xs font-medium">{new Date(p.timestamp).toLocaleString()}</p>
                         </div>
                         <p className="text-slate-900 font-bold text-base">{p.userName} (<span className="font-normal text-slate-500">{p.userEmail}</span>)</p>
-                        <p className="text-slate-600 text-sm mt-1">Package: <span className="font-semibold text-indigo-600">{p.creditPackage.name}</span> (+{p.creditPackage.credits} Credits for Rs. {p.creditPackage.price})</p>
+                        <p className="text-slate-600 text-sm mt-1">Package: <span className="font-semibold text-[#e52521]">{p.creditPackage.name}</span> (+{p.creditPackage.credits} Credits for Rs. {p.creditPackage.price})</p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-                        <button onClick={() => { setIsProofViewerOpen(true); setCurrentProofBase64(p.paymentProofBase64); }} className="flex-1 sm:flex-none px-4 py-2 bg-slate-100 text-sky-600 rounded-lg hover:bg-indigo-100 hover:text-indigo-700 transition-all text-xs font-semibold flex items-center justify-center gap-2"><ImageIcon size={16} /> View Proof</button>
+                        <button onClick={() => { setIsProofViewerOpen(true); setCurrentProofBase64(p.paymentProofBase64); }} className="flex-1 sm:flex-none px-4 py-2 bg-slate-100 text-sky-600 rounded-lg hover:bg-red-100 hover:text-indigo-700 transition-all text-xs font-semibold flex items-center justify-center gap-2"><ImageIcon size={16} /> View Proof</button>
                         {p.status === 'pending' && (
                           <>
                             <button onClick={() => handleApprovePayment(p.id!, p.userId, p.creditPackage.credits)} className="flex-1 sm:flex-none p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-500 hover:text-white transition-all"><CheckCircle size={16} /></button>
@@ -3510,25 +3519,25 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                 <div className="space-y-3">
                   <div className="space-y-1">
                     <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Main Title (Global Default)</label>
-                    <input type="text" value={heroData.title} onChange={e => setHeroData({...heroData, title: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-bold outline-none focus:border-indigo-500 transition-all" />
+                    <input type="text" value={heroData.title} onChange={e => setHeroData({...heroData, title: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-bold outline-none focus:border-[#e52521] transition-all" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Subtitle (Global Default)</label>
-                    <textarea value={heroData.subtitle} onChange={e => setHeroData({...heroData, subtitle: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-semibold outline-none focus:border-indigo-500 transition-all" rows={2} />
+                    <textarea value={heroData.subtitle} onChange={e => setHeroData({...heroData, subtitle: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-semibold outline-none focus:border-[#e52521] transition-all" rows={2} />
                   </div>
                   <div className="space-y-1">
                     <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Description (Global Default)</label>
-                    <textarea value={(heroData as any).description || ''} onChange={e => setHeroData({...heroData, description: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium resize-none outline-none focus:border-indigo-500 transition-all" rows={3} />
+                    <textarea value={(heroData as any).description || ''} onChange={e => setHeroData({...heroData, description: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium resize-none outline-none focus:border-[#e52521] transition-all" rows={3} />
                   </div>
 
                   {/* Slider Height Configuration */}
                   <div className="bg-slate-50 p-4 border border-slate-200 rounded-xl space-y-3 mt-2">
                     <div className="flex justify-between items-center">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Slider Height Configuration</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#e52521]">Slider Height Configuration</p>
                       <button 
                         type="button" 
                         onClick={() => setHeroData({...heroData, sliderHeightMobile: 50, sliderHeightDesktop: 100})} 
-                        className="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-2 py-1 rounded text-[8px] font-bold uppercase transition-all shadow-sm shrink-0"
+                        className="bg-red-50 hover:bg-red-100 text-[#e52521] px-2 py-1 rounded text-[8px] font-bold uppercase transition-all shadow-sm shrink-0"
                       >
                         Reset heights
                       </button>
@@ -3537,7 +3546,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                       <div className="space-y-1">
                         <div className="flex justify-between text-[9px] font-bold text-slate-600 uppercase tracking-widest">
                           <span>Mobile Height</span>
-                          <span className="text-indigo-600 font-semibold">{(heroData as any).sliderHeightMobile || 50}vh</span>
+                          <span className="text-[#e52521] font-semibold">{(heroData as any).sliderHeightMobile || 50}vh</span>
                         </div>
                         <input 
                           type="range" 
@@ -3553,7 +3562,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                       <div className="space-y-1">
                         <div className="flex justify-between text-[9px] font-bold text-slate-600 uppercase tracking-widest">
                           <span>Desktop Height</span>
-                          <span className="text-indigo-600 font-semibold">{(heroData as any).sliderHeightDesktop || 100}vh</span>
+                          <span className="text-[#e52521] font-semibold">{(heroData as any).sliderHeightDesktop || 100}vh</span>
                         </div>
                         <input 
                           type="range" 
@@ -3634,7 +3643,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                           setHeroData({ ...heroData, slides: newSlides });
                           setActiveSlideIdx(newSlides.length - 1);
                         }}
-                        className="px-4 py-2 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 font-semibold text-xs transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
+                        className="px-4 py-2 rounded-lg bg-red-50 border border-red-200 text-[#e52521] hover:bg-red-100 hover:text-indigo-700 font-semibold text-xs transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
                       >
                         <Plus size={12} /> Add Slide
                       </button>
@@ -3644,7 +3653,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                     {heroData.slides && heroData.slides[activeSlideIdx] && (
                       <div className="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
                         <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                          <span className="text-xs font-semibold text-indigo-600">Editing Slide #{activeSlideIdx + 1} Settings</span>
+                          <span className="text-xs font-semibold text-[#e52521]">Editing Slide #{activeSlideIdx + 1} Settings</span>
                           {heroData.slides[activeSlideIdx].imageUrl && (
                             <img src={heroData.slides[activeSlideIdx].imageUrl} alt={`Slide preview ${activeSlideIdx}`} className="w-16 h-10 object-cover rounded-md border border-slate-200" />
                           )}
@@ -3664,7 +3673,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                   newSlides[activeSlideIdx] = { ...newSlides[activeSlideIdx], imageUrl: e.target.value };
                                   setHeroData({ ...heroData, slides: newSlides });
                                 }} 
-                                className="flex-1 bg-white border border-slate-200 p-2.5 rounded-lg text-slate-900 text-[10px] font-medium outline-none focus:border-indigo-500 transition-all" 
+                                className="flex-1 bg-white border border-slate-200 p-2.5 rounded-lg text-slate-900 text-[10px] font-medium outline-none focus:border-[#e52521] transition-all" 
                               />
                               <div className="relative flex items-center">
                                 <input 
@@ -3707,7 +3716,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                   newSlides[activeSlideIdx] = { ...newSlides[activeSlideIdx], mobileImageUrl: e.target.value };
                                   setHeroData({ ...heroData, slides: newSlides });
                                 }} 
-                                className="flex-1 bg-white border border-slate-200 p-2.5 rounded-lg text-slate-900 text-[10px] font-medium outline-none focus:border-indigo-500 transition-all" 
+                                className="flex-1 bg-white border border-slate-200 p-2.5 rounded-lg text-slate-900 text-[10px] font-medium outline-none focus:border-[#e52521] transition-all" 
                               />
                               <div className="relative flex items-center">
                                 <input 
@@ -3752,7 +3761,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                 newSlides[activeSlideIdx] = { ...newSlides[activeSlideIdx], title: e.target.value };
                                 setHeroData({ ...heroData, slides: newSlides });
                               }}
-                              className="w-full bg-white border border-slate-200 p-2.5 rounded-lg text-slate-900 font-bold outline-none focus:border-indigo-500 transition-all text-[10px]" 
+                              className="w-full bg-white border border-slate-200 p-2.5 rounded-lg text-slate-900 font-bold outline-none focus:border-[#e52521] transition-all text-[10px]" 
                             />
                           </div>
 
@@ -3767,7 +3776,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                 newSlides[activeSlideIdx] = { ...newSlides[activeSlideIdx], subtitle: e.target.value };
                                 setHeroData({ ...heroData, slides: newSlides });
                               }}
-                              className="w-full bg-white border border-slate-200 p-2.5 rounded-lg text-slate-900 font-semibold outline-none focus:border-indigo-500 transition-all text-[10px]" 
+                              className="w-full bg-white border border-slate-200 p-2.5 rounded-lg text-slate-900 font-semibold outline-none focus:border-[#e52521] transition-all text-[10px]" 
                             />
                           </div>
                         </div>
@@ -3782,14 +3791,14 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                               newSlides[activeSlideIdx] = { ...newSlides[activeSlideIdx], description: e.target.value };
                               setHeroData({ ...heroData, slides: newSlides });
                             }}
-                            className="w-full bg-white border border-slate-200 p-2.5 rounded-lg text-slate-900 font-medium resize-none outline-none focus:border-indigo-500 transition-all text-[10px]" 
+                            className="w-full bg-white border border-slate-200 p-2.5 rounded-lg text-slate-900 font-medium resize-none outline-none focus:border-[#e52521] transition-all text-[10px]" 
                             rows={2}
                           />
                         </div>
 
                         {/* Slide Text Color Customizers */}
                         <div className="space-y-3 p-3 bg-white border border-slate-200 rounded-lg">
-                          <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-600">Text Color Configuration</span>
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#e52521]">Text Color Configuration</span>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="space-y-1">
                               <label className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Title Color (HEX)</label>
@@ -3813,7 +3822,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                     setHeroData({ ...heroData, slides: newSlides });
                                   }}
                                   placeholder="#ffffff"
-                                  className="flex-1 bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-indigo-500" 
+                                  className="flex-1 bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-[#e52521]" 
                                 />
                               </div>
                             </div>
@@ -3840,7 +3849,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                     setHeroData({ ...heroData, slides: newSlides });
                                   }}
                                   placeholder="#818cf8"
-                                  className="flex-1 bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-indigo-500" 
+                                  className="flex-1 bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-[#e52521]" 
                                 />
                               </div>
                             </div>
@@ -3867,7 +3876,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                     setHeroData({ ...heroData, slides: newSlides });
                                   }}
                                   placeholder="#e2e8f0"
-                                  className="flex-1 bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-indigo-500" 
+                                  className="flex-1 bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-[#e52521]" 
                                 />
                               </div>
                             </div>
@@ -3877,7 +3886,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         {/* Slide Text Sizing Customizers */}
                         <div className="space-y-3 p-3 bg-white border border-slate-200 rounded-lg">
                           <div className="flex justify-between items-center">
-                            <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-600">Text Sizing Configuration (rem)</span>
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#e52521]">Text Sizing Configuration (rem)</span>
                             <button 
                               type="button" 
                               onClick={() => {
@@ -3893,7 +3902,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                 };
                                 setHeroData({ ...heroData, slides: newSlides });
                               }}
-                              className="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-2 py-1 rounded text-[8px] font-bold uppercase transition-all shadow-sm shrink-0"
+                              className="bg-red-50 hover:bg-red-100 text-[#e52521] px-2 py-1 rounded text-[8px] font-bold uppercase transition-all shadow-sm shrink-0"
                             >
                               Reset text sizes
                             </button>
@@ -4036,7 +4045,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-100">
                           {/* Primary Button */}
                           <div className="space-y-3 p-3 bg-white border border-slate-200 rounded-lg">
-                            <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-600">Primary Button</span>
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#e52521]">Primary Button</span>
                             <div className="space-y-2">
                               <div className="space-y-1">
                                 <label className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Button Text</label>
@@ -4049,7 +4058,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                     newSlides[activeSlideIdx] = { ...newSlides[activeSlideIdx], primaryBtnText: e.target.value };
                                     setHeroData({ ...heroData, slides: newSlides });
                                   }}
-                                  className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-indigo-500" 
+                                  className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-[#e52521]" 
                                 />
                               </div>
 
@@ -4064,7 +4073,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                     newSlides[activeSlideIdx] = { ...newSlides[activeSlideIdx], primaryBtnLink: e.target.value };
                                     setHeroData({ ...heroData, slides: newSlides });
                                   }}
-                                  className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-indigo-500" 
+                                  className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-[#e52521]" 
                                 />
                               </div>
 
@@ -4090,7 +4099,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                       setHeroData({ ...heroData, slides: newSlides });
                                     }}
                                     placeholder="#6366f1"
-                                    className="flex-1 bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-indigo-500" 
+                                    className="flex-1 bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-[#e52521]" 
                                   />
                                 </div>
                               </div>
@@ -4112,7 +4121,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                     newSlides[activeSlideIdx] = { ...newSlides[activeSlideIdx], secondaryBtnText: e.target.value };
                                     setHeroData({ ...heroData, slides: newSlides });
                                   }}
-                                  className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-indigo-500" 
+                                  className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-[#e52521]" 
                                 />
                               </div>
 
@@ -4127,7 +4136,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                     newSlides[activeSlideIdx] = { ...newSlides[activeSlideIdx], secondaryBtnLink: e.target.value };
                                     setHeroData({ ...heroData, slides: newSlides });
                                   }}
-                                  className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-indigo-500" 
+                                  className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-[#e52521]" 
                                 />
                               </div>
 
@@ -4154,7 +4163,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                       setHeroData({ ...heroData, slides: newSlides });
                                     }}
                                     placeholder="transparent or hex color"
-                                    className="flex-1 bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-indigo-500" 
+                                    className="flex-1 bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-900 text-[10px] outline-none focus:border-[#e52521]" 
                                   />
                                 </div>
                               </div>
@@ -4165,7 +4174,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                     )}
                   </div>
 
-                  <button onClick={() => saveSettings('hero', heroData)} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"><Save size={14} /> Save Hero Settings</button>
+                  <button onClick={() => saveSettings('hero', heroData)} className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white py-2.5 rounded-lg font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"><Save size={14} /> Save Hero Settings</button>
                 </div>
               </div>
             )}
@@ -4176,27 +4185,27 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                 <div className="space-y-3">
                    <div className="space-y-1">
                       <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Professional Title</label>
-                      <input type="text" value={aboutData.title} onChange={e => setAboutData({...aboutData, title: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-bold outline-none focus:border-indigo-500 transition-all" />
+                      <input type="text" value={aboutData.title} onChange={e => setAboutData({...aboutData, title: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-bold outline-none focus:border-[#e52521] transition-all" />
                    </div>
                    <div className="space-y-1">
                       <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Experience Years</label>
-                      <input type="text" value={aboutData.experience} onChange={e => setAboutData({...aboutData, experience: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium outline-none focus:border-indigo-500 transition-all" />
+                      <input type="text" value={aboutData.experience} onChange={e => setAboutData({...aboutData, experience: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium outline-none focus:border-[#e52521] transition-all" />
                    </div>
                    <div className="space-y-1">
                       <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Projects Completed</label>
-                      <input type="text" value={(aboutData as any).projectsCompleted || ''} onChange={e => setAboutData({...aboutData, projectsCompleted: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium outline-none focus:border-indigo-500 transition-all" />
+                      <input type="text" value={(aboutData as any).projectsCompleted || ''} onChange={e => setAboutData({...aboutData, projectsCompleted: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium outline-none focus:border-[#e52521] transition-all" />
                    </div>
                    <div className="space-y-1">
                       <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Contact Email</label>
-                      <input type="text" value={aboutData.email} onChange={e => setAboutData({...aboutData, email: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium outline-none focus:border-indigo-500 transition-all" />
+                      <input type="text" value={aboutData.email} onChange={e => setAboutData({...aboutData, email: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium outline-none focus:border-[#e52521] transition-all" />
                    </div>
                    <div className="space-y-1">
                       <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Contact Phone</label>
-                      <input type="text" value={aboutData.phone} onChange={e => setAboutData({...aboutData, phone: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium outline-none focus:border-indigo-500 transition-all" />
+                      <input type="text" value={aboutData.phone} onChange={e => setAboutData({...aboutData, phone: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium outline-none focus:border-[#e52521] transition-all" />
                    </div>
                    <div className="space-y-1">
                       <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">WhatsApp URL</label>
-                      <input type="text" value={(aboutData as any).whatsappUrl || ''} onChange={e => setAboutData({...aboutData, whatsappUrl: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium outline-none focus:border-indigo-500 transition-all" />
+                      <input type="text" value={(aboutData as any).whatsappUrl || ''} onChange={e => setAboutData({...aboutData, whatsappUrl: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium outline-none focus:border-[#e52521] transition-all" />
                    </div>
                    
                    {/* About Images Gallery Manager */}
@@ -4230,7 +4239,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                           type="text" 
                           placeholder="Paste image URL and click Add" 
                           id="about-new-image-url"
-                          className="flex-1 bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium outline-none focus:border-indigo-500 transition-all text-xs" 
+                          className="flex-1 bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium outline-none focus:border-[#e52521] transition-all text-xs" 
                         />
                         <button
                           onClick={() => {
@@ -4241,7 +4250,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                             setAboutData({...aboutData, images: [...currentImages, url]} as any);
                             if (input) input.value = '';
                           }}
-                          className="bg-indigo-600 text-white px-4 py-3 rounded-lg font-bold text-xs hover:bg-indigo-700 transition-all whitespace-nowrap"
+                          className="bg-[#e52521] text-white px-4 py-3 rounded-lg font-bold text-xs hover:bg-[#d01f1c] transition-all whitespace-nowrap"
                         >
                           + Add
                         </button>
@@ -4280,16 +4289,16 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                           type="text" 
                           value={(aboutData as any).imageUrl || ''} 
                           onChange={e => setAboutData({...aboutData, imageUrl: e.target.value})} 
-                          className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-slate-900 font-medium outline-none focus:border-indigo-500 transition-all text-xs mt-1" 
+                          className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-slate-900 font-medium outline-none focus:border-[#e52521] transition-all text-xs mt-1" 
                         />
                       </div>
                    </div>
 
                    <div className="space-y-1">
                       <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Personal Biography</label>
-                      <textarea rows={4} value={aboutData.bio} onChange={e => setAboutData({...aboutData, bio: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium resize-none outline-none focus:border-indigo-500 transition-all" />
+                      <textarea rows={4} value={aboutData.bio} onChange={e => setAboutData({...aboutData, bio: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-medium resize-none outline-none focus:border-[#e52521] transition-all" />
                    </div>
-                   <button onClick={() => saveSettings('about', aboutData)} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"><Save size={14} className="inline mr-2" /> Save About Settings</button>
+                   <button onClick={() => saveSettings('about', aboutData)} className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white py-3 rounded-lg font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"><Save size={14} className="inline mr-2" /> Save About Settings</button>
                 </div>
               </div>
             )}
@@ -4306,15 +4315,15 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                            <label className="text-xs font-semibold text-slate-700">Plan Name</label>
-                           <input type="text" value={pricingForm.title} onChange={e => setPricingForm({...pricingForm, title: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                           <input type="text" value={pricingForm.title} onChange={e => setPricingForm({...pricingForm, title: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="space-y-1">
                            <label className="text-xs font-semibold text-slate-700">Price Range</label>
-                           <input type="text" value={pricingForm.price} onChange={e => setPricingForm({...pricingForm, price: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                           <input type="text" value={pricingForm.price} onChange={e => setPricingForm({...pricingForm, price: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="md:col-span-2 space-y-1">
                            <label className="text-xs font-semibold text-slate-700">Key Features (CSV)</label>
-                           <input type="text" value={pricingForm.features} onChange={e => setPricingForm({...pricingForm, features: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                           <input type="text" value={pricingForm.features} onChange={e => setPricingForm({...pricingForm, features: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <button onClick={() => saveItem('pricing', pricingForm, setPricingForm, { id: '', title: '', price: '', description: '', features: '', isPopular: false })} className="md:col-span-2 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-lg font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"><Save size={14} /> Save Pricing Plan</button>
                       </div>
@@ -4327,7 +4336,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                     <h3 className="text-slate-900 font-semibold text-sm">Pricing Plans</h3>
                     <button 
                         onClick={() => { setPricingForm({ id: '', title: '', price: '', description: '', features: '', isPopular: false }); setFormModalTitle('Add Pricing Plan'); setIsFormModalOpen(true); }}
-                        className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-indigo-700 transition-all active:scale-95">
+                        className="bg-[#e52521] text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-[#d01f1c] transition-all active:scale-95">
                         <Plus size={12}/> Add Plan
                     </button>
                   </div>
@@ -4336,7 +4345,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         <div key={p.id} className="bg-slate-50 border border-slate-200 p-4 rounded-xl relative group hover:bg-slate-100 transition-colors text-left flex flex-col justify-between min-h-[140px]">
                            <div>
                              <h4 className="font-bold text-slate-900 text-sm mb-1 truncate">{p.title}</h4>
-                             <p className="text-indigo-600 font-semibold text-xs mb-3">Rs. {p.price}</p>
+                             <p className="text-[#e52521] font-semibold text-xs mb-3">Rs. {p.price}</p>
                            </div>
                            <div className="flex gap-2 mt-2">
                               <button onClick={() => startEdit(p, setPricingForm)} className="flex-1 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-lg font-semibold text-xs hover:bg-slate-100 transition-all">Edit</button>
@@ -4361,11 +4370,11 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                       <div className="space-y-3">
                         <div className="space-y-1">
                            <label className="text-xs font-semibold text-slate-700">Question</label>
-                           <input type="text" value={faqForm.question} onChange={e => setFaqForm({...faqForm, question: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                           <input type="text" value={faqForm.question} onChange={e => setFaqForm({...faqForm, question: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="space-y-1">
                            <label className="text-xs font-semibold text-slate-700">Answer</label>
-                           <textarea rows={3} value={faqForm.answer} onChange={e => setFaqForm({...faqForm, answer: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                           <textarea rows={3} value={faqForm.answer} onChange={e => setFaqForm({...faqForm, answer: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <button onClick={() => saveItem('faq', faqForm, setFaqForm, { id: '', question: '', answer: '' })} className="w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-lg font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"><Save size={14} className="inline mr-2" /> Save FAQ Item</button>
                       </div>
@@ -4378,7 +4387,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                     <h3 className="text-slate-900 font-semibold text-sm">FAQs</h3>
                     <button 
                         onClick={() => { setFaqForm({ id: '', question: '', answer: '' }); setFormModalTitle('Add FAQ'); setIsFormModalOpen(true); }}
-                        className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-indigo-700 transition-all active:scale-95">
+                        className="bg-[#e52521] text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-[#d01f1c] transition-all active:scale-95">
                         <Plus size={12}/> Add FAQ
                     </button>
                   </div>
@@ -4390,7 +4399,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                              <p className="text-slate-500 text-xs mt-1 line-clamp-1">{f.answer}</p>
                           </div>
                           <div className="flex gap-2">
-                             <button onClick={() => startEdit(f, setFaqForm)} className="p-2 bg-white text-indigo-600 rounded-lg hover:bg-indigo-100 hover:text-indigo-700 transition-all border border-slate-200"><Edit3 size={14}/></button>
+                             <button onClick={() => startEdit(f, setFaqForm)} className="p-2 bg-white text-[#e52521] rounded-lg hover:bg-red-100 hover:text-indigo-700 transition-all border border-slate-200"><Edit3 size={14}/></button>
                              <button onClick={() => deleteItem('faq', f.id)} className="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-500 hover:text-white transition-all border border-rose-100"><Trash2 size={14} /></button>
                           </div>
                        </div>
@@ -4412,7 +4421,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                       
                       <div className="md:col-span-2 flex justify-between items-center pb-2 border-b border-slate-50">
                         <span className="text-xs font-semibold text-slate-400">AI Assistance Available</span>
-                        <button onClick={handleDeepLegalGen} disabled={aiLoading} className="bg-slate-100 text-slate-755 border border-slate-200 px-3 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-2 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-all">
+                        <button onClick={handleDeepLegalGen} disabled={aiLoading} className="bg-slate-100 text-slate-755 border border-slate-200 px-3 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-2 hover:bg-red-50 hover:text-[#d01f1c] hover:border-red-100 transition-all">
                           {aiLoading ? <Loader2 className="animate-spin" size={14} /> : <><Zap size={14} /> Generate Content</>}
                         </button>
                       </div>
@@ -4420,23 +4429,23 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                            <label className="text-xs font-semibold text-slate-700">Document Title</label>
-                           <input type="text" value={legalForm.title} onChange={e => setLegalForm({...legalForm, title: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                           <input type="text" value={legalForm.title} onChange={e => setLegalForm({...legalForm, title: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="space-y-1">
                            <label className="text-xs font-semibold text-slate-700">URL Slug</label>
-                           <input type="text" value={legalForm.slug} onChange={e => setLegalForm({...legalForm, slug: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                           <input type="text" value={legalForm.slug} onChange={e => setLegalForm({...legalForm, slug: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="md:col-span-2 space-y-1">
                            <label className="text-xs font-semibold text-slate-700">SEO Title</label>
-                           <input type="text" value={legalForm.seoTitle} onChange={e => setLegalForm({...legalForm, seoTitle: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" />
+                           <input type="text" value={legalForm.seoTitle} onChange={e => setLegalForm({...legalForm, seoTitle: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
                         <div className="md:col-span-2 space-y-1">
                            <label className="text-xs font-semibold text-slate-700">SEO Description</label>
-                           <textarea value={legalForm.seoDescription} onChange={e => setLegalForm({...legalForm, seoDescription: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-xs" rows={2} />
+                           <textarea value={legalForm.seoDescription} onChange={e => setLegalForm({...legalForm, seoDescription: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" rows={2} />
                         </div>
                         <div className="md:col-span-2 space-y-1">
                            <label className="text-xs font-semibold text-slate-700">Content (Markdown)</label>
-                           <textarea rows={10} value={legalForm.content} onChange={e => setLegalForm({...legalForm, content: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-[11px] font-mono" />
+                           <textarea rows={10} value={legalForm.content} onChange={e => setLegalForm({...legalForm, content: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-[11px] font-mono" />
                         </div>
                         <button onClick={() => saveItem('legalPages', legalForm, setLegalForm, { id: '', title: '', slug: '', content: 'This is a placeholder for your legal document content. Use AI to generate comprehensive text after setting the title and the slug. Remember to review and customize all generated legal text.', seoTitle: '', seoDescription: '', createdAt: Date.now() })} className="md:col-span-2 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-lg font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"><Save size={14} className="inline mr-2" /> Save Legal Page</button>
                       </div>
@@ -4449,7 +4458,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                     <h3 className="text-slate-900 font-semibold text-sm">Legal Documents</h3>
                     <button 
                         onClick={() => { setLegalForm({ id: '', title: '', slug: '', content: 'This is a placeholder for your legal document content. Use AI to generate comprehensive text after setting the title and the slug. Remember to review and customize all generated legal text.', seoTitle: '', seoDescription: '', createdAt: Date.now() }); setFormModalTitle('Add Legal Page'); setIsFormModalOpen(true); }}
-                        className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-indigo-700 transition-all active:scale-95">
+                        className="bg-[#e52521] text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-[#d01f1c] transition-all active:scale-95">
                         <Plus size={12}/> Add Document
                     </button>
                   </div>
@@ -4461,7 +4470,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                              <p className="text-slate-500 text-xs mt-1 font-medium">Slug: /{lp.slug}</p>
                           </div>
                           <div className="flex gap-2">
-                             <button onClick={() => startEdit(lp, setLegalForm)} className="p-2 bg-white text-indigo-600 rounded-lg hover:bg-indigo-100 hover:text-indigo-700 transition-all border border-slate-200"><Edit3 size={14}/></button>
+                             <button onClick={() => startEdit(lp, setLegalForm)} className="p-2 bg-white text-[#e52521] rounded-lg hover:bg-red-100 hover:text-indigo-700 transition-all border border-slate-200"><Edit3 size={14}/></button>
                              <button onClick={() => deleteItem('legalPages', lp.id)} className="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-500 hover:text-white transition-all border border-rose-100"><Trash2 size={14} /></button>
                           </div>
                        </div>
@@ -4477,19 +4486,19 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                   <h2 className="text-slate-900 font-semibold text-lg">Social Media Links</h2>
                   <div className="flex flex-wrap gap-2">
                     {['Facebook', 'Instagram', 'TikTok', 'LinkedIn', 'GitHub'].map(name => (
-                      <button key={name} onClick={() => addSocialLink(name as any)} className="bg-slate-100 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-indigo-600 hover:text-white transition-all">Add {name}</button>
+                      <button key={name} onClick={() => addSocialLink(name as any)} className="bg-slate-100 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-[#e52521] hover:text-white transition-all">Add {name}</button>
                     ))}
                   </div>
                 </div>
                 <div className="space-y-3">
                   {socials.length > 0 ? socials.map((social, idx) => (
                     <div key={social.id} className="flex flex-col sm:flex-row gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200 items-center hover:bg-slate-100 transition-colors text-left">
-                      <div className="w-20 shrink-0 font-semibold text-indigo-600">{social.name}</div>
+                      <div className="w-20 shrink-0 font-semibold text-[#e52521]">{social.name}</div>
                       <input 
                         type="text" value={social.url} 
                         onChange={e => updateSocialLink(idx, 'url', e.target.value)}
                         placeholder="https://..." 
-                        className="flex-1 bg-slate-100 border border-slate-200 p-2 rounded-lg text-slate-900 text-xs font-semibold outline-none focus:border-indigo-500 transition-all"
+                        className="flex-1 bg-slate-100 border border-slate-200 p-2 rounded-lg text-slate-900 text-xs font-semibold outline-none focus:border-[#e52521] transition-all"
                       />
                       <label className="flex items-center gap-2 cursor-pointer">
                         <span className="text-xs font-semibold text-slate-600">Active</span>
@@ -4514,7 +4523,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                 <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-4">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <Cpu className="text-indigo-600" size={20} />
+                      <Cpu className="text-[#e52521]" size={20} />
                       <h2 className="text-slate-900 font-semibold text-base">Gemini API Configuration</h2>
                     </div>
                     <p className="text-slate-500 text-xs font-medium leading-relaxed text-left">
@@ -4527,7 +4536,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         placeholder="Paste your new Gemini API key here..."
                         value={adminGeminiKey} 
                         onChange={(e) => setAdminGeminiKey(e.target.value)} 
-                        className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-bold outline-none focus:border-indigo-500 transition-all text-xs" 
+                        className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg text-slate-900 font-bold outline-none focus:border-[#e52521] transition-all text-xs" 
                       />
                     </div>
                   </div>
@@ -4543,7 +4552,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                 <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-4">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <Database className="text-indigo-600" size={20} />
+                      <Database className="text-[#e52521]" size={20} />
                       <h2 className="text-slate-900 font-semibold text-base">Database Setup & Seeding</h2>
                     </div>
                     <p className="text-slate-500 text-xs font-medium leading-relaxed text-left">
@@ -4575,7 +4584,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                 <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-4 lg:col-span-2">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <UploadCloud className="text-indigo-600" size={20} />
+                      <UploadCloud className="text-[#e52521]" size={20} />
                       <h2 className="text-slate-900 font-semibold text-base">Migrate All Site Media to Cloudinary</h2>
                     </div>
                     <p className="text-slate-500 text-xs font-medium leading-relaxed text-left">
@@ -4715,8 +4724,8 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="p-5 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
-                    <div className="text-indigo-600 font-medium mb-1">Total Downloads</div>
+                  <div className="p-5 bg-red-50 dark:bg-indigo-900/10 rounded-xl border border-red-100 dark:border-indigo-900/30">
+                    <div className="text-[#e52521] font-medium mb-1">Total Downloads</div>
                     <div className="text-3xl font-bold text-slate-800">{desktopDownloads}</div>
                   </div>
                   <div className="p-5 bg-green-50 dark:bg-green-900/10 rounded-xl border border-green-100 dark:border-green-900/30">
@@ -4729,7 +4738,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                 <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 space-y-4">
                   <div>
                     <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                      <Bell size={16} className="text-indigo-600" /> Send Custom Push Notification
+                      <Bell size={16} className="text-[#e52521]" /> Send Custom Push Notification
                     </h3>
                     <p className="text-slate-500 text-[10px] font-normal">Broadcast an instant native push notification alert to all running desktop app installations.</p>
                   </div>
@@ -4741,7 +4750,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         value={notificationTitle} 
                         onChange={e => setNotificationTitle(e.target.value)} 
                         placeholder="e.g., Happy Vijaya Dashami!" 
-                        className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-slate-900 outline-none focus:border-indigo-500 transition-all text-xs" 
+                        className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-slate-900 outline-none focus:border-[#e52521] transition-all text-xs" 
                       />
                     </div>
                     <div className="space-y-1">
@@ -4751,13 +4760,13 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         value={notificationBody} 
                         onChange={e => setNotificationBody(e.target.value)} 
                         placeholder="e.g., Wishing you a prosperous, peaceful and happy Dashain festival." 
-                        className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-slate-900 outline-none focus:border-indigo-500 transition-all text-xs resize-none" 
+                        className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-slate-900 outline-none focus:border-[#e52521] transition-all text-xs resize-none" 
                       />
                     </div>
                     <button 
                       onClick={handleSendNotification} 
                       disabled={sendingNotification}
-                      className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-5 py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-2 shadow-sm max-w-xs transition-all active:scale-95"
+                      className="bg-[#e52521] hover:bg-[#d01f1c] disabled:bg-indigo-400 text-white px-5 py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-2 shadow-sm max-w-xs transition-all active:scale-95"
                     >
                       {sendingNotification ? 'Publishing...' : 'Publish Notification'}
                     </button>
@@ -4768,7 +4777,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                 <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 space-y-4">
                   <div>
                     <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                      <Send size={16} className="text-indigo-600" /> Broadcast History
+                      <Send size={16} className="text-[#e52521]" /> Broadcast History
                     </h3>
                     <p className="text-slate-500 text-[10px] font-normal">Review and manage previously broadcasted push notifications.</p>
                   </div>
@@ -4917,7 +4926,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
 
       {aiLoading && (
         <div className="fixed inset-0 z-[100] bg-slate-100/95 bg-white/95 backdrop-blur-xl flex flex-col items-center justify-center font-sans">
-           <Loader2 className="animate-spin text-indigo-600 mb-4" size={48} />
+           <Loader2 className="animate-spin text-[#e52521] mb-4" size={48} />
            <p className="text-sm font-semibold text-slate-700 tracking-wide">Generating Content...</p>
         </div>
       )}

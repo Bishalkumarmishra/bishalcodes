@@ -156,7 +156,7 @@ export default function AiOcrConverter() {
           
           <div>
             <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white flex items-center gap-3">
-              AI OCR <span className="text-indigo-600 dark:text-indigo-400 font-normal">Image-to-Text</span>
+              AI OCR <span className="text-[#e52521] dark:text-[#d01f1c] font-normal">Image-to-Text</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-xl font-medium leading-relaxed">
               Extract text instantly from scanned documents, receipts, screenshots, and photos. Runs completely in your browser — 100% free, unlimited, and private.
@@ -199,7 +199,7 @@ export default function AiOcrConverter() {
                 {/* Image Actions Header */}
                 <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
                   <div className="flex items-center gap-2">
-                    <FileText size={16} className="text-indigo-500" />
+                    <FileText size={16} className="text-[#e52521]" />
                     <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate max-w-[200px]">{image?.name}</span>
                   </div>
                   <button 
@@ -230,7 +230,7 @@ export default function AiOcrConverter() {
                       value={language}
                       onChange={(e) => setLanguage(e.target.value)}
                       disabled={loading}
-                      className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-700 dark:text-white flex-1 sm:flex-none"
+                      className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#e52521] text-slate-700 dark:text-white flex-1 sm:flex-none"
                     >
                       {supportedLanguages.map(lang => (
                         <option key={lang.code} value={lang.code}>{lang.name}</option>
@@ -241,7 +241,7 @@ export default function AiOcrConverter() {
                   <button
                     onClick={runOcr}
                     disabled={loading}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:dark:bg-slate-800 disabled:text-slate-400 text-white rounded-xl text-xs font-bold transition-all shadow-md shrink-0"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-[#e52521] hover:bg-[#d01f1c] disabled:bg-slate-200 disabled:dark:bg-slate-800 disabled:text-slate-400 text-white rounded-xl text-xs font-bold transition-all shadow-md shrink-0"
                   >
                     {loading ? (
                       <>
@@ -266,12 +266,12 @@ export default function AiOcrConverter() {
             
             {loading && (
               <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex flex-col items-center justify-center text-center shadow-sm">
-                <Loader2 className="animate-spin text-indigo-600 mb-4" size={32} />
+                <Loader2 className="animate-spin text-[#e52521] mb-4" size={32} />
                 <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">{statusText}</h4>
                 <p className="text-[10px] text-slate-400 mb-4">Loading neural network assets locally in your browser.</p>
                 {progress > 0 && (
                   <div className="w-full max-w-md bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                    <div className="h-full bg-indigo-600 transition-all duration-300" style={{ width: `${progress}%` }} />
+                    <div className="h-full bg-[#e52521] transition-all duration-300" style={{ width: `${progress}%` }} />
                   </div>
                 )}
               </div>

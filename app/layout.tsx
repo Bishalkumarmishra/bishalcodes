@@ -295,7 +295,7 @@ export default function RootLayout({
         }
         `}} />
       </head>
-      <body className="bg-[#FFFFFF] selection:bg-indigo-500 selection:text-white">
+      <body className="bg-[#FFFFFF] selection:bg-[#e52521] selection:text-white">
         {/* Sky-Blue mobile status bar filler */}
         <div className="sky-status-bar" />
         {children}

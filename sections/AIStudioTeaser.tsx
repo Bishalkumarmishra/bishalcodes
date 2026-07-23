@@ -94,19 +94,19 @@ const AIStudioTeaser: React.FC = () => {
             <div className="absolute inset-0 bg-slate-950/80 z-0 pointer-events-none" />
 
             {/* Soft, professional gradient overlays (no cheesy glowing spots) */}
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-800/10 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#e52521]/10 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-red-800/10 blur-[120px] rounded-full pointer-events-none" />
 
             <div className="w-full px-[5vw] mx-auto text-center relative z-10">
                 <div className="flex items-center justify-center gap-2 mb-4">
-                    <Wand2 className="text-indigo-400" size={18} />
+                    <Wand2 className="text-red-400" size={18} />
                     <p 
                       contentEditable={isEditMode}
                       suppressContentEditableWarning
                       onBlur={(e) => handleTeaserSave('tag', e.currentTarget.textContent || '')}
                       onFocus={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
                       onClick={(e) => isEditMode && dispatchEditFocus(e.currentTarget)}
-                      className={`text-indigo-400 font-semibold text-xs uppercase tracking-wider ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
+                      className={`text-red-400 font-semibold text-xs uppercase tracking-wider ${isEditMode ? 'outline-dashed outline-1 outline-amber-500/80 px-1 rounded cursor-text' : ''}`}
                     >
                       {teaserData.tag}
                     </p>
@@ -138,7 +138,7 @@ const AIStudioTeaser: React.FC = () => {
                 <div className="mb-10 flex flex-wrap items-center justify-center gap-3">
                     {teaserData.features.map((feature, index) => (
                         <div key={index} className="flex items-center gap-2 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full shrink-0">
-                            <div className="text-indigo-400">{getFeatureIcon(index)}</div>
+                            <div className="text-red-400">{getFeatureIcon(index)}</div>
                             <span 
                               contentEditable={isEditMode}
                               suppressContentEditableWarning
@@ -155,7 +155,7 @@ const AIStudioTeaser: React.FC = () => {
 
                 <button 
                     onClick={() => !isEditMode && navigate('ai-studio')}
-                    className="inline-flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors shadow-md mx-auto"
+                    className="inline-flex items-center justify-center gap-1.5 bg-[#e52521] hover:bg-[#d01f1c] text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors shadow-md mx-auto"
                 >
                     <span
                       contentEditable={isEditMode}

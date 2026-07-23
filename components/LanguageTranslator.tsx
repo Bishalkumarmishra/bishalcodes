@@ -257,7 +257,7 @@ export const LanguageTranslator: React.FC = () => {
             <button
               onClick={handleTranslate}
               disabled={isLoading || !inputText.trim()}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2.5 px-5 rounded-lg text-sm transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center shadow-sm"
+              className="w-full bg-[#e52521] hover:bg-[#d01f1c] dark:bg-[#e52521] dark:hover:bg-[#e52521] text-white font-semibold py-2.5 px-5 rounded-lg text-sm transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center shadow-sm"
             >
               {isLoading ? 'Translating...' : 'Translate Text'}
             </button>
@@ -270,7 +270,7 @@ export const LanguageTranslator: React.FC = () => {
             {isLoading && (
               <div className="absolute inset-0 bg-white/40 dark:bg-slate-950/40 backdrop-blur-[1px] z-20 flex items-center justify-center">
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2.5 rounded-lg shadow-md flex items-center gap-2 text-xs font-semibold">
-                  <Loader2 size={14} className="animate-spin text-indigo-600 dark:text-indigo-400" />
+                  <Loader2 size={14} className="animate-spin text-[#e52521] dark:text-[#d01f1c]" />
                   <span>Translating...</span>
                 </div>
               </div>
@@ -324,7 +324,7 @@ export const LanguageTranslator: React.FC = () => {
                     onClick={handleSpeak}
                     className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-lg transition-all active:scale-95 cursor-pointer ${
                       isSpeaking 
-                        ? 'bg-indigo-600 text-white hover:bg-indigo-700' 
+                        ? 'bg-[#e52521] text-white hover:bg-[#d01f1c]' 
                         : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
                     }`}
                   >

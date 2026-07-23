@@ -312,14 +312,14 @@ const CodePreviewModal: React.FC<{ code: string; onClose: () => void }> = ({ cod
           <div className="flex bg-slate-800/80 p-1 rounded-xl">
             <button
               onClick={() => setActiveTab('preview')}
-              className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${activeTab === 'preview' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+              className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${activeTab === 'preview' ? 'bg-[#e52521] text-white' : 'text-slate-400 hover:text-white'
                 }`}
             >
               Live Output
             </button>
             <button
               onClick={() => setActiveTab('source')}
-              className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${activeTab === 'source' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+              className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${activeTab === 'source' ? 'bg-[#e52521] text-white' : 'text-slate-400 hover:text-white'
                 }`}
             >
               Source Code
@@ -1388,7 +1388,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
               <div className="flex items-center gap-1">
                 <button
                   onClick={initiateUserCall}
-                  className="p-1.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 rounded-lg transition-all active:scale-95"
+                  className="p-1.5 bg-[#e52521]/20 hover:bg-[#e52521]/30 text-indigo-300 rounded-lg transition-all active:scale-95"
                   title="Make Live In-App Web Call to Bishal"
                 >
                   <PhoneCall size={15} />
@@ -1415,12 +1415,12 @@ If you generate code snippets, enclose them in markdown block code syntax so the
             {/* Quick Contact & Info Sub-Bar */}
             <div className="bg-slate-100/90 dark:bg-slate-900 px-3 py-1.5 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-[10px] font-medium text-slate-600 dark:text-slate-300">
               <span className="flex items-center gap-1">
-                <HelpCircle size={11} className="text-indigo-600 dark:text-indigo-400" /> Support Desk
+                <HelpCircle size={11} className="text-[#e52521] dark:text-[#d01f1c]" /> Support Desk
               </span>
               <div className="flex items-center gap-2">
                 <a
                   href={`tel:${SITE_KNOWLEDGE.contact.phone}`}
-                  className="text-indigo-700 dark:text-indigo-400 hover:underline font-semibold flex items-center gap-0.5"
+                  className="text-indigo-700 dark:text-[#d01f1c] hover:underline font-semibold flex items-center gap-0.5"
                 >
                   <Phone size={9} /> Call (+977 9827801575)
                 </a>
@@ -1509,7 +1509,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                         href={href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+                        className="text-[#e52521] dark:text-[#d01f1c] hover:underline font-semibold"
                       >
                         {children}
                       </a>
@@ -1535,7 +1535,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                     )}
                     <div className={`max-w-[85%] flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
                       <div className={`p-2.5 rounded-xl text-xs font-normal leading-relaxed ${m.role === 'user'
-                        ? 'bg-slate-900 dark:bg-indigo-600 text-white rounded-br-none shadow-sm'
+                        ? 'bg-slate-900 dark:bg-[#e52521] text-white rounded-br-none shadow-sm'
                         : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-bl-none shadow-sm border border-slate-200/80 dark:border-slate-700/80'
                         }`}>
                         {/* User Uploaded Image Preview in Bubble */}
@@ -1547,7 +1547,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                         {/* User Uploaded Document Chip */}
                         {m.role === 'user' && m.fileName && !m.image && (
                           <div className="mb-1.5 flex items-center gap-1.5 bg-slate-800/90 dark:bg-slate-900 px-2.5 py-1 rounded-md text-[11px] text-indigo-200 border border-slate-700">
-                            <FileText size={12} className="text-indigo-400 shrink-0" />
+                            <FileText size={12} className="text-[#d01f1c] shrink-0" />
                             <span className="truncate max-w-[160px]">{m.fileName}</span>
                           </div>
                         )}
@@ -1572,7 +1572,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                             <button
                               key={idx}
                               onClick={() => handleActionClick(act)}
-                              className="px-2 py-1 bg-indigo-50 dark:bg-indigo-950/80 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80 rounded-lg text-[10px] font-semibold flex items-center gap-1 transition-all active:scale-95 shadow-xs"
+                              className="px-2 py-1 bg-red-50 dark:bg-indigo-950/80 hover:bg-red-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-red-200/80 dark:border-indigo-800/80 rounded-lg text-[10px] font-semibold flex items-center gap-1 transition-all active:scale-95 shadow-xs"
                             >
                               <span>{act.label}</span>
                               <ArrowRight size={10} />
@@ -1603,9 +1603,9 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                   <div className="bg-white dark:bg-slate-800 p-2.5 rounded-xl rounded-bl-none shadow-sm border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 text-slate-500 dark:text-slate-300 text-xs font-medium">
                     <span>Bishal is analyzing</span>
                     <div className="flex gap-1">
-                      <span className="w-1 h-1 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                      <span className="w-1 h-1 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                      <span className="w-1 h-1 bg-indigo-600 rounded-full animate-bounce" />
+                      <span className="w-1 h-1 bg-[#e52521] rounded-full animate-bounce [animation-delay:-0.3s]" />
+                      <span className="w-1 h-1 bg-[#e52521] rounded-full animate-bounce [animation-delay:-0.15s]" />
+                      <span className="w-1 h-1 bg-[#e52521] rounded-full animate-bounce" />
                     </div>
                   </div>
                 </div>
@@ -1616,25 +1616,25 @@ If you generate code snippets, enclose them in markdown block code syntax so the
             <div className="px-2.5 py-1.5 bg-slate-100/90 dark:bg-slate-950 border-t border-slate-200/70 dark:border-slate-800 overflow-x-auto flex gap-1 scrollbar-hide shrink-0">
               <button
                 onClick={() => handleSend("What are your pricing plans?")}
-                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
+                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-indigo-900/60 hover:text-[#d01f1c] dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
               >
                 <DollarSign size={9} /> Pricing
               </button>
               <button
                 onClick={() => handleSend("What free tools are available and how to use them?")}
-                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
+                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-indigo-900/60 hover:text-[#d01f1c] dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
               >
                 <Wrench size={9} /> Tools Guide
               </button>
               <button
                 onClick={() => handleSend("What web development services do you offer?")}
-                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
+                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-indigo-900/60 hover:text-[#d01f1c] dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
               >
                 <User size={9} /> Services
               </button>
               <button
                 onClick={() => handleSend("Tell me about Developer Portal and APIs")}
-                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/60 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
+                className="px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-indigo-900/60 hover:text-[#d01f1c] dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 rounded-md text-[9.5px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 transition-colors flex items-center gap-1"
               >
                 <Key size={9} /> APIs & Docs
               </button>
@@ -1642,19 +1642,19 @@ If you generate code snippets, enclose them in markdown block code syntax so the
 
             {/* Attachment Preview Bar */}
             {attachedFile && (
-              <div className="px-3 py-1.5 bg-indigo-50/90 dark:bg-indigo-950/80 border-t border-indigo-100 dark:border-indigo-900 flex items-center justify-between text-xs text-indigo-950 dark:text-indigo-100">
+              <div className="px-3 py-1.5 bg-red-50/90 dark:bg-indigo-950/80 border-t border-red-100 dark:border-indigo-900 flex items-center justify-between text-xs text-indigo-950 dark:text-indigo-100">
                 <div className="flex items-center gap-2 truncate max-w-[85%]">
                   {attachedFile.isImage ? (
-                    <img src={attachedFile.previewUrl || attachedFile.base64} alt="Attachment" className="w-7 h-7 object-cover rounded border border-indigo-200 dark:border-indigo-800 shrink-0" />
+                    <img src={attachedFile.previewUrl || attachedFile.base64} alt="Attachment" className="w-7 h-7 object-cover rounded border border-red-200 dark:border-indigo-800 shrink-0" />
                   ) : (
-                    <FileText size={16} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
+                    <FileText size={16} className="text-[#e52521] dark:text-[#d01f1c] shrink-0" />
                   )}
                   <span className="font-semibold text-indigo-950 dark:text-indigo-100 truncate text-[11px]">{attachedFile.name}</span>
-                  <span className="text-[9px] text-indigo-500 dark:text-indigo-300 shrink-0">({(attachedFile.size / 1024).toFixed(1)} KB)</span>
+                  <span className="text-[9px] text-[#e52521] dark:text-indigo-300 shrink-0">({(attachedFile.size / 1024).toFixed(1)} KB)</span>
                 </div>
                 <button
                   onClick={() => setAttachedFile(null)}
-                  className="p-1 text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-indigo-100 dark:hover:bg-indigo-900 rounded transition-colors"
+                  className="p-1 text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-red-100 dark:hover:bg-indigo-900 rounded transition-colors"
                   title="Remove attachment"
                 >
                   <X size={12} />
@@ -1674,7 +1674,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className={`p-2 rounded-lg transition-colors shrink-0 ${attachedFile ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                className={`p-2 rounded-lg transition-colors shrink-0 ${attachedFile ? 'text-[#e52521] bg-red-50 dark:bg-indigo-950 dark:text-[#d01f1c]' : 'text-slate-400 dark:text-slate-400 hover:text-[#d01f1c] dark:hover:text-[#d01f1c] hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                 title="Upload screenshot or photo for AI analysis"
               >
                 <Paperclip size={15} />
@@ -1690,7 +1690,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
               <button
                 onClick={() => handleSend()}
                 disabled={(!input.trim() && !attachedFile) || loading}
-                className="w-8 h-8 bg-slate-900 dark:bg-indigo-600 hover:bg-indigo-600 dark:hover:bg-indigo-500 text-white rounded-lg flex items-center justify-center transition-all shadow-sm active:scale-95 disabled:opacity-40 disabled:hover:bg-slate-900 disabled:active:scale-100 shrink-0"
+                className="w-8 h-8 bg-slate-900 dark:bg-[#e52521] hover:bg-[#e52521] dark:hover:bg-[#e52521] text-white rounded-lg flex items-center justify-center transition-all shadow-sm active:scale-95 disabled:opacity-40 disabled:hover:bg-slate-900 disabled:active:scale-100 shrink-0"
                 aria-label="Send Message"
               >
                 <Send size={14} />
@@ -1710,7 +1710,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                   setShowGreetingBubble(false);
                   playNotificationSound();
                 }}
-                className="absolute bottom-full right-0 mb-3 w-72 sm:w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-800 dark:text-slate-100 p-3.5 rounded-2xl shadow-2xl border border-indigo-100 dark:border-slate-700 animate-in fade-in slide-in-from-bottom-3 duration-300 cursor-pointer group/bubble hover:border-indigo-400 dark:hover:border-indigo-500"
+                className="absolute bottom-full right-0 mb-3 w-72 sm:w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-800 dark:text-slate-100 p-3.5 rounded-2xl shadow-2xl border border-red-100 dark:border-slate-700 animate-in fade-in slide-in-from-bottom-3 duration-300 cursor-pointer group/bubble hover:border-indigo-400 dark:hover:border-[#e52521]"
               >
                 <div className="flex items-start gap-3">
                   <div className="relative shrink-0">
@@ -1749,7 +1749,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                   </button>
                 </div>
                 {/* Pointer triangle */}
-                <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-white dark:bg-slate-900 rotate-45 border-r border-b border-indigo-100 dark:border-slate-700" />
+                <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-white dark:bg-slate-900 rotate-45 border-r border-b border-red-100 dark:border-slate-700" />
               </div>
             )}
 

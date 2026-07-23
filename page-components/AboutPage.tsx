@@ -12,21 +12,21 @@ const AboutPage: React.FC = () => {
     {
       title: 'Performance First',
       desc: 'Speed is not a feature, it is a requirement. I optimize code for fast asset delivery and loading times.',
-      icon: <Zap size={24} className="text-indigo-600" />,
+      icon: <Zap size={24} className="text-[#e52521]" />,
       fieldTitle: 'phil_title_1',
       fieldDesc: 'phil_desc_1'
     },
     {
       title: 'Clean Architecture',
       desc: 'Writing code that is scalable, maintainable, and readable is the core of my methodology.',
-      icon: <Layers size={24} className="text-indigo-600" />,
+      icon: <Layers size={24} className="text-[#e52521]" />,
       fieldTitle: 'phil_title_2',
       fieldDesc: 'phil_desc_2'
     },
     {
       title: 'Security Core',
       desc: 'Encryption and data protection are integrated into the architecture from the very first lines of code.',
-      icon: <Shield size={24} className="text-indigo-600" />,
+      icon: <Shield size={24} className="text-[#e52521]" />,
       fieldTitle: 'phil_title_3',
       fieldDesc: 'phil_desc_3'
     }

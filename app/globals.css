@@ -424,12 +424,12 @@ textarea:focus {
   color: #34d399 !important;
 }
 
-.dark .bg-indigo-50 {
-  background-color: rgba(99, 102, 241, 0.1) !important;
-  color: #818cf8 !important;
+.dark .bg-red-50 {
+  background-color: rgba(229, 37, 33, 0.1) !important;
+  color: #ef4444 !important;
 }
-.dark .border-indigo-100 {
-  border-color: rgba(99, 102, 241, 0.2) !important;
+.dark .border-red-100 {
+  border-color: rgba(229, 37, 33, 0.2) !important;
 }
 
 /* Blog Post Content - Justified text and mobile full-width */
@@ -549,12 +549,12 @@ textarea:focus {
     color: #34d399 !important;
   }
 
-  :root:not(.light) .bg-indigo-50 {
-    background-color: rgba(99, 102, 241, 0.1) !important;
-    color: #818cf8 !important;
+  :root:not(.light) .bg-red-50 {
+    background-color: rgba(229, 37, 33, 0.1) !important;
+    color: #ef4444 !important;
   }
-  :root:not(.light) .border-indigo-100 {
-    border-color: rgba(99, 102, 241, 0.2) !important;
+  :root:not(.light) .border-red-100 {
+    border-color: rgba(229, 37, 33, 0.2) !important;
   }
 
   :root:not(.light) .prose,
@@ -672,9 +672,9 @@ textarea:focus {
   color: #94a3b8 !important; /* Slate-400 equivalent for high contrast on dark */
 }
 
-#ai-teaser .text-indigo-400,
-#ai-teaser p.text-indigo-400 {
-  color: #818cf8 !important; /* Indigo-400 equivalent */
+#ai-teaser .text-red-400,
+#ai-teaser p.text-red-400 {
+  color: #f87171 !important; /* Red-400 equivalent */
 }
 
 /* Scanner Laser Scan Line Animation */

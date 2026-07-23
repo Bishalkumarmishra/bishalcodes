@@ -211,14 +211,14 @@ const Timeline: React.FC = () => {
 
                 {/* Dot Marker */}
                 <div className="hidden md:block absolute left-[150px] top-3 -translate-x-1/2 z-10">
-                  <div className={`w-3.5 h-3.5 rounded-full border-2 border-slate-50 flex items-center justify-center ${exp.isHighlighted ? 'bg-indigo-600 shadow-sm' : 'bg-slate-300'}`} />
+                  <div className={`w-3.5 h-3.5 rounded-full border-2 border-slate-50 flex items-center justify-center ${exp.isHighlighted ? 'bg-[#e52521] shadow-sm' : 'bg-slate-300'}`} />
                 </div>
 
                 {/* Main Card */}
                 <div className="flex-1 pb-1">
                   <div className={`p-6 md:p-8 h-full rounded-xl border bg-white transition-all duration-300 flex flex-col sm:flex-row justify-between items-start gap-4 ${
                     exp.isHighlighted 
-                    ? 'border-indigo-500 shadow-sm' 
+                    ? 'border-[#e52521] shadow-sm' 
                     : 'border-slate-200 hover:border-slate-300'
                   }`}>
                     <div className="flex-grow">

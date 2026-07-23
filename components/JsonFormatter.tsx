@@ -33,7 +33,7 @@ const JsonNode: React.FC<JsonNodeProps> = ({ name, value, depth }) => {
       valClass = 'text-amber-600 dark:text-amber-400';
     } else if (type === 'boolean') {
       renderedValue = String(value);
-      valClass = 'text-purple-600 dark:text-purple-400 font-bold';
+      valClass = 'text-[#e52521] dark:text-purple-400 font-bold';
     }
 
     return (
@@ -61,7 +61,7 @@ const JsonNode: React.FC<JsonNodeProps> = ({ name, value, depth }) => {
         onClick={() => setCollapsed(!collapsed)}
       >
         {itemCount > 0 ? (
-          <span className="text-slate-400 group-hover/node:text-indigo-500 text-[9px] w-3 flex justify-center transition-colors">
+          <span className="text-slate-400 group-hover/node:text-[#e52521] text-[9px] w-3 flex justify-center transition-colors">
             {collapsed ? '▶' : '▼'}
           </span>
         ) : (
@@ -172,12 +172,12 @@ export const JsonFormatter: React.FC = () => {
         
         if (/^"/.test(match)) {
           if (/:$/.test(match)) {
-            cls = 'text-indigo-600 dark:text-indigo-400 font-bold'; // object key
+            cls = 'text-[#e52521] dark:text-[#d01f1c] font-bold'; // object key
           } else {
             cls = 'text-green-600 dark:text-green-400 font-medium'; // string
           }
         } else if (/true|false/.test(match)) {
-          cls = 'text-purple-600 dark:text-purple-400 font-extrabold'; // boolean
+          cls = 'text-[#e52521] dark:text-purple-400 font-extrabold'; // boolean
         } else if (/null/.test(match)) {
           cls = 'text-rose-500 font-extrabold'; // null
         }
@@ -240,7 +240,7 @@ export const JsonFormatter: React.FC = () => {
               {/* Input Toolbar */}
               <div className="p-4 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/20 flex items-center justify-between">
                 <h3 className="text-xs font-bold flex items-center gap-1.5 text-slate-500">
-                  <Braces size={14} className="text-indigo-500" />
+                  <Braces size={14} className="text-[#e52521]" />
                   Raw JSON Input
                 </h3>
                 <div className="flex items-center gap-2">
@@ -305,7 +305,7 @@ export const JsonFormatter: React.FC = () => {
                     onClick={() => setOutputMode('formatted')}
                     className={`px-3 py-1 text-[10px] font-black uppercase rounded-md transition-colors flex items-center gap-1.5 ${
                       outputMode === 'formatted'
-                        ? 'bg-white dark:bg-slate-950 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                        ? 'bg-white dark:bg-slate-950 text-[#e52521] dark:text-[#d01f1c] shadow-sm'
                         : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                     }`}
                   >
@@ -317,7 +317,7 @@ export const JsonFormatter: React.FC = () => {
                     onClick={() => setOutputMode('tree')}
                     className={`px-3 py-1 text-[10px] font-black uppercase rounded-md transition-colors flex items-center gap-1.5 ${
                       outputMode === 'tree'
-                        ? 'bg-white dark:bg-slate-950 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                        ? 'bg-white dark:bg-slate-950 text-[#e52521] dark:text-[#d01f1c] shadow-sm'
                         : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 disabled:opacity-40'
                     }`}
                   >
@@ -330,7 +330,7 @@ export const JsonFormatter: React.FC = () => {
                 {(formattedString || parsedObject) && (
                   <button
                     onClick={handleCopy}
-                    className="inline-flex items-center gap-1 text-slate-500 hover:text-indigo-500 text-xs font-bold transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1 text-slate-500 hover:text-[#e52521] text-xs font-bold transition-colors cursor-pointer"
                   >
                     {isCopied ? <Check size={13} className="text-emerald-500" /> : <Clipboard size={13} />}
                     <span>{isCopied ? 'Copied!' : 'Copy Result'}</span>
@@ -374,7 +374,7 @@ export const JsonFormatter: React.FC = () => {
             </div>
 
             {/* Privacy Shield Info bar */}
-            <div className="bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 rounded-2xl p-4 text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 leading-normal flex gap-3">
+            <div className="bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/50 rounded-2xl p-4 text-[10px] font-semibold text-[#e52521] dark:text-[#d01f1c] leading-normal flex gap-3">
               <span className="text-xs">🛡️</span>
               <span>
                 <strong>Confidentiality Shield:</strong> Parsing and formatting is executed locally inside your web browser engine. Your JSON data structures are never transmitted over the internet.

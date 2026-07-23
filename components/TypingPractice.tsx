@@ -25,7 +25,7 @@ const MEDIUM_WORDS = [
 const CODE_SNIPPETS = {
   javascript: "const calculateWpm = (chars, time) => {\n  const words = chars / 5;\n  const minutes = time / 60;\n  return Math.round(words / minutes);\n};",
   python: "def quick_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quick_sort(left) + middle + quick_sort(right)",
-  html_css: "<div class=\"flex items-center justify-between p-4\">\n  <h1 class=\"text-2xl font-bold text-slate-900\">Bishal Codes</h1>\n  <button class=\"px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700\">\n    Submit\n  </button>\n</div>",
+  html_css: "<div class=\"flex items-center justify-between p-4\">\n  <h1 class=\"text-2xl font-bold text-slate-900\">Bishal Codes</h1>\n  <button class=\"px-4 py-2 rounded-lg bg-[#e52521] text-white hover:bg-[#d01f1c]\">\n    Submit\n  </button>\n</div>",
   cpp: "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n, t1 = 0, t2 = 1, nextTerm = 0;\n    cout << \"Fibonacci Series: \";\n    for (int i = 1; i <= n; ++i) {\n        cout << t1 << \", \";\n        nextTerm = t1 + t2;\n        t1 = t2;\n        t2 = nextTerm;\n    }\n    return 0;\n}"
 };
 
@@ -254,7 +254,7 @@ const TypingPractice: React.FC = () => {
         <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 mb-6">
           <button 
             onClick={() => navigate('services')}
-            className="inline-flex items-center gap-1.5 text-xs font-black text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer uppercase tracking-wider"
+            className="inline-flex items-center gap-1.5 text-xs font-black text-slate-500 hover:text-[#d01f1c] dark:hover:text-[#d01f1c] transition-colors cursor-pointer uppercase tracking-wider"
           >
             <ArrowLeft size={12} /> Back
           </button>
@@ -338,7 +338,7 @@ const TypingPractice: React.FC = () => {
               value={customText}
               onChange={(e) => setCustomText(e.target.value)}
               placeholder="Paste or type any paragraph here to practice typing..."
-              className="w-full h-20 p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg outline-none focus:border-indigo-500 text-xs font-mono text-slate-800 dark:text-slate-200 resize-none transition-colors"
+              className="w-full h-20 p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg outline-none focus:border-[#e52521] text-xs font-mono text-slate-800 dark:text-slate-200 resize-none transition-colors"
             />
             <button 
               onClick={generateText}
@@ -388,7 +388,7 @@ const TypingPractice: React.FC = () => {
                   return (
                     <span key={index} className={charClass}>
                       {isCurrent && (
-                        <span className="absolute left-0 top-[2px] w-[2px] h-[1.15em] bg-indigo-650 dark:bg-indigo-400 animate-pulse" />
+                        <span className="absolute left-0 top-[2px] w-[2px] h-[1.15em] bg-[#e52521] dark:bg-red-400 animate-pulse" />
                       )}
                       {char}
                     </span>
@@ -468,7 +468,7 @@ const TypingPractice: React.FC = () => {
             <div className="grid grid-cols-3 gap-4 border-y border-slate-100 dark:border-slate-800 py-6 mb-6 font-mono">
               <div>
                 <span className="text-[9px] font-black uppercase tracking-wider text-slate-450 dark:text-slate-500 block mb-1">Final Speed</span>
-                <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{currentWpm} WPM</span>
+                <span className="text-3xl font-black text-[#e52521] dark:text-[#d01f1c]">{currentWpm} WPM</span>
                 <span className="text-[9px] text-slate-400 dark:text-slate-550 mt-0.5 block">Raw: {rawWpm}</span>
               </div>
               <div>

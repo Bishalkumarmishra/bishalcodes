@@ -611,8 +611,8 @@ export default function DocScanner() {
         <div className="w-full max-w-md px-4 flex flex-col gap-6">
           
           <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
-            <div className="w-8 h-8 bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center rounded-lg">
-              <Smartphone size={16} className="text-indigo-500" />
+            <div className="w-8 h-8 bg-[#e52521]/10 border border-[#e52521]/30 flex items-center justify-center rounded-lg">
+              <Smartphone size={16} className="text-[#e52521]" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900 dark:text-white">Mobile CamScanner</h2>
@@ -678,7 +678,7 @@ export default function DocScanner() {
             {!cameraActive && (
               <button
                 onClick={startCamera}
-                className="absolute z-15 flex items-center gap-1.5 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition-all shadow"
+                className="absolute z-15 flex items-center gap-1.5 px-6 py-3 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold rounded-xl text-xs transition-all shadow"
               >
                 <Play size={14} /> Start Automatic Scanner
               </button>
@@ -714,13 +714,13 @@ export default function DocScanner() {
 
           {loading && (
             <div className="w-full flex items-center justify-center gap-2 text-xs font-bold text-slate-500">
-              <Loader2 size={13} className="animate-spin text-indigo-500" />
+              <Loader2 size={13} className="animate-spin text-[#e52521]" />
               <span>Processing Perspective Auto-Crop & Enhancing...</span>
             </div>
           )}
 
           {uploadStatus !== 'idle' && (
-            <div className="w-full flex items-center justify-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400">
+            <div className="w-full flex items-center justify-center gap-2 text-xs font-bold text-[#e52521] dark:text-[#d01f1c]">
               {uploadStatus === 'sending' && <Loader2 size={13} className="animate-spin" />}
               {uploadStatus === 'sent' && <CheckCircle2 size={13} className="text-emerald-500" />}
               <span>
@@ -796,9 +796,9 @@ export default function DocScanner() {
             {/* Connection Status Box */}
             <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col items-center text-center">
               
-              <div className="flex items-center gap-2 mb-4 bg-indigo-50 dark:bg-indigo-950/30 px-3 py-1.5 rounded-full border border-indigo-100 dark:border-indigo-900/20">
-                <Smartphone size={13} className="text-indigo-600 dark:text-indigo-400" />
-                <span className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">Sync Mobile Camera</span>
+              <div className="flex items-center gap-2 mb-4 bg-red-50 dark:bg-red-950/30 px-3 py-1.5 rounded-full border border-red-100 dark:border-red-900/20">
+                <Smartphone size={13} className="text-[#e52521] dark:text-[#d01f1c]" />
+                <span className="text-[10px] font-bold text-[#e52521] dark:text-[#d01f1c] uppercase tracking-wider">Sync Mobile Camera</span>
               </div>
 
               {qrUrl ? (
@@ -807,7 +807,7 @@ export default function DocScanner() {
                 </div>
               ) : (
                 <div className="w-44 h-44 rounded-xl bg-slate-50 dark:bg-slate-950 flex items-center justify-center border border-dashed border-slate-350">
-                  <Loader2 className="animate-spin text-indigo-500" size={24} />
+                  <Loader2 className="animate-spin text-[#e52521]" size={24} />
                 </div>
               )}
 
@@ -817,8 +817,8 @@ export default function DocScanner() {
               </p>
 
               <div className="flex items-center justify-between gap-4 w-full border-t border-slate-100 dark:border-slate-800 pt-4 mt-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">
-                <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 animate-pulse">
-                  <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                <div className="flex items-center gap-1.5 text-[#e52521] dark:text-[#d01f1c] animate-pulse">
+                  <span className="w-2 h-2 rounded-full bg-[#e52521]" />
                   <span>Waiting for scan...</span>
                 </div>
                 <span>Session ID: {sessionId}</span>
@@ -834,7 +834,7 @@ export default function DocScanner() {
               
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full min-h-[100px] rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center p-4 text-center cursor-pointer hover:border-indigo-500 hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-all"
+                className="w-full min-h-[100px] rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center p-4 text-center cursor-pointer hover:border-[#e52521] hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-all"
               >
                 <input
                   type="file"
@@ -863,7 +863,7 @@ export default function DocScanner() {
               <button
                 onClick={compileAndDownloadPdf}
                 disabled={pages.length === 0 || loading}
-                className="flex items-center justify-center gap-1.5 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-40 disabled:pointer-events-none rounded-lg text-xs font-bold shadow transition-all shrink-0 border border-indigo-700"
+                className="flex items-center justify-center gap-1.5 px-6 py-2 bg-[#e52521] hover:bg-[#d01f1c] text-white disabled:opacity-40 disabled:pointer-events-none rounded-lg text-xs font-bold shadow transition-all shrink-0 border border-[#e52521]"
               >
                 {loading ? <Loader2 size={13} className="animate-spin" /> : <FileDown size={13} />}
                 <span>Compile to PDF</span>
@@ -885,7 +885,7 @@ export default function DocScanner() {
                 {pages.map((page, index) => (
                   <div key={page.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden p-2.5 flex flex-col gap-2 shadow-sm relative group animate-fade-in">
                     
-                    <div className="absolute top-4 left-4 z-10 w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-black shadow">
+                    <div className="absolute top-4 left-4 z-10 w-6 h-6 rounded-full bg-[#e52521] text-white flex items-center justify-center text-[10px] font-black shadow">
                       {index + 1}
                     </div>
 
@@ -905,7 +905,7 @@ export default function DocScanner() {
 
                     <div className="flex justify-between items-center text-[10px] text-slate-450 px-1">
                       <span className="font-mono">Page {index + 1}</span>
-                      <span className="capitalize text-indigo-600 dark:text-indigo-400 font-bold">{page.filter}</span>
+                      <span className="capitalize text-[#e52521] dark:text-[#d01f1c] font-bold">{page.filter}</span>
                     </div>
 
                   </div>

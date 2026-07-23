@@ -39,7 +39,7 @@ export const PdfPageNumberAdder: React.FC = () => {
     return roman.toLowerCase();
   };
 
-  const handleFiles = useCallback((files: FileList | null) => {
+  const handleFiles = useCallback((files: FileList | File[] | null) => {
     if (!files || files.length === 0) return;
     setError(null);
     
@@ -179,7 +179,7 @@ export const PdfPageNumberAdder: React.FC = () => {
                 </div>
                 
                 <div className="group flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 rounded-lg">
-                  <div className="w-10 h-10 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded bg-red-100 dark:bg-red-950/30 text-[#e52521] dark:text-[#d01f1c] flex items-center justify-center shrink-0">
                     <FileText size={20} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -197,13 +197,13 @@ export const PdfPageNumberAdder: React.FC = () => {
                     <div className="flex flex-wrap gap-3">
                       <button 
                         onClick={() => setStyle('standard')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${style === 'standard' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-500' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${style === 'standard' ? 'border-[#e52521] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-[#d01f1c] dark:border-[#e52521]' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                       >
                         <Hash size={16} /> 1, 2, 3...
                       </button>
                       <button 
                         onClick={() => setStyle('roman')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${style === 'roman' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-500' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${style === 'roman' ? 'border-[#e52521] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-[#d01f1c] dark:border-[#e52521]' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                       >
                         <Hash size={16} /> i, ii, iii...
                       </button>
@@ -215,19 +215,19 @@ export const PdfPageNumberAdder: React.FC = () => {
                     <div className="flex flex-wrap gap-3">
                       <button 
                         onClick={() => setPosition('left')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${position === 'left' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-500' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${position === 'left' ? 'border-[#e52521] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-[#d01f1c] dark:border-[#e52521]' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                       >
                         <AlignLeft size={16} /> Bottom Left
                       </button>
                       <button 
                         onClick={() => setPosition('center')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${position === 'center' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-500' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${position === 'center' ? 'border-[#e52521] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-[#d01f1c] dark:border-[#e52521]' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                       >
                         <AlignCenter size={16} /> Bottom Center
                       </button>
                       <button 
                         onClick={() => setPosition('right')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${position === 'right' ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-500' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${position === 'right' ? 'border-[#e52521] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-[#d01f1c] dark:border-[#e52521]' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                       >
                         <AlignRight size={16} /> Bottom Right
                       </button>
@@ -254,8 +254,8 @@ export const PdfPageNumberAdder: React.FC = () => {
                     !pdf
                       ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed' 
                       : isGenerating 
-                        ? 'bg-indigo-600/70 text-white cursor-wait'
-                        : 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer shadow-sm'
+                        ? 'bg-[#e52521]/70 text-white cursor-wait'
+                        : 'bg-[#e52521] hover:bg-[#d01f1c] text-white cursor-pointer shadow-sm'
                   }`}
                 >
                   {isGenerating ? (

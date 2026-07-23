@@ -573,18 +573,18 @@ func main() {
                   onClick={() => setSelectedApi(api)}
                   className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl border text-left font-bold transition-all ${
                     isSelected 
-                      ? 'bg-slate-900 dark:bg-indigo-600 border-slate-900 dark:border-indigo-500/60 text-white shadow-md font-bold' 
+                      ? 'bg-slate-900 dark:bg-[#e52521] border-slate-900 dark:border-[#e52521]/60 text-white shadow-md font-bold' 
                       : 'bg-white dark:bg-transparent border-slate-200 dark:border-slate-900 hover:border-slate-300 dark:hover:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/30 text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200'
                   }`}
                 >
                   <span className={`p-1.5 rounded-lg border transition-colors ${
-                    isSelected ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400' : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-[#475569] dark:text-slate-400'
+                    isSelected ? 'bg-[#e52521]/10 border-[#e52521]/30 text-[#d01f1c]' : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-[#475569] dark:text-slate-400'
                   }`}>
                     {api.icon}
                   </span>
                   <div className="truncate flex-grow leading-tight">
                     <span className={`text-[11px] sm:text-xs block font-bold ${isSelected ? 'text-white font-bold' : 'text-[#0f172a] dark:text-slate-200'}`}>{api.name}</span>
-                    <span className={`text-[8px] sm:text-[9px] font-mono block uppercase tracking-wider mt-0.5 ${isSelected ? 'text-indigo-200 dark:text-indigo-300' : 'text-[#475569] dark:text-slate-500'}`}>{api.method} {api.path.split('/v1')[1]}</span>
+                    <span className={`text-[8px] sm:text-[9px] font-mono block uppercase tracking-wider mt-0.5 ${isSelected ? 'text-red-200 dark:text-red-300' : 'text-[#475569] dark:text-slate-500'}`}>{api.method} {api.path.split('/v1')[1]}</span>
                   </div>
                 </button>
               );
@@ -647,7 +647,7 @@ func main() {
                   {/* Visual Architecture Diagram */}
                   <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-900 bg-slate-50/50 dark:bg-slate-955/20">
                     <p className="text-[10px] font-bold text-[#475569] dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                      <Terminal size={12} className="text-indigo-600 dark:text-indigo-400" />
+                      <Terminal size={12} className="text-[#e52521] dark:text-[#d01f1c]" />
                       Request Flow & API Key Authentication Check
                     </p>
                     <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-center">
@@ -657,8 +657,8 @@ func main() {
                       </div>
                       <div className="text-[#475569] dark:text-slate-600 text-xs font-bold leading-none select-none hidden md:block">➔</div>
                       <div className="text-[#475569] dark:text-slate-600 text-xs font-bold leading-none select-none md:hidden">▼</div>
-                      <div className="flex-grow p-3 rounded-lg border border-indigo-200 dark:border-indigo-950 bg-indigo-50/30 dark:bg-indigo-955/10 w-full md:w-auto">
-                        <div className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Auth Gate (validateApiKey)</div>
+                      <div className="flex-grow p-3 rounded-lg border border-red-200 dark:border-red-950/60 bg-red-50/30 dark:bg-red-950/20 w-full md:w-auto">
+                        <div className="text-[10px] font-bold text-[#e52521] dark:text-[#d01f1c] uppercase tracking-wider">Auth Gate (validateApiKey)</div>
                         <div className="text-xs font-bold text-[#334155] dark:text-slate-355 mt-1">Checks origin / bc_prod_ key</div>
                       </div>
                       <div className="text-[#475569] dark:text-slate-600 text-xs font-bold leading-none select-none hidden md:block">➔</div>
@@ -675,7 +675,7 @@ func main() {
                   {/* Dark block for path is highly visible & standard in both modes */}
                   <div className="flex items-center gap-3 bg-slate-950 border border-slate-900 rounded-xl p-3 sm:p-4">
                     <span className={`px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-wider text-white ${
-                      selectedApi.method === 'POST' ? 'bg-emerald-600' : 'bg-indigo-600'
+                      selectedApi.method === 'POST' ? 'bg-red-600' : 'bg-[#e52521]'
                     }`}>
                       {selectedApi.method}
                     </span>
@@ -698,13 +698,13 @@ func main() {
                         </thead>
                         <tbody className="divide-y divide-slate-200 dark:divide-slate-900 font-medium">
                           <tr>
-                            <td className="px-4 py-3 font-mono font-bold text-[#4f46e5] dark:text-indigo-400">X-API-Key</td>
+                            <td className="px-4 py-3 font-mono font-bold text-[#e52521] dark:text-[#d01f1c]">X-API-Key</td>
                             <td className="px-4 py-3 font-mono text-[#334155] dark:text-[#cbd5e1]">string (Required)</td>
                             <td className="px-4 py-3 text-[#475569] dark:text-slate-500">Your Sandbox or Live API Authentication key.</td>
                           </tr>
                           {selectedApi.method === 'POST' && (
                             <tr>
-                              <td className="px-4 py-3 font-mono font-bold text-[#4f46e5] dark:text-indigo-400">Content-Type</td>
+                              <td className="px-4 py-3 font-mono font-bold text-[#e52521] dark:text-[#d01f1c]">Content-Type</td>
                               <td className="px-4 py-3 font-mono text-[#334155] dark:text-[#cbd5e1]">application/json</td>
                               <td className="px-4 py-3 text-[#475569] dark:text-slate-500">Required payload Content Type for POST.</td>
                             </tr>
@@ -733,7 +733,7 @@ func main() {
                         <tbody className="divide-y divide-slate-200 dark:divide-slate-900 font-medium">
                           {selectedApi.params.map(p => (
                             <tr key={p.name}>
-                              <td className="px-4 py-3 font-mono font-bold text-[#4f46e5] dark:text-[#818cf8]">{p.name}</td>
+                              <td className="px-4 py-3 font-mono font-bold text-[#e52521] dark:text-[#f87171]">{p.name}</td>
                               <td className="px-4 py-3 font-mono text-[#334155] dark:text-[#cbd5e1]">{p.type}</td>
                               <td className="px-4 py-3">
                                 {p.required ? (
@@ -786,14 +786,14 @@ func main() {
                               value={playgroundParams[p.name] || ''}
                               onChange={(e) => handleParamChange(p.name, e.target.value)}
                               rows={selectedApi.id === 'ocr' || selectedApi.id === 'diff' ? 4 : 3}
-                              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-[#0f172a] dark:text-white outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors font-mono resize-none leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-700"
+                              className="w-full bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-[#0f172a] dark:text-white outline-none focus:border-[#e52521] dark:focus:border-red-500 transition-colors font-mono resize-none leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-700"
                               placeholder={p.desc}
                             />
                           ) : p.type === 'boolean' ? (
                             <select
                               value={playgroundParams[p.name] || 'false'}
                               onChange={(e) => handleParamChange(p.name, e.target.value)}
-                              className="w-full bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-[#0f172a] dark:text-white outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors cursor-pointer"
+                              className="w-full bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-[#0f172a] dark:text-white outline-none focus:border-[#e52521] dark:focus:border-red-500 transition-colors cursor-pointer"
                             >
                               <option value="false">false</option>
                               <option value="true">true</option>
@@ -803,7 +803,7 @@ func main() {
                               type="text"
                               value={playgroundParams[p.name] || ''}
                               onChange={(e) => handleParamChange(p.name, e.target.value)}
-                              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-[#0f172a] dark:text-white outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors font-mono"
+                              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-[#0f172a] dark:text-white outline-none focus:border-[#e52521] dark:focus:border-red-500 transition-colors font-mono"
                               placeholder={p.defaultVal || p.desc}
                             />
                           )}
@@ -814,7 +814,7 @@ func main() {
                     <button
                       onClick={runPlayground}
                       disabled={loadingPlayground}
-                      className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full flex items-center justify-center gap-2 bg-[#e52521] hover:bg-[#d01f1c] text-white py-3 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loadingPlayground ? (
                         <>
@@ -851,7 +851,7 @@ func main() {
                         <span className="text-[10px] text-[#475569] dark:text-slate-400 font-bold uppercase tracking-wider mt-3">Raw Render Output</span>
                       </div>
                     ) : (
-                      <pre className="flex-grow p-4 rounded-xl bg-slate-950 border border-slate-900 font-mono text-[9px] sm:text-xs text-indigo-300 overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-[400px]">
+                      <pre className="flex-grow p-4 rounded-xl bg-slate-955 border border-slate-900 font-mono text-[9px] sm:text-xs text-red-300 overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-[400px]">
                         {playgroundResult || '// Click "Send API Request" to view live JSON response output'}
                       </pre>
                     )}
@@ -874,7 +874,7 @@ func main() {
                         key={lang}
                         onClick={() => setSnippetLang(lang)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider ${
-                          snippetLang === lang ? 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-650 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/25' : 'text-[#475569] hover:text-[#0f172a] dark:hover:text-slate-300'
+                          snippetLang === lang ? 'bg-red-50 dark:bg-[#e52521]/15 text-[#e52521] dark:text-[#d01f1c] border border-red-200 dark:border-[#e52521]/25' : 'text-[#475569] hover:text-[#0f172a] dark:hover:text-slate-300'
                         }`}
                       >
                         {lang === 'js' ? 'Javascript' : lang === 'python' ? 'Python' : lang === 'curl' ? 'cURL' : 'Go'}
@@ -890,7 +890,7 @@ func main() {
                     >
                       {copiedCode ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                     </button>
-                    <pre className="p-4 rounded-xl bg-slate-950 border border-slate-900 font-mono text-[10px] sm:text-xs text-indigo-300 overflow-x-auto whitespace-pre leading-relaxed">
+                    <pre className="p-4 rounded-xl bg-slate-955 border border-slate-900 font-mono text-[10px] sm:text-xs text-red-300 overflow-x-auto whitespace-pre leading-relaxed">
                       {generateCodeSnippet()}
                     </pre>
                   </div>
@@ -918,14 +918,14 @@ func main() {
                         </div>
                         <button 
                           onClick={generateNewKey} 
-                          className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-750 dark:hover:text-indigo-300 transition-colors uppercase tracking-wider"
+                          className="text-[9px] font-bold text-[#e52521] dark:text-[#d01f1c] hover:text-[#d01f1c] dark:hover:text-red-300 transition-colors uppercase tracking-wider"
                         >
                           Regenerate
                         </button>
                       </div>
                       
                       <div className="flex items-center gap-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl p-1">
-                        <code className="text-[10px] sm:text-xs font-mono font-bold text-[#4f46e5] dark:text-indigo-300 px-3 truncate select-all flex-grow">
+                        <code className="text-[10px] sm:text-xs font-mono font-bold text-[#e52521] dark:text-red-300 px-3 truncate select-all flex-grow">
                           {apiKey}
                         </code>
                         <button 
@@ -989,7 +989,7 @@ func main() {
                                       pricingEl.scrollIntoView({ behavior: 'smooth' });
                                     }
                                   }}
-                                  className="inline-flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider cursor-pointer shadow-sm transition-colors"
+                                  className="inline-flex items-center gap-1 bg-[#e52521] hover:bg-[#d01f1c] text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider cursor-pointer shadow-sm transition-colors"
                                 >
                                   Get Live Key
                                   <ArrowRight size={10} />

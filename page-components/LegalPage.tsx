@@ -30,18 +30,18 @@ const PAGE_CONFIGS: Record<string, {
   'terms-and-conditions': {
     icon: <Scale size={28} />,
     badge: 'Legal Agreement',
-    accentFrom: '#4f46e5',
-    accentTo: '#7c3aed',
-    badgeBg: 'bg-indigo-50 dark:bg-indigo-950/40',
-    badgeText: 'text-indigo-600 dark:text-indigo-400',
+    accentFrom: '#e52521',
+    accentTo: '#b91c1c',
+    badgeBg: 'bg-red-50 dark:bg-red-950/40',
+    badgeText: 'text-[#e52521] dark:text-[#d01f1c]',
   },
   'privacy-policy': {
     icon: <Shield size={28} />,
     badge: 'Privacy & Data',
-    accentFrom: '#0ea5e9',
-    accentTo: '#6366f1',
-    badgeBg: 'bg-sky-50 dark:bg-sky-950/40',
-    badgeText: 'text-sky-600 dark:text-sky-400',
+    accentFrom: '#1e293b',
+    accentTo: '#0f172a',
+    badgeBg: 'bg-slate-50 dark:bg-slate-900/40',
+    badgeText: 'text-slate-600 dark:text-slate-400',
   },
   'cookies-policy': {
     icon: <Cookie size={28} />,
@@ -840,7 +840,7 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
                     onClick={() => scrollToSection(h.id)}
                     className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all border-l-2 ${
                       activeSection === h.id
-                        ? 'border-l-indigo-500 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 font-semibold'
+                        ? 'border-l-[#e52521] bg-red-50 dark:bg-red-950/30 text-[#e52521] dark:text-[#d01f1c] font-semibold'
                         : 'border-transparent text-slate-500 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900/50'
                     } ${h.level === 3 ? 'pl-6' : ''}`}
                   >
@@ -852,10 +852,10 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
               <div className="mt-8 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
                 <p className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Have questions?</p>
                 <p className="text-xs text-slate-500 dark:text-slate-500 mb-3 leading-relaxed">Contact us about any legal or privacy concern.</p>
-                <a href="mailto:developer@bishalcodes.com" className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline mb-1.5">
+                <a href="mailto:developer@bishalcodes.com" className="flex items-center gap-1.5 text-xs font-semibold text-[#e52521] dark:text-[#d01f1c] hover:underline mb-1.5">
                   <Mail size={11} /> developer@bishalcodes.com
                 </a>
-                <a href="tel:+9779827801575" className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline mb-1.5">
+                <a href="tel:+9779827801575" className="flex items-center gap-1.5 text-xs font-semibold text-[#e52521] dark:text-[#d01f1c] hover:underline mb-1.5">
                   <Phone size={11} /> +977 9827801575
                 </a>
                 <p className="flex items-start gap-1.5 text-xs text-slate-500 dark:text-slate-500">
@@ -887,7 +887,7 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
                       onClick={() => scrollToSection(h.id)}
                       className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
                         activeSection === h.id
-                          ? 'bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 font-semibold'
+                          ? 'bg-red-50 dark:bg-red-950/30 text-[#e52521] dark:text-[#d01f1c] font-semibold'
                           : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                       } ${h.level === 3 ? 'pl-7' : ''}`}
                     >
@@ -972,7 +972,7 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
                     href={href}
                     target={href?.startsWith('http') ? '_blank' : undefined}
                     rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="text-indigo-600 dark:text-indigo-400 font-medium underline underline-offset-2 decoration-indigo-300 dark:decoration-indigo-700 hover:decoration-indigo-600 dark:hover:decoration-indigo-400 transition-all inline-flex items-center gap-0.5"
+                    className="text-[#e52521] dark:text-[#d01f1c] font-medium underline underline-offset-2 decoration-red-300 dark:decoration-red-700 hover:decoration-[#e52521] dark:hover:decoration-red-400 transition-all inline-flex items-center gap-0.5"
                   >
                     {children}
                     {href?.startsWith('http') && <ExternalLink size={11} className="ml-0.5 opacity-60 flex-shrink-0" />}
@@ -985,8 +985,8 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
                   <em className="italic text-slate-700 dark:text-slate-300">{children}</em>
                 ),
                 blockquote: ({ children }: any) => (
-                  <blockquote className="my-5 pl-4 border-l-4 border-indigo-300 dark:border-indigo-700 bg-indigo-50/50 dark:bg-indigo-950/20 py-3 pr-4 rounded-r-xl">
-                    <div className="text-sm text-indigo-800 dark:text-indigo-300 italic leading-relaxed">{children}</div>
+                  <blockquote className="my-5 pl-4 border-l-4 border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-950/20 py-3 pr-4 rounded-r-xl">
+                    <div className="text-sm text-red-800 dark:text-red-300 italic leading-relaxed">{children}</div>
                   </blockquote>
                 ),
                 code: ({ children }: any) => (
@@ -1029,10 +1029,10 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
                   For any questions about this document or our legal practices, contact us directly.
                 </p>
                 <div className="space-y-2">
-                  <a href="mailto:developer@bishalcodes.com" className="flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                  <a href="mailto:developer@bishalcodes.com" className="flex items-center gap-2 text-xs font-semibold text-[#e52521] dark:text-[#d01f1c] hover:underline">
                     <Mail size={12} /> developer@bishalcodes.com
                   </a>
-                  <a href="tel:+9779827801575" className="flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                  <a href="tel:+9779827801575" className="flex items-center gap-2 text-xs font-semibold text-[#e52521] dark:text-[#d01f1c] hover:underline">
                     <Phone size={12} /> +977 9827801575
                   </a>
                   <p className="flex items-start gap-2 text-xs text-slate-500 dark:text-slate-500">
@@ -1053,7 +1053,7 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
                     <li key={p.slug}>
                       <button
                         onClick={() => navigate('legal-page', p.slug)}
-                        className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                        className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-[#d01f1c] dark:hover:text-[#d01f1c] transition-colors"
                       >
                         <ChevronRight size={12} />
                         {p.label}

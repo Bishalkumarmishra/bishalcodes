@@ -196,7 +196,7 @@ export const DiffChecker: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleCopy(originalText, true)}
-                  className="text-slate-400 hover:text-indigo-500 transition-colors p-1"
+                  className="text-slate-400 hover:text-[#e52521] transition-colors p-1"
                   title="Copy text"
                 >
                   {isCopiedOriginal ? <Check size={13} className="text-emerald-500" /> : <Clipboard size={13} />}
@@ -219,7 +219,7 @@ export const DiffChecker: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleCopy(modifiedText, false)}
-                  className="text-slate-400 hover:text-indigo-500 transition-colors p-1"
+                  className="text-slate-400 hover:text-[#e52521] transition-colors p-1"
                   title="Copy text"
                 >
                   {isCopiedModified ? <Check size={13} className="text-emerald-500" /> : <Clipboard size={13} />}
@@ -247,7 +247,7 @@ export const DiffChecker: React.FC = () => {
                 onClick={() => setViewMode('split')}
                 className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 ${
                   viewMode === 'split'
-                    ? 'bg-white dark:bg-slate-950 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                    ? 'bg-white dark:bg-slate-950 text-[#e52521] dark:text-[#d01f1c] shadow-sm'
                     : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
@@ -258,7 +258,7 @@ export const DiffChecker: React.FC = () => {
                 onClick={() => setViewMode('inline')}
                 className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 ${
                   viewMode === 'inline'
-                    ? 'bg-white dark:bg-slate-950 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                    ? 'bg-white dark:bg-slate-950 text-[#e52521] dark:text-[#d01f1c] shadow-sm'
                     : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
@@ -269,7 +269,7 @@ export const DiffChecker: React.FC = () => {
 
             <button
               onClick={handleSwap}
-              className="inline-flex items-center gap-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-xl text-xs font-bold hover:text-indigo-500 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-xl text-xs font-bold hover:text-[#e52521] transition-colors cursor-pointer"
             >
               <ArrowLeftRight size={13} />
               Swap Texts
@@ -277,7 +277,7 @@ export const DiffChecker: React.FC = () => {
             
             <button
               onClick={loadSample}
-              className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-bold"
+              className="text-xs text-[#e52521] dark:text-[#d01f1c] hover:underline font-bold"
             >
               Load Sample Text
             </button>
@@ -302,7 +302,7 @@ export const DiffChecker: React.FC = () => {
           <div className="bg-slate-950 text-slate-100 rounded-2xl border border-slate-800 shadow-xl overflow-hidden font-mono text-xs select-text">
             
             <div className="p-3 border-b border-slate-800 bg-slate-900/50 flex items-center gap-1.5 text-slate-500 font-bold select-none text-[10px] uppercase tracking-wider">
-              <Diff size={12} className="text-indigo-500" />
+              <Diff size={12} className="text-[#e52521]" />
               Diff Comparison Output
             </div>
 

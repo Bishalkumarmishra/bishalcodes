@@ -33,7 +33,7 @@ const NotFoundPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto">
           <button
             onClick={() => navigate('home')}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-md transition-all active:scale-[0.98]"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#e52521] hover:bg-[#e52521] text-white font-bold text-sm shadow-md transition-all active:scale-[0.98]"
           >
             <Home size={16} />
             <span>Go to Homepage</span>

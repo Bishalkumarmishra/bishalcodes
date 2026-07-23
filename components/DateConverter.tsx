@@ -136,10 +136,10 @@ const NOTE_COLORS: Record<string, { bg: string; dot: string; text: string; borde
     previewBg: 'bg-rose-100 dark:bg-rose-900/20'
   },
   blue: {
-    bg: 'bg-blue-50/70 dark:bg-blue-950/20',
-    dot: 'bg-blue-500',
+    bg: 'bg-red-50/70 dark:bg-blue-950/20',
+    dot: 'bg-red-500',
     text: 'text-blue-700 dark:text-blue-300',
-    border: 'border-blue-200 dark:border-blue-900/30',
+    border: 'border-red-200 dark:border-blue-900/30',
     previewBg: 'bg-blue-100 dark:bg-blue-900/20'
   },
   green: {
@@ -157,11 +157,11 @@ const NOTE_COLORS: Record<string, { bg: string; dot: string; text: string; borde
     previewBg: 'bg-amber-100 dark:bg-amber-900/20'
   },
   purple: {
-    bg: 'bg-purple-50/70 dark:bg-purple-950/20',
-    dot: 'bg-purple-500',
+    bg: 'bg-red-50/70 dark:bg-purple-950/20',
+    dot: 'bg-red-500',
     text: 'text-purple-700 dark:text-purple-300',
     border: 'border-purple-200 dark:border-purple-900/30',
-    previewBg: 'bg-purple-100 dark:bg-purple-900/20'
+    previewBg: 'bg-red-100 dark:bg-purple-900/20'
   }
 };
 
@@ -867,9 +867,9 @@ END:VCALENDAR`;
             {/* Live Clock / Today Display Deck */}
             {todayDetails && (
               <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800/80 shadow-lg rounded-2xl p-6 min-w-[280px] w-full md:w-auto relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full filter blur-xl group-hover:scale-125 transition-transform duration-500" />
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#e52521]/10 dark:bg-[#e52521]/5 rounded-full filter blur-xl group-hover:scale-125 transition-transform duration-500" />
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-3">
-                  <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                  <div className="flex items-center gap-2 text-[#e52521] dark:text-[#d01f1c]">
                     <Clock size={16} className="animate-pulse" />
                     <span className="text-xs font-bold uppercase tracking-wider">Nepal Time (NPT)</span>
                   </div>
@@ -940,7 +940,7 @@ END:VCALENDAR`;
                         <select
                           value={adYear}
                           onChange={(e) => { setAdYear(Number(e.target.value)); }}
-                          className="w-full px-3 py-2.5 rounded-xl converter-input border text-sm font-semibold outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                          className="w-full px-3 py-2.5 rounded-xl converter-input border text-sm font-semibold outline-none focus:border-[#e52521] focus:ring-1 focus:ring-[#e52521] transition-colors"
                         >
                           {Array.from({ length: maxAdYear - minAdYear + 1 }, (_, i) => minAdYear + i).map(year => (
                             <option key={year} value={year}>{year}</option>
@@ -954,7 +954,7 @@ END:VCALENDAR`;
                         <select
                           value={adMonth}
                           onChange={(e) => { setAdMonth(Number(e.target.value)); }}
-                          className="w-full px-3 py-2.5 rounded-xl converter-input border text-sm font-semibold outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                          className="w-full px-3 py-2.5 rounded-xl converter-input border text-sm font-semibold outline-none focus:border-[#e52521] focus:ring-1 focus:ring-[#e52521] transition-colors"
                         >
                           {GREGORIAN_MONTHS_EN.map((name, index) => (
                             <option key={index} value={index}>{name}</option>
@@ -968,7 +968,7 @@ END:VCALENDAR`;
                         <select
                           value={adDay}
                           onChange={(e) => { setAdDay(Number(e.target.value)); }}
-                          className="w-full px-3 py-2.5 rounded-xl converter-input border text-sm font-semibold outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                          className="w-full px-3 py-2.5 rounded-xl converter-input border text-sm font-semibold outline-none focus:border-[#e52521] focus:ring-1 focus:ring-[#e52521] transition-colors"
                         >
                           {Array.from({ length: getDaysInMonth('AD', adYear, adMonth) }, (_, i) => i + 1).map(day => (
                             <option key={day} value={day}>{day}</option>
@@ -993,7 +993,7 @@ END:VCALENDAR`;
                             setAdMonth(d.getMonth());
                             setAdDay(d.getDate());
                           }}
-                          className="px-3 py-1.5 rounded-lg converter-input border text-xs font-semibold outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg converter-input border text-xs font-semibold outline-none focus:border-[#e52521] focus:ring-1 focus:ring-[#e52521] transition-colors cursor-pointer"
                         />
                       </div>
                     </div>
@@ -1011,7 +1011,7 @@ END:VCALENDAR`;
                         <select
                           value={bsYear}
                           onChange={(e) => { setBsYear(Number(e.target.value)); }}
-                          className="w-full px-3 py-2.5 rounded-xl converter-input border text-sm font-semibold outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                          className="w-full px-3 py-2.5 rounded-xl converter-input border text-sm font-semibold outline-none focus:border-[#e52521] focus:ring-1 focus:ring-[#e52521] transition-colors"
                         >
                           {Array.from({ length: maxBsYear - minBsYear + 1 }, (_, i) => minBsYear + i).map(year => (
                             <option key={year} value={year}>{year} ({toNepaliStr(year)})</option>
@@ -1025,7 +1025,7 @@ END:VCALENDAR`;
                         <select
                           value={bsMonth}
                           onChange={(e) => { setBsMonth(Number(e.target.value)); }}
-                          className="w-full px-3 py-2.5 rounded-xl converter-input border text-sm font-semibold outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                          className="w-full px-3 py-2.5 rounded-xl converter-input border text-sm font-semibold outline-none focus:border-[#e52521] focus:ring-1 focus:ring-[#e52521] transition-colors"
                         >
                           {NEPALI_MONTHS_NE.map((name, index) => (
                             <option key={index} value={index}>{name} ({NEPALI_MONTHS_EN[index]})</option>
@@ -1170,7 +1170,7 @@ END:VCALENDAR`;
                                     onChange={(e) => setNoteText(e.target.value.substring(0, 500))}
                                     placeholder="Add meetings, birthdays, reminders, lists..."
                                     rows={4}
-                                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors placeholder-slate-400"
+                                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-medium outline-none focus:border-[#e52521] focus:ring-1 focus:ring-[#e52521] transition-colors placeholder-slate-400"
                                   />
                                   <div className="text-[10px] text-slate-400 font-medium text-right font-mono">
                                     {noteText.length}/500 chars
@@ -1184,7 +1184,7 @@ END:VCALENDAR`;
                                       type="checkbox"
                                       checked={sendEmailCopy}
                                       onChange={(e) => setSendEmailCopy(e.target.checked)}
-                                      className="w-4 h-4 rounded border-slate-300 dark:border-slate-800 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                                      className="w-4 h-4 rounded border-slate-300 dark:border-slate-800 text-[#e52521] focus:ring-[#e52521] cursor-pointer"
                                     />
                                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                       Email me a copy of this note (ईमेल पठाउनुहोस्)
@@ -1199,7 +1199,7 @@ END:VCALENDAR`;
                                         value={emailInput}
                                         onChange={(e) => setEmailInput(e.target.value)}
                                         placeholder="Enter your email address"
-                                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors placeholder-slate-400"
+                                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-medium outline-none focus:border-[#e52521] focus:ring-1 focus:ring-[#e52521] transition-colors placeholder-slate-400"
                                         required
                                       />
                                     </div>
@@ -1209,7 +1209,7 @@ END:VCALENDAR`;
                                 <div className="flex items-center gap-2">
                                   <button
                                     onClick={() => saveNote(noteKey, noteText, noteColor)}
-                                    className="flex-1 bg-slate-900 hover:bg-slate-800 dark:bg-indigo-650 dark:hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors shadow-sm cursor-pointer"
+                                    className="flex-1 bg-slate-900 hover:bg-slate-800 dark:bg-indigo-650 dark:hover:bg-[#d01f1c] text-white font-semibold py-2 px-4 rounded-xl text-xs transition-colors shadow-sm cursor-pointer"
                                   >
                                     Save Note
                                   </button>
@@ -1248,7 +1248,7 @@ END:VCALENDAR`;
                                       setNoteText('');
                                       setNoteColor('default');
                                     }}
-                                    className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors flex items-center gap-0.5 cursor-pointer"
+                                    className="text-xs font-bold text-[#e52521] dark:text-[#d01f1c] hover:text-indigo-700 transition-colors flex items-center gap-0.5 cursor-pointer"
                                   >
                                     + Add Note
                                   </button>
@@ -1267,7 +1267,7 @@ END:VCALENDAR`;
                                         setNoteText(activeNote.text);
                                         setNoteColor(activeNote.color);
                                       }}
-                                      className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors cursor-pointer"
+                                      className="text-[10px] font-bold text-[#e52521] dark:text-[#d01f1c] hover:text-indigo-700 transition-colors cursor-pointer"
                                     >
                                       Edit Note
                                     </button>
@@ -1556,7 +1556,7 @@ END:VCALENDAR`;
                   href="https://apps.microsoft.com/detail/9PJVV2J32KNP"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                  className="text-[11px] font-bold text-[#e52521] hover:text-indigo-800 dark:text-[#d01f1c] dark:hover:text-indigo-300 transition-colors cursor-pointer inline-flex items-center gap-1.5"
                 >
                   <span className="text-sm">🛍️</span>
                   <span>Get Nepali Calendar on Microsoft Store</span>
