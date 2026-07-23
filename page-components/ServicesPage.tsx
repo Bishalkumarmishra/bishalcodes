@@ -10,6 +10,8 @@ import PdfToImageConverter from '../components/PdfToImageConverter';
 import { PdfToWordConverter } from '../components/PdfToWordConverter';
 import { WordToPdfConverter } from '../components/WordToPdfConverter';
 import { ExcelToPdfConverter } from '../components/ExcelToPdfConverter';
+import { PdfToExcelConverter } from '../components/PdfToExcelConverter';
+import { SplitPdfConverter } from '../components/SplitPdfConverter';
 import AiSummarizer from '../components/AiSummarizer';
 import ImageCompressor from '../components/ImageCompressor';
 import EmiCalculator from '../components/EmiCalculator';
@@ -106,6 +108,11 @@ const toolSeoData: Record<string, { title: string; desc: string; keywords: strin
     title: 'Excel to PDF Converter - Convert XLSX to PDF Online',
     desc: 'Convert Microsoft Excel spreadsheets (.xlsx, .xls) into high-fidelity PDF documents. Preserves gridlines, formulas representation, alignments, and chart graphics.',
     keywords: ['excel to pdf converter', 'convert xlsx to pdf', 'convert excel to pdf online', 'xls to pdf converter', 'free excel to pdf']
+  },
+  'pdf-to-excel': {
+    title: 'PDF to Excel Converter - Extract PDF Tables to XLSX',
+    desc: 'Extract tables and structured data from PDF documents into fully formatted Microsoft Excel spreadsheets (.xlsx) instantly.',
+    keywords: ['pdf to excel converter', 'convert pdf to xlsx', 'extract pdf tables', 'pdf to excel online', 'free pdf to excel']
   },
   'ai-summarizer': {
     title: 'AI Document Summarizer - PDF Abstract Generator',
@@ -273,6 +280,22 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Convert Excel spreadsheets (.xlsx, .xls) into high-fidelity PDF files with exact sheet scaling, layout preservation, and charts.',
     badge: 'NEW',
     accentColor: 'emerald',
+  },
+  {
+    id: 'pdf-to-excel',
+    name: 'PDF to Excel Converter',
+    emoji: '📈',
+    description: 'Convert PDF files into structured Microsoft Excel spreadsheets (.xlsx) with clean cell grids, row preservation, and layout mapping.',
+    badge: 'NEW',
+    accentColor: 'emerald',
+  },
+  {
+    id: 'split-pdf',
+    name: 'Split PDF',
+    emoji: '✂️',
+    description: 'Split PDF files into multiple documents by custom page ranges, fixed intervals, or extract every page individually.',
+    badge: 'NEW',
+    accentColor: 'red',
   },
 ];
 
@@ -520,7 +543,7 @@ const ServicesPage: React.FC = () => {
         const snap = await getDocs(q);
         setServices(snap.docs
           .map(doc => ({ id: doc.id, ...doc.data() } as ServiceTool))
-          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover' && service.linkUrl !== 'scan-pdf' && service.linkUrl !== 'pdf-to-word' && service.linkUrl !== 'word-to-pdf' && service.linkUrl !== 'excel-to-pdf')
+          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover' && service.linkUrl !== 'scan-pdf' && service.linkUrl !== 'pdf-to-word' && service.linkUrl !== 'word-to-pdf' && service.linkUrl !== 'excel-to-pdf' && service.linkUrl !== 'pdf-to-excel' && service.linkUrl !== 'split-pdf')
         );
       } catch (err) {
         console.error("Failed to fetch services", err);
@@ -639,6 +662,8 @@ const ServicesPage: React.FC = () => {
       case 'pdf-to-word': return <PdfToWordConverter />;
       case 'word-to-pdf': return <WordToPdfConverter />;
       case 'excel-to-pdf': return <ExcelToPdfConverter />;
+      case 'pdf-to-excel': return <PdfToExcelConverter />;
+      case 'split-pdf': return <SplitPdfConverter />;
       case 'ai-summarizer': return <AiSummarizer />;
       case 'image-compressor': return <ImageCompressor />;
       case 'emi-calculator': return <EmiCalculator />;

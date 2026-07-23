@@ -124,6 +124,18 @@ export default async function CatchAllPage(props: PageProps) {
             a: "Yes, you can upload any Microsoft Excel spreadsheet (.xlsx, .xls) and convert it into a high-fidelity PDF document with exact sheet layout preservation, gridlines, and charts."
           }
         ],
+        'pdf-to-excel': [
+          {
+            q: "Can I convert PDF pages to Excel spreadsheet tables?",
+            a: "Yes, you can upload any PDF file and convert its pages into a fully formatted Microsoft Excel spreadsheet (.xlsx) with gridlines and cell alignment auto-fitted."
+          }
+        ],
+        'split-pdf': [
+          {
+            q: "Can I split a PDF into multiple files?",
+            a: "Yes! Upload any PDF and split it by custom page ranges, fixed page intervals (every N pages), or extract every single page as its own individual PDF file."
+          }
+        ],
         'image-compressor': [
           {
             q: "Is the image compression private and secure?",
@@ -668,6 +680,58 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
             title: "Excel to PDF Converter | Convert XLSX to PDF Online Free",
             description: "Convert Microsoft Excel spreadsheets (.xlsx, .xls) into high-fidelity PDF documents with exact gridlines, tables, and formatting preservation.",
             images: ["https://bishalcodes.com/seo-images/excel-to-pdf.png"]
+          }
+        };
+      }
+
+      if (subpage === 'pdf-to-excel') {
+        return {
+          title: "PDF to Excel Converter | Extract PDF Tables to Excel Free | Bishal Codes",
+          description: "Free online PDF to Excel converter. Extract data tables and rows from PDF documents into formatted Microsoft Excel spreadsheets (.xlsx) with gridlines.",
+          keywords: "PDF to Excel, convert PDF to Excel, extract PDF tables, online PDF tools, data extraction, free Excel converter, Bishal Codes",
+          alternates: {
+            canonical: "https://bishalcodes.com/tools/pdf-to-excel",
+          },
+          openGraph: {
+            title: "PDF to Excel Converter | Extract PDF Tables to Excel Free",
+            description: "Extract data tables and rows from PDF documents into formatted Microsoft Excel spreadsheets (.xlsx) with gridlines.",
+            url: "https://bishalcodes.com/tools/pdf-to-excel",
+            siteName: "Bishal Codes",
+            type: "website",
+            images: [{ url: "https://bishalcodes.com/seo-images/pdf-to-excel.png", width: 1200, height: 630, alt: "PDF to Excel Converter" }],
+          },
+          twitter: {
+            card: "summary_large_image",
+            site: "@bishalmishra",
+            creator: "@bishalmishra",
+            title: "PDF to Excel Converter | Extract PDF Tables to Excel Free",
+            description: "Extract data tables and rows from PDF documents into formatted Microsoft Excel spreadsheets (.xlsx) with gridlines.",
+            images: ["https://bishalcodes.com/seo-images/pdf-to-excel.png"]
+          }
+        };
+      }
+
+      if (subpage === 'split-pdf') {
+        return {
+          title: "Split PDF Online Free | Split PDF by Pages or Ranges | Bishal Codes",
+          description: "Split PDF files into multiple documents by custom page ranges, fixed intervals, or extract every page. No watermarks, free and instant.",
+          keywords: "split PDF, PDF splitter, split PDF online, split PDF by pages, extract pages from PDF, free PDF splitter, Bishal Codes",
+          alternates: { canonical: "https://bishalcodes.com/tools/split-pdf" },
+          openGraph: {
+            title: "Split PDF Online Free | Split PDF by Pages or Ranges",
+            description: "Split PDF files into multiple documents by custom page ranges, fixed intervals, or extract every page. No watermarks, free and instant.",
+            url: "https://bishalcodes.com/tools/split-pdf",
+            siteName: "Bishal Codes",
+            type: "website",
+            images: [{ url: "https://bishalcodes.com/seo-images/split-pdf.png", width: 1200, height: 630, alt: "Split PDF Online" }],
+          },
+          twitter: {
+            card: "summary_large_image",
+            site: "@bishalmishra",
+            creator: "@bishalmishra",
+            title: "Split PDF Online Free | Split PDF by Pages or Ranges",
+            description: "Split PDF files into multiple documents by custom page ranges, fixed intervals, or extract every page.",
+            images: ["https://bishalcodes.com/seo-images/split-pdf.png"]
           }
         };
       }

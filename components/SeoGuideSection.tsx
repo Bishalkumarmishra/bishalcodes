@@ -435,6 +435,90 @@ const GUIDES_DATABASE: Record<string, GuideData> = {
       }
     ]
   },
+  'pdf-to-excel': {
+    title: "High-Performance PDF to Excel Converter",
+    subtitle: "Convert PDF documents into formatted Microsoft Excel spreadsheets (.xlsx) with automated table and layout reconstruction.",
+    sections: [
+      {
+        title: "Structure-Aware Table Extraction",
+        icon: "📈",
+        content: [
+          "Our extraction engine parses individual PDF tables, identifies row/column cells, and maps them directly into native Excel grid definitions.",
+          "Unlike screenshot tools, it parses numeric strings, headings, and columns as structured cell objects, so your calculations and data can be edited.",
+          "Runs securely on a protected environment, instantly cleaning up all files post-processing."
+        ]
+      },
+      {
+        title: "Clean Gridlines & Auto-Fitting",
+        icon: "📊",
+        content: [
+          "Automatically adjusts column widths to prevent clipped text, and enables print gridlines on every exported sheet.",
+          "Preserves original numeric values, text justifications, and line breaks inside your spreadsheet cells.",
+          "Includes text-page fallback extraction, writing page lines into clean sequential rows if no vector grids are present."
+        ]
+      }
+    ],
+    faqs: [
+      {
+        q: "Are my spreadsheets secure?",
+        a: "Yes. All conversion processing is sandboxed, and your files are permanently deleted from server storage immediately after download."
+      },
+      {
+        q: "Will the numbers remain editable?",
+        a: "Yes. The text characters, strings, and numbers are extracted into actual cell text strings, allowing you to use Excel functions and formulas."
+      },
+      {
+        q: "Does it support borderless tables?",
+        a: "Yes. The parser recognizes table structures even if they do not have visible border lines by mapping character positions and spaces."
+      },
+      {
+        q: "What format does it download?",
+        a: "It generates standard Microsoft Excel open XML files (.xlsx) compatible with Excel, Google Sheets, and Numbers."
+      }
+    ]
+  },
+  'split-pdf': {
+    title: "Professional PDF Splitter — Split Any PDF Instantly",
+    subtitle: "Extract specific page ranges, split into fixed-size chunks, or separate every page into individual PDFs. Just like ilovepdf.",
+    sections: [
+      {
+        title: "Three Powerful Split Modes",
+        icon: "✂️",
+        content: [
+          "Range Mode: Define up to unlimited custom page ranges (e.g., pages 1–3, then 5–9) and extract each as its own PDF. Optionally merge all ranges into a single file.",
+          "Fixed Mode: Split the PDF into chunks of N pages each — useful for breaking large reports into equal parts.",
+          "Pages Mode: Extract every single page as its own individual PDF file, packaged into a downloadable ZIP archive."
+        ]
+      },
+      {
+        title: "Real-Time Page Thumbnails",
+        icon: "🖼️",
+        content: [
+          "The page thumbnail preview system renders the actual PDF content so you can visually confirm your page selections before splitting.",
+          "Selected pages are highlighted in red so you always see exactly what will be included in each output file.",
+          "Thumbnails are generated server-side using PyMuPDF and delivered as base64 encoded images for instant display."
+        ]
+      }
+    ],
+    faqs: [
+      {
+        q: "Are my PDF files secure?",
+        a: "Yes. All split processing runs in a sandboxed server environment. Your uploaded files are permanently deleted immediately after the split files are delivered."
+      },
+      {
+        q: "Can I define multiple custom ranges?",
+        a: "Yes. In Range → Custom mode, click 'Add Range' to define as many page ranges as you need. Each range becomes its own PDF file."
+      },
+      {
+        q: "What happens when I split into every page?",
+        a: "Each page is extracted as an individual PDF file. Since there are multiple files, they are packaged together into a ZIP archive for download."
+      },
+      {
+        q: "Is there a page count limit?",
+        a: "No. The splitter handles PDFs of any length — from a 2-page contract to a 500-page technical report."
+      }
+    ]
+  },
   'dev-card-studio': {
     title: "Developer Card & OpenGraph Social Banner Studio",
     subtitle: "Design stunning social preview cards, GitHub README headers, and LinkedIn cover banners with real-time visual canvas controls.",
