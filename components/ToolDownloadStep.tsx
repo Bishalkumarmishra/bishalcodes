@@ -365,7 +365,6 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
               </>
             )}
           </div>
-          </div>
         </div>
       )}
     </div>
