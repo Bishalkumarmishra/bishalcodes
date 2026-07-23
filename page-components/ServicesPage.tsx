@@ -166,6 +166,7 @@ interface StaticTool {
   description: string;
   badge: string;
   accentColor: string; // tailwind color name e.g. 'indigo'
+  iconUrl?: string;
 }
 
 const STATIC_TOOLS: StaticTool[] = [
@@ -248,6 +249,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Convert PDF documents into fully editable Microsoft Word DOCX files with native layout reconstruction and offline client-side OCR.',
     badge: 'NEW',
     accentColor: 'indigo',
+    iconUrl: '/pdf to word.svg',
   },
   {
     id: 'word-to-pdf',
@@ -256,6 +258,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Convert Word documents (.docx, .doc) into high-fidelity PDF files with exact margins, layout preservation, and font embedding.',
     badge: 'NEW',
     accentColor: 'indigo',
+    iconUrl: '/word to pdf.svg',
   },
 ];
 
@@ -364,8 +367,12 @@ const StaticCard: React.FC<StaticCardProps> = ({ tool, pinned, onPin, onOpen, co
       )}
 
       <div className="space-y-3 w-full relative z-10">
-        <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-lg ${ac.iconBg} border ${ac.iconBorder}`}>
-          {tool.emoji}
+        <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-lg ${ac.iconBg} border ${ac.iconBorder} overflow-hidden p-1.5`}>
+          {tool.iconUrl ? (
+            <img src={tool.iconUrl} alt={tool.name} className="w-full h-full object-contain" />
+          ) : (
+            tool.emoji
+          )}
         </div>
         <div className="space-y-1">
           <div className="flex items-center gap-1.5 flex-wrap">
