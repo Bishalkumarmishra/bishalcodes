@@ -827,7 +827,7 @@ const ServicesPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FDF9F3] dark:bg-slate-950 font-sans transition-colors duration-300 selection:bg-[#e52521]/30 flex flex-col justify-between">
       {!isEmbed && <Navbar />}
-      <main className={`w-full flex-grow flex flex-col ${isEmbed ? 'pt-0 pb-0 mt-0' : isFullBleed ? 'pt-0 pb-0' : selectedId ? 'pt-0 pb-12' : 'pb-12 pt-20 sm:pt-28'}`}>
+      <main className={`w-full flex-grow flex flex-col ${isEmbed ? 'pt-0 pb-0 mt-0' : isFullBleed ? 'pt-0 pb-0' : selectedId ? 'pt-20 sm:pt-24 pb-12' : 'pb-12 pt-20 sm:pt-28'}`}>
         {renderActiveService()}
       </main>
 

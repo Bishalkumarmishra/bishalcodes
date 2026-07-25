@@ -269,6 +269,10 @@ const UserDashboard: React.FC = () => {
     ? new Date(user.metadata.creationTime).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : 'Recently';
 
+  const daysRemaining = userProfileData?.api_expires_at 
+    ? Math.max(0, Math.ceil((userProfileData.api_expires_at - Date.now()) / (1000 * 60 * 60 * 24)))
+    : null;
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-700 font-sans">
       {/* Top Navbar */}

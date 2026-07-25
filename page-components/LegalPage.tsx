@@ -205,6 +205,7 @@ Bishal Codes offers the following services through bishalcodes.com:
 - **Technical Blog** — Original articles, tutorials, and guides related to web development, programming, and technology.
 - **Web Development Services** — Custom website and web application development for clients, offered on a contract or freelance basis.
 - **File Transfer & Secure Vault** — Peer-to-peer file transfer and AES-256 encrypted file sharing tools.
+- **Mobile Hardware Diagnostic & IMEI Spec Studio** — Mobile hardware diagnostic utilities (WebUSB device descriptor inspector for Android & Apple iOS, 15-digit Dual-SIM IMEI spec validator, and technician terms). All diagnostic utilities operate 100% client-side without IMEI modification, hardware tampering, or unauthorized data access.
 - **AI Studio** — Experimental AI-powered tools for productivity and automation.
 
 All free tools are provided as-is, on a best-effort basis. Paid services are governed by separate agreements or contracts signed with each client.

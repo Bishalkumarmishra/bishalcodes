@@ -2,1145 +2,882 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
-  FileText, Loader2, ChevronRight, KeyRound, AlertCircle, Type, Pencil,
-  Square, Circle, Image as ImageIcon, Highlighter, Eraser, Trash2, ZoomIn, ZoomOut,
-  Maximize2, ChevronLeft, Bold, Italic, Check, Plus, Move, MousePointer, Copy, Sliders,
-  RotateCw, Search, Edit3
+  Loader2, Pencil, Square, Image as ImageIcon, Trash2,
+  MousePointer, Copy, Hand, Link as LinkIcon, LayoutGrid,
+  AlignLeft, AlignCenter, AlignRight, Plus, ChevronUp, ChevronDown,
+  Minus, Maximize2, Search
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
 import { SeoGuideSection } from './SeoGuideSection';
 import { ToolHeroUpload } from './ToolHeroUpload';
 import { ToolDownloadStep } from './ToolDownloadStep';
-import * as pdfjsLib from 'pdfjs-dist';
 
-// Configure pdfjs worker
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
-}
+let pdfjsLib: any = null;
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-type ToolMode = 'select' | 'text' | 'draw' | 'rect' | 'circle' | 'image' | 'highlight' | 'whiteout';
+type MainMode = 'annotate' | 'edit';
+type ToolMode = 'pan' | 'select' | 'text' | 'draw' | 'shapes' | 'insert' | 'forms';
 
 interface TextOverlay {
-  id: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  text: string;
-  fontSize: number;
-  fontColor: string;
-  fontFamily: string;
-  isBold: boolean;
-  isItalic: boolean;
-  align: 'left' | 'center' | 'right';
-  bgColor?: string;
+  id: string; x: number; y: number; width: number; height: number;
+  text: string; fontSize: number; fontColor: string; fontFamily: string;
+  isBold: boolean; isItalic: boolean; isUnderline: boolean; isStrike: boolean;
+  align: 'left' | 'center' | 'right'; linkUrl?: string; pageIndex: number;
+  backgroundColor?: string;
 }
 
-interface ShapeOverlay {
-  id: string;
-  type: 'rect' | 'circle';
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  strokeColor: string;
-  fillColor: string;
-  strokeWidth: number;
+interface ExtractedText {
+  id: string; text: string; x: number; y: number; width: number; height: number;
+  fontSize: number; fontFamily: string; fontColor: string; pageIndex: number;
 }
 
-interface DrawingOverlay {
-  id: string;
-  points: [number, number][];
-  color: string;
-  width: number;
-}
-
-interface ImageOverlay {
-  id: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  base64: string;
-}
-
-interface CoverOverlay {
-  id: string;
-  x0: number;
-  y0: number;
-  x1: number;
-  y1: number;
-  color: string;
-}
-
-interface PageEdits {
-  texts: TextOverlay[];
-  shapes: ShapeOverlay[];
-  drawings: DrawingOverlay[];
-  images: ImageOverlay[];
-  covers: CoverOverlay[];
-}
+const FONTS = ['Repo Extra', 'DM Sans', 'Inter', 'Roboto', 'Arial', 'Helvetica', 'Times New Roman', 'Courier New'];
+const SIZES = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 72];
+const COLORS = ['#000000', '#e52521', '#d97706', '#16a34a', '#2563eb', '#7c3aed', '#db2777', '#64748b'];
 
 export const EditPdfConverter: React.FC = () => {
   const { navigate } = useNavigation();
 
-  // Step: 'upload' | 'editor' | 'download'
-  const [step, setStep] = useState<'upload' | 'editor' | 'download'>('upload');
+  const [file, setFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [processedFileName, setProcessedFileName] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
-  // File & Document State
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [pdfName, setPdfName] = useState('');
-  const [pdfArrayBuffer, setPdfArrayBuffer] = useState<ArrayBuffer | null>(null);
-  const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
-  const [totalPages, setTotalPages] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageViewport, setPageViewport] = useState<{ width: number; height: number } | null>(null);
-  const [pageThumbnails, setPageThumbnails] = useState<Record<number, string>>({});
-  const [isLoadingPages, setIsLoadingPages] = useState(false);
+  const [pdfDoc, setPdfDoc] = useState<any>(null);
+  const [numPages, setNumPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [zoom, setZoom] = useState(0.55);
+  const [thumbnails, setThumbnails] = useState<string[]>([]);
+  const [thumbZoom, setThumbZoom] = useState(50);
+  const [extractedTexts, setExtractedTexts] = useState<ExtractedText[]>([]);
+  const [texts, setTexts] = useState<TextOverlay[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // Editor Controls
-  const [editorTab, setEditorTab] = useState<'annotate' | 'edit'>('annotate');
-  const [pageRotations, setPageRotations] = useState<Record<number, number>>({});
-  const [zoom, setZoom] = useState(1.0); // 1.0 = 100%
-  const [activeMode, setActiveMode] = useState<ToolMode>('select');
+  const [mainMode, setMainMode] = useState<MainMode>('edit');
+  const [toolMode, setToolMode] = useState<ToolMode>('select');
+  const [pageInputVal, setPageInputVal] = useState('1');
 
-  const rotateCurrentPage = (pNum: number) => {
-    setPageRotations(prev => ({
-      ...prev,
-      [pNum]: ((prev[pNum] || 0) + 90) % 360
-    }));
-  };
-
-  // Active Tool Styling
-  const [fontFamily, setFontFamily] = useState('Helvetica');
-  const [fontSize, setFontSize] = useState(16);
-  const [activeColor, setActiveColor] = useState('#e52521');
+  // Properties panel state
+  const [fontFamily, setFontFamily] = useState('Inter');
+  const [fontSize, setFontSize] = useState(24);
+  const [fontColor, setFontColor] = useState('#000000');
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
-  const [strokeWidth, setStrokeWidth] = useState(3);
-  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+  const [isUnderline, setIsUnderline] = useState(false);
+  const [isStrike, setIsStrike] = useState(false);
+  const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>('left');
+  const [linkUrl, setLinkUrl] = useState('');
 
-  // Edits map per pageNumber -> PageEdits
-  const [allEdits, setAllEdits] = useState<Record<number, PageEdits>>({});
+  const [history, setHistory] = useState<TextOverlay[][]>([[]]);
+  const [histIdx, setHistIdx] = useState(0);
 
-  // Drawing in progress
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [currentPath, setCurrentPath] = useState<[number, number][]>([]);
-
-  // Processing & Output
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processStatus, setProcessStatus] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-  const [downloadName, setDownloadName] = useState('');
-
+  const pageCanvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const canvasContainerRef = useRef<HTMLDivElement>(null);
 
-  const formatSize = (bytes: number) => {
-    if (bytes === 0) return '0 B';
-    const k = 1024, sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-  };
+  // Load pdfjs dynamically (client-only)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    import('pdfjs-dist').then((lib) => {
+      pdfjsLib = lib;
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${lib.version}/build/pdf.worker.min.mjs`;
+    }).catch(() => {});
+  }, []);
 
-  const getPageEdits = (pNum: number): PageEdits => {
-    return allEdits[pNum] || { texts: [], shapes: [], drawings: [], images: [], covers: [] };
-  };
-
-  const updatePageEdits = (pNum: number, updater: (prev: PageEdits) => PageEdits) => {
-    setAllEdits(prev => ({
-      ...prev,
-      [pNum]: updater(prev[pNum] || { texts: [], shapes: [], drawings: [], images: [], covers: [] })
-    }));
-  };
-
-  // ─── 1. Load PDF Document via PDF.js in the DOM ──────────────────────────
-  const loadPdfDocument = useCallback(async (file: File) => {
-    setIsLoadingPages(true);
-    setError(null);
-
+  const handleFileSelect = async (f: File) => {
+    if (!f || f.type !== 'application/pdf') { setError('Please select a valid PDF file.'); return; }
+    setFile(f); setError(null); setIsProcessing(true);
     try {
-      const buffer = await file.arrayBuffer();
-      setPdfArrayBuffer(buffer);
-
-      const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(buffer) });
-      const doc = await loadingTask.promise;
-      setPdfDoc(doc);
-      setTotalPages(doc.numPages);
-      setCurrentPage(1);
-
-      // Auto calculate fit zoom based on screen container width matching iLovePDF auto-fit
-      try {
-        const firstPage = await doc.getPage(1);
-        const unscaledVp = firstPage.getViewport({ scale: 1.0 });
-        const screenW = window.innerWidth - 360;
-        if (screenW > 300 && unscaledVp.width > 0) {
-          const autoFit = Math.min(Math.max(screenW / unscaledVp.width, 0.35), 1.0);
-          setZoom(Number(autoFit.toFixed(2)));
-        }
-      } catch (e) {}
-
-      // Render thumbnails for all pages
-      const thumbs: Record<number, string> = {};
-      for (let i = 1; i <= Math.min(doc.numPages, 30); i++) {
-        const page = await doc.getPage(i);
-        const vp = page.getViewport({ scale: 0.3 });
-        const thumbCanvas = document.createElement('canvas');
-        thumbCanvas.width = vp.width;
-        thumbCanvas.height = vp.height;
-        const ctx = thumbCanvas.getContext('2d');
-        if (ctx) {
-          await page.render({ canvasContext: ctx, viewport: vp, canvas: thumbCanvas } as any).promise;
-          thumbs[i] = thumbCanvas.toDataURL('image/png');
-        }
+      if (!pdfjsLib) {
+        const lib = await import('pdfjs-dist');
+        pdfjsLib = lib;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${lib.version}/build/pdf.worker.min.mjs`;
       }
-      setPageThumbnails(thumbs);
-      setStep('editor');
+      const ab = await f.arrayBuffer();
+      const doc = await pdfjsLib.getDocument({ data: ab }).promise;
+      setPdfDoc(doc); setNumPages(doc.numPages); setCurrentPage(0);
+      setTexts([]); setSelectedId(null);
 
-    } catch (err: any) {
-      console.error('PDF.js load error:', err);
-      setError(`Failed to parse PDF document: ${err.message}`);
-    } finally {
-      setIsLoadingPages(false);
+      const thumbs: string[] = [];
+      for (let i = 1; i <= doc.numPages; i++) {
+        const pg = await doc.getPage(i);
+        const vp = pg.getViewport({ scale: 0.18 });
+        const c = document.createElement('canvas');
+        const ctx = c.getContext('2d')!;
+        c.width = vp.width; c.height = vp.height;
+        await pg.render({ canvasContext: ctx, viewport: vp }).promise;
+        thumbs.push(c.toDataURL());
+      }
+      setThumbnails(thumbs);
+      setIsProcessing(false);
+    } catch (e: any) { setError(e.message || 'Error loading PDF.'); setIsProcessing(false); }
+  };
+
+  const extractPageText = useCallback(async (doc: any, pageNum: number, pageIdx: number) => {
+    if (!doc) return;
+    try {
+      const pg = await doc.getPage(pageNum);
+      const vp = pg.getViewport({ scale: 1.0 });
+      const tc = await pg.getTextContent();
+      const items: ExtractedText[] = [];
+      
+      tc.items.forEach((item: any, idx: number) => {
+        if (!item.str?.trim()) return;
+        
+        const pdfX = item.transform[4];
+        const pdfY = item.transform[5];
+        const [vx, vy] = vp.convertToViewportPoint(pdfX, pdfY);
+        const fontHeight = Math.abs(item.transform[3]);
+        
+        // Extract font name or fallback
+        let fontName = 'Inter';
+        if (item.fontName) {
+          // Normalize PDF font names (e.g. g_d0_f1 -> sans-serif, TimesNewRoman -> Times New Roman)
+          const lowerName = item.fontName.toLowerCase();
+          if (lowerName.includes('times')) fontName = 'Times New Roman';
+          else if (lowerName.includes('courier')) fontName = 'Courier New';
+          else if (lowerName.includes('helvetica') || lowerName.includes('arial')) fontName = 'Arial';
+        }
+
+        let fontColor = '#000000';
+        if (item.color) {
+          if (Array.isArray(item.color) || item.color instanceof Uint8ClampedArray) {
+            fontColor = `#${item.color[0].toString(16).padStart(2, '0')}${item.color[1].toString(16).padStart(2, '0')}${item.color[2].toString(16).padStart(2, '0')}`;
+          } else if (typeof item.color === 'string') {
+            fontColor = item.color.startsWith('#') ? item.color : `#${item.color}`;
+          }
+        }
+
+        items.push({
+          id: `ext-${pageIdx}-${idx}`,
+          text: item.str,
+          x: vx,
+          y: vy - fontHeight,
+          width: Math.max(item.width || (item.str.length * fontHeight * 0.6), 40),
+          height: Math.max(fontHeight || 14, 12),
+          fontSize: Math.max(fontHeight || 14, 10),
+          fontFamily: fontName,
+          fontColor: fontColor,
+          pageIndex: pageIdx,
+        });
+      });
+      
+      console.log(`Extracted ${items.length} text items for page ${pageNum}`);
+      setExtractedTexts(items);
+    } catch (err) {
+      console.error('Error in extractPageText:', err);
     }
   }, []);
 
-  const handleFilesSelected = useCallback((files: File[]) => {
-    const file = files[0];
-    if (!file) return;
-    if (!file.name.toLowerCase().endsWith('.pdf')) {
-      setError('Only PDF files are supported.');
-      return;
-    }
-    setPdfFile(file);
-    setPdfName(file.name);
-    loadPdfDocument(file);
-  }, [loadPdfDocument]);
-
-  // ─── 2. Render Active Page onto DOM Canvas ──────────────────────────────
-  const renderCurrentPageCanvas = useCallback(async () => {
-    if (!pdfDoc || !canvasRef.current) return;
+  const renderPage = useCallback(async () => {
+    if (!pdfDoc || !pageCanvasRef.current) return;
     try {
-      const page = await pdfDoc.getPage(currentPage);
-      const vp = page.getViewport({ scale: zoom * 1.5 }); // High-DPI canvas
-      setPageViewport({ width: page.getViewport({ scale: 1.0 }).width, height: page.getViewport({ scale: 1.0 }).height });
-
-      const canvas = canvasRef.current;
-      canvas.width = vp.width;
-      canvas.height = vp.height;
-
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        await page.render({ canvasContext: ctx, viewport: vp, canvas: canvas } as any).promise;
-      }
-    } catch (err: any) {
-      console.error('Canvas render error:', err);
-    }
+      const pg = await pdfDoc.getPage(currentPage + 1);
+      const vp = pg.getViewport({ scale: zoom * 2.0 });
+      const c = pageCanvasRef.current;
+      const ctx = c.getContext('2d')!;
+      c.width = vp.width; c.height = vp.height;
+      await pg.render({ canvasContext: ctx, viewport: vp }).promise;
+    } catch { }
   }, [pdfDoc, currentPage, zoom]);
 
   useEffect(() => {
-    if (step === 'editor' && pdfDoc) {
-      renderCurrentPageCanvas();
+    if (pdfDoc) {
+      renderPage();
+      extractPageText(pdfDoc, currentPage + 1, currentPage);
+      setPageInputVal(`${currentPage + 1}`);
     }
-  }, [step, pdfDoc, currentPage, zoom, renderCurrentPageCanvas]);
+  }, [pdfDoc, currentPage, zoom, renderPage, extractPageText]);
 
-  // ─── 3. Canvas Mouse Events & Coordinate Calculation ─────────────────────
-  const getCanvasCoords = (e: React.MouseEvent<HTMLDivElement>): { x: number; y: number } | null => {
-    if (!canvasContainerRef.current || !pageViewport) return null;
-    const rect = canvasContainerRef.current.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+  const pushHistory = (newTexts: TextOverlay[]) => {
+    const newH = history.slice(0, histIdx + 1);
+    newH.push(newTexts);
+    setHistory(newH); setHistIdx(newH.length - 1);
+    setTexts(newTexts);
+  };
 
-    const scaleX = pageViewport.width / rect.width;
-    const scaleY = pageViewport.height / rect.height;
+  const undo = () => { if (histIdx > 0) { const ni = histIdx - 1; setHistIdx(ni); setTexts(history[ni]); } };
+  const redo = () => { if (histIdx < history.length - 1) { const ni = histIdx + 1; setHistIdx(ni); setTexts(history[ni]); } };
 
-    return {
-      x: Math.round(clickX * scaleX),
-      y: Math.round(clickY * scaleY)
+  const selectedText = selectedId ? texts.find(t => t.id === selectedId) : null;
+
+  const updateSelectedText = (updates: Partial<TextOverlay>) => {
+    if (!selectedId) return;
+    const updated = texts.map(t => t.id === selectedId ? { ...t, ...updates } : t);
+    pushHistory(updated);
+  };
+
+  const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (toolMode === 'select') {
+      // Single click on blank canvas area → deselect
+      setSelectedId(null);
+      return;
+    }
+    if (toolMode !== 'text' || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const scale = zoom * 2.0;
+    const x = (e.clientX - rect.left) / scale;
+    const y = (e.clientY - rect.top) / scale;
+    const newText: TextOverlay = {
+      id: `t-${Date.now()}`, x, y, width: 200, height: fontSize * 1.6,
+      text: 'Add text', fontSize, fontColor, fontFamily,
+      isBold, isItalic, isUnderline, isStrike, align: textAlign, pageIndex: currentPage,
     };
+    const updated = [...texts, newText];
+    pushHistory(updated);
+    setSelectedId(newText.id);
+    setToolMode('select');
   };
 
-  const handleCanvasMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    const coords = getCanvasCoords(e);
-    if (!coords || !pageViewport) return;
-
-    if (activeMode === 'text') {
-      const newText: TextOverlay = {
-        id: Math.random().toString(36).substring(2, 9),
-        x: coords.x,
-        y: coords.y,
-        width: 140,
-        height: 32,
-        text: 'Text',
-        fontSize: fontSize,
-        fontColor: activeColor,
-        fontFamily: fontFamily,
-        isBold: isBold,
-        isItalic: isItalic,
-        align: 'left'
-      };
-      updatePageEdits(currentPage, prev => ({ ...prev, texts: [...prev.texts, newText] }));
-      setSelectedElementId(newText.id);
-      setActiveMode('select');
-    } else if (activeMode === 'whiteout') {
-      const newCover: CoverOverlay = {
-        id: Math.random().toString(36).substring(2, 9),
-        x0: coords.x,
-        y0: coords.y,
-        x1: coords.x + 120,
-        y1: coords.y + 40,
-        color: '#ffffff'
-      };
-      updatePageEdits(currentPage, prev => ({ ...prev, covers: [...prev.covers, newCover] }));
-      setSelectedElementId(newCover.id);
-      setActiveMode('select');
-    } else if (activeMode === 'draw' || activeMode === 'highlight') {
-      setIsDrawing(true);
-      setCurrentPath([[coords.x, coords.y]]);
-    } else if (activeMode === 'rect' || activeMode === 'circle') {
-      const newShape: ShapeOverlay = {
-        id: Math.random().toString(36).substring(2, 9),
-        type: activeMode,
-        x: coords.x,
-        y: coords.y,
-        width: 120,
-        height: 80,
-        strokeColor: activeColor,
-        fillColor: '',
-        strokeWidth: strokeWidth
-      };
-      updatePageEdits(currentPage, prev => ({ ...prev, shapes: [...prev.shapes, newShape] }));
-      setSelectedElementId(newShape.id);
-      setActiveMode('select');
-    }
-  };
-
-  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDrawing || (activeMode !== 'draw' && activeMode !== 'highlight')) return;
-    const coords = getCanvasCoords(e);
-    if (!coords) return;
-    setCurrentPath(prev => [...prev, [coords.x, coords.y]]);
-  };
-
-  const handleCanvasMouseUp = () => {
-    if (isDrawing && currentPath.length > 0) {
-      const newDrawing: DrawingOverlay = {
-        id: Math.random().toString(36).substring(2, 9),
-        points: currentPath,
-        color: activeMode === 'highlight' ? 'rgba(253, 224, 71, 0.5)' : activeColor,
-        width: activeMode === 'highlight' ? 14 : strokeWidth
-      };
-      updatePageEdits(currentPage, prev => ({ ...prev, drawings: [...prev.drawings, newDrawing] }));
-    }
-    setIsDrawing(false);
-    setCurrentPath([]);
-  };
-
-  // Image upload overlay handler
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const b64 = reader.result as string;
-      const newImg: ImageOverlay = {
-        id: Math.random().toString(36).substring(2, 9),
-        x: 50,
-        y: 50,
-        width: 160,
-        height: 120,
-        base64: b64
-      };
-      updatePageEdits(currentPage, prev => ({ ...prev, images: [...prev.images, newImg] }));
-      setSelectedElementId(newImg.id);
-      setActiveMode('select');
-    };
-    reader.readAsDataURL(file);
-    if (imageInputRef.current) imageInputRef.current.value = '';
-  };
-
-  // Element actions
-  const deleteSelectedElement = () => {
-    if (!selectedElementId) return;
-    updatePageEdits(currentPage, prev => ({
-      ...prev,
-      texts: prev.texts.filter(t => t.id !== selectedElementId),
-      shapes: prev.shapes.filter(s => s.id !== selectedElementId),
-      drawings: prev.drawings.filter(d => d.id !== selectedElementId),
-      images: prev.images.filter(i => i.id !== selectedElementId),
-      covers: prev.covers.filter(c => c.id !== selectedElementId)
-    }));
-    setSelectedElementId(null);
-  };
-
-  const duplicateSelectedElement = () => {
-    if (!selectedElementId) return;
-    const pEdits = getPageEdits(currentPage);
-    const selText = pEdits.texts.find(t => t.id === selectedElementId);
-    if (selText) {
-      const dup: TextOverlay = { ...selText, id: Math.random().toString(36).substring(2, 9), x: selText.x + 20, y: selText.y + 20 };
-      updatePageEdits(currentPage, prev => ({ ...prev, texts: [...prev.texts, dup] }));
-      setSelectedElementId(dup.id);
-    }
-  };
-
-  // Selected text properties sync
-  const currentEdits = getPageEdits(currentPage);
-  const selectedText = currentEdits.texts.find(t => t.id === selectedElementId);
-
-  const updateSelectedTextProp = (key: keyof TextOverlay, value: any) => {
-    if (!selectedElementId) return;
-    updatePageEdits(currentPage, prev => ({
-      ...prev,
-      texts: prev.texts.map(t => t.id === selectedElementId ? { ...t, [key]: value } : t)
-    }));
-  };
-
-  // ─── Save Changes & Burn Edits via Backend API ───────────────────────────
-  const processSaveEdits = async () => {
-    if (!pdfFile) return;
-    setIsProcessing(true);
-    setError(null);
-    setProcessStatus('Applying edits to PDF document...');
-
-    try {
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve((reader.result as string).split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(pdfFile);
-      });
-
-      const payloadEdits = Object.entries(allEdits).map(([pNum, edits]) => ({
-        pageNumber: Number(pNum),
-        texts: edits.texts,
-        shapes: edits.shapes,
-        drawings: edits.drawings,
-        images: edits.images,
-        covers: edits.covers
-      }));
-
-      setProcessStatus('Generating native PDF vectors...');
-      const res = await fetch('/api/edit-pdf-internal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          pdf: base64,
-          filename: pdfName,
-          edits: payloadEdits
-        }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'Failed to apply PDF edits.');
+  // Only activate on DOUBLE-CLICK — single click just shows hover highlight
+  const handleExtractedDoubleClick = (ext: ExtractedText) => {
+    if (mainMode !== 'edit') return;
+    const exists = texts.find(t => t.id === ext.id);
+    if (!exists) {
+      let bgCol = 'transparent';
+      if (pageCanvasRef.current) {
+        const ctx = pageCanvasRef.current.getContext('2d');
+        if (ctx) {
+           const scale = zoom * 2.0;
+           // Sample color slightly left of the text to get background
+           const px = ctx.getImageData(Math.max(0, ext.x * scale - 2), Math.max(0, ext.y * scale + (ext.height * scale) / 2), 1, 1).data;
+           if (px[3] > 0) bgCol = `rgba(${px[0]}, ${px[1]}, ${px[2]}, ${px[3] / 255})`;
+        }
       }
 
-      setProcessStatus('Preparing download...');
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const outName = pdfName.replace(/\.pdf$/i, '') + '_edited.pdf';
-
-      setDownloadUrl(url);
-      setDownloadName(outName);
-      setStep('download');
-
-      // Auto-trigger download
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = outName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-    } catch (err: any) {
-      setError(`Save failed: ${err.message}`);
-    } finally {
-      setIsProcessing(false);
-      setProcessStatus('');
+      const newText: TextOverlay = {
+        id: ext.id, x: ext.x, y: ext.y,
+        width: ext.width + 10, height: ext.height + 4,
+        text: ext.text, fontSize: ext.fontSize,
+        fontColor: ext.fontColor || '#000000', fontFamily: ext.fontFamily || 'Inter',
+        isBold: false, isItalic: false, isUnderline: false, isStrike: false,
+        align: 'left', pageIndex: currentPage,
+        backgroundColor: bgCol,
+      };
+      const updated = [...texts, newText];
+      pushHistory(updated);
+      setSelectedId(newText.id);
+    } else {
+      setSelectedId(ext.id);
     }
   };
 
-  const handleReset = () => {
-    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-    setPdfFile(null);
-    setPdfName('');
-    setPdfArrayBuffer(null);
-    setPdfDoc(null);
-    setTotalPages(0);
-    setPageThumbnails({});
-    setAllEdits({});
-    setError(null);
-    setDownloadUrl(null);
-    setDownloadName('');
-    setStep('upload');
+  const deleteSelected = () => {
+    if (!selectedId) return;
+    const updated = texts.filter(t => t.id !== selectedId);
+    pushHistory(updated); setSelectedId(null);
   };
 
-  const PRESET_COLORS = ['#000000', '#e52521', '#2563eb', '#16a34a', '#eab308', '#ffffff'];
-  const FONT_FAMILIES = ['Helvetica', 'Times New Roman', 'Courier New', 'Georgia', 'Impact'];
+  const duplicateSelected = () => {
+    if (!selectedText) return;
+    const copy: TextOverlay = { ...selectedText, id: `t-${Date.now()}`, x: selectedText.x + 16, y: selectedText.y + 16 };
+    const updated = [...texts, copy];
+    pushHistory(updated); setSelectedId(copy.id);
+  };
 
-  // ─── RENDER STEP 3: Download ─────────────────────────────────────────────
-  if (step === 'download' && downloadUrl) {
+  const handleSave = async () => {
+    if (!file) return;
+    setIsProcessing(true);
+    try {
+      const { PDFDocument, rgb } = await import('pdf-lib');
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(arrayBuffer);
+      const pages = pdfDoc.getPages();
+
+      // Write each text overlay to its corresponding page
+      for (const t of texts) {
+        if (t.pageIndex < pages.length) {
+          const page = pages[t.pageIndex];
+          const { width, height } = page.getSize();
+          
+          // If it's an edited existing text, draw a whiteout mask first
+          if (t.id.startsWith('ext-')) {
+            const ext = extractedTexts.find(e => e.id === t.id);
+            if (ext) {
+              const maskY = height - ext.y - ext.fontSize;
+              page.drawRectangle({
+                x: ext.x,
+                y: maskY - 2,
+                width: ext.width + 18,
+                height: ext.height + 8,
+                color: rgb(1, 1, 1), // Solid white mask
+              });
+            }
+          }
+
+          // PDF coordinates start from bottom-left, adjust y-coordinate accordingly
+          const pdfX = t.x;
+          const pdfY = height - t.y - (t.fontSize);
+
+          // Convert hex color to rgb
+          const hex = t.fontColor.replace('#', '');
+          const r = parseInt(hex.substring(0, 2), 16) / 255 || 0;
+          const g = parseInt(hex.substring(2, 4), 16) / 255 || 0;
+          const b = parseInt(hex.substring(4, 6), 16) / 255 || 0;
+
+          page.drawText(t.text, {
+            x: pdfX,
+            y: pdfY,
+            size: t.fontSize,
+            color: rgb(r, g, b),
+          });
+        }
+      }
+
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
+      setDownloadUrl(URL.createObjectURL(blob));
+      setProcessedFileName(`edited_${file.name}`);
+    } catch (err: any) {
+      console.error('Error saving PDF:', err);
+      setError('Failed to save edited PDF.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  if (!file) {
     return (
-      <div className="w-full font-sans">
-        <ToolDownloadStep
-          title="Your edited PDF is ready!"
-          downloadUrl={downloadUrl}
-          downloadFileName={downloadName}
-          onReset={handleReset}
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto space-y-8">
+        <ToolHeroUpload
+          title="Edit PDF Online"
+          description="Add text, draw annotations, insert shapes and images, and edit existing text directly in your PDF. Secure, free, and entirely client-side."
+          buttonText="Select PDF file"
+          dropText="Drop your PDF here"
+          accept=".pdf"
+          multiple={false}
+          onFilesSelected={(files) => { if (files[0]) handleFileSelect(files[0]); }}
+          error={error}
         />
         <SeoGuideSection toolId="edit-pdf" />
       </div>
     );
   }
 
-  // ─── RENDER STEP 1: Upload ───────────────────────────────────────────────
-  if (step === 'upload' || isLoadingPages) {
+  if (downloadUrl) {
     return (
-      <div className="w-full font-sans text-slate-800 dark:text-slate-100 transition-colors duration-300">
-        <div className="w-full px-4 md:px-8 xl:px-12 pt-20 pb-4 flex items-center">
-          <button onClick={() => navigate('services')} className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-lg">
-            &larr; Back to Services
-          </button>
-        </div>
-
-        {isLoadingPages ? (
-          <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-            <Loader2 size={40} className="animate-spin text-[#e52521]" />
-            <p className="text-sm font-bold text-slate-600 dark:text-slate-300">Loading PDF document pages...</p>
-          </div>
-        ) : (
-          <div className="w-full px-4 md:px-8 xl:px-12 pb-12">
-            <ToolHeroUpload
-              title="PDF Editor"
-              description="Edit PDF documents online. Add text, freehand drawings, shapes, images, and whiteouts natively."
-              buttonText="Select PDF file"
-              dropText="or drop PDF file here"
-              accept=".pdf"
-              multiple={false}
-              onFilesSelected={handleFilesSelected}
-              error={error}
-            />
-          </div>
-        )}
-
-        <SeoGuideSection toolId="edit-pdf" />
+      <div className="w-full px-4 py-8 max-w-5xl mx-auto">
+        <ToolDownloadStep
+          title="Your edited PDF is ready!"
+          downloadUrl={downloadUrl}
+          downloadFileName={processedFileName}
+          onReset={() => { setFile(null); setDownloadUrl(null); setTexts([]); }}
+        />
       </div>
     );
   }
 
-  // ─── RENDER STEP 2: Workbench Editor ──────────────────────────────────────
+  const scale = zoom * 2.0;
+
   return (
-    <div className="w-full font-sans text-slate-800 dark:text-slate-100 min-h-screen bg-slate-100 dark:bg-slate-950 flex flex-col">
+    <div className="w-full h-screen flex flex-col bg-[#f1f1f1] dark:bg-[#111] overflow-hidden font-sans" style={{ fontFamily: 'Inter, DM Sans, sans-serif' }}>
 
-      {/* Hidden file input for image upload */}
-      <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+      {/* ═══════════════════════════════════════════════════════════════════════
+          iLovePDF TOP TOOLBAR — exact replica
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <header className="w-full bg-white dark:bg-[#1a1a1a] border-b border-[#e0e0e0] dark:border-[#2a2a2a] flex items-center justify-between px-4 h-14 shrink-0 z-40 shadow-sm">
 
-      {/* ── Top Header ── */}
-      <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 md:px-6 py-3 flex items-center justify-between gap-4 sticky top-0 z-40 shadow-sm">
+        {/* LEFT: Annotate | Edit toggle pill */}
         <div className="flex items-center gap-3">
-          <button onClick={handleReset} className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold uppercase tracking-wider cursor-pointer border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg transition-colors">
-            &larr; New File
-          </button>
-          
-          {/* iLovePDF-style Mode Switcher: Annotate vs Edit */}
-          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+          <div className="flex items-center p-1 bg-[#f1f1f1] dark:bg-[#2a2a2a] rounded-full border border-[#d0d0d0] dark:border-[#3a3a3a]">
             <button
-              onClick={() => setEditorTab('annotate')}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                editorTab === 'annotate' ? 'bg-[#e52521] text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+              onClick={() => { setMainMode('annotate'); setToolMode('draw'); }}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                mainMode === 'annotate'
+                  ? 'bg-white dark:bg-[#1a1a1a] text-[#111] dark:text-white shadow-sm border border-[#e0e0e0] dark:border-[#3a3a3a]'
+                  : 'text-[#555] dark:text-[#aaa]'
               }`}
             >
-              <Pencil size={13} /> Annotate
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Annotate
             </button>
             <button
-              onClick={() => setEditorTab('edit')}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                editorTab === 'edit' ? 'bg-[#e52521] text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+              onClick={() => { setMainMode('edit'); setToolMode('select'); }}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                mainMode === 'edit'
+                  ? 'bg-white dark:bg-[#1a1a1a] text-[#111] dark:text-white shadow-sm border border-[#e0e0e0] dark:border-[#3a3a3a]'
+                  : 'text-[#555] dark:text-[#aaa]'
               }`}
             >
-              <Edit3 size={13} /> Edit
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+              Edit
+              <span className="ml-1 px-1.5 py-0.5 text-[9px] font-bold rounded-md" style={{ background: '#fde68a', color: '#92400e' }}>✦</span>
             </button>
-          </div>
-
-          <div className="hidden sm:block min-w-0">
-            <p className="text-sm font-extrabold text-slate-900 dark:text-white truncate max-w-[200px] md:max-w-[300px]">{pdfName}</p>
-            <p className="text-[11px] text-slate-400 font-medium">{totalPages} Pages · {pdfFile ? formatSize(pdfFile.size) : ''}</p>
           </div>
         </div>
 
-        {/* Primary Save Action */}
-        <div className="flex items-center gap-3">
-          {error && (
-            <span className="text-xs text-red-600 dark:text-red-400 font-medium hidden md:inline truncate max-w-xs">{error}</span>
-          )}
+        {/* CENTER: Tool Icons row (exact iLovePDF order) */}
+        <div className="flex items-center gap-1 bg-[#f7f7f7] dark:bg-[#222] rounded-lg border border-[#e0e0e0] dark:border-[#333] p-1">
+          {/* Hand/Pan */}
           <button
-            onClick={processSaveEdits}
-            disabled={isProcessing}
-            className="bg-[#e52521] hover:bg-[#d01f1c] disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white px-5 py-2.5 rounded-xl text-sm font-extrabold shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer flex items-center gap-2"
+            onClick={() => setToolMode('pan')}
+            title="Pan"
+            className={`p-2 rounded-md transition-all ${toolMode === 'pan' ? 'bg-[#e52521] text-white' : 'text-[#444] dark:text-[#ccc] hover:bg-[#eee] dark:hover:bg-[#333]'}`}
           >
-            {isProcessing ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> {processStatus || 'Saving...'}</>
-            ) : (
-              <>Save changes <ChevronRight size={16} strokeWidth={3} /></>
-            )}
+            <Hand size={18} />
           </button>
-        </div>
-      </div>
-
-      {/* ── Toolbar Bar ── */}
-      <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 md:px-6 py-2 flex flex-wrap items-center justify-between gap-3 sticky top-[57px] z-30 shadow-xs">
-        
-        {/* Modes */}
-        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-          {[
-            { id: 'select', label: 'Select', icon: MousePointer },
-            { id: 'text', label: 'Add Text', icon: Type },
-            { id: 'draw', label: 'Draw', icon: Pencil },
-            { id: 'rect', label: 'Rectangle', icon: Square },
-            { id: 'circle', label: 'Circle', icon: Circle },
-            { id: 'highlight', label: 'Highlight', icon: Highlighter },
-            { id: 'whiteout', label: 'Erase / Whiteout', icon: Eraser },
-          ].map(m => {
-            const Icon = m.icon;
-            const active = activeMode === m.id;
-            return (
-              <button
-                key={m.id}
-                onClick={() => setActiveMode(m.id as ToolMode)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  active
-                    ? 'bg-[#e52521] text-white shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/60'
-                }`}
-                title={m.label}
-              >
-                <Icon size={15} />
-                <span className="hidden md:inline">{m.label}</span>
-              </button>
-            );
-          })}
-
+          {/* Select cursor */}
+          <button
+            onClick={() => setToolMode('select')}
+            title="Select"
+            className={`p-2 rounded-md transition-all ${toolMode === 'select' ? 'bg-[#e52521] text-white' : 'text-[#444] dark:text-[#ccc] hover:bg-[#eee] dark:hover:bg-[#333]'}`}
+          >
+            <MousePointer size={18} />
+          </button>
+          <div className="w-px h-6 bg-[#e0e0e0] dark:bg-[#333] mx-1" />
+          {/* Annotate tools */}
+          <button
+            onClick={() => setToolMode('draw')}
+            title="Freehand Draw"
+            className={`p-2 rounded-md transition-all ${toolMode === 'draw' ? 'bg-[#e52521] text-white' : 'text-[#444] dark:text-[#ccc] hover:bg-[#eee] dark:hover:bg-[#333]'}`}
+          >
+            <Pencil size={18} />
+          </button>
+          <button
+            onClick={() => setToolMode('shapes')}
+            title="Shapes"
+            className={`p-2 rounded-md transition-all ${toolMode === 'shapes' ? 'bg-[#e52521] text-white' : 'text-[#444] dark:text-[#ccc] hover:bg-[#eee] dark:hover:bg-[#333]'}`}
+          >
+            <Square size={18} />
+          </button>
           <button
             onClick={() => imageInputRef.current?.click()}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-all cursor-pointer"
-            title="Upload Image Overlay"
+            title="Insert Image"
+            className="p-2 rounded-md text-[#444] dark:text-[#ccc] hover:bg-[#eee] dark:hover:bg-[#333] transition-all"
           >
-            <ImageIcon size={15} />
-            <span className="hidden md:inline">Image</span>
+            <ImageIcon size={18} />
+          </button>
+          <input type="file" ref={imageInputRef} className="hidden" accept="image/*" />
+          <div className="w-px h-6 bg-[#e0e0e0] dark:bg-[#333] mx-1" />
+          {/* Edit text */}
+          <button
+            onClick={() => setToolMode('text')}
+            title="Add Text"
+            className={`p-2 rounded-md transition-all font-bold text-[13px] ${toolMode === 'text' ? 'bg-[#e52521] text-white' : 'text-[#e52521] hover:bg-red-50 dark:hover:bg-[#2a1a1a]'}`}
+          >
+            Aᵀ
+          </button>
+          {/* Forms */}
+          <button
+            onClick={() => setToolMode('forms')}
+            title="Forms"
+            className={`p-2 rounded-md transition-all ${toolMode === 'forms' ? 'bg-[#e52521] text-white' : 'text-[#444] dark:text-[#ccc] hover:bg-[#eee] dark:hover:bg-[#333]'}`}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/>
+            </svg>
           </button>
         </div>
 
-        {/* Quick Styling Controls */}
-        <div className="flex items-center gap-3">
-          {/* Color swatches + Custom color picker */}
-          <div className="flex items-center gap-1 border-r border-slate-200 dark:border-slate-800 pr-3">
-            {PRESET_COLORS.map(c => (
-              <button
-                key={c}
-                onClick={() => {
-                  setActiveColor(c);
-                  if (selectedText) updateSelectedTextProp('fontColor', c);
-                }}
-                className={`w-5 h-5 rounded-full border-2 transition-transform cursor-pointer ${
-                  activeColor === c ? 'scale-125 border-slate-900 dark:border-white shadow-sm' : 'border-transparent hover:scale-110'
+        {/* RIGHT: Save changes button */}
+        <button
+          onClick={handleSave}
+          disabled={isProcessing}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-md"
+          style={{ background: 'linear-gradient(135deg, #e52521 0%, #c41d1a 100%)' }}
+        >
+          {isProcessing ? <Loader2 className="animate-spin" size={16} /> : null}
+          Save changes
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 8 16 12 12 16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        </button>
+      </header>
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          MAIN WORKSPACE
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <div className="flex-1 flex overflow-hidden min-h-0">
+
+        {/* ─── LEFT THUMBNAIL SIDEBAR ────────────────────────────────────────── */}
+        <aside className="w-[168px] bg-white dark:bg-[#1a1a1a] border-r border-[#e0e0e0] dark:border-[#2a2a2a] flex flex-col shrink-0 overflow-y-auto">
+
+          {/* View mode icons row */}
+          <div className="flex items-center justify-between px-3 pt-3 pb-2 border-b border-[#eee] dark:border-[#222]">
+            <div className="flex items-center gap-1.5">
+              <button className="p-1 rounded text-[#e52521] bg-red-50 dark:bg-red-950/30"><LayoutGrid size={15} /></button>
+              <button className="p-1 rounded text-[#888] hover:text-[#333] dark:hover:text-white"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+              <button className="p-1 rounded text-[#888] hover:text-[#333] dark:hover:text-white"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+            </div>
+            <button className="p-1 rounded text-[#888]">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            </button>
+          </div>
+
+          {/* Zoom slider */}
+          <div className="flex items-center gap-1.5 px-3 py-2 border-b border-[#eee] dark:border-[#222]">
+            <button onClick={() => setThumbZoom(Math.max(20, thumbZoom - 10))} className="text-[#888] hover:text-[#333]"><Minus size={13} /></button>
+            <input type="range" min={20} max={100} value={thumbZoom} onChange={e => setThumbZoom(Number(e.target.value))}
+              className="flex-1 h-1 rounded-full accent-[#e52521]" />
+            <button onClick={() => setThumbZoom(Math.min(100, thumbZoom + 10))} className="text-[#888] hover:text-[#333]"><Plus size={13} /></button>
+          </div>
+
+          {/* Page thumbnails */}
+          <div className="flex-1 p-2 space-y-2 overflow-y-auto">
+            {thumbnails.map((src, i) => (
+              <div
+                key={i}
+                onClick={() => setCurrentPage(i)}
+                className={`cursor-pointer rounded-lg border-2 transition-all flex flex-col items-center p-1.5 gap-1 ${
+                  currentPage === i
+                    ? 'border-[#e52521] shadow-md'
+                    : 'border-transparent hover:border-[#ccc] dark:hover:border-[#444]'
                 }`}
-                style={{ backgroundColor: c }}
+              >
+                <img
+                  src={src} alt={`Page ${i + 1}`}
+                  className="w-full h-auto rounded shadow-sm bg-white"
+                  style={{ width: `${thumbZoom}%`, margin: '0 auto', display: 'block' }}
+                />
+                <span className="text-[11px] text-[#666] dark:text-[#aaa] font-medium">{i + 1}</span>
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        {/* ─── CENTER CANVAS AREA ─────────────────────────────────────────────── */}
+        <main
+          className="flex-1 overflow-auto bg-[#e8e8e8] dark:bg-[#0d0d0d] flex flex-col items-center py-8 px-4 relative"
+          onClick={() => { if (toolMode === 'select') setSelectedId(null); }}
+        >
+          <div
+            ref={containerRef}
+            onClick={handleCanvasClick}
+            className="relative shadow-2xl"
+            style={{ display: 'inline-block', cursor: toolMode === 'text' ? 'text' : toolMode === 'pan' ? 'grab' : 'default' }}
+          >
+            {/* Base PDF canvas */}
+            <canvas ref={pageCanvasRef} className="block bg-white" />
+
+            {/* Whiteout masks for edited existing texts */}
+            {texts.filter(t => t.id.startsWith('ext-') && t.pageIndex === currentPage).map(t => {
+              const ext = extractedTexts.find(e => e.id === t.id);
+              if (!ext) return null;
+              return (
+                <div
+                  key={`mask-${t.id}`}
+                  className="absolute"
+                  style={{
+                    left: ext.x * scale,
+                    top: ext.y * scale,
+                    width: ext.width * scale,
+                    height: ext.height * scale,
+                    backgroundColor: t.backgroundColor || 'transparent',
+                    zIndex: 2,
+                  }}
+                />
+              );
+            })}
+
+            {/* Extracted text hover zones (Edit mode only) — single-click to edit */}
+            {mainMode === 'edit' && toolMode === 'select' && extractedTexts.filter(ext => !texts.some(t => t.id === ext.id)).map(ext => (
+              <div
+                key={ext.id}
+                onClick={e => { e.stopPropagation(); handleExtractedDoubleClick(ext); }}
+                title="Click to edit this text"
+                className="absolute cursor-text rounded-sm border border-transparent hover:border-dashed hover:border-blue-400 hover:bg-blue-500/10 transition-all"
+                style={{
+                  left: ext.x * scale, top: ext.y * scale,
+                  width: ext.width * scale + 16, height: ext.height * scale + 6,
+                  zIndex: 5,
+                }}
               />
             ))}
-            {/* Custom color picker */}
-            <label className="relative w-5 h-5 rounded-full border border-slate-300 dark:border-slate-600 cursor-pointer overflow-hidden flex items-center justify-center bg-gradient-to-tr from-indigo-500 via-pink-500 to-yellow-400">
-              <input
-                type="color"
-                value={activeColor}
-                onChange={e => {
-                  setActiveColor(e.target.value);
-                  if (selectedText) updateSelectedTextProp('fontColor', e.target.value);
-                }}
-                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                title="Custom color"
-              />
-            </label>
-          </div>
 
-          {/* Delete / Duplicate */}
-          {selectedElementId && (
-            <div className="flex items-center gap-1">
-              <button
-                onClick={duplicateSelectedElement}
-                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition-colors cursor-pointer"
-                title="Duplicate Element"
-              >
-                <Copy size={14} />
-              </button>
-              <button
-                onClick={deleteSelectedElement}
-                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400 text-xs font-bold transition-colors cursor-pointer"
-                title="Delete Selected Element"
-              >
-                <Trash2 size={14} />
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── Main Workspace Body ── */}
-      <div className="flex-1 flex overflow-hidden relative">
-
-        {/* Left Thumbnails Sidebar */}
-        <div className="w-24 sm:w-28 md:w-36 shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-3 overflow-y-auto space-y-3">
-          <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">
-            Pages ({totalPages})
-          </p>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pNum) => {
-            const isCurr = pNum === currentPage;
-            const thumb = pageThumbnails[pNum];
-            return (
-              <div
-                key={pNum}
-                onClick={() => { setCurrentPage(pNum); setSelectedElementId(null); }}
-                className={`group flex flex-col items-center gap-1 cursor-pointer p-1.5 rounded-xl border-2 transition-all ${
-                  isCurr
-                    ? 'border-[#e52521] bg-red-50/30 dark:bg-red-950/20 shadow-xs'
-                    : 'border-transparent hover:border-slate-300 dark:hover:border-slate-700'
-                }`}
-              >
-                <div className="w-full aspect-3/4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 flex items-center justify-center relative group/thumb">
-                  {thumb ? (
-                    <img
-                      src={thumb}
-                      alt={`Page ${pNum}`}
-                      style={{ transform: `rotate(${pageRotations[pNum] || 0}deg)` }}
-                      className="w-full h-full object-cover transition-transform duration-200"
-                    />
-                  ) : (
-                    <FileText size={20} className="text-slate-300" />
+            {/* Text overlay elements with iLovePDF-style bounding box */}
+            {texts.filter(t => t.pageIndex === currentPage).map(t => {
+              const isSel = selectedId === t.id;
+              return (
+                <div
+                  key={t.id}
+                  onClick={e => { e.stopPropagation(); setSelectedId(t.id); }}
+                  className="absolute origin-top-left"
+                  style={{
+                    left: t.x * scale, top: t.y * scale,
+                    width: t.width,
+                    zIndex: 10,
+                    outline: 'none',
+                    background: 'transparent',
+                    transform: `scale(${scale})`,
+                  }}
+                >
+                  <input
+                    type="text"
+                    value={t.text}
+                    onChange={e => updateSelectedText({ text: e.target.value })}
+                    onClick={e => e.stopPropagation()}
+                    autoFocus={isSel}
+                    className="w-full bg-transparent border-none outline-none p-0"
+                    style={{
+                      fontSize: `${t.fontSize}px`,
+                      fontFamily: t.fontFamily,
+                      color: t.fontColor,
+                      fontWeight: t.isBold ? 'bold' : 'normal',
+                      fontStyle: t.isItalic ? 'italic' : 'normal',
+                      textDecoration: [t.isUnderline ? 'underline' : '', t.isStrike ? 'line-through' : ''].filter(Boolean).join(' '),
+                      textAlign: t.align,
+                    }}
+                  />
+                  {/* Floating action mini-toolbar below element */}
+                  {isSel && (
+                    <div className="absolute -bottom-12 left-0 flex items-center gap-0.5 bg-[#1e1e1e] rounded-xl px-2 py-1 shadow-xl z-30 origin-top-left"
+                      style={{ 
+                        whiteSpace: 'nowrap',
+                        transform: `scale(${1 / scale})` 
+                      }}
+                    >
+                      <button onClick={e => { e.stopPropagation(); duplicateSelected(); }}
+                        className="p-1.5 rounded-lg text-white hover:bg-white/20 transition-all" title="Duplicate">
+                        <Copy size={14} />
+                      </button>
+                      <button onClick={e => { e.stopPropagation(); deleteSelected(); }}
+                        className="p-1.5 rounded-lg text-white hover:bg-white/20 transition-all" title="Delete">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   )}
-                  {/* Rotate button hover overlay */}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); rotateCurrentPage(pNum); }}
-                    className="absolute top-1 right-1 p-1 bg-slate-900/80 hover:bg-[#e52521] text-white rounded-md opacity-0 group-hover/thumb:opacity-100 transition-opacity cursor-pointer shadow-xs"
-                    title="Rotate Page"
-                  >
-                    <RotateCw size={11} />
-                  </button>
                 </div>
-                <span className={`text-[11px] font-bold ${isCurr ? 'text-[#e52521]' : 'text-slate-500 dark:text-slate-400'}`}>
-                  {pNum}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Center Stage: Native DOM PDF Canvas */}
-        <div className="flex-1 overflow-auto p-4 md:p-8 flex justify-center items-start bg-slate-200/60 dark:bg-slate-950">
-          {pageViewport && (
-            <div
-              style={{
-                width: `${pageViewport.width * zoom}px`,
-                height: `${pageViewport.height * zoom}px`,
-              }}
-              className="relative shadow-2xl rounded-sm bg-white overflow-hidden transition-all duration-150 select-none"
-            >
-              {/* Native PDF.js DOM Canvas */}
-              <canvas
-                ref={canvasRef}
-                style={{
-                  width: `${pageViewport.width * zoom}px`,
-                  height: `${pageViewport.height * zoom}px`,
-                }}
-                className="w-full h-full block pointer-events-none"
-              />
-
-              {/* Interactive Canvas Overlay */}
-              <div
-                ref={canvasContainerRef}
-                onMouseDown={handleCanvasMouseDown}
-                onMouseMove={handleCanvasMouseMove}
-                onMouseUp={handleCanvasMouseUp}
-                className={`absolute inset-0 ${
-                  activeMode === 'text' ? 'cursor-text' :
-                  activeMode === 'draw' || activeMode === 'highlight' ? 'cursor-crosshair' :
-                  activeMode === 'rect' || activeMode === 'circle' || activeMode === 'whiteout' ? 'cursor-crosshair' :
-                  'cursor-default'
-                }`}
-              >
-                {/* 1. Whiteout Covers */}
-                {currentEdits.covers.map((c) => {
-                  const scaleX = (pageViewport.width * zoom) / pageViewport.width;
-                  const scaleY = (pageViewport.height * zoom) / pageViewport.height;
-                  const isSelected = selectedElementId === c.id;
-                  return (
-                    <div
-                      key={c.id}
-                      onClick={(e) => { e.stopPropagation(); setSelectedElementId(c.id); }}
-                      style={{
-                        left: `${c.x0 * scaleX}px`,
-                        top: `${c.y0 * scaleY}px`,
-                        width: `${(c.x1 - c.x0) * scaleX}px`,
-                        height: `${(c.y1 - c.y0) * scaleY}px`,
-                        backgroundColor: c.color
-                      }}
-                      className={`absolute z-10 border ${isSelected ? 'border-[#e52521] ring-1 ring-[#e52521]' : 'border-slate-200/40'}`}
-                    />
-                  );
-                })}
-
-                {/* 2. Freehand Drawings (SVG) */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none z-15">
-                  {currentEdits.drawings.map((dwg) => {
-                    const scaleX = (pageViewport.width * zoom) / pageViewport.width;
-                    const scaleY = (pageViewport.height * zoom) / pageViewport.height;
-                    const pathData = dwg.points
-                      .map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt[0] * scaleX} ${pt[1] * scaleY}`)
-                      .join(' ');
-                    return (
-                      <path
-                        key={dwg.id}
-                        d={pathData}
-                        stroke={dwg.color}
-                        strokeWidth={dwg.width * zoom}
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    );
-                  })}
-
-                  {/* Active stroke in progress */}
-                  {isDrawing && currentPath.length > 1 && (
-                    <path
-                      d={currentPath.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${(pt[0] * pageViewport.width * zoom) / pageViewport.width} ${(pt[1] * pageViewport.height * zoom) / pageViewport.height}`).join(' ')}
-                      stroke={activeMode === 'highlight' ? 'rgba(253, 224, 71, 0.5)' : activeColor}
-                      strokeWidth={(activeMode === 'highlight' ? 14 : strokeWidth) * zoom}
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  )}
-                </svg>
-
-                {/* 3. Shapes */}
-                {currentEdits.shapes.map((s) => {
-                  const scaleX = (pageViewport.width * zoom) / pageViewport.width;
-                  const scaleY = (pageViewport.height * zoom) / pageViewport.height;
-                  const isSelected = selectedElementId === s.id;
-                  return (
-                    <div
-                      key={s.id}
-                      onClick={(e) => { e.stopPropagation(); setSelectedElementId(s.id); }}
-                      style={{
-                        left: `${s.x * scaleX}px`,
-                        top: `${s.y * scaleY}px`,
-                        width: `${s.width * scaleX}px`,
-                        height: `${s.height * scaleY}px`,
-                        borderColor: s.strokeColor,
-                        borderWidth: `${s.strokeWidth * zoom}px`,
-                        backgroundColor: s.fillColor || 'transparent',
-                        borderRadius: s.type === 'circle' ? '9999px' : '2px'
-                      }}
-                      className={`absolute z-20 cursor-pointer ${
-                        isSelected ? 'ring-2 ring-[#e52521] ring-offset-2' : ''
-                      }`}
-                    />
-                  );
-                })}
-
-                {/* 4. Images */}
-                {currentEdits.images.map((img) => {
-                  const scaleX = (pageViewport.width * zoom) / pageViewport.width;
-                  const scaleY = (pageViewport.height * zoom) / pageViewport.height;
-                  const isSelected = selectedElementId === img.id;
-                  return (
-                    <div
-                      key={img.id}
-                      onClick={(e) => { e.stopPropagation(); setSelectedElementId(img.id); }}
-                      style={{
-                        left: `${img.x * scaleX}px`,
-                        top: `${img.y * scaleY}px`,
-                        width: `${img.width * scaleX}px`,
-                        height: `${img.height * scaleY}px`,
-                      }}
-                      className={`absolute z-20 cursor-pointer ${
-                        isSelected ? 'ring-2 ring-[#e52521] ring-offset-2' : ''
-                      }`}
-                    >
-                      <img src={img.base64} alt="Overlay" className="w-full h-full object-contain pointer-events-none" />
-                    </div>
-                  );
-                })}
-
-                {/* 5. Clean Floating Text Box Overlays */}
-                {currentEdits.texts.map((t) => {
-                  const scaleX = (pageViewport.width * zoom) / pageViewport.width;
-                  const scaleY = (pageViewport.height * zoom) / pageViewport.height;
-                  const isSelected = selectedElementId === t.id;
-
-                  return (
-                    <div
-                      key={t.id}
-                      onClick={(e) => { e.stopPropagation(); setSelectedElementId(t.id); }}
-                      style={{
-                        left: `${t.x * scaleX}px`,
-                        top: `${t.y * scaleY}px`,
-                        width: `${t.width * scaleX}px`,
-                        minHeight: `${t.height * scaleY}px`,
-                      }}
-                      className={`absolute z-25 p-1 rounded-sm cursor-text transition-all ${
-                        isSelected ? 'border-2 border-dashed border-[#e52521] bg-transparent shadow-xs ring-1 ring-[#e52521]/30' : 'hover:border hover:border-slate-400/50'
-                      }`}
-                    >
-                      {/* Corner handles matching iLovePDF */}
-                      {isSelected && (
-                        <>
-                          <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#e52521] border-2 border-white rounded-full z-30" />
-                          <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#e52521] border-2 border-white rounded-full z-30" />
-                          <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#e52521] border-2 border-white rounded-full z-30" />
-                          <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#e52521] border-2 border-white rounded-full z-30" />
-
-                          {/* Floating iLovePDF Quick Bar underneath */}
-                          <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-md rounded-lg p-1 flex items-center gap-1 z-40">
-                            <button
-                              onClick={(e) => { e.stopPropagation(); duplicateSelectedElement(); }}
-                              className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-300 transition-colors"
-                              title="Duplicate"
-                            >
-                              <Copy size={13} />
-                            </button>
-                            <div className="w-[1px] h-3 bg-slate-200 dark:bg-slate-700" />
-                            <button
-                              onClick={(e) => { e.stopPropagation(); deleteSelectedElement(); }}
-                              className="p-1 hover:bg-red-50 dark:hover:bg-red-950/40 rounded text-red-600 dark:text-red-400 transition-colors"
-                              title="Delete"
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          </div>
-                        </>
-                      )}
-
-                      <textarea
-                        value={t.text}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          updatePageEdits(currentPage, prev => ({
-                            ...prev,
-                            texts: prev.texts.map(item => item.id === t.id ? { ...item, text: val } : item)
-                          }));
-                        }}
-                        style={{
-                          fontSize: `${t.fontSize * zoom}px`,
-                          color: t.fontColor,
-                          fontFamily: t.fontFamily || 'Helvetica',
-                          fontWeight: t.isBold ? 'bold' : 'normal',
-                          fontStyle: t.isItalic ? 'italic' : 'normal',
-                          textAlign: t.align,
-                        }}
-                        className="w-full h-full bg-transparent resize font-sans border-none outline-none leading-tight overflow-hidden"
-                      />
-                    </div>
-                  );
-                })}
-
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── Right Text Styles Sidebar (Matching iLovePDF Sidebar) ── */}
-        {selectedText && (
-          <div className="w-64 md:w-72 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 p-5 shrink-0 overflow-y-auto space-y-5 shadow-lg z-30">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
-              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                <Sliders size={16} className="text-[#e52521]" /> Text Styles
-              </h3>
-              <button onClick={() => setSelectedElementId(null)} className="text-slate-400 hover:text-slate-600 text-xs font-bold">
-                Close
-              </button>
-            </div>
-
-            {/* Font Family */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Font Family</label>
-              <select
-                value={selectedText.fontFamily || 'Helvetica'}
-                onChange={e => updateSelectedTextProp('fontFamily', e.target.value)}
-                className="w-full text-xs font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#e52521]"
-              >
-                {FONT_FAMILIES.map(f => (
-                  <option key={f} value={f}>{f}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Font Size */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Font Size</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min={8}
-                  max={120}
-                  value={selectedText.fontSize}
-                  onChange={e => updateSelectedTextProp('fontSize', Number(e.target.value))}
-                  className="w-full text-sm font-bold border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-center focus:outline-none"
-                />
-                <span className="text-xs text-slate-400 font-bold">px</span>
-              </div>
-            </div>
-
-            {/* Formatting (Bold, Italic, Alignment) */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Formatting</label>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => updateSelectedTextProp('isBold', !selectedText.isBold)}
-                  className={`flex-1 py-2 rounded-xl border text-xs font-bold flex justify-center items-center cursor-pointer transition-colors ${
-                    selectedText.isBold ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900' : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400'
-                  }`}
-                >
-                  <Bold size={15} />
-                </button>
-                <button
-                  onClick={() => updateSelectedTextProp('isItalic', !selectedText.isItalic)}
-                  className={`flex-1 py-2 rounded-xl border text-xs font-bold flex justify-center items-center cursor-pointer transition-colors ${
-                    selectedText.isItalic ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900' : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400'
-                  }`}
-                >
-                  <Italic size={15} />
-                </button>
-              </div>
-            </div>
-
-            {/* Align */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Alignment</label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['left', 'center', 'right'] as const).map(a => (
-                  <button
-                    key={a}
-                    onClick={() => updateSelectedTextProp('align', a)}
-                    className={`py-1.5 rounded-xl border text-xs font-bold capitalize cursor-pointer transition-colors ${
-                      selectedText.align === a ? 'bg-[#e52521] text-white border-[#e52521]' : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400'
-                    }`}
-                  >
-                    {a}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Text Color */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Text Color</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={selectedText.fontColor}
-                  onChange={e => updateSelectedTextProp('fontColor', e.target.value)}
-                  className="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-700 cursor-pointer bg-transparent p-0.5"
-                />
-                <span className="text-xs font-mono font-bold text-slate-600 dark:text-slate-300">{selectedText.fontColor}</span>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
-              <button
-                onClick={duplicateSelectedElement}
-                className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Copy size={15} /> Duplicate Text
-              </button>
-              <button
-                onClick={deleteSelectedElement}
-                className="w-full py-2.5 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors"
-              >
-                <Trash2 size={15} /> Delete Text
-              </button>
-            </div>
-
+              );
+            })}
           </div>
-        )}
 
-        {/* Floating Bottom Right "Save changes" Button (iLovePDF Style) */}
-        <div className="absolute bottom-6 right-6 z-40">
-          <button
-            onClick={processSaveEdits}
-            disabled={isProcessing}
-            className="bg-[#e52521] hover:bg-[#d01f1c] disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white px-6 py-3.5 rounded-2xl text-base font-extrabold shadow-xl hover:shadow-2xl transition-all active:scale-[0.98] cursor-pointer flex items-center gap-3 border-2 border-white/20"
-          >
-            {isProcessing ? (
-              <><Loader2 className="w-5 h-5 animate-spin" /> {processStatus || 'Saving...'}</>
-            ) : (
-              <>Save changes <ChevronRight size={20} strokeWidth={3} /></>
-            )}
-          </button>
-        </div>
+          {/* Bottom floating page navigation bar — exact iLovePDF style */}
+          <div className="fixed bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[#1f2937]/90 backdrop-blur-md text-white rounded-2xl px-4 py-2 shadow-2xl z-50 border border-white/10">
+            {/* Page nav */}
+            <button onClick={() => setCurrentPage(p => Math.max(0, p - 1))} disabled={currentPage === 0}
+              className="p-1 rounded hover:bg-white/10 disabled:opacity-30 transition-all">
+              <ChevronUp size={15} />
+            </button>
+            <div className="flex items-center gap-1 text-sm font-mono">
+              <input
+                type="text" value={pageInputVal}
+                onChange={e => setPageInputVal(e.target.value)}
+                onBlur={() => {
+                  const n = parseInt(pageInputVal, 10) - 1;
+                  if (!isNaN(n) && n >= 0 && n < numPages) setCurrentPage(n);
+                  else setPageInputVal(`${currentPage + 1}`);
+                }}
+                className="w-8 bg-white/10 rounded text-center text-xs border-none outline-none focus:bg-white/20"
+              />
+              <span className="text-white/50">/</span>
+              <span className="text-xs">{numPages}</span>
+            </div>
+            <button onClick={() => setCurrentPage(p => Math.min(numPages - 1, p + 1))} disabled={currentPage === numPages - 1}
+              className="p-1 rounded hover:bg-white/10 disabled:opacity-30 transition-all">
+              <ChevronDown size={15} />
+            </button>
 
+            <div className="w-px h-5 bg-white/20 mx-1" />
+
+            {/* Zoom */}
+            <button onClick={() => setZoom(z => Math.max(0.25, z - 0.1))} className="p-1 rounded hover:bg-white/10"><Minus size={14} /></button>
+            <span className="text-xs font-mono w-10 text-center">{Math.round(zoom * 100)}%</span>
+            <button onClick={() => setZoom(z => Math.min(2.5, z + 0.1))} className="p-1 rounded hover:bg-white/10"><Plus size={14} /></button>
+
+            <div className="w-px h-5 bg-white/20 mx-1" />
+
+            {/* Fit width */}
+            <button onClick={() => setZoom(0.55)} title="Fit Width" className="p-1 rounded hover:bg-white/10">
+              <Maximize2 size={14} />
+            </button>
+            {/* Full screen */}
+            <button title="Full Screen" className="p-1 rounded hover:bg-white/10">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+                <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
+            </button>
+            {/* Search */}
+            <button title="Search in PDF" className="p-1 rounded hover:bg-white/10">
+              <Search size={14} />
+            </button>
+          </div>
+        </main>
+
+        {/* ─── RIGHT PROPERTIES PANEL — exact iLovePDF style ───────────────── */}
+        <aside className="w-[260px] bg-white dark:bg-[#1a1a1a] border-l border-[#e0e0e0] dark:border-[#2a2a2a] flex flex-col shrink-0 overflow-y-auto">
+
+          {/* Header */}
+          <div className="px-5 pt-5 pb-4 border-b border-[#eee] dark:border-[#222]">
+            <h2 className="text-[15px] font-bold text-[#111] dark:text-white">Edit PDF</h2>
+            <p className="text-xs text-[#888] dark:text-[#666] mt-1 flex items-start gap-1.5">
+              <span className="text-blue-500 mt-0.5">ⓘ</span>
+              Use the toolbar to modify or add text, upload images, and annotate with ease.
+            </p>
+          </div>
+
+          <div className="flex-1 px-4 py-4 space-y-5">
+            {/* Text Styles */}
+            <div>
+              <p className="text-[11px] font-semibold text-[#888] uppercase tracking-wide mb-2">Text Styles</p>
+
+              {/* Font family + size row */}
+              <div className="flex items-center gap-2 mb-2">
+                <select
+                  value={selectedText ? selectedText.fontFamily : fontFamily}
+                  onChange={e => { setFontFamily(e.target.value); updateSelectedText({ fontFamily: e.target.value }); }}
+                  className="flex-1 min-w-0 text-xs border border-[#d0d0d0] dark:border-[#333] rounded-lg px-2.5 py-1.5 bg-white dark:bg-[#111] text-[#111] dark:text-white focus:outline-none focus:border-[#e52521]"
+                >
+                  {FONTS.map(f => <option key={f} value={f}>{f}</option>)}
+                </select>
+                <select
+                  value={selectedText ? selectedText.fontSize : fontSize}
+                  onChange={e => { const v = Number(e.target.value); setFontSize(v); updateSelectedText({ fontSize: v }); }}
+                  className="w-[64px] text-xs border border-[#d0d0d0] dark:border-[#333] rounded-lg px-2 py-1.5 bg-white dark:bg-[#111] text-[#111] dark:text-white focus:outline-none focus:border-[#e52521]"
+                >
+                  {SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+
+              {/* B I U A strikethrough row */}
+              <div className="flex items-center gap-1.5 mb-2">
+                {[
+                  { label: 'B', key: 'isBold' as const, style: 'font-bold' },
+                  { label: 'I', key: 'isItalic' as const, style: 'italic' },
+                  { label: 'U', key: 'isUnderline' as const, style: 'underline' },
+                  { label: 'A', key: 'isStrike' as const, style: 'line-through' },
+                ].map(({ label, key, style }) => {
+                  const active = selectedText ? (selectedText as any)[key] : (
+                    key === 'isBold' ? isBold : key === 'isItalic' ? isItalic : key === 'isUnderline' ? isUnderline : isStrike
+                  );
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        const next = !active;
+                        if (key === 'isBold') setIsBold(next);
+                        else if (key === 'isItalic') setIsItalic(next);
+                        else if (key === 'isUnderline') setIsUnderline(next);
+                        else setIsStrike(next);
+                        updateSelectedText({ [key]: next } as any);
+                      }}
+                      className={`flex-1 py-1.5 rounded-lg text-xs border transition-all ${
+                        active
+                          ? 'border-[#e52521] bg-red-50 text-[#e52521] dark:bg-red-950/30'
+                          : 'border-[#d0d0d0] dark:border-[#333] text-[#444] dark:text-[#aaa] hover:bg-[#f5f5f5] dark:hover:bg-[#222]'
+                      } ${style === 'font-bold' ? 'font-bold' : style === 'italic' ? 'italic' : style === 'underline' ? 'underline decoration-current' : 'line-through'}`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Alignment row */}
+              <div className="flex items-center gap-1.5 mb-2">
+                {[
+                  { icon: <AlignLeft size={15} />, val: 'left' as const },
+                  { icon: <AlignCenter size={15} />, val: 'center' as const },
+                  { icon: <AlignRight size={15} />, val: 'right' as const },
+                ].map(({ icon, val }) => {
+                  const active = (selectedText ? selectedText.align : textAlign) === val;
+                  return (
+                    <button
+                      key={val}
+                      onClick={() => { setTextAlign(val); updateSelectedText({ align: val }); }}
+                      className={`flex-1 py-1.5 flex justify-center rounded-lg border transition-all ${
+                        active
+                          ? 'border-[#e52521] bg-red-50 text-[#e52521] dark:bg-red-950/30'
+                          : 'border-[#d0d0d0] dark:border-[#333] text-[#444] dark:text-[#aaa] hover:bg-[#f5f5f5] dark:hover:bg-[#222]'
+                      }`}
+                    >
+                      {icon}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Hyperlink */}
+              <button
+                className="flex items-center gap-1.5 text-[#555] dark:text-[#aaa] text-xs hover:text-[#e52521] transition-all py-1"
+                onClick={() => {
+                  const url = prompt('Enter URL:', selectedText?.linkUrl || '');
+                  if (url !== null) { setLinkUrl(url); updateSelectedText({ linkUrl: url }); }
+                }}
+              >
+                <LinkIcon size={14} />
+                <span>{selectedText?.linkUrl ? selectedText.linkUrl.slice(0, 26) + '…' : 'Add link'}</span>
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-[#eee] dark:border-[#222]" />
+
+            {/* Current Color */}
+            <div>
+              <p className="text-[11px] font-semibold text-[#888] uppercase tracking-wide mb-2">Current Color</p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <div
+                  className="w-8 h-8 rounded-lg border-2 border-[#111] shadow-md cursor-pointer"
+                  style={{ background: selectedText ? selectedText.fontColor : fontColor }}
+                />
+                <div className="w-8 h-8 rounded-lg border border-[#d0d0d0] dark:border-[#333] shadow-sm cursor-pointer relative overflow-hidden"
+                  style={{ background: 'linear-gradient(135deg, #fff 50%, #aaa 50%)' }}
+                />
+              </div>
+            </div>
+
+            {/* Custom Colors */}
+            <div>
+              <p className="text-[11px] font-semibold text-[#888] uppercase tracking-wide mb-2">Custom Colors</p>
+              <div className="flex flex-wrap gap-2">
+                {COLORS.map(c => (
+                  <button
+                    key={c}
+                    onClick={() => { setFontColor(c); updateSelectedText({ fontColor: c }); }}
+                    className="w-7 h-7 rounded-full border-2 transition-all hover:scale-110"
+                    style={{
+                      background: c,
+                      borderColor: (selectedText ? selectedText.fontColor : fontColor) === c ? '#111' : 'white',
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+                    }}
+                  />
+                ))}
+                {/* Custom color picker plus button */}
+                <label className="w-7 h-7 rounded-full border-2 border-dashed border-[#bbb] flex items-center justify-center cursor-pointer hover:border-[#e52521] transition-all">
+                  <Plus size={14} className="text-[#888]" />
+                  <input type="color" className="hidden" value={fontColor}
+                    onChange={e => { setFontColor(e.target.value); updateSelectedText({ fontColor: e.target.value }); }}
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-[#eee] dark:border-[#222]" />
+
+            {/* Undo / Redo */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={undo} disabled={histIdx === 0}
+                className="p-2 rounded-lg border border-[#d0d0d0] dark:border-[#333] text-[#555] dark:text-[#aaa] hover:bg-[#f5f5f5] dark:hover:bg-[#222] disabled:opacity-30 transition-all"
+                title="Undo"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+              </button>
+              <button
+                onClick={redo} disabled={histIdx === history.length - 1}
+                className="p-2 rounded-lg border border-[#d0d0d0] dark:border-[#333] text-[#555] dark:text-[#aaa] hover:bg-[#f5f5f5] dark:hover:bg-[#222] disabled:opacity-30 transition-all"
+                title="Redo"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-4.95"/></svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Bottom Save Changes */}
+          <div className="p-4 border-t border-[#eee] dark:border-[#222]">
+            <button
+              onClick={handleSave}
+              disabled={isProcessing}
+              className="w-full py-3.5 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl"
+              style={{ background: isProcessing ? '#ccc' : 'linear-gradient(135deg, #e52521 0%, #c41d1a 100%)' }}
+            >
+              {isProcessing ? <Loader2 className="animate-spin" size={16} /> : null}
+              Save changes
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 8 16 12 12 16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            </button>
+          </div>
+        </aside>
       </div>
-
-      {/* ── Bottom Nav Bar (Page & Zoom) ── */}
-      <div className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-6 py-2 flex items-center justify-between z-30 shadow-md">
-        
-        {/* Page Navigation */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            disabled={currentPage <= 1}
-            className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <span className="text-xs font-extrabold text-slate-800 dark:text-white">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-            disabled={currentPage >= totalPages}
-            className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-          >
-            <ChevronRight size={16} />
-          </button>
-        </div>
-
-        {/* Zoom Controls */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setZoom(prev => Math.max(0.5, prev - 0.15))}
-            className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-            title="Zoom Out"
-          >
-            <ZoomOut size={15} />
-          </button>
-          <span className="text-xs font-bold text-slate-600 dark:text-slate-300 min-w-12 text-center">
-            {Math.round(zoom * 100)}%
-          </span>
-          <button
-            onClick={() => setZoom(prev => Math.min(2.0, prev + 0.15))}
-            className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-            title="Zoom In"
-          >
-            <ZoomIn size={15} />
-          </button>
-          <button
-            onClick={() => setZoom(1.0)}
-            className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold cursor-pointer"
-            title="Reset Zoom"
-          >
-            100%
-          </button>
-        </div>
-
-      </div>
-
-      <SeoGuideSection toolId="edit-pdf" />
     </div>
   );
 };
