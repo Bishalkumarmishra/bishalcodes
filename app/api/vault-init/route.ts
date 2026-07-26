@@ -42,6 +42,10 @@ export async function POST(request: Request) {
     });
   } catch (err: any) {
     console.error('vault-init error:', err);
-    return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
+    let errorMessage = err.message || 'Internal server error';
+    if (errorMessage === 'fetch failed') {
+      errorMessage = 'Failed to connect to Supabase. Your Supabase project might be paused or unreachable.';
+    }
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
