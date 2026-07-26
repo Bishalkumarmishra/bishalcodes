@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80">
+  <g transform="translate(10, 10)">
+    <!-- Red and Black dynamic shape -->
+    <path d="M15 10 L30 10 L45 35 L30 60 L15 60 L30 35 Z" fill="#1a1a1a" />
+    <path d="M5 25 L20 25 L35 50 L20 75 L5 75 L20 50 Z" fill="#e52521" />
+    
+    <!-- Clean, bold text -->
+    <text x="60" y="47" font-family="'Inter', system-ui, -apple-system, sans-serif" font-weight="800" font-size="34" fill="#1a1a1a">Bishal<tspan fill="#e52521">Codes</tspan></text>
+  </g>
+</svg>

@@ -16,7 +16,22 @@ const ServiceTools: React.FC = () => {
       try {
         const q = query(collection(db, 'services'), orderBy('order', 'asc'));
         const snap = await getDocs(q);
-        const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as ServiceTool));
+        const data = snap.docs.map(doc => {
+          const s = { id: doc.id, ...doc.data() } as ServiceTool;
+          if (s.linkUrl === 'image-compressor') s.iconUrl = '/image compressor.svg';
+          if (s.linkUrl === 'secure-vault') s.iconUrl = '/secure vault.svg';
+          if (s.linkUrl === 'scan-pdf') s.iconUrl = '/scan pdf cam scanner.svg';
+          if (s.linkUrl === 'ocr-converter') s.iconUrl = '/ai ocr.svg';
+          if (s.linkUrl === 'font-downloader') s.iconUrl = '/font tools.svg';
+          if (s.linkUrl === 'bg-remover') s.iconUrl = '/bg remove.svg';
+          if (s.linkUrl === 'edit-pdf') s.iconUrl = '/pdf edit.svg';
+          if (s.linkUrl === 'json-formatter') s.iconUrl = '/json-file-svgrepo-com.svg';
+          if (s.linkUrl === 'code-runner') s.iconUrl = '/coding-html-svgrepo-com.svg';
+          if (s.linkUrl === 'diff-checker') s.iconUrl = '/file-diff-svgrepo-com.svg';
+          if (s.linkUrl === 'currency-converter') s.iconUrl = '/convert-converter-currency-svgrepo-com.svg';
+          if (s.linkUrl === 'emi-calculator') s.iconUrl = '/emi-calculator-pro.svg';
+          return s;
+        });
         if (isMounted) setServices(data);
       } catch (err) {
         console.warn('ServiceTools: Failed to fetch services', err);
@@ -51,7 +66,7 @@ const ServiceTools: React.FC = () => {
         id: 'file-transfer',
         title: 'File Transfer',
         description: 'Send files up to 100 GB instantly via secure peer-to-peer connection. Get a shareable link or email directly — free, no registration required.',
-        iconUrl: '/file-transfer.svg',
+        iconUrl: '/file-transfer-icon.svg',
         bgImageUrl: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?q=80&w=600&auto=format&fit=crop',
         linkUrl: 'file-transfer',
         badge: 'NEW',
@@ -63,7 +78,7 @@ const ServiceTools: React.FC = () => {
         id: 'screenshot-studio',
         title: 'Website Screenshot Studio',
         description: 'Capture high-resolution full-page scrolling screenshots of any site. Customize device viewports, resolutions, and download captures instantly.',
-        iconUrl: '/screenshot-studio.svg',
+        iconUrl: '/screenshot-capture-icon.svg',
         bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop',
         linkUrl: 'screenshot-studio',
         badge: 'NEW',

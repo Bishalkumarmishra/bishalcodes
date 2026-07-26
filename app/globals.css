@@ -247,7 +247,7 @@ input, textarea, [contenteditable="true"] {
 }
 
 .site-navbar .brand-logo-img {
-  filter: var(--logo-filter) !important;
+  /* removed filter */
 }
 
 .nav-link-active {

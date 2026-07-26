@@ -245,6 +245,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Protect any file — image, PDF, video, or document — with AES-256 encryption. Share a password-protected link or QR code. Only those with the password can access it.',
     badge: 'NEW',
     accentColor: 'indigo',
+    iconUrl: '/secure vault.svg',
     category: 'Security & Transfer'
   },
   {
@@ -254,6 +255,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Send any file or folder up to 100 GB. Get an instant shareable download link or email it — free, no account needed.',
     badge: 'NEW',
     accentColor: 'emerald',
+    iconUrl: '/file-transfer-icon.svg',
     category: 'Security & Transfer'
   },
   {
@@ -263,6 +265,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Capture high-resolution screenshots of any website. Customize resolution, emulate mobile/desktop devices, capture full scrolling pages, and download instantly.',
     badge: 'NEW',
     accentColor: 'purple',
+    iconUrl: '/screenshot-capture-icon.svg',
     category: 'Design & Media'
   },
   {
@@ -272,6 +275,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Browse, preview and batch download 1100+ real Nepali and English fonts. Includes Preeti, Kantipur, Mangal, Kalimati, Roboto, Inter and more — install directly on your computer.',
     badge: 'NEW',
     accentColor: 'amber',
+    iconUrl: '/font tools.svg',
     category: 'Design & Media'
   },
   {
@@ -281,6 +285,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Extract text instantly from scanned documents, receipts, screenshots, and photos. Runs completely in your browser — 100% free and private.',
     badge: 'FREE AI',
     accentColor: 'indigo',
+    iconUrl: '/ai ocr.svg',
     category: 'Converters'
   },
   {
@@ -290,6 +295,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Remove image backgrounds automatically in seconds. Runs entirely on your browser for absolute data privacy and zero quality limits.',
     badge: 'FREE AI',
     accentColor: 'emerald',
+    iconUrl: '/bg remove.svg',
     category: 'Design & Media'
   },
   {
@@ -299,6 +305,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Scan documents using your phone camera, apply magic color enhancement filters, and compile pages into a clean PDF directly in your browser.',
     badge: 'REAL TIME',
     accentColor: 'indigo',
+    iconUrl: '/scan pdf cam scanner.svg',
     category: 'Utilities'
   },
   {
@@ -358,7 +365,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Edit PDF documents online by adding text, shapes, comments, drawings, and images natively.',
     badge: 'NEW',
     accentColor: 'red',
-    iconUrl: '/edit pdf.svg',
+    iconUrl: '/pdf edit.svg',
     category: 'PDF Tools'
   },
 ];
@@ -585,7 +592,22 @@ const ServicesPage: React.FC = () => {
         const q = query(collection(db, 'services'), orderBy('order', 'asc'));
         const snap = await getDocs(q);
         setServices(snap.docs
-          .map(doc => ({ id: doc.id, ...doc.data() } as ServiceTool))
+          .map(doc => {
+            const data = { id: doc.id, ...doc.data() } as ServiceTool;
+            if (data.linkUrl === 'image-compressor') data.iconUrl = '/image compressor.svg';
+            if (data.linkUrl === 'secure-vault') data.iconUrl = '/secure vault.svg';
+            if (data.linkUrl === 'scan-pdf') data.iconUrl = '/scan pdf cam scanner.svg';
+            if (data.linkUrl === 'ocr-converter') data.iconUrl = '/ai ocr.svg';
+            if (data.linkUrl === 'font-downloader') data.iconUrl = '/font tools.svg';
+            if (data.linkUrl === 'bg-remover') data.iconUrl = '/bg remove.svg';
+            if (data.linkUrl === 'edit-pdf') data.iconUrl = '/pdf edit.svg';
+            if (data.linkUrl === 'json-formatter') data.iconUrl = '/json-file-svgrepo-com.svg';
+            if (data.linkUrl === 'code-runner') data.iconUrl = '/coding-html-svgrepo-com.svg';
+            if (data.linkUrl === 'diff-checker') data.iconUrl = '/file-diff-svgrepo-com.svg';
+            if (data.linkUrl === 'currency-converter') data.iconUrl = '/convert-converter-currency-svgrepo-com.svg';
+            if (data.linkUrl === 'emi-calculator') data.iconUrl = '/emi-calculator-pro.svg';
+            return data;
+          })
           .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover' && service.linkUrl !== 'scan-pdf' && service.linkUrl !== 'pdf-to-word' && service.linkUrl !== 'word-to-pdf' && service.linkUrl !== 'excel-to-pdf' && service.linkUrl !== 'pdf-to-excel' && service.linkUrl !== 'split-pdf' && service.linkUrl !== 'edit-pdf')
         );
       } catch (err) {

@@ -196,9 +196,9 @@ const Footer: React.FC = () => {
               style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', marginBottom: '20px', display: 'block' }}
             >
               <img
-                src="/logo.png"
+                src="/logo-dark.svg"
                 alt="BishalCodes"
-                style={{ height: '34px', width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.9 }}
+                style={{ height: '40px', width: 'auto', opacity: 0.95 }}
               />
             </button>
 

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="100%" height="100%">
+  <!-- Calculator Base -->
+  <rect x="10" y="8" width="28" height="36" rx="4" fill="#ffffff" stroke="#1e293b" stroke-width="2" stroke-linejoin="round" />
+  
+  <!-- Calculator Display -->
+  <rect x="14" y="12" width="20" height="8" rx="2" fill="#f1f5f9" stroke="#1e293b" stroke-width="1.5" />
+  
+  <!-- Graph inside display (Loan/Growth) -->
+  <path d="M16 17 L20 14 L24 16 L28 13 L32 17" fill="none" stroke="#e52521" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Buttons Row 1 -->
+  <rect x="14" y="24" width="4" height="4" rx="1" fill="#94a3b8" />
+  <rect x="22" y="24" width="4" height="4" rx="1" fill="#94a3b8" />
+  <rect x="30" y="24" width="4" height="4" rx="1" fill="#94a3b8" />
+  
+  <!-- Buttons Row 2 -->
+  <rect x="14" y="30" width="4" height="4" rx="1" fill="#94a3b8" />
+  <rect x="22" y="30" width="4" height="4" rx="1" fill="#94a3b8" />
+  <rect x="30" y="30" width="4" height="4" rx="1" fill="#94a3b8" />
+  
+  <!-- Buttons Row 3 -->
+  <rect x="14" y="36" width="4" height="4" rx="1" fill="#94a3b8" />
+  <rect x="22" y="36" width="4" height="4" rx="1" fill="#94a3b8" />
+  
+  <!-- Calculate/Enter Button (Red Accent) -->
+  <rect x="30" y="36" width="4" height="4" rx="1" fill="#e52521" />
+
+  <!-- Percentage / Rate Badge -->
+  <circle cx="38" cy="10" r="8" fill="#1e293b" />
+  <line x1="35" y1="13" x2="41" y2="7" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" />
+  <circle cx="36" cy="8.5" r="1.2" fill="#ffffff" />
+  <circle cx="40" cy="11.5" r="1.2" fill="#ffffff" />
+</svg>
