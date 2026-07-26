@@ -17,8 +17,6 @@ export async function GET(request: NextRequest) {
     const waitForTimeout = searchParams.get('waitForTimeout') || '0';
     const omitBackground = searchParams.get('omitBackground') === 'true' ? 'true' : 'false';
 
-    // Construct Microlink screenshot URL
-    // uses embed=screenshot.url to return binary image data directly
     let microlinkUrl = `https://api.microlink.io?url=${encodeURIComponent(targetUrl)}&screenshot=true&embed=screenshot.url&screenshot.fullPage=${fullPage}&viewport.width=${width}&viewport.height=${height}&screenshot.type=${format}&viewport.deviceScaleFactor=${dpr}&waitUntil=${waitUntil}`;
 
     if (waitForTimeout && waitForTimeout !== '0') {
@@ -28,27 +26,31 @@ export async function GET(request: NextRequest) {
       microlinkUrl += `&screenshot.omitBackground=true`;
     }
 
-    const res = await fetch(microlinkUrl, {
-      next: { revalidate: 3600 } // Cache screenshots for 1 hour
+    let res = await fetch(microlinkUrl, {
+      next: { revalidate: 3600 }
     });
 
+    // Fallback if Microlink times out or fails (Free tier limit)
     if (!res.ok) {
-      const errText = await res.text();
-      console.error('Microlink capture error:', errText);
+      console.warn('Microlink failed, attempting fallback to Thum.io...');
+      // Thum.io provides a highly reliable free screenshot service
+      const fallbackUrl = `https://image.thum.io/get/width/${width}/crop/${height}/${targetUrl}`;
+      res = await fetch(fallbackUrl);
       
-      let errMsg = 'Failed to capture screenshot. Make sure the URL is valid.';
-      try {
-        const errJson = JSON.parse(errText);
-        if (errJson.code === 'EBRWSRTIMEOUT' || (errJson.data && errJson.data.url && errJson.data.url.includes('timeout'))) {
-          errMsg = 'Capture timed out. The website took too long to load. Try setting the Readiness Event to "Network Idle Light" or "Document Loaded" in Advanced Settings.';
-        } else if (errJson.message) {
-          errMsg = errJson.message;
-        }
-      } catch (e) {
-        // ignore JSON parsing errors
+      if (!res.ok) {
+        return NextResponse.json({ 
+          error: 'Capture failed completely. The website might be blocking bots, or took too long to respond. Try checking the URL.' 
+        }, { status: 502 });
       }
-
-      return NextResponse.json({ error: errMsg }, { status: 502 });
+      
+      // Thum.io directly returns the image
+      const blob = await res.blob();
+      return new NextResponse(blob, {
+        headers: {
+          'Content-Type': 'image/jpeg', // Thum.io returns jpeg
+          'Cache-Control': 'public, max-age=3600, s-maxage=3600'
+        }
+      });
     }
 
     const blob = await res.blob();
