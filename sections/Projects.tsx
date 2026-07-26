@@ -65,12 +65,6 @@ const Projects: React.FC = () => {
     });
   }, [projects, selectedTag, searchQuery]);
 
-  if (loading) return (
-    <div className="min-h-[50vh] py-20 bg-white flex flex-col items-center justify-center">
-      <Loader2 className="animate-spin text-[#e52521] mb-4" size={32} />
-      <p className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Loading Projects...</p>
-    </div>
-  );
 
   return (
     <section id="projects" className="py-10 sm:py-14 bg-white relative overflow-hidden">
@@ -123,7 +117,12 @@ const Projects: React.FC = () => {
           </div>
         )}
 
-        {projects.length === 0 ? (
+        {loading ? (
+          <div className="min-h-[50vh] py-20 bg-white flex flex-col items-center justify-center">
+            <Loader2 className="animate-spin text-[#e52521] mb-4" size={32} />
+            <p className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Loading Projects...</p>
+          </div>
+        ) : projects.length === 0 ? (
           <div className="py-16 px-6 text-center border-2 border-dashed border-slate-200 rounded-xl bg-white flex flex-col items-center justify-center">
             <Layout className="text-slate-300 opacity-60 mb-4" size={48} />
             <p className="text-slate-400 font-bold text-lg uppercase tracking-wider">No Projects Found</p>

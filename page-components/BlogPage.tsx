@@ -61,12 +61,6 @@ const BlogPage: React.FC = () => {
     }
   }, [searchQuery, allPosts]);
 
-  if (loading) return (
-    <div className="h-screen bg-slate-50 flex flex-col items-center justify-center">
-       <Loader2 className="animate-spin text-[#e52521] mb-3" size={28} />
-       <p className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Loading Articles...</p>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
@@ -90,7 +84,12 @@ const BlogPage: React.FC = () => {
           </div>
         )}
 
-        {filteredPosts.length === 0 && !loading ? (
+        {loading ? (
+          <div className="py-20 flex flex-col items-center justify-center">
+             <Loader2 className="animate-spin text-[#e52521] mb-3" size={28} />
+             <p className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Loading Articles...</p>
+          </div>
+        ) : filteredPosts.length === 0 && !loading ? (
           <div className="py-16 px-6 text-center border border-slate-200 rounded-lg bg-white flex flex-col items-center">
              <p className="text-slate-500 font-semibold text-sm">
                {searchQuery ? 'No articles found matching your query.' : 'No articles available.'}

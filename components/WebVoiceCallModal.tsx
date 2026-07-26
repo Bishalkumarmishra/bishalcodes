@@ -186,7 +186,7 @@ const WebVoiceCallModal: React.FC<WebVoiceCallModalProps> = ({
         <div className="relative mb-4 z-10">
           <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-slate-800 bg-slate-950 shadow-2xl flex items-center justify-center">
             <img
-              src="/Bishal.png"
+              src="/bishal.png"
               alt="Bishal Mishra"
               className="w-full h-full object-cover"
               onError={(e) => {

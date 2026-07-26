@@ -22,6 +22,7 @@ export interface ServiceTool {
   linkUrl: string;
   badge?: string;
   order: number;
+  isPinnedByDefault?: boolean;
 }
 
 export interface Skill {

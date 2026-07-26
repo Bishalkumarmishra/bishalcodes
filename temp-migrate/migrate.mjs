@@ -1,0 +1,96 @@
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs, doc, setDoc, updateDoc } from 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBVmSAxOR4nZxvzMZZS1uH4II_sdoJSQ1g",
+  authDomain: "bishal-mishra-3c559.firebaseapp.com",
+  projectId: "bishal-mishra-3c559",
+  storageBucket: "bishal-mishra-3c559.firebasestorage.app",
+  messagingSenderId: "459193835216",
+  appId: "1:459193835216:web:32de44a9f2d52ed80b88d5",
+  measurementId: "G-V89CSR1TXR"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function migrate() {
+  try {
+    const servicesRef = collection(db, 'services');
+    const snapshot = await getDocs(servicesRef);
+    
+    // 1. Update existing tools with correct icons
+    const updates = snapshot.docs.map(async (d) => {
+      const s = d.data();
+      let newIcon = s.iconUrl;
+      
+      if (s.linkUrl === 'image-compressor') newIcon = '/image compressor.svg';
+      if (s.linkUrl === 'secure-vault') newIcon = '/secure vault.svg';
+      if (s.linkUrl === 'scan-pdf') newIcon = '/scan pdf cam scanner.svg';
+      if (s.linkUrl === 'ocr-converter') newIcon = '/ai ocr.svg';
+      if (s.linkUrl === 'font-downloader') newIcon = '/font tools.svg';
+      if (s.linkUrl === 'bg-remover') newIcon = '/bg remove.svg';
+      if (s.linkUrl === 'edit-pdf') newIcon = '/pdf edit.svg';
+      if (s.linkUrl === 'json-formatter') newIcon = '/json-file-svgrepo-com.svg';
+      if (s.linkUrl === 'code-runner') newIcon = '/coding-html-svgrepo-com.svg';
+      if (s.linkUrl === 'diff-checker') newIcon = '/file-diff-svgrepo-com.svg';
+      if (s.linkUrl === 'currency-converter') newIcon = '/convert-converter-currency-svgrepo-com.svg';
+      if (s.linkUrl === 'emi-calculator') newIcon = '/emi-calculator-pro.svg';
+
+      if (newIcon !== s.iconUrl) {
+        await updateDoc(doc(db, 'services', d.id), { iconUrl: newIcon });
+        console.log(`Updated ${s.title} to use new icon`);
+      }
+    });
+    await Promise.all(updates);
+
+    // 2. Insert missing tools
+    const existingLinks = snapshot.docs.map(d => d.data().linkUrl);
+    
+    const missingTools = [
+      {
+        id: 'file-transfer',
+        title: 'File Transfer',
+        description: 'Send files up to 100 GB instantly via secure peer-to-peer connection. Get a shareable link or email directly — free, no registration required.',
+        iconUrl: '/file-transfer-icon.svg',
+        bgImageUrl: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?q=80&w=600&auto=format&fit=crop',
+        linkUrl: 'file-transfer',
+        badge: 'NEW',
+        order: 15
+      },
+      {
+        id: 'screenshot-studio',
+        title: 'Website Screenshot Studio',
+        description: 'Capture high-resolution full-page scrolling screenshots of any site. Customize device viewports, resolutions, and download captures instantly.',
+        iconUrl: '/screenshot-capture-icon.svg',
+        bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop',
+        linkUrl: 'screenshot-studio',
+        badge: 'NEW',
+        order: 16
+      },
+      {
+        id: 'dev-card-studio',
+        title: 'Developer Card Studio',
+        description: 'Design customized developer profile cards and OpenGraph preview banners. Export as PNG images or copy copyable SVG/React vector markups.',
+        iconUrl: '/dev-card.svg',
+        bgImageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop',
+        linkUrl: 'dev-card-studio',
+        badge: 'NEW',
+        order: 14
+      }
+    ];
+
+    for (const tool of missingTools) {
+      if (!existingLinks.includes(tool.linkUrl)) {
+        await setDoc(doc(db, 'services', tool.id), tool);
+        console.log(`Inserted missing tool: ${tool.title}`);
+      }
+    }
+
+    console.log('Migration completed successfully');
+  } catch (error) {
+    console.error('Error during migration:', error);
+  }
+}
+
+migrate();

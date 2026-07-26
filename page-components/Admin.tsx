@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 // @ts-ignore - Suppress misleading named export error for Firebase Firestore
-import { getDoc, doc, query, collection, orderBy, getDocs, setDoc, addDoc, deleteDoc, writeBatch, increment } from 'firebase/firestore';
+import { getDoc, doc, query, collection, orderBy, getDocs, setDoc, addDoc, deleteDoc, writeBatch, increment, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../services/firebase'; // Removed storage import
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -533,7 +533,7 @@ const Admin: React.FC = () => {
   };
 
   // Form States (Pre-filled with Hardcoded Defaults for immediate UX)
-  const [serviceForm, setServiceForm] = useState({ title: '', description: '', iconUrl: '', bgImageUrl: '', linkUrl: '', badge: '', order: 0 });
+  const [serviceForm, setServiceForm] = useState({ title: '', description: '', iconUrl: '', bgImageUrl: '', linkUrl: '', badge: '', order: 0, isPinnedByDefault: false as boolean });
   const [blogForm, setBlogForm] = useState({ 
     id: '', title: 'Next.js 15: The New Era of Web Development', excerpt: 'Deep-dive into the latest performance optimizations and server components.', tag: 'NEXTJS', content: 'Modern web development requires peak performance...', imageUrl: 'https://images.unsplash.com/photo/1555066931-4365d14bab8c', seoDescription: 'SEO optimization for Next.js 15 articles', views: 0 
   });
@@ -578,7 +578,7 @@ const Admin: React.FC = () => {
   const closeFormModal = () => {
     setIsFormModalOpen(false);
     setProjectForm(defaultProjectForm);
-    setServiceForm({ title: '', description: '', iconUrl: '', bgImageUrl: '', linkUrl: '', badge: '', order: 0 });
+    setServiceForm({ title: '', description: '', iconUrl: '', bgImageUrl: '', linkUrl: '', badge: '', order: 0, isPinnedByDefault: false as boolean });
     setBlogForm({ id: '', title: '', excerpt: '', tag: '', content: '', imageUrl: '', seoDescription: '', views: 0 });
     setTestimonialForm(defaultTestimonialForm);
     setExperienceForm(defaultExperienceForm);
@@ -2927,6 +2927,10 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                           <label className="text-xs font-semibold text-slate-700">Order</label>
                           <input type="number" placeholder="Order" value={serviceForm.order} onChange={e => setServiceForm({...serviceForm, order: Number(e.target.value)})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs" />
                         </div>
+                        <div className="md:col-span-2 space-y-1 flex items-center gap-2 mt-2">
+                          <input type="checkbox" id="isPinnedByDefault" checked={!!(serviceForm as any).isPinnedByDefault} onChange={e => setServiceForm({...serviceForm, isPinnedByDefault: e.target.checked})} className="w-4 h-4 text-[#e52521] focus:ring-[#e52521] border-slate-300 rounded" />
+                          <label htmlFor="isPinnedByDefault" className="text-xs font-semibold text-slate-700 cursor-pointer">Pin to Top by Default (Global)</label>
+                        </div>
                         <div className="md:col-span-2 space-y-1">
                           <label className="text-xs font-semibold text-slate-700">Description</label>
                           <textarea placeholder="Description" value={serviceForm.description} onChange={e => setServiceForm({...serviceForm, description: e.target.value})} className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-slate-900 outline-none focus:ring-1 focus:ring-[#e52521] focus:border-[#e52521] transition-all text-xs md:col-span-2" rows={3} />
@@ -2943,7 +2947,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                               const docRef = await addDoc(collection(db, 'services'), data);
                               setServices([...services, { id: docRef.id, ...data }]);
                             }
-                            setServiceForm({ title: '', description: '', iconUrl: '', bgImageUrl: '', linkUrl: '', badge: '', order: 0 });
+                            setServiceForm({ title: '', description: '', iconUrl: '', bgImageUrl: '', linkUrl: '', badge: '', order: 0, isPinnedByDefault: false as boolean });
                             setIsFormModalOpen(false);
                           } catch(e) { alert('Error saving service'); console.error(e); }
                           setLoading(false);
@@ -2958,11 +2962,80 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-slate-900 font-semibold text-sm">Existing Services</h3>
-                    <button 
-                        onClick={() => { setServiceForm({ title: '', description: '', iconUrl: '', bgImageUrl: '', linkUrl: '', badge: '', order: 0 }); setFormModalTitle('Add New Service'); setIsFormModalOpen(true); }}
-                        className="bg-[#e52521] text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-[#d01f1c] transition-all active:scale-95">
-                        <Plus size={12}/> Add Service
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                          onClick={async () => {
+                            if (!confirm("Are you sure you want to run the database tool migration?")) return;
+                            try {
+                              const snapshot = await getDocs(collection(db, 'services'));
+                              const updates = snapshot.docs.map(async (d) => {
+                                const s = d.data();
+                                let newIcon = s.iconUrl;
+                                if (s.linkUrl === 'image-compressor') newIcon = '/image compressor.svg';
+                                if (s.linkUrl === 'secure-vault') newIcon = '/secure vault.svg';
+                                if (s.linkUrl === 'scan-pdf') newIcon = '/scan pdf cam scanner.svg';
+                                if (s.linkUrl === 'ocr-converter') newIcon = '/ai ocr.svg';
+                                if (s.linkUrl === 'font-downloader') newIcon = '/font tools.svg';
+                                if (s.linkUrl === 'bg-remover') newIcon = '/bg remove.svg';
+                                if (s.linkUrl === 'edit-pdf') newIcon = '/pdf edit.svg';
+                                if (s.linkUrl === 'json-formatter') newIcon = '/json-file-svgrepo-com.svg';
+                                if (s.linkUrl === 'code-runner') newIcon = '/coding-html-svgrepo-com.svg';
+                                if (s.linkUrl === 'diff-checker') newIcon = '/file-diff-svgrepo-com.svg';
+                                if (s.linkUrl === 'currency-converter') newIcon = '/convert-converter-currency-svgrepo-com.svg';
+                                if (s.linkUrl === 'emi-calculator') newIcon = '/emi-calculator-pro.svg';
+                                if (newIcon !== s.iconUrl) {
+                                  await updateDoc(doc(db, 'services', d.id), { iconUrl: newIcon });
+                                }
+                              });
+                              await Promise.all(updates);
+
+                              const existingLinks = snapshot.docs.map(d => d.data().linkUrl);
+                              const missingTools = [
+                                { id: 'file-transfer', title: 'File Transfer', description: 'Send files up to 100 GB instantly via secure peer-to-peer connection.', iconUrl: '/file-transfer-icon.svg', bgImageUrl: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?q=80&w=600&auto=format&fit=crop', linkUrl: 'file-transfer', badge: 'NEW', order: 15 },
+                                { id: 'screenshot-studio', title: 'Website Screenshot Studio', description: 'Capture high-resolution full-page scrolling screenshots of any site.', iconUrl: '/screenshot-capture-icon.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'screenshot-studio', badge: 'NEW', order: 16 },
+                                { id: 'dev-card-studio', title: 'Developer Card Studio', description: 'Design customized developer profile cards.', iconUrl: '/dev-card.svg', bgImageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop', linkUrl: 'dev-card-studio', badge: 'NEW', order: 14 },
+                                { id: 'qr-studio', title: 'QR Code Studio', description: 'Generate high-quality customizable QR codes.', iconUrl: '/qr-studio.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'qr-studio', badge: 'NEW', order: 13 },
+                                { id: 'json-formatter', title: 'JSON Formatter & Tree Viewer', description: 'Format, validate, and visualize JSON data as an interactive tree.', iconUrl: '/json-file-svgrepo-com.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'json-formatter', badge: 'NEW', order: 17 },
+                                { id: 'diff-checker', title: 'Instant Text Diff Checker', description: 'Compare text and code instantly to see additions, deletions, and modifications.', iconUrl: '/file-diff-svgrepo-com.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'diff-checker', badge: 'NEW', order: 18 },
+                                { id: 'code-runner', title: 'HTML, CSS & JS Code Runner', description: 'Write, preview, and run frontend code in a fast online playground.', iconUrl: '/coding-html-svgrepo-com.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'code-runner', badge: 'NEW', order: 19 },
+                                { id: 'secure-vault', title: 'Secure Vault', description: 'Encrypt and decrypt sensitive text securely inside your browser.', iconUrl: '/secure vault.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'secure-vault', badge: 'NEW', order: 20 },
+                                { id: 'font-downloader', title: 'System Fonts Downloader', description: 'Browse and download thousands of Google Fonts easily.', iconUrl: '/font tools.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'font-downloader', badge: 'NEW', order: 21 },
+                                { id: 'ocr-converter', title: 'AI OCR Image to Text', description: 'Extract text from images using advanced AI OCR technology.', iconUrl: '/ai ocr.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'ocr-converter', badge: 'NEW', order: 22 },
+                                { id: 'bg-remover', title: 'AI Background Remover', description: 'Remove image backgrounds instantly and accurately with AI.', iconUrl: '/bg remove.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'bg-remover', badge: 'NEW', order: 23 },
+                                { id: 'scan-pdf', title: 'Cam Scanner / Scan PDF', description: 'Use your webcam to scan documents and convert them to PDF.', iconUrl: '/scan pdf cam scanner.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'scan-pdf', badge: 'NEW', order: 24 },
+                                { id: 'edit-pdf', title: 'Edit PDF', description: 'Add text, drawings, and signatures directly to PDF files.', iconUrl: '/pdf edit.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'edit-pdf', badge: 'NEW', order: 25 },
+                                { id: 'pdf-to-word', title: 'PDF to Word Converter', description: 'Convert PDF files into editable Word documents quickly.', iconUrl: '/pdf to word.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'pdf-to-word', badge: 'NEW', order: 26 },
+                                { id: 'word-to-pdf', title: 'Word to PDF Converter', description: 'Convert Word documents safely and reliably into PDF format.', iconUrl: '/word to pdf.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'word-to-pdf', badge: 'NEW', order: 27 },
+                                { id: 'excel-to-pdf', title: 'Excel to PDF Converter', description: 'Convert Excel spreadsheets into high-quality PDFs.', iconUrl: '/excel to pdf.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'excel-to-pdf', badge: 'NEW', order: 28 },
+                                { id: 'pdf-to-excel', title: 'PDF to Excel Converter', description: 'Extract tables from PDFs into editable Excel spreadsheets.', iconUrl: '/pdf to excel.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'pdf-to-excel', badge: 'NEW', order: 29 },
+                                { id: 'split-pdf', title: 'Split PDF', description: 'Extract specific pages or split your PDF into multiple files.', iconUrl: '/spit pdf.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'split-pdf', badge: 'NEW', order: 30 },
+                                { id: 'typing-practice', title: 'Typing Practice', description: 'Practice and improve your coding typing speed with developer-focused tests.', iconUrl: '/code-runner.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'typing-practice', badge: 'NEW', order: 31 }
+                              ];
+                              for (const tool of missingTools) {
+                                // Force update iconUrl for tools that were inserted with wrong icons
+                                if (existingLinks.includes(tool.linkUrl)) {
+                                  const existingDoc = snapshot.docs.find(d => d.data().linkUrl === tool.linkUrl);
+                                  if (existingDoc && existingDoc.data().iconUrl !== tool.iconUrl) {
+                                    await updateDoc(doc(db, 'services', existingDoc.id), { iconUrl: tool.iconUrl });
+                                  }
+                                } else {
+                                  await setDoc(doc(db, 'services', tool.id), tool);
+                                }
+                              }
+                              alert("Migration completed! Please refresh the page.");
+                            } catch (e: any) {
+                              alert("Error: " + e.message);
+                            }
+                          }}
+                          className="bg-yellow-500 text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-yellow-600 transition-all active:scale-95">
+                          <Database size={12}/> Run DB Migration
+                      </button>
+                      <button 
+                          onClick={() => { setServiceForm({ title: '', description: '', iconUrl: '', bgImageUrl: '', linkUrl: '', badge: '', order: 0, isPinnedByDefault: false as boolean }); setFormModalTitle('Add New Service'); setIsFormModalOpen(true); }}
+                          className="bg-[#e52521] text-white px-4 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 hover:bg-[#d01f1c] transition-all active:scale-95">
+                          <Plus size={12}/> Add Service
+                      </button>
+                    </div>
                   </div>
                   <table className="w-full text-left border-collapse">
                     <thead>
@@ -4716,16 +4789,44 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                       )}
                     </div>
                   </div>
-
                   <div className="space-y-1">
-                    <label className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider">OpenGraph Image Preview Link</label>
-                    <input
-                      type="url"
-                      value={seoForm.ogImage}
-                      onChange={(e) => setSeoForm({ ...seoForm, ogImage: e.target.value })}
-                      placeholder="https://ik.imagekit.io/bishalc/... or image host URL"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-900 outline-none focus:border-slate-950 focus:bg-white transition-all text-xs font-normal placeholder:text-slate-350"
-                    />
+                    <div className="flex items-center justify-between">
+                      <label className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider">OpenGraph Image Preview Link</label>
+                      <span className="text-[9px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-100">Recommended Size: 1200x630px</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        value={seoForm.ogImage}
+                        onChange={(e) => setSeoForm({ ...seoForm, ogImage: e.target.value })}
+                        placeholder="https://ik.imagekit.io/bishalc/... or image host URL"
+                        className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-900 outline-none focus:border-slate-950 focus:bg-white transition-all text-xs font-normal placeholder:text-slate-350"
+                      />
+                      <div className="relative flex items-center">
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={async (e) => {
+                            if (!e.target.files || e.target.files.length === 0) return;
+                            setLoading(true);
+                            try {
+                              const res = await uploadToCloudinary(e.target.files[0]);
+                              setSeoForm({ ...seoForm, ogImage: res.url });
+                              alert(`SEO OpenGraph image uploaded successfully!`);
+                            } catch (err: any) {
+                              alert(`Upload failed: ${err.message || err}`);
+                            } finally {
+                              setLoading(false);
+                            }
+                          }} 
+                          className="hidden" 
+                          id="seo-ogimage-upload" 
+                        />
+                        <label htmlFor="seo-ogimage-upload" className="cursor-pointer bg-slate-900 text-white px-4 py-2.5 rounded-lg font-bold text-xs hover:bg-slate-800 transition-all inline-block select-none whitespace-nowrap">
+                          Upload Image
+                        </label>
+                      </div>
+                    </div>
                     {DEFAULT_SEO_METADATA[selectedSeoPage]?.ogImage && (
                       <p className="text-[10px] text-slate-400 mt-1 italic leading-normal border-b border-slate-100 pb-2">
                         <strong>Default:</strong> {DEFAULT_SEO_METADATA[selectedSeoPage].ogImage}

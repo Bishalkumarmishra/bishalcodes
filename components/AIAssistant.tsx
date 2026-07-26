@@ -1359,7 +1359,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                   <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-emerald-400/90 shadow-sm bg-slate-800 flex items-center justify-center">
                     {!avatarError ? (
                       <img
-                        src="/Bishal.png"
+                        src="/bishal.png"
                         alt="Bishal Mishra"
                         className="w-full h-full object-cover"
                         onError={() => setAvatarError(true)}
@@ -1523,7 +1523,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                       <div className="w-6 h-6 rounded-full overflow-hidden border border-emerald-400/80 bg-slate-900 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
                         {!avatarError ? (
                           <img
-                            src="/Bishal.png"
+                            src="/bishal.png"
                             alt="Bishal Mishra"
                             className="w-full h-full object-cover"
                             onError={() => setAvatarError(true)}
@@ -1591,7 +1591,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                   <div className="w-6 h-6 rounded-full overflow-hidden border border-emerald-400/80 bg-slate-900 flex items-center justify-center shrink-0 shadow-sm">
                     {!avatarError ? (
                       <img
-                        src="/Bishal.png"
+                        src="/bishal.png"
                         alt="Bishal Mishra"
                         className="w-full h-full object-cover"
                         onError={() => setAvatarError(true)}
@@ -1717,7 +1717,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                     <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-emerald-400 shadow-xs bg-slate-900 flex items-center justify-center">
                       {!avatarError ? (
                         <img
-                          src="/Bishal.png"
+                          src="/bishal.png"
                           alt="Bishal Mishra"
                           className="w-full h-full object-cover"
                           onError={() => setAvatarError(true)}
@@ -1760,7 +1760,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                 setShowGreetingBubble(false);
                 playNotificationSound();
               }}
-              className="group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-tr from-slate-950 via-slate-900 to-indigo-950 hover:to-indigo-600 text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-emerald-400/50"
+              className="group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-tr from-[#d01f1c] to-[#e52521] hover:from-[#b91c1c] hover:to-[#d01f1c] text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-emerald-400/50"
               aria-label="Open Chat Support"
             >
               <CustomerSupportChatIcon size={30} className="text-white transition-transform group-hover:scale-110" />

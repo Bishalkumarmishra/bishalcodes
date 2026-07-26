@@ -219,156 +219,7 @@ const DYNAMIC_TOOL_CATEGORIES: Record<string, string> = {
   'typing-practice': 'Utilities'
 };
 
-const STATIC_TOOLS: StaticTool[] = [
-  {
-    id: 'typing-practice',
-    name: 'Typing Studio',
-    emoji: '⌨️',
-    description: 'Test and improve your typing speed (WPM) and keyboard accuracy with custom English words, code snippets, or custom text practice.',
-    badge: 'NEW',
-    accentColor: 'purple',
-    category: 'Utilities'
-  },
-  {
-    id: 'dev-card-studio',
-    name: 'Developer Card Studio',
-    emoji: '🪪',
-    description: 'Design customized developer profile cards and OpenGraph preview banners. Export as PNG images or copy copyable SVG/React vector markups.',
-    badge: 'NEW',
-    accentColor: 'indigo',
-    category: 'Design & Media'
-  },
-  {
-    id: 'secure-vault',
-    name: 'Secure Vault',
-    emoji: '🔐',
-    description: 'Protect any file — image, PDF, video, or document — with AES-256 encryption. Share a password-protected link or QR code. Only those with the password can access it.',
-    badge: 'NEW',
-    accentColor: 'indigo',
-    iconUrl: '/secure vault.svg',
-    category: 'Security & Transfer'
-  },
-  {
-    id: 'file-transfer',
-    name: 'File Transfer',
-    emoji: '🚀',
-    description: 'Send any file or folder up to 100 GB. Get an instant shareable download link or email it — free, no account needed.',
-    badge: 'NEW',
-    accentColor: 'emerald',
-    iconUrl: '/file-transfer-icon.svg',
-    category: 'Security & Transfer'
-  },
-  {
-    id: 'screenshot-studio',
-    name: 'Screenshot Studio',
-    emoji: '📸',
-    description: 'Capture high-resolution screenshots of any website. Customize resolution, emulate mobile/desktop devices, capture full scrolling pages, and download instantly.',
-    badge: 'NEW',
-    accentColor: 'purple',
-    iconUrl: '/screenshot-capture-icon.svg',
-    category: 'Design & Media'
-  },
-  {
-    id: 'font-downloader',
-    name: 'System Fonts Downloader',
-    emoji: '🔤',
-    description: 'Browse, preview and batch download 1100+ real Nepali and English fonts. Includes Preeti, Kantipur, Mangal, Kalimati, Roboto, Inter and more — install directly on your computer.',
-    badge: 'NEW',
-    accentColor: 'amber',
-    iconUrl: '/font tools.svg',
-    category: 'Design & Media'
-  },
-  {
-    id: 'ocr-converter',
-    name: 'AI OCR Converter',
-    emoji: '📝',
-    description: 'Extract text instantly from scanned documents, receipts, screenshots, and photos. Runs completely in your browser — 100% free and private.',
-    badge: 'FREE AI',
-    accentColor: 'indigo',
-    iconUrl: '/ai ocr.svg',
-    category: 'Converters'
-  },
-  {
-    id: 'bg-remover',
-    name: 'Background Remover',
-    emoji: '✂️',
-    description: 'Remove image backgrounds automatically in seconds. Runs entirely on your browser for absolute data privacy and zero quality limits.',
-    badge: 'FREE AI',
-    accentColor: 'emerald',
-    iconUrl: '/bg remove.svg',
-    category: 'Design & Media'
-  },
-  {
-    id: 'scan-pdf',
-    name: 'Scan-to-PDF CamScanner',
-    emoji: '📷',
-    description: 'Scan documents using your phone camera, apply magic color enhancement filters, and compile pages into a clean PDF directly in your browser.',
-    badge: 'REAL TIME',
-    accentColor: 'indigo',
-    iconUrl: '/scan pdf cam scanner.svg',
-    category: 'Utilities'
-  },
-  {
-    id: 'pdf-to-word',
-    name: 'PDF to Word Converter',
-    emoji: '📝',
-    description: 'Convert PDF documents into fully editable Microsoft Word DOCX files with native layout reconstruction and offline client-side OCR.',
-    badge: 'NEW',
-    accentColor: 'indigo',
-    iconUrl: '/pdf to word.svg',
-    category: 'PDF Tools'
-  },
-  {
-    id: 'word-to-pdf',
-    name: 'Word to PDF Converter',
-    emoji: '📄',
-    description: 'Convert Word documents (.docx, .doc) into high-fidelity PDF files with exact margins, layout preservation, and font embedding.',
-    badge: 'NEW',
-    accentColor: 'indigo',
-    iconUrl: '/word to pdf.svg',
-    category: 'PDF Tools'
-  },
-  {
-    id: 'excel-to-pdf',
-    name: 'Excel to PDF Converter',
-    emoji: '📊',
-    description: 'Convert Excel spreadsheets (.xlsx, .xls) into high-fidelity PDF files with exact sheet scaling, layout preservation, and charts.',
-    badge: 'NEW',
-    accentColor: 'emerald',
-    iconUrl: '/excel to pdf.svg',
-    category: 'PDF Tools'
-  },
-  {
-    id: 'pdf-to-excel',
-    name: 'PDF to Excel Converter',
-    emoji: '📈',
-    description: 'Convert PDF files into structured Microsoft Excel spreadsheets (.xlsx) with clean cell grids, row preservation, and layout mapping.',
-    badge: 'NEW',
-    accentColor: 'emerald',
-    iconUrl: '/pdf to excel.svg',
-    category: 'PDF Tools'
-  },
-  {
-    id: 'split-pdf',
-    name: 'Split PDF',
-    emoji: '✂️',
-    description: 'Split PDF files into multiple documents by custom page ranges, fixed intervals, or extract every page individually.',
-    badge: 'NEW',
-    accentColor: 'red',
-    iconUrl: '/spit pdf.svg',
-    category: 'PDF Tools'
-  },
-  {
-    id: 'edit-pdf',
-    name: 'PDF Editor',
-    emoji: '✏️',
-    description: 'Edit PDF documents online by adding text, shapes, comments, drawings, and images natively.',
-    badge: 'NEW',
-    accentColor: 'red',
-    iconUrl: '/pdf edit.svg',
-    category: 'PDF Tools'
-  },
-];
+const STATIC_TOOLS: StaticTool[] = [];
 
 // ─── Accent color map ────────────────────────────────────────────────────────
 const ACCENT: Record<string, { border: string; hoverBorder: string; glow: string; bg: string; iconBg: string; iconBorder: string; text: string; badgeBg: string; badgeText: string }> = {
@@ -511,12 +362,6 @@ const DynCard: React.FC<DynCardProps> = ({ service, pinned, onPin, onOpen, compa
 
     <PinButton toolId={service.linkUrl} pinned={pinned} onToggle={onPin} />
 
-    {pinned && (
-      <span className="absolute top-3 left-3 z-20 flex items-center gap-1 bg-amber-400 text-white text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full shadow-sm">
-        <Pin size={8} /> Pinned
-      </span>
-    )}
-
     <div className="w-14 h-14 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center overflow-hidden p-3 mb-5 border border-slate-100 dark:border-slate-700 relative z-10 shrink-0">
       {service.iconUrl ? (
         <img src={service.iconUrl} alt={service.title} className="w-full h-full object-contain drop-shadow-sm" />
@@ -591,25 +436,17 @@ const ServicesPage: React.FC = () => {
       try {
         const q = query(collection(db, 'services'), orderBy('order', 'asc'));
         const snap = await getDocs(q);
-        setServices(snap.docs
-          .map(doc => {
+        setServices(snap.docs.map(doc => {
             const data = { id: doc.id, ...doc.data() } as ServiceTool;
-            if (data.linkUrl === 'image-compressor') data.iconUrl = '/image compressor.svg';
-            if (data.linkUrl === 'secure-vault') data.iconUrl = '/secure vault.svg';
-            if (data.linkUrl === 'scan-pdf') data.iconUrl = '/scan pdf cam scanner.svg';
-            if (data.linkUrl === 'ocr-converter') data.iconUrl = '/ai ocr.svg';
-            if (data.linkUrl === 'font-downloader') data.iconUrl = '/font tools.svg';
-            if (data.linkUrl === 'bg-remover') data.iconUrl = '/bg remove.svg';
+            if (data.linkUrl === 'pdf-to-word') data.iconUrl = '/pdf to word.svg';
+            if (data.linkUrl === 'word-to-pdf') data.iconUrl = '/word to pdf.svg';
+            if (data.linkUrl === 'excel-to-pdf') data.iconUrl = '/excel to pdf.svg';
+            if (data.linkUrl === 'pdf-to-excel') data.iconUrl = '/pdf to excel.svg';
+            if (data.linkUrl === 'split-pdf') data.iconUrl = '/spit pdf.svg';
             if (data.linkUrl === 'edit-pdf') data.iconUrl = '/pdf edit.svg';
-            if (data.linkUrl === 'json-formatter') data.iconUrl = '/json-file-svgrepo-com.svg';
-            if (data.linkUrl === 'code-runner') data.iconUrl = '/coding-html-svgrepo-com.svg';
-            if (data.linkUrl === 'diff-checker') data.iconUrl = '/file-diff-svgrepo-com.svg';
-            if (data.linkUrl === 'currency-converter') data.iconUrl = '/convert-converter-currency-svgrepo-com.svg';
-            if (data.linkUrl === 'emi-calculator') data.iconUrl = '/emi-calculator-pro.svg';
+            if (data.linkUrl === 'typing-practice') data.iconUrl = '/code-runner.svg';
             return data;
-          })
-          .filter(service => service.linkUrl !== 'file-transfer' && service.linkUrl !== 'screenshot-studio' && service.linkUrl !== 'font-downloader' && service.linkUrl !== 'ocr-converter' && service.linkUrl !== 'bg-remover' && service.linkUrl !== 'scan-pdf' && service.linkUrl !== 'pdf-to-word' && service.linkUrl !== 'word-to-pdf' && service.linkUrl !== 'excel-to-pdf' && service.linkUrl !== 'pdf-to-excel' && service.linkUrl !== 'split-pdf' && service.linkUrl !== 'edit-pdf')
-        );
+        }));
       } catch (err) {
         console.error("Failed to fetch services", err);
       } finally {
@@ -816,39 +653,11 @@ const ServicesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Pinned Favourites Section ── */}
-      {hasPinned && (
-        <div className="w-full px-4 md:px-8 pt-10 pb-2 slide-down">
-          <div className="flex items-center gap-2.5 mb-5">
-            <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-amber-400/15 dark:bg-amber-400/10">
-              <Star size={15} className="text-amber-500" fill="currentColor" />
-            </div>
-            <h2 className="text-base font-extrabold tracking-tight text-slate-800 dark:text-white uppercase">Pinned Favourites</h2>
-            <span className="text-[10px] font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full">
-              {pinnedStaticTools.length + pinnedDynTools.length}
-            </span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 w-full">
-            {pinnedStaticTools.map(tool => (
-              <div key={tool.id} className="slide-down h-full">
-                <StaticCard tool={tool} pinned={true} onPin={handlePin} onOpen={handleOpen} compact />
-              </div>
-            ))}
-            {pinnedDynTools.map(service => (
-              <div key={service.id} className="slide-down h-full">
-                <DynCard service={service} pinned={true} onPin={handlePin} onOpen={handleOpen} compact />
-              </div>
-            ))}
-          </div>
-          <div className="mt-8 border-t border-slate-200 dark:border-slate-800" />
-        </div>
-      )}
+
 
       {/* Services Grid */}
       <div className="w-full px-4 md:px-8 py-10 min-h-[50vh]">
-        {hasPinned && selectedCategory === 'All' && (
-          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-5">All Tools</h2>
-        )}
+
         {loading ? (
           <div className="flex justify-center items-center h-full pt-10">
             <Loader2 className="animate-spin text-[#e52521]" size={32} />
@@ -870,6 +679,13 @@ const ServicesPage: React.FC = () => {
             {/* ── Firestore services ── */}
             {services
               .filter(service => selectedCategory === 'All' || DYNAMIC_TOOL_CATEGORIES[service.linkUrl] === selectedCategory)
+              .sort((a, b) => {
+                const aPinned = pinnedIds.has(a.linkUrl) || !!a.isPinnedByDefault;
+                const bPinned = pinnedIds.has(b.linkUrl) || !!b.isPinnedByDefault;
+                if (aPinned && !bPinned) return -1;
+                if (!aPinned && bPinned) return 1;
+                return 0;
+              })
               .map(service => (
               <DynCard
                 key={service.id}
