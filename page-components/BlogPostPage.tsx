@@ -257,9 +257,38 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
 
   if (loading && id) {
     return (
-      <div className="h-screen bg-slate-50 flex flex-col items-center justify-center">
-         <Loader2 className="animate-spin text-[#e52521] mb-3" size={28} />
-         <p className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Loading Article...</p>
+      <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
+        <Navbar />
+        <main className="pt-32 pb-20">
+          <div className="w-full px-0 sm:px-[5vw] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-0 sm:gap-8">
+            <div className="lg:col-span-2">
+              <article className="bg-white sm:rounded-lg sm:border sm:border-slate-200 p-0 sm:p-6 sm:shadow-sm">
+                <div className="mb-6 px-4 sm:px-0 flex gap-2 pt-4 sm:pt-0">
+                   <div className="w-12 h-3 bg-slate-200 rounded animate-pulse"></div>
+                   <div className="w-3 h-3 bg-slate-200 rounded animate-pulse"></div>
+                   <div className="w-12 h-3 bg-slate-200 rounded animate-pulse"></div>
+                </div>
+                <div className="w-3/4 h-10 bg-slate-200 rounded animate-pulse mb-4 mx-4 sm:mx-0"></div>
+                <div className="flex gap-3 px-4 sm:px-0 mb-6 pb-6 border-b border-slate-100">
+                   <div className="w-24 h-4 bg-slate-200 rounded animate-pulse"></div>
+                   <div className="w-24 h-4 bg-slate-200 rounded animate-pulse"></div>
+                </div>
+                <div className="w-full h-[260px] sm:h-[400px] bg-slate-200 animate-pulse mb-6 sm:rounded-lg"></div>
+                <div className="px-4 sm:px-0 flex flex-col gap-3">
+                   <div className="w-full h-4 bg-slate-200 rounded animate-pulse"></div>
+                   <div className="w-full h-4 bg-slate-200 rounded animate-pulse"></div>
+                   <div className="w-5/6 h-4 bg-slate-200 rounded animate-pulse"></div>
+                   <div className="w-full h-4 bg-slate-200 rounded animate-pulse mt-4"></div>
+                   <div className="w-4/5 h-4 bg-slate-200 rounded animate-pulse"></div>
+                </div>
+              </article>
+            </div>
+            <div className="lg:col-span-1 hidden lg:block">
+              <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm mb-6 h-[400px] animate-pulse"></div>
+              <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm h-[300px] animate-pulse"></div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
@@ -463,6 +492,22 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
                     {post.content}
                   </ReactMarkdown>
                 )}
+              </div>
+
+              {/* Author Bio Section */}
+              <div className="mt-10 pt-8 border-t border-slate-200 px-4 sm:px-0">
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-slate-200 shadow-sm shrink-0">
+                    <img src="/bishal.png" alt="Bishal Mishra" className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900 mb-1">Bishal Mishra</h3>
+                    <p className="text-xs font-semibold text-[#e52521] uppercase tracking-wider mb-3">Full-Stack Web Developer & Founder</p>
+                    <p className="text-sm text-slate-600 leading-relaxed max-w-2xl">
+                      I specialize in building fast, scalable, and visually stunning web applications. With a strong focus on modern JavaScript frameworks like Next.js and React, I help businesses and individuals bring their ideas to life.
+                    </p>
+                  </div>
+                </div>
               </div>
             </article>
 

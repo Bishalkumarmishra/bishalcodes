@@ -181,7 +181,43 @@ interface StaticTool {
   badge: string;
   accentColor: string; // tailwind color name e.g. 'indigo'
   iconUrl?: string;
+  category: string;
 }
+
+export const CATEGORIES = ['All', 'PDF Tools', 'Converters', 'Utilities', 'Security & Transfer', 'Design & Media'];
+
+// Map dynamic tool IDs to categories
+const DYNAMIC_TOOL_CATEGORIES: Record<string, string> = {
+  'date-converter': 'Utilities',
+  'translator': 'Utilities',
+  'currency-converter': 'Utilities',
+  'jpg-to-pdf': 'PDF Tools',
+  'merge-pdf': 'PDF Tools',
+  'add-page-numbers': 'PDF Tools',
+  'pdf-to-image': 'PDF Tools',
+  'pdf-to-word': 'PDF Tools',
+  'word-to-pdf': 'PDF Tools',
+  'excel-to-pdf': 'PDF Tools',
+  'pdf-to-excel': 'PDF Tools',
+  'split-pdf': 'PDF Tools',
+  'edit-pdf': 'PDF Tools',
+  'ai-summarizer': 'Utilities',
+  'image-compressor': 'Design & Media',
+  'emi-calculator': 'Utilities',
+  'qr-studio': 'Utilities',
+  'json-formatter': 'Converters',
+  'diff-checker': 'Utilities',
+  'code-runner': 'Utilities',
+  'file-transfer': 'Security & Transfer',
+  'screenshot-studio': 'Design & Media',
+  'secure-vault': 'Security & Transfer',
+  'dev-card-studio': 'Design & Media',
+  'font-downloader': 'Design & Media',
+  'ocr-converter': 'Converters',
+  'bg-remover': 'Design & Media',
+  'scan-pdf': 'Utilities',
+  'typing-practice': 'Utilities'
+};
 
 const STATIC_TOOLS: StaticTool[] = [
   {
@@ -191,6 +227,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Test and improve your typing speed (WPM) and keyboard accuracy with custom English words, code snippets, or custom text practice.',
     badge: 'NEW',
     accentColor: 'purple',
+    category: 'Utilities'
   },
   {
     id: 'dev-card-studio',
@@ -199,6 +236,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Design customized developer profile cards and OpenGraph preview banners. Export as PNG images or copy copyable SVG/React vector markups.',
     badge: 'NEW',
     accentColor: 'indigo',
+    category: 'Design & Media'
   },
   {
     id: 'secure-vault',
@@ -207,6 +245,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Protect any file — image, PDF, video, or document — with AES-256 encryption. Share a password-protected link or QR code. Only those with the password can access it.',
     badge: 'NEW',
     accentColor: 'indigo',
+    category: 'Security & Transfer'
   },
   {
     id: 'file-transfer',
@@ -215,6 +254,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Send any file or folder up to 100 GB. Get an instant shareable download link or email it — free, no account needed.',
     badge: 'NEW',
     accentColor: 'emerald',
+    category: 'Security & Transfer'
   },
   {
     id: 'screenshot-studio',
@@ -223,6 +263,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Capture high-resolution screenshots of any website. Customize resolution, emulate mobile/desktop devices, capture full scrolling pages, and download instantly.',
     badge: 'NEW',
     accentColor: 'purple',
+    category: 'Design & Media'
   },
   {
     id: 'font-downloader',
@@ -231,6 +272,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Browse, preview and batch download 1100+ real Nepali and English fonts. Includes Preeti, Kantipur, Mangal, Kalimati, Roboto, Inter and more — install directly on your computer.',
     badge: 'NEW',
     accentColor: 'amber',
+    category: 'Design & Media'
   },
   {
     id: 'ocr-converter',
@@ -239,6 +281,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Extract text instantly from scanned documents, receipts, screenshots, and photos. Runs completely in your browser — 100% free and private.',
     badge: 'FREE AI',
     accentColor: 'indigo',
+    category: 'Converters'
   },
   {
     id: 'bg-remover',
@@ -247,6 +290,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Remove image backgrounds automatically in seconds. Runs entirely on your browser for absolute data privacy and zero quality limits.',
     badge: 'FREE AI',
     accentColor: 'emerald',
+    category: 'Design & Media'
   },
   {
     id: 'scan-pdf',
@@ -255,6 +299,7 @@ const STATIC_TOOLS: StaticTool[] = [
     description: 'Scan documents using your phone camera, apply magic color enhancement filters, and compile pages into a clean PDF directly in your browser.',
     badge: 'REAL TIME',
     accentColor: 'indigo',
+    category: 'Utilities'
   },
   {
     id: 'pdf-to-word',
@@ -264,6 +309,7 @@ const STATIC_TOOLS: StaticTool[] = [
     badge: 'NEW',
     accentColor: 'indigo',
     iconUrl: '/pdf to word.svg',
+    category: 'PDF Tools'
   },
   {
     id: 'word-to-pdf',
@@ -273,6 +319,7 @@ const STATIC_TOOLS: StaticTool[] = [
     badge: 'NEW',
     accentColor: 'indigo',
     iconUrl: '/word to pdf.svg',
+    category: 'PDF Tools'
   },
   {
     id: 'excel-to-pdf',
@@ -282,6 +329,7 @@ const STATIC_TOOLS: StaticTool[] = [
     badge: 'NEW',
     accentColor: 'emerald',
     iconUrl: '/excel to pdf.svg',
+    category: 'PDF Tools'
   },
   {
     id: 'pdf-to-excel',
@@ -291,6 +339,7 @@ const STATIC_TOOLS: StaticTool[] = [
     badge: 'NEW',
     accentColor: 'emerald',
     iconUrl: '/pdf to excel.svg',
+    category: 'PDF Tools'
   },
   {
     id: 'split-pdf',
@@ -300,6 +349,7 @@ const STATIC_TOOLS: StaticTool[] = [
     badge: 'NEW',
     accentColor: 'red',
     iconUrl: '/spit pdf.svg',
+    category: 'PDF Tools'
   },
   {
     id: 'edit-pdf',
@@ -309,6 +359,7 @@ const STATIC_TOOLS: StaticTool[] = [
     badge: 'NEW',
     accentColor: 'red',
     iconUrl: '/edit pdf.svg',
+    category: 'PDF Tools'
   },
 ];
 
@@ -400,41 +451,29 @@ const StaticCard: React.FC<StaticCardProps> = ({ tool, pinned, onPin, onOpen, co
       href={`/tools/${tool.id}`}
       id={`tool-card-${tool.id}`}
       onClick={(e) => { e.preventDefault(); onOpen(tool.id); }}
-      className={`group pure-white-card border-2 ${ac.border} ${ac.hoverBorder} shadow-sm hover:shadow-md rounded-2xl p-4 sm:p-5 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden ${compact ? 'min-h-[180px]' : 'min-h-[200px] sm:min-h-[220px]'} hover:border-opacity-100 block`}
+      className={`group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 sm:p-6 flex flex-col items-start transition-all duration-200 cursor-pointer relative overflow-hidden h-full ${compact ? 'min-h-[180px]' : 'min-h-[200px]'} hover:shadow-md hover:-translate-y-1`}
     >
-      {/* Hover glow */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{ background: `radial-gradient(ellipse at top left, ${ac.glow} 0%, transparent 60%)` }} />
-
-      {/* Pin button */}
       <PinButton toolId={tool.id} pinned={pinned} onToggle={onPin} />
 
-      {/* Pinned badge */}
       {pinned && (
         <span className="absolute top-3 left-3 z-20 flex items-center gap-1 bg-amber-400 text-white text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full shadow-sm">
           <Pin size={8} /> Pinned
         </span>
       )}
 
-      <div className="space-y-3 w-full relative z-10">
-        <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-lg ${ac.iconBg} border ${ac.iconBorder} overflow-hidden p-1.5`}>
-          {tool.iconUrl ? (
-            <img src={tool.iconUrl} alt={tool.name} className="w-full h-full object-contain" />
-          ) : (
-            tool.emoji
-          )}
-        </div>
-        <div className="space-y-1">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <h3 className={`text-base font-bold text-slate-900 dark:text-white group-hover:${ac.text.split(' ')[0]} transition-colors`}>{tool.name}</h3>
-            <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full ${ac.badgeBg} ${ac.badgeText}`}>{tool.badge}</span>
-          </div>
-          <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-[13px] leading-relaxed font-medium">{tool.description}</p>
-        </div>
+      <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-3xl mb-5 ${ac.iconBg} text-slate-700 dark:text-slate-200 shrink-0`}>
+        {tool.iconUrl ? (
+          <img src={tool.iconUrl} alt={tool.name} className="w-full h-full object-contain p-2" />
+        ) : (
+          tool.emoji
+        )}
       </div>
-      <div className={`mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider ${ac.text} transition-colors relative z-10`}>
-        <span>Open Tool</span>
-        <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
+
+      <div className="space-y-2 w-full">
+        <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 transition-colors flex items-center gap-2 flex-wrap">
+          {tool.name}
+        </h3>
+        <p className="text-slate-500 dark:text-slate-400 text-[13px] leading-relaxed font-normal line-clamp-2">{tool.description}</p>
       </div>
     </a>
   );
@@ -454,46 +493,36 @@ const DynCard: React.FC<DynCardProps> = ({ service, pinned, onPin, onOpen, compa
     href={`/tools/${service.linkUrl}`}
     id={`tool-card-${service.linkUrl}`}
     onClick={(e) => { e.preventDefault(); onOpen(service.linkUrl); }}
-    className={`group pure-white-card border-2 border-slate-950 dark:border-slate-800 shadow-sm hover:shadow-md rounded-2xl p-4 sm:p-5 flex flex-col justify-between items-start transition-all cursor-pointer relative overflow-hidden ${compact ? 'min-h-[180px]' : 'min-h-[200px] sm:min-h-[220px]'} hover:border-[#e52521] dark:hover:border-[#e52521] block`}
+    className={`group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 sm:p-6 flex flex-col items-start transition-all duration-200 cursor-pointer relative overflow-hidden h-full ${compact ? 'min-h-[180px]' : 'min-h-[200px]'} hover:shadow-md hover:-translate-y-1`}
   >
     {service.bgImageUrl && (
       <div
-        className="absolute inset-0 z-0 opacity-10 dark:opacity-[0.03] group-hover:opacity-20 dark:group-hover:opacity-[0.08] transition-opacity duration-500 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 z-0 opacity-10 dark:opacity-[0.03] transition-opacity duration-500 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url('${service.bgImageUrl}')` }}
       />
     )}
 
-    {/* Pin button */}
     <PinButton toolId={service.linkUrl} pinned={pinned} onToggle={onPin} />
 
-    {/* Pinned badge */}
     {pinned && (
       <span className="absolute top-3 left-3 z-20 flex items-center gap-1 bg-amber-400 text-white text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full shadow-sm">
         <Pin size={8} /> Pinned
       </span>
     )}
 
-    <div className="space-y-3 w-full relative z-10">
-      <div className="w-8 h-8 sm:w-9 sm:h-9 bg-slate-50 dark:bg-slate-800 rounded-lg flex items-center justify-center overflow-hidden p-2 border border-slate-100 dark:border-slate-700">
-        {service.iconUrl ? (
-          <img src={service.iconUrl} alt={service.title} className="w-full h-full object-contain drop-shadow-sm" />
-        ) : (
-          <div className="w-full h-full bg-slate-200 rounded" />
-        )}
-      </div>
-      <div className="space-y-1">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#e52521] dark:group-hover:text-[#d01f1c] transition-colors">{service.title}</h3>
-          {service.badge && (
-            <span className="bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full">{service.badge}</span>
-          )}
-        </div>
-        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-[13px] leading-relaxed font-medium">{service.description}</p>
-      </div>
+    <div className="w-14 h-14 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center overflow-hidden p-3 mb-5 border border-slate-100 dark:border-slate-700 relative z-10 shrink-0">
+      {service.iconUrl ? (
+        <img src={service.iconUrl} alt={service.title} className="w-full h-full object-contain drop-shadow-sm" />
+      ) : (
+        <div className="w-full h-full bg-slate-200 rounded" />
+      )}
     </div>
-    <div className="mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 group-hover:text-[#e52521] dark:group-hover:text-[#d01f1c] transition-colors relative z-10">
-      <span>Open Tool</span>
-      <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
+
+    <div className="space-y-2 w-full relative z-10">
+      <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 transition-colors flex items-center gap-2 flex-wrap">
+        {service.title}
+      </h3>
+      <p className="text-slate-500 dark:text-slate-400 text-[13px] leading-relaxed font-normal line-clamp-2">{service.description}</p>
     </div>
   </a>
 );
@@ -504,6 +533,7 @@ const ServicesPage: React.FC = () => {
   const [services, setServices] = useState<ServiceTool[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEmbed, setIsEmbed] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [pinnedIds, setPinnedIds] = useState<Set<string>>(() => {
     if (typeof window === 'undefined') return new Set();
     try {
@@ -736,18 +766,31 @@ const ServicesPage: React.FC = () => {
       )}
 
       {/* Upper Hero Banner */}
-      <div className="w-full bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 py-12 md:py-16">
+      <div className="w-full bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 py-6 md:py-10">
         <div className="w-full px-4 md:px-8 mx-auto text-center space-y-4">
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight font-heading max-w-3xl mx-auto">
-            Developer Services &amp; Utility Tools
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-slate-800 dark:text-slate-100 leading-tight font-heading w-full mx-auto">
+            Every tool you need for development and utility,<br />all in one place
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base font-normal max-w-xl mx-auto leading-relaxed">
-            A few simple tools I built that I personally use. Free to use, no sign-up needed.
+          <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base font-normal max-w-3xl mx-auto leading-relaxed">
+            A powerful suite of 100% free developer tools at your fingertips. Merge PDFs, convert files, transfer data, compress images, and generate code—securely and instantly, right in your browser.
           </p>
-          <p className="text-slate-400 dark:text-slate-600 text-xs flex items-center justify-center gap-1.5">
-            <Star size={11} className="text-amber-400" fill="currentColor" />
-            Click the star on any tool card to pin it to your Favourites
-          </p>
+          
+          {/* Category Filter Bar */}
+          <div className="pt-6 flex flex-wrap items-center justify-center gap-2 max-w-5xl mx-auto">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 border ${
+                  selectedCategory === cat 
+                    ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-md' 
+                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -765,12 +808,12 @@ const ServicesPage: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 w-full">
             {pinnedStaticTools.map(tool => (
-              <div key={tool.id} className="slide-down">
+              <div key={tool.id} className="slide-down h-full">
                 <StaticCard tool={tool} pinned={true} onPin={handlePin} onOpen={handleOpen} compact />
               </div>
             ))}
             {pinnedDynTools.map(service => (
-              <div key={service.id} className="slide-down">
+              <div key={service.id} className="slide-down h-full">
                 <DynCard service={service} pinned={true} onPin={handlePin} onOpen={handleOpen} compact />
               </div>
             ))}
@@ -781,7 +824,7 @@ const ServicesPage: React.FC = () => {
 
       {/* Services Grid */}
       <div className="w-full px-4 md:px-8 py-10 min-h-[50vh]">
-        {hasPinned && (
+        {hasPinned && selectedCategory === 'All' && (
           <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-5">All Tools</h2>
         )}
         {loading ? (
@@ -790,7 +833,9 @@ const ServicesPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 w-full max-w-none">
-            {STATIC_TOOLS.map(tool => (
+            {STATIC_TOOLS
+              .filter(tool => selectedCategory === 'All' || tool.category === selectedCategory)
+              .map(tool => (
               <StaticCard
                 key={tool.id}
                 tool={tool}
@@ -801,7 +846,9 @@ const ServicesPage: React.FC = () => {
             ))}
 
             {/* ── Firestore services ── */}
-            {services.map(service => (
+            {services
+              .filter(service => selectedCategory === 'All' || DYNAMIC_TOOL_CATEGORIES[service.linkUrl] === selectedCategory)
+              .map(service => (
               <DynCard
                 key={service.id}
                 service={service}
@@ -827,7 +874,7 @@ const ServicesPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FDF9F3] dark:bg-slate-950 font-sans transition-colors duration-300 selection:bg-[#e52521]/30 flex flex-col justify-between">
       {!isEmbed && <Navbar />}
-      <main className={`w-full flex-grow flex flex-col ${isEmbed ? 'pt-0 pb-0 mt-0' : isFullBleed ? 'pt-0 pb-0' : selectedId ? 'pt-20 sm:pt-24 pb-12' : 'pb-12 pt-20 sm:pt-28'}`}>
+      <main className={`w-full flex-grow flex flex-col ${isEmbed ? 'pt-0 pb-0 mt-0' : isFullBleed ? 'pt-0 pb-0' : selectedId ? 'pt-20 sm:pt-24 pb-12' : 'pb-12 pt-16 sm:pt-20'}`}>
         {renderActiveService()}
       </main>
 

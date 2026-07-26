@@ -304,9 +304,15 @@ const Footer: React.FC = () => {
                 Legal
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {legalPages.map(page => (
+                {[
+                  { slug: 'terms-and-conditions', title: 'Terms and Conditions' },
+                  { slug: 'privacy-policy', title: 'Privacy Policy' },
+                  { slug: 'cookies-policy', title: 'Cookie Policy' },
+                  { slug: 'refund-policy', title: 'Refund Policy' },
+                  { slug: 'data-deletion-request', title: 'Data Deletion Request' }
+                ].map(page => (
                   <a
-                    key={page.id}
+                    key={page.slug}
                     href={`/legal/${page.slug}`}
                     onClick={(e) => {
                       e.preventDefault();
@@ -319,20 +325,6 @@ const Footer: React.FC = () => {
                     {page.title}
                   </a>
                 ))}
-                {!legalPages.some(p => p.slug === 'refund-policy') && (
-                  <a
-                    href="/legal/refund-policy"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate('legal-page', 'refund-policy');
-                    }}
-                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '13.5px', color: '#5a6478', textAlign: 'left', transition: 'color 0.15s', textDecoration: 'none', display: 'inline-block' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#c8d0dc')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#5a6478')}
-                  >
-                    Refund Policy
-                  </a>
-                )}
                 <button
                   onClick={() => setIsReportOpen(true)}
                   style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '13px', color: '#e05252', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 500 }}

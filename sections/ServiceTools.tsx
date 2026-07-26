@@ -82,7 +82,7 @@ const ServiceTools: React.FC = () => {
         order: 14
       });
     }
-    return list.sort((a, b) => a.order - b.order);
+    return list.sort((a, b) => a.order - b.order).slice(0, 10);
   }, [services]);
 
   return (
@@ -142,53 +142,30 @@ const ServiceTools: React.FC = () => {
                     e.preventDefault();
                     navigate('services', service.linkUrl);
                   }}
-                  className="group relative pure-white-card border-2 border-slate-950 dark:border-slate-800 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 hover:border-[#e52521] dark:hover:border-red-500 hover:-translate-y-0.5 block"
+                  className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 sm:p-6 flex flex-col items-start transition-all duration-200 cursor-pointer relative overflow-hidden h-full hover:shadow-md hover:-translate-y-1"
                 >
-                  {/* Background image overlay (subtle) */}
                   {service.bgImageUrl && (
                     <div
-                      className="absolute inset-0 z-0 opacity-[0.04] dark:opacity-[0.03] group-hover:opacity-[0.08] dark:group-hover:opacity-[0.06] transition-opacity duration-500 bg-cover bg-center bg-no-repeat"
+                      className="absolute inset-0 z-0 opacity-10 dark:opacity-[0.03] transition-opacity duration-500 bg-cover bg-center bg-no-repeat"
                       style={{ backgroundImage: `url('${service.bgImageUrl}')` }}
                     />
                   )}
 
-                  <div className="p-3.5 sm:p-5 relative z-10 flex flex-col min-h-[170px] sm:min-h-[180px]">
-                    {/* Icon + Badge row */}
-                    <div className="flex items-start justify-between mb-3 sm:mb-4">
-                      <div className={`w-8 h-8 sm:w-10 sm:h-10 ${accent.bg} rounded-lg sm:rounded-xl flex items-center justify-center overflow-hidden p-1.5 sm:p-2 border border-slate-100 dark:border-slate-700/50 group-hover:scale-110 transition-transform duration-300`}>
-                        {service.iconUrl ? (
-                          <img src={service.iconUrl} alt={service.title} className="w-full h-full object-contain" />
-                        ) : (
-                          <Wrench size={14} className={`${accent.text} sm:hidden`} />
-                        )}
-                        {!service.iconUrl && <Wrench size={18} className={`${accent.text} hidden sm:block`} />}
-                      </div>
-                      {service.badge && (
-                        <span
-                          className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full text-white shadow-sm"
-                          style={{ background: `linear-gradient(135deg, ${accent.from}, ${accent.to})` }}
-                        >
-                          {service.badge}
-                        </span>
-                      )}
-                    </div>
+                  <div className="w-14 h-14 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center overflow-hidden p-3 mb-5 border border-slate-100 dark:border-slate-700 relative z-10 shrink-0">
+                    {service.iconUrl ? (
+                      <img src={service.iconUrl} alt={service.title} className="w-full h-full object-contain drop-shadow-sm" />
+                    ) : (
+                      <Wrench size={24} className="text-slate-400" />
+                    )}
+                  </div>
 
-                    {/* Title */}
-                    <h3 className={`text-[11px] sm:text-sm font-bold text-slate-900 dark:text-white mb-1 group-hover:${accent.text.split(' ')[0]} transition-colors line-clamp-1`}>
+                  <div className="space-y-2 w-full relative z-10">
+                    <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 transition-colors flex items-center gap-2 flex-wrap">
                       {service.title}
                     </h3>
-
-                    {/* Description */}
-                    <p className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs leading-relaxed font-medium line-clamp-2 flex-grow">
+                    <p className="text-slate-500 dark:text-slate-400 text-[13px] leading-relaxed font-normal line-clamp-2">
                       {service.description}
                     </p>
-
-                    {/* CTA */}
-                    <div className="mt-3 sm:mt-4 flex items-center gap-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
-                      <span>Open Tool</span>
-                      <ArrowRight size={10} className="transition-transform duration-300 group-hover:translate-x-1 sm:hidden" />
-                      <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1 hidden sm:block" />
-                    </div>
                   </div>
                 </a>
               );
