@@ -13,7 +13,7 @@ import {
   MessageSquare, Zap, Database, Edit3, Search, Image as ImageIcon, Link as LinkIcon,
   CheckCircle2, Eye, Clock, List, ArrowRight, UploadCloud, Video, Image, File,
   AlertTriangle, Share2, Activity, Globe, Cpu, BarChart3, Wifi, Package, Code, Book, Terminal,
-  Coins, Star, GalleryVertical, Send // Added Coins, Star, GalleryVertical, Send icons
+  Coins, Star, GalleryVertical, Send, Server // Added Coins, Star, GalleryVertical, Send, Server icons
 } from 'lucide-react'; 
 import { useNavigation } from '../context/NavigationContext';
 import { LegalPage as LegalPageType, Project, SocialLink, Report, PaymentRequest, PathPage, Testimonial, Experience } from '../types'; // Import SocialLink, Report, PaymentRequest, Testimonial, and Experience types
@@ -23,8 +23,9 @@ import { useApiKey } from '../hooks/useApiKey';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import AdminLiveChat from '../components/AdminLiveChat';
+import VercelAdminControl from '../components/VercelAdminControl';
 
-type AdminTab = 'dashboard' | 'hero' | 'about' | 'projects' | 'blog' | 'pricing' | 'faq' | 'leads' | 'system' | 'legal' | 'socials' | 'reports' | 'payments' | 'testimonials' | 'experience' | 'services' | 'seo' | 'users' | 'desktop' | 'live-chat';
+type AdminTab = 'dashboard' | 'hero' | 'about' | 'projects' | 'blog' | 'pricing' | 'faq' | 'leads' | 'system' | 'legal' | 'socials' | 'reports' | 'payments' | 'testimonials' | 'experience' | 'services' | 'seo' | 'users' | 'desktop' | 'live-chat' | 'vercel';
 
 // FIX: Define an interface for sidebar tab items to ensure correct type inference.
 interface SidebarTab {
@@ -2215,6 +2216,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
               { id: 'desktop', label: 'Desktop App', icon: <Package size={15} /> },
               { id: 'seo', label: 'SEO & Metadata', icon: <Search size={15} /> },
               { id: 'system', label: 'System Tools', icon: <Database size={15} /> },
+              { id: 'vercel', label: 'Vercel Infrastructure', icon: <Server size={15} /> },
             ] as SidebarTab[]
           ).map((tab) => (
             <button 
@@ -2271,6 +2273,10 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                  ))}
               </div>
             ) : null}
+
+            {activeTab === 'vercel' && (
+              <VercelAdminControl />
+            )}
 
             {activeTab === 'live-chat' && (
               <AdminLiveChat />
