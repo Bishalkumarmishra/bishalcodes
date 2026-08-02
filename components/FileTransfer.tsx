@@ -506,8 +506,10 @@ const FileTransfer: React.FC = () => {
         setStage('transferring');
         setConnectionStateText('Transferring...');
         
+        // Optimize WebRTC data channel buffer and chunk sizes for maximum P2P speed (up to 100+ Mbps)
+        dc.bufferedAmountLowThreshold = 512 * 1024; // 512 KB threshold to trigger early bufferedamountlow
         let offset = 0;
-        const CHUNK_SIZE = 16384;
+        const CHUNK_SIZE = 262144; // Increase chunk size to 256 KB to minimize event loop overhead
         let lastTime = performance.now();
         let lastOffset = 0;
 
@@ -625,9 +627,10 @@ const FileTransfer: React.FC = () => {
 
           let isPulling = false;
 
+          dc.bufferedAmountLowThreshold = 512 * 1024; // Configure threshold for worker streaming
           const pullNext = () => {
             if (isPulling) return;
-            if (dc.bufferedAmount > 256 * 1024) {
+            if (dc.bufferedAmount > 1024 * 1024) { // Keep 1 MB pipeline filled
               return;
             }
             isPulling = true;
@@ -647,7 +650,7 @@ const FileTransfer: React.FC = () => {
               try {
                 const totalLength = chunk.byteLength;
                 let chunkOffset = 0;
-                const SEND_CHUNK_SIZE = 16384;
+                const SEND_CHUNK_SIZE = 262144; // 256 KB chunk slices for zipping
                 
                 while (chunkOffset < totalLength) {
                   const size = Math.min(SEND_CHUNK_SIZE, totalLength - chunkOffset);
@@ -693,7 +696,7 @@ const FileTransfer: React.FC = () => {
           const file = entries[0].file;
           const sendNext = () => {
             while (offset < totalSz) {
-              if (dc.bufferedAmount > 256 * 1024) {
+              if (dc.bufferedAmount > 1024 * 1024) { // Allow up to 1 MB in socket queue
                 return;
               }
               const slice = file.slice(offset, offset + CHUNK_SIZE);
