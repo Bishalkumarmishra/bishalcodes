@@ -32,6 +32,7 @@ interface SidebarTab {
   id: AdminTab;
   label: string;
   icon: React.ReactNode;
+  description: string;
 }
 
 // Helper function to validate Gemini API Key with detailed console output
@@ -2197,34 +2198,41 @@ If you have any questions about this Data Deletion Policy or your data deletion 
         <nav className="px-3 space-y-1 h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar">
           {(
             [
-              { id: 'dashboard', label: 'Dashboard', icon: <Activity size={15} /> },
-              { id: 'live-chat', label: 'Live Chat Support', icon: <MessageSquare size={15} /> },
-              { id: 'projects', label: 'Projects', icon: <Layout size={15} /> },
-              { id: 'services', label: 'Services', icon: <Cpu size={15} /> },
-              { id: 'blog', label: 'Blog', icon: <FileText size={15} /> },
-              { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare size={15} /> },
-              { id: 'experience', label: 'Experience', icon: <Briefcase size={15} /> },
-              { id: 'leads', label: 'Leads', icon: <Inbox size={15} /> },
-              { id: 'payments', label: 'Payments', icon: <Coins size={15} /> },
-              { id: 'reports', label: 'Reports', icon: <AlertTriangle size={15} /> },
-              { id: 'hero', label: 'Hero Settings', icon: <User size={15} /> },
-              { id: 'about', label: 'About Page', icon: <User size={15} /> },
-              { id: 'pricing', label: 'Pricing', icon: <DollarSign size={15} /> },
-              { id: 'legal', label: 'Legal Pages', icon: <ShieldCheck size={15} /> },
-              { id: 'socials', label: 'Social Links', icon: <Share2 size={15} /> },
-              { id: 'users', label: 'Users & Activity', icon: <Users size={15} /> },
-              { id: 'desktop', label: 'Desktop App', icon: <Package size={15} /> },
-              { id: 'seo', label: 'SEO & Metadata', icon: <Search size={15} /> },
-              { id: 'system', label: 'System Tools', icon: <Database size={15} /> },
-              { id: 'vercel', label: 'Vercel Infrastructure', icon: <Server size={15} /> },
+              { id: 'dashboard', label: 'Dashboard', icon: <Activity size={15} />, description: 'Overview of traffic stats & live activity.' },
+              { id: 'live-chat', label: 'Live Chat Support', icon: <MessageSquare size={15} />, description: 'Interact with live website visitors.' },
+              { id: 'projects', label: 'Projects', icon: <Layout size={15} />, description: 'Manage showcase portfolio works.' },
+              { id: 'services', label: 'Services', icon: <Cpu size={15} />, description: 'Control utility tools & configurations.' },
+              { id: 'blog', label: 'Blog', icon: <FileText size={15} />, description: 'Write and publish technical articles.' },
+              { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare size={15} />, description: 'Moderate client reviews & reviews.' },
+              { id: 'experience', label: 'Experience', icon: <Briefcase size={15} />, description: 'Update career timeline & milestones.' },
+              { id: 'leads', label: 'Leads', icon: <Inbox size={15} />, description: 'View inquiries & form submissions.' },
+              { id: 'payments', label: 'Payments', icon: <Coins size={15} />, description: 'Verify payment proofs & invoices.' },
+              { id: 'reports', label: 'Reports', icon: <AlertTriangle size={15} />, description: 'Manage bug reports & site feedback.' },
+              { id: 'hero', label: 'Hero Settings', icon: <User size={15} />, description: 'Edit landing section titles & CTA.' },
+              { id: 'about', label: 'About Page', icon: <User size={15} />, description: 'Update personal biography & skills.' },
+              { id: 'pricing', label: 'Pricing', icon: <DollarSign size={15} />, description: 'Configure tool packages & plans.' },
+              { id: 'legal', label: 'Legal Pages', icon: <ShieldCheck size={15} />, description: 'Update terms, privacy, & disclaimers.' },
+              { id: 'socials', label: 'Social Links', icon: <Share2 size={15} />, description: 'Manage social profile references.' },
+              { id: 'users', label: 'Users & Activity', icon: <Users size={15} />, description: 'Track user profiles & live logins.' },
+              { id: 'desktop', label: 'Desktop App', icon: <Package size={15} />, description: 'Update calendar installer metadata.' },
+              { id: 'seo', label: 'SEO & Metadata', icon: <Search size={15} />, description: 'Optimize page sitemaps & keywords.' },
+              { id: 'system', label: 'System Tools', icon: <Database size={15} />, description: 'Backup registry & purge data.' },
+              { id: 'vercel', label: 'Vercel Infrastructure', icon: <Server size={15} />, description: 'Manage Edge Config, Blobs, & Crons.' },
             ] as SidebarTab[]
           ).map((tab) => (
             <button 
               key={tab.id} 
               onClick={() => { setActiveTab(tab.id); setIsSidebarOpen(false); fetchData(); }} 
-              className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${activeTab === tab.id ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+              title={tab.description}
+              className={`w-full flex flex-col items-start gap-1.5 px-4 py-2.5 rounded-lg font-medium transition-colors text-left ${activeTab === tab.id ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
             >
-              {tab.icon} {tab.label}
+              <div className="flex items-center gap-3 text-sm">
+                {tab.icon}
+                <span>{tab.label}</span>
+              </div>
+              <span className={`text-[10px] block font-normal leading-tight max-w-[180px] truncate ${activeTab === tab.id ? 'text-zinc-400' : 'text-slate-400 group-hover:text-slate-500'}`}>
+                {tab.description}
+              </span>
             </button>
           ))}
           <div className="pt-4 mt-4 border-t border-slate-100 space-y-1">
@@ -2251,7 +2259,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
         </header>
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-50 custom-scrollbar">
-          <div className="w-full max-w-6xl mx-auto space-y-6">
+          <div className="w-full max-w-full space-y-6">
             
             {/* Quick Stats Header */}
             {activeTab === 'dashboard' || activeTab === 'system' ? (
