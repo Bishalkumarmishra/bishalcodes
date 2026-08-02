@@ -198,46 +198,64 @@ const AdminLiveChat: React.FC = () => {
     setCallDuration(0);
   };
 
+  // Helper to merge and deduplicate sessions by normalized email
+  const processAndDeduplicateSessions = (sessionList: SupportSession[]): SupportSession[] => {
+    const sessionMap = new Map<string, SupportSession>();
+
+    sessionList.forEach(data => {
+      if (data && data.lead && data.lead.email) {
+        const normEmail = data.lead.email.trim().toLowerCase();
+        const canonicalId = getCanonicalSessionId(normEmail);
+
+        if (!sessionMap.has(normEmail)) {
+          sessionMap.set(normEmail, {
+            ...data,
+            lead: { ...data.lead, sessionId: canonicalId, email: normEmail }
+          });
+        } else {
+          const existing = sessionMap.get(normEmail)!;
+          const combinedMsgs = [...(existing.messages || []), ...(data.messages || [])];
+          const uniqueMsgs = Array.from(new Map(combinedMsgs.map(m => [m.id || (m.timestamp + m.text), m])).values());
+          uniqueMsgs.sort((a, b) => new Date(a.timestamp || 0).getTime() - new Date(b.timestamp || 0).getTime());
+          
+          sessionMap.set(normEmail, {
+            ...existing,
+            lead: {
+              ...existing.lead,
+              name: data.lead.name && data.lead.name !== 'Anonymous Lead' ? data.lead.name : existing.lead.name,
+              phone: data.lead.phone || existing.lead.phone
+            },
+            messages: uniqueMsgs,
+            lastUpdated: new Date(Math.max(new Date(existing.lastUpdated || 0).getTime(), new Date(data.lastUpdated || 0).getTime())).toISOString(),
+            unreadAdminCount: existing.unreadAdminCount + (data.unreadAdminCount || 0)
+          });
+        }
+      }
+    });
+
+    const result = Array.from(sessionMap.values());
+    result.sort((a, b) => new Date(b.lastUpdated || 0).getTime() - new Date(a.lastUpdated || 0).getTime());
+    return result;
+  };
+
   // Real-time Firebase Firestore Subscription for Live Customer Sessions
   useEffect(() => {
     try {
       const q = query(collection(db, 'support_sessions'));
       const unsubscribe = onSnapshot(q, (snapshot) => {
-        const sessionMap = new Map<string, SupportSession>();
-        
+        const rawSessions: SupportSession[] = [];
         snapshot.forEach((docSnap) => {
           const data = docSnap.data() as SupportSession;
           if (data && data.lead && data.lead.email) {
-            const normEmail = data.lead.email.trim().toLowerCase();
-            const canonicalId = getCanonicalSessionId(normEmail);
-            
-            if (!sessionMap.has(normEmail)) {
-              sessionMap.set(normEmail, {
-                ...data,
-                lead: { ...data.lead, sessionId: canonicalId, email: normEmail }
-              });
-            } else {
-              const existing = sessionMap.get(normEmail)!;
-              const combinedMsgs = [...(existing.messages || []), ...(data.messages || [])];
-              const uniqueMsgs = Array.from(new Map(combinedMsgs.map(m => [m.id || (m.timestamp + m.text), m])).values());
-              uniqueMsgs.sort((a, b) => new Date(a.timestamp || 0).getTime() - new Date(b.timestamp || 0).getTime());
-              sessionMap.set(normEmail, {
-                ...existing,
-                messages: uniqueMsgs,
-                lastUpdated: new Date(Math.max(new Date(existing.lastUpdated || 0).getTime(), new Date(data.lastUpdated || 0).getTime())).toISOString()
-              });
-            }
+            rawSessions.push(data);
           }
         });
 
-        const liveSessions = Array.from(sessionMap.values());
-        // Sort by last updated timestamp descending
-        liveSessions.sort((a, b) => new Date(b.lastUpdated || 0).getTime() - new Date(a.lastUpdated || 0).getTime());
+        const liveSessions = processAndDeduplicateSessions(rawSessions);
 
         if (liveSessions.length > 0) {
           setSessions(liveSessions);
           localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(liveSessions));
-
           setActiveSessionId(prev => prev || liveSessions[0].lead.sessionId);
         }
       }, (error) => {
@@ -252,8 +270,7 @@ const AdminLiveChat: React.FC = () => {
 
   // Fetch sessions from Firestore (support_sessions + submissions) and localStorage
   const loadSessions = async () => {
-    const combinedSessions: SupportSession[] = [];
-    const emailsSeen = new Set<string>();
+    const rawSessions: SupportSession[] = [];
 
     // 1. Fetch from support_sessions collection
     try {
@@ -261,8 +278,7 @@ const AdminLiveChat: React.FC = () => {
       snap.forEach(docSnap => {
         const d = docSnap.data() as SupportSession;
         if (d && d.lead && d.lead.email) {
-          emailsSeen.add(d.lead.email);
-          combinedSessions.push(d);
+          rawSessions.push(d);
         }
       });
     } catch (e) {
@@ -274,13 +290,13 @@ const AdminLiveChat: React.FC = () => {
       const subSnap = await getDocs(collection(db, 'submissions'));
       subSnap.forEach(docSnap => {
         const d = docSnap.data();
-        if (d && d.email && !emailsSeen.has(d.email)) {
-          emailsSeen.add(d.email);
-          const sId = getCanonicalSessionId(d.email, docSnap.id);
-          combinedSessions.push({
+        if (d && d.email) {
+          const normEmail = d.email.trim().toLowerCase();
+          const sId = getCanonicalSessionId(normEmail, docSnap.id);
+          rawSessions.push({
             lead: {
               name: d.name || 'Anonymous Lead',
-              email: d.email,
+              email: normEmail,
               phone: d.phone || d.mobile || '+977 9827801575',
               sessionId: sId,
               createdAt: new Date(d.timestamp || Date.now()).toISOString()
@@ -309,16 +325,14 @@ const AdminLiveChat: React.FC = () => {
       if (stored) {
         const parsed: SupportSession[] = JSON.parse(stored);
         parsed.forEach(p => {
-          if (p.lead && p.lead.email && !emailsSeen.has(p.lead.email)) {
-            emailsSeen.add(p.lead.email);
-            combinedSessions.push(p);
+          if (p.lead && p.lead.email) {
+            rawSessions.push(p);
           }
         });
       }
     } catch (e) {}
 
-    // Sort by last updated descending
-    combinedSessions.sort((a, b) => new Date(b.lastUpdated || 0).getTime() - new Date(a.lastUpdated || 0).getTime());
+    const combinedSessions = processAndDeduplicateSessions(rawSessions);
 
     if (combinedSessions.length > 0) {
       setSessions(combinedSessions);
@@ -377,59 +391,57 @@ const AdminLiveChat: React.FC = () => {
     }
   }, [activeSessionId]);
 
-  // Send admin reply
-  const handleSendAdminReply = async (textToSend?: string) => {
-    const content = textToSend || replyText;
-    if (!content.trim() || !activeSessionId) return;
+  // Send admin reply to current active customer session
+  const handleSendAdminReply = async (textToSendInput?: string | React.FormEvent) => {
+    if (textToSendInput && typeof textToSendInput !== 'string' && 'preventDefault' in textToSendInput) {
+      textToSendInput.preventDefault();
+    }
+    const textToSend = typeof textToSendInput === 'string' ? textToSendInput : replyText.trim();
+    if (!textToSend.trim() || !activeSessionId || !activeSession) return;
+
+    setReplyText('');
 
     const newMsg: ChatMessageItem = {
-      id: 'admin_' + Date.now(),
+      id: 'msg_admin_' + Date.now(),
       sessionId: activeSessionId,
       sender: 'admin',
-      text: content.trim(),
+      text: textToSend.trim(),
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    const targetSession = sessions.find(s => s.lead.sessionId === activeSessionId);
-    if (!targetSession) return;
-
-    const updatedMessages = [...(targetSession.messages || []), newMsg];
-    const updatedSessionObj = {
-      ...targetSession,
-      messages: updatedMessages,
+    const updatedSessionObj: SupportSession = {
+      ...activeSession,
+      messages: [...(activeSession.messages || []), newMsg],
       lastUpdated: new Date().toISOString(),
-      adminHandled: true,
-      unreadAdminCount: 0
+      unreadAdminCount: 0,
+      adminHandled: true
     };
 
-    // Optimistic UI state update
-    setSessions(prev => prev.map(s => s.lead.sessionId === activeSessionId ? updatedSessionObj : s));
-    setReplyText('');
+    // Update local state immediately
+    setSessions(prev => {
+      const updated = prev.map(s => s.lead.sessionId === activeSessionId ? updatedSessionObj : s);
+      localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(updated));
+      return updated;
+    });
 
-    // 1. Sync to Firebase Firestore
+    // 1. Sync to Firebase Firestore support_sessions
     try {
       await setDoc(doc(db, 'support_sessions', activeSessionId), updatedSessionObj, { merge: true });
-    } catch (e) {
-      console.error("Failed to sync admin reply to Firestore:", e);
+    } catch (err) {
+      console.error("Failed to sync admin reply to Firestore:", err);
     }
 
-    // 2. Sync to localStorage
+    // 2. Broadcast via local BroadcastChannel & Storage for multi-tab customer sync
     try {
-      const updatedSessions = sessions.map(s => s.lead.sessionId === activeSessionId ? updatedSessionObj : s);
-      localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(updatedSessions));
-    } catch (e) {}
-
-    // 3. Broadcast to user chat window
-    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
-      const bc = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
-      bc.postMessage({
-        type: 'ADMIN_REPLY',
-        sessionId: activeSessionId,
-        message: newMsg
-      });
-      bc.close();
-    }
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        const bc = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
+        bc.postMessage({ type: 'ADMIN_REPLY', sessionId: activeSessionId, email: activeSession.lead.email, message: newMsg });
+        bc.close();
+      }
+    } catch (err) {}
   };
+
+  const handleSendReply = handleSendAdminReply;
 
   // Delete session permanently across all Firestore collections
   const handleDeleteSession = async (sessionId: string) => {
@@ -438,19 +450,29 @@ const AdminLiveChat: React.FC = () => {
     const targetSession = sessions.find(s => s.lead.sessionId === sessionId);
     const emailToDelete = targetSession?.lead.email?.trim().toLowerCase();
 
-    // 1. Delete from support_sessions collection
+    // 1. Delete ALL matching records from support_sessions collection
     try {
-      await deleteDoc(doc(db, 'support_sessions', sessionId));
+      const supSnap = await getDocs(collection(db, 'support_sessions'));
+      supSnap.forEach(async (dSnap) => {
+        const data = dSnap.data();
+        const dEmail = data?.lead?.email?.trim().toLowerCase();
+        if (dSnap.id === sessionId || (emailToDelete && (dEmail === emailToDelete || dSnap.id.includes(emailToDelete.replace(/[^a-z0-9]/g, '_'))))) {
+          try { await deleteDoc(doc(db, 'support_sessions', dSnap.id)); } catch (err) {}
+        }
+      });
     } catch (e) {
       console.error("Failed to delete session from Firestore support_sessions:", e);
     }
 
-    // 2. Also delete matching records from submissions collection
+    // 2. Also delete ALL matching records from submissions collection
     if (emailToDelete) {
       try {
-        const subSnap = await getDocs(query(collection(db, 'submissions'), where('email', '==', emailToDelete)));
+        const subSnap = await getDocs(collection(db, 'submissions'));
         subSnap.forEach(async (d) => {
-          try { await deleteDoc(doc(db, 'submissions', d.id)); } catch (err) {}
+          const dData = d.data();
+          if (dData?.email?.trim().toLowerCase() === emailToDelete) {
+            try { await deleteDoc(doc(db, 'submissions', d.id)); } catch (err) {}
+          }
         });
       } catch (e) {
         console.warn("Could not delete matching submissions:", e);
@@ -466,6 +488,11 @@ const AdminLiveChat: React.FC = () => {
     setSessions(filtered);
     try {
       localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(filtered));
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        const bc = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
+        bc.postMessage({ type: 'SESSION_UPDATE' });
+        bc.close();
+      }
     } catch (e) {}
 
     if (activeSessionId === sessionId) {

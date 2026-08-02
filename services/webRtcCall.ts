@@ -44,20 +44,15 @@ class WebRtcVoiceService {
   // ─── Get Microphone with Noise Cancellation ───────────────────────────────
   async getMicrophoneStream(): Promise<MediaStream | null> {
     try {
-      // First try with full HD constraints
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: HD_AUDIO_CONSTRAINTS,
         video: false,
       });
-
-      // Apply Web Audio API noise gate as extra layer of cleanup
-      const cleanStream = this.applyAudioProcessing(stream);
-      this.localStream = cleanStream;
-      return cleanStream;
+      this.localStream = stream;
+      return stream;
     } catch (err) {
       console.warn('HD audio failed, trying basic fallback:', err);
       try {
-        // Fallback: basic noise cancellation if HD constraints unsupported
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             echoCancellation: true,
