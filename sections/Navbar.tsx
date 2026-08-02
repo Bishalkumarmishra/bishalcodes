@@ -156,7 +156,7 @@ const Navbar: React.FC = () => {
             className="flex items-center group relative z-[210] outline-none"
           >
             <img 
-              src={theme === 'dark' ? "/logo-dark.svg" : "/logo.svg"}
+              src={(theme === 'dark' || (typeof window !== 'undefined' && (window.location.pathname.toLowerCase().includes('file-transfer') || window.location.pathname.toLowerCase().includes('transfer')))) ? "/logo-dark.svg" : "/logo.svg"}
               alt="BishalCodes Logo" 
               className="brand-logo-img h-10 sm:h-12 w-auto object-contain shrink-0 transition-transform duration-300 group-hover:scale-[1.02]"
             />
