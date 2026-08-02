@@ -36,6 +36,14 @@ export default async function CatchAllPage(props: PageProps) {
       const toolFaqs: Record<string, Array<{ q: string; a: string }>> = {
         'date-converter': [
           {
+            q: "आज कति गते हो? (What is Today's Nepali Date?)",
+            a: "Bishal Codes Date Converter displays today's live Bikram Sambat (BS) date along with today's Gregorian (AD) date and live real-time Nepal Standard Time (NPT)."
+          },
+          {
+            q: "How to check Today's Date in Nepal?",
+            a: "Visit bishalcodes.com/tools/date-converter to instantly see today's Nepali date (BS), English date (AD), live clock, and convert dates (AD ↔ BS)."
+          },
+          {
             q: "What is Bikram Sambat (BS) calendar system?",
             a: "Bikram Sambat (BS) is the official calendar system of Nepal. It is a solar calendar based on ancient Hindu calendar systems and is approximately 56 years and 8.5 months ahead of the Gregorian calendar (AD)."
           },
@@ -444,15 +452,15 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
       if (subpage === 'date-converter') {
         return {
-          title: "Nepali Date Converter | AD to BS & BS to AD Date Converter | Bishal Codes",
-          description: "Convert English (AD) dates to Nepali (BS) dates and vice versa with precision. An accurate, offline-capable date converter utility by Bishal Codes, featuring leap year status, days of the month, and full Bikram Sambat calendar details.",
-          keywords: "Nepali Date Converter, AD to BS Converter, BS to AD Converter, Bikram Sambat, Gregorian to Nepali, Nepali Calendar converter, Bishal Codes, date conversion nepal",
+          title: "Today's Date & Nepali Date Today | आज कति गते? | AD ↔ BS Converter | Bishal Codes",
+          description: "Check Today's Date in English (AD) and Nepali Bikram Sambat (BS) - आज कति गते?. Instant AD to BS converter, BS to AD converter, live Kathmandu clock, and full 2083 calendar.",
+          keywords: "todays date, today date in nepal, nepali date today, आज कति गते, nepali date converter, AD to BS converter, BS to AD converter, Bikram Sambat calendar 2083, todays nepali date, bishal codes date converter",
           alternates: {
             canonical: "https://bishalcodes.com/tools/date-converter",
           },
           openGraph: {
-            title: "Nepali Date Converter | AD to BS & BS to AD | Bishal Codes",
-            description: "Convert dates from Gregorian (AD) to Bikram Sambat (BS) and vice versa. Clean UI, high accuracy, and fast conversion.",
+            title: "Today's Date & Nepali Date Today | आज कति गते? | Bishal Codes",
+            description: "Check today's live date in English (AD) and Bikram Sambat (BS). Fast AD to BS date converter with full 2083 Nepali calendar.",
             url: "https://bishalcodes.com/tools/date-converter",
             siteName: "Bishal Codes",
             locale: "en_US",
@@ -462,7 +470,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
                 url: "https://bishalcodes.com/seo-images/date-converter.png",
                 width: 1200,
                 height: 630,
-                alt: "Nepali Date Converter | Bishal Codes",
+                alt: "Today's Date & Nepali Date Today | Bishal Codes",
               }
             ],
           },
@@ -470,8 +478,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
             card: "summary_large_image",
             site: "@bishalmishra",
             creator: "@bishalmishra",
-            title: "Nepali Date Converter | AD to BS & BS to AD | Bishal Codes",
-            description: "Convert English (AD) dates to Nepali (BS) dates and vice versa with precision.",
+            title: "Today's Date & Nepali Date Today | आज कति गते? | Bishal Codes",
+            description: "Check today's live date in English (AD) and Bikram Sambat (BS). Fast AD ↔ BS converter.",
             images: ["https://bishalcodes.com/seo-images/date-converter.png"]
           }
         };

@@ -857,36 +857,53 @@ END:VCALENDAR`;
                 &larr; Back to Services
               </button>
               <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight font-heading">
-                Nepali Date Converter
+                Today's Date & Nepali Date Today
               </h1>
               <p className="text-[#f5e5dd] dark:text-[#ebd6cc] text-sm md:text-base font-normal leading-relaxed">
-                Convert dates between English (AD) and Nepali Bikram Sambat (BS) calendars. Pick any date, see today's Nepali date, and copy results in seconds.
+                Check Today's Nepali Date (<span className="font-bold text-amber-300">आज कति गते?</span>), live Kathmandu clock, and convert dates between Gregorian (AD) and Bikram Sambat (BS).
               </p>
             </div>
             
             {/* Live Clock / Today Display Deck */}
             {todayDetails && (
-              <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800/80 shadow-lg rounded-2xl p-6 min-w-[280px] w-full md:w-auto relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-[#e52521]/10 dark:bg-[#e52521]/5 rounded-full filter blur-xl group-hover:scale-125 transition-transform duration-500" />
+              <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-[#e52521]/30 shadow-2xl rounded-2xl p-6 min-w-[300px] w-full md:w-auto relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#e52521]/20 rounded-full filter blur-2xl group-hover:scale-125 transition-transform duration-500" />
+                
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-3">
-                  <div className="flex items-center gap-2 text-[#e52521] dark:text-[#d01f1c]">
-                    <Clock size={16} className="animate-pulse" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Nepal Time (NPT)</span>
+                  <div className="flex items-center gap-2 text-[#e52521] dark:text-[#e52521]">
+                    <Clock size={18} className="animate-pulse" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Today's Live Date & Clock</span>
                   </div>
-                  <span className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
-                    {liveNptClock}
+                  <span className="text-xs font-mono font-bold text-[#e52521] bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 px-2.5 py-1 rounded-md shadow-sm">
+                    {liveNptClock} NPT
                   </span>
                 </div>
-                <div className="space-y-2">
-                  <div>
-                    <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest block font-bold">Today in BS</span>
-                    <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{todayDetails.bs}</span>
+
+                <div className="space-y-3">
+                  <div className="p-2.5 bg-rose-50/60 dark:bg-slate-800/60 border border-rose-100 dark:border-slate-700/60 rounded-xl">
+                    <span className="text-[10px] text-[#e52521] uppercase tracking-widest block font-extrabold">नेपाली गते (Today in BS)</span>
+                    <span className="text-base font-extrabold text-slate-900 dark:text-white mt-0.5 block">{todayDetails.bs}</span>
                   </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest block font-bold">Today in AD</span>
-                    <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{todayDetails.ad}</span>
+
+                  <div className="p-2.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 rounded-xl">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest block font-extrabold">English Date (Today in AD)</span>
+                    <span className="text-sm font-bold text-slate-700 dark:text-slate-300 mt-0.5 block">{todayDetails.ad}</span>
                   </div>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const txt = `Today's Date: ${todayDetails.bs} (${todayDetails.ad}) - Live via bishalcodes.com`;
+                    navigator.clipboard.writeText(txt);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="mt-3 w-full py-2 bg-slate-900 hover:bg-[#e52521] text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                  <span>{copied ? "Copied Today's Date!" : "Copy Today's Date"}</span>
+                </button>
               </div>
             )}
           </div>
