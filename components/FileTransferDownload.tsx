@@ -407,20 +407,20 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
       {/* Floating 3D Graphic Tiles */}
       <>
         {/* Left Side Icons */}
-        <div className="absolute left-[4%] top-[12%] lg:left-[6%] lg:top-[16%] xl:left-[8%] xl:top-[20%] hidden md:block animate-float-1 select-none pointer-events-none z-10">
+        <div className="absolute left-[1%] lg:left-[2%] xl:left-[3%] top-[18%] hidden md:block animate-float-1 select-none pointer-events-none z-10">
           <img src="/imgi_6_landing-tile-left-play-C4JzP4ox.svg" className="w-20 md:w-28 lg:w-36 xl:w-44 h-auto drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)]" alt="" />
         </div>
 
-        <div className="absolute left-[8%] top-[28%] lg:left-[10%] lg:top-[30%] xl:left-[12%] xl:top-[32%] hidden md:block animate-float-2 select-none pointer-events-none z-10">
+        <div className="absolute left-[3%] lg:left-[4%] xl:left-[6%] top-[48%] hidden md:block animate-float-2 select-none pointer-events-none z-10">
           <img src="/imgi_7_landing-tile-left-below-play-CGFEidvo.svg" className="w-16 md:w-22 lg:w-28 xl:w-36 h-auto drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)]" alt="" />
         </div>
 
         {/* Right Side Icons */}
-        <div className="absolute right-[10%] top-[10%] lg:right-[12%] lg:top-[14%] xl:right-[14%] xl:top-[18%] hidden md:block animate-float-3 select-none pointer-events-none z-10">
+        <div className="absolute right-[3%] lg:right-[4%] xl:right-[6%] top-[15%] hidden md:block animate-float-3 select-none pointer-events-none z-10">
           <img src="/imgi_11_landing-tile-right-above-tick-W8AhC-Qu.svg" className="w-16 md:w-22 lg:w-28 xl:w-36 h-auto drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)]" alt="" />
         </div>
 
-        <div className="absolute right-[4%] top-[28%] lg:right-[6%] lg:top-[30%] xl:right-[8%] xl:top-[32%] hidden md:block animate-float-1 select-none pointer-events-none z-10">
+        <div className="absolute right-[1%] lg:right-[2%] xl:right-[3%] top-[45%] hidden md:block animate-float-1 select-none pointer-events-none z-10">
           <img src="/imgi_10_landing-tile-right-tick-DyOBp0tS.svg" className="w-20 md:w-28 lg:w-36 xl:w-44 h-auto drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)]" alt="" />
         </div>
       </>
