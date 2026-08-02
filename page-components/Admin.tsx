@@ -308,9 +308,9 @@ const PaymentProofViewer: React.FC<PaymentProofViewerProps> = ({ base64Image, on
       ogImage: "https://bishalcodes.com/seo-images/screenshot-studio.png",
     },
     'tools-file-transfer': {
-      title: "BishalTransfer | Secure 100GB End-to-End P2P File Sharing | Bishal Codes",
+      title: "File Transfer | Secure 100GB End-to-End P2P File Sharing | Bishal Codes",
       description: "Transfer files up to 100 GB directly to any device via peer-to-peer WebRTC connection. Encrypted, fast, and completely secure.",
-      keywords: "secure file transfer, WebRTC P2P sharing, bishaltransfer, send large files online",
+      keywords: "secure file transfer, WebRTC P2P sharing, file transfer, send large files online",
       canonical: "https://bishalcodes.com/tools/file-transfer",
       ogImage: "https://bishalcodes.com/seo-images/file-transfer.png",
     },

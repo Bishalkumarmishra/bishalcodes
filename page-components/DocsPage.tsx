@@ -188,7 +188,7 @@ The Developer Services dashboard hosts a comprehensive suite of high-performance
 
   | File Transfer Tool | Free Size Limit | Paid/Premium Limit | Best Use Case |
   | :--- | :--- | :--- | :--- |
-  | **BishalTransfer (P2P)** | **100 GB** | 100% Free | Secure, high-speed direct browser-to-browser sharing of huge datasets without uploads |
+  | **File Transfer (P2P)** | **100 GB** | 100% Free | Secure, high-speed direct browser-to-browser sharing of huge datasets without uploads |
   | **Bishal Secure Vault** | **500 MB** | 100% Free | Zero-knowledge encrypted files stored in cloud with password-protected expiry links |
   | **WeTransfer** | **3 GB** | Up to 1 TB | Quick email shares of medium files with temporary cloud hosting |
   | **Send Anywhere** | **10 GB** (Web/App) | Up to 30 GB | High-volume temporary shares via 6-digit key or link |

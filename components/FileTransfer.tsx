@@ -1013,7 +1013,7 @@ const FileTransfer: React.FC = () => {
             <img src="/imgi_6_landing-tile-left-play-C4JzP4ox.svg" className="w-20 md:w-28 lg:w-36 xl:w-44 h-auto drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)]" alt="" />
           </div>
 
-          <div className="absolute left-[8%] top-[38%] lg:left-[10%] lg:top-[42%] xl:left-[12%] xl:top-[48%] hidden md:block animate-float-2 select-none pointer-events-none z-10">
+          <div className="absolute left-[8%] top-[28%] lg:left-[10%] lg:top-[30%] xl:left-[12%] xl:top-[32%] hidden md:block animate-float-2 select-none pointer-events-none z-10">
             <img src="/imgi_7_landing-tile-left-below-play-CGFEidvo.svg" className="w-16 md:w-22 lg:w-28 xl:w-36 h-auto drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)]" alt="" />
           </div>
 
@@ -1030,7 +1030,7 @@ const FileTransfer: React.FC = () => {
             <img src="/imgi_11_landing-tile-right-above-tick-W8AhC-Qu.svg" className="w-16 md:w-22 lg:w-28 xl:w-36 h-auto drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)]" alt="" />
           </div>
 
-          <div className="absolute right-[4%] top-[25%] lg:right-[6%] lg:top-[30%] xl:right-[8%] xl:top-[35%] hidden md:block animate-float-1 select-none pointer-events-none z-10">
+          <div className="absolute right-[4%] top-[28%] lg:right-[6%] lg:top-[30%] xl:right-[8%] xl:top-[32%] hidden md:block animate-float-1 select-none pointer-events-none z-10">
             <img src="/imgi_10_landing-tile-right-tick-DyOBp0tS.svg" className="w-20 md:w-28 lg:w-36 xl:w-44 h-auto drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)]" alt="" />
           </div>
 
@@ -1052,8 +1052,9 @@ const FileTransfer: React.FC = () => {
         >
           <ArrowLeft size={16} /> Back to Tools
         </button>
-        <div className="text-sm font-bold select-none text-white">
-          BishalTransfer
+        <div className="text-sm font-extrabold select-none text-white flex items-center gap-2 bg-[#03df7a]/10 border border-[#03df7a]/30 px-4 py-1.5 rounded-full shadow-[0_0_20px_rgba(3,223,122,0.15)] transition-all hover:border-[#03df7a]/50">
+          <Zap size={14} className="text-[#03df7a] animate-pulse" />
+          <span className="tracking-wide">File Transfer</span>
         </div>
       </div>
 
@@ -1414,11 +1415,11 @@ const FileTransfer: React.FC = () => {
                 <div className="h-6 w-px bg-slate-800 flex-shrink-0" />
                 <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
                   <div className="w-5 h-5 sm:w-8 sm:h-8 rounded-lg bg-[#03df7a]/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-[#03df7a] text-[9px] sm:text-xs font-bold leading-none flex-shrink-0">★</span>
+                    <Zap size={10} className="text-[#03df7a] sm:size-[16px] flex-shrink-0 animate-pulse" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[9px] sm:text-sm font-bold text-white leading-none whitespace-nowrap">4.8/5</p>
-                    <p className="text-[7px] sm:text-[10px] text-slate-500 mt-0.5 sm:mt-1 whitespace-nowrap">Avg Rating</p>
+                    <p className="text-[9px] sm:text-sm font-bold text-[#03df7a] leading-none whitespace-nowrap">Litespeed</p>
+                    <p className="text-[7px] sm:text-[10px] text-slate-500 mt-0.5 sm:mt-1 whitespace-nowrap">Superfast P2P</p>
                   </div>
                 </div>
               </div>
