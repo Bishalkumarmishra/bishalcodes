@@ -2223,16 +2223,9 @@ If you have any questions about this Data Deletion Policy or your data deletion 
             <button 
               key={tab.id} 
               onClick={() => { setActiveTab(tab.id); setIsSidebarOpen(false); fetchData(); }} 
-              title={tab.description}
-              className={`w-full flex flex-col items-start gap-1.5 px-4 py-2.5 rounded-lg font-medium transition-colors text-left ${activeTab === tab.id ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+              className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${activeTab === tab.id ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
             >
-              <div className="flex items-center gap-3 text-sm">
-                {tab.icon}
-                <span>{tab.label}</span>
-              </div>
-              <span className={`text-[10px] block font-normal leading-tight max-w-[180px] truncate ${activeTab === tab.id ? 'text-zinc-400' : 'text-slate-400 group-hover:text-slate-500'}`}>
-                {tab.description}
-              </span>
+              {tab.icon} {tab.label}
             </button>
           ))}
           <div className="pt-4 mt-4 border-t border-slate-100 space-y-1">
@@ -2247,7 +2240,62 @@ If you have any questions about this Data Deletion Policy or your data deletion 
         <header className="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-4">
              <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 text-slate-600"><Menu size={20}/></button>
-             <h1 className="text-sm font-semibold text-slate-900 capitalize tracking-tight">{activeTab} settings</h1>
+             <div className="flex flex-col text-left">
+               <h1 className="text-sm font-semibold text-slate-900 capitalize tracking-tight flex items-center gap-1.5">
+                 {activeTab === 'vercel' ? 'Vercel Settings' : `${activeTab} settings`}
+                 <span 
+                   title={[
+                     { id: 'dashboard', desc: 'Overview of traffic stats & live activity.' },
+                     { id: 'live-chat', desc: 'Interact with live website visitors.' },
+                     { id: 'projects', desc: 'Manage showcase portfolio works.' },
+                     { id: 'services', desc: 'Control utility tools & configurations.' },
+                     { id: 'blog', desc: 'Write and publish technical articles.' },
+                     { id: 'testimonials', desc: 'Moderate client reviews & reviews.' },
+                     { id: 'experience', desc: 'Update career timeline & milestones.' },
+                     { id: 'leads', desc: 'View inquiries & form submissions.' },
+                     { id: 'payments', desc: 'Verify payment proofs & invoices.' },
+                     { id: 'reports', desc: 'Manage bug reports & site feedback.' },
+                     { id: 'hero', desc: 'Edit landing section titles & CTA.' },
+                     { id: 'about', desc: 'Update personal biography & skills.' },
+                     { id: 'pricing', desc: 'Configure tool packages & plans.' },
+                     { id: 'legal', desc: 'Update terms, privacy, & disclaimers.' },
+                     { id: 'socials', desc: 'Manage social profile references.' },
+                     { id: 'users', desc: 'Track user profiles & live logins.' },
+                     { id: 'desktop', desc: 'Update calendar installer metadata.' },
+                     { id: 'seo', desc: 'Optimize page sitemaps & keywords.' },
+                     { id: 'system', desc: 'Backup registry & purge data.' },
+                     { id: 'vercel', desc: 'Manage Edge Config, Blobs, & Crons.' },
+                   ].find(t => t.id === activeTab)?.desc}
+                   className="text-slate-400 hover:text-[#e52521] cursor-help flex items-center transition-colors"
+                 >
+                   <HelpCircle size={13} />
+                 </span>
+               </h1>
+               <p className="text-[10px] text-slate-500 font-normal leading-none mt-1">
+                 {[
+                   { id: 'dashboard', desc: 'Overview of traffic stats & live activity.' },
+                   { id: 'live-chat', desc: 'Interact with live website visitors.' },
+                   { id: 'projects', desc: 'Manage showcase portfolio works.' },
+                   { id: 'services', desc: 'Control utility tools & configurations.' },
+                   { id: 'blog', desc: 'Write and publish technical articles.' },
+                   { id: 'testimonials', desc: 'Moderate client reviews & reviews.' },
+                   { id: 'experience', desc: 'Update career timeline & milestones.' },
+                   { id: 'leads', desc: 'View inquiries & form submissions.' },
+                   { id: 'payments', desc: 'Verify payment proofs & invoices.' },
+                   { id: 'reports', desc: 'Manage bug reports & site feedback.' },
+                   { id: 'hero', desc: 'Edit landing section titles & CTA.' },
+                   { id: 'about', desc: 'Update personal biography & skills.' },
+                   { id: 'pricing', desc: 'Configure tool packages & plans.' },
+                   { id: 'legal', desc: 'Update terms, privacy, & disclaimers.' },
+                   { id: 'socials', desc: 'Manage social profile references.' },
+                   { id: 'users', desc: 'Track user profiles & live logins.' },
+                   { id: 'desktop', desc: 'Update calendar installer metadata.' },
+                   { id: 'seo', desc: 'Optimize page sitemaps & keywords.' },
+                   { id: 'system', desc: 'Backup registry & purge data.' },
+                   { id: 'vercel', desc: 'Manage Edge Config, Blobs, & Crons.' },
+                 ].find(t => t.id === activeTab)?.desc}
+               </p>
+             </div>
           </div>
           <div className="flex items-center gap-3">
              <div className="text-right hidden sm:block">
