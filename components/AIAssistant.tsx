@@ -1763,6 +1763,9 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                   setIsOpen(true);
                   setShowGreetingBubble(false);
                   playNotificationSound();
+                  if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
+                    Notification.requestPermission().catch(() => {});
+                  }
                 }}
                 className="group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 hover:bg-[#e52521] text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-slate-200 dark:border-slate-800 p-0.5 overflow-hidden cursor-pointer z-10"
                 aria-label="Open Chat Support"

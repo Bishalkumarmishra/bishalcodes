@@ -58,6 +58,10 @@ const AdminLiveChat: React.FC = () => {
 
   // Listen for WebRTC Voice Signals from local channels & global Firestore
   useEffect(() => {
+    // Request Notification permission for incoming calls
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
     const handleSignal = (signal: any) => {
       if (!signal) return;
       // Ignore stale signals already processed (timestamp dedup)

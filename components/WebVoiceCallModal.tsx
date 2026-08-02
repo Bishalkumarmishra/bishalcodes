@@ -159,6 +159,85 @@ const WebVoiceCallModal: React.FC<WebVoiceCallModalProps> = ({
     }
   }, [callState?.status]);
 
+  // ─── Incoming Call Ringing & Push Notification ────────────────────────────
+  useEffect(() => {
+    let ringInterval: NodeJS.Timeout;
+    let audioCtx: AudioContext | null = null;
+    let notif: Notification | null = null;
+
+    if (callState?.status === 'ringing') {
+      // 1. Show Web Notification
+      if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+        notif = new Notification('Incoming Voice Call', {
+          body: `Call from ${callState.callerRole === 'admin' ? 'Bishal Mishra (Admin)' : callState.callerName}`,
+          icon: '/bishal.png',
+          requireInteraction: true,
+          vibrate: [200, 100, 200, 100, 200, 100, 200],
+        } as any);
+        
+        notif.onclick = () => {
+          window.focus();
+          onAcceptCall();
+          notif?.close();
+        };
+      }
+
+      // 2. Play Ringing Sound Loop via Web Audio API
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContextClass) {
+        try {
+          audioCtx = new AudioContextClass();
+          const playRing = () => {
+            if (!audioCtx || audioCtx.state === 'closed') return;
+            const now = audioCtx.currentTime;
+            
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(440, now);
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(480, now);
+            
+            gain.gain.setValueAtTime(0, now);
+            // UK style double ring pattern
+            gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+            gain.gain.setValueAtTime(0.3, now + 0.4);
+            gain.gain.linearRampToValueAtTime(0, now + 0.45);
+            
+            gain.gain.setValueAtTime(0, now + 0.55);
+            gain.gain.linearRampToValueAtTime(0.3, now + 0.6);
+            gain.gain.setValueAtTime(0.3, now + 1.0);
+            gain.gain.linearRampToValueAtTime(0, now + 1.05);
+            
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + 1.1);
+            osc2.stop(now + 1.1);
+          };
+          
+          playRing();
+          ringInterval = setInterval(playRing, 3000); // Repeat every 3s
+        } catch (e) {
+          console.error("Audio Context failed:", e);
+        }
+      }
+    }
+
+    return () => {
+      if (ringInterval) clearInterval(ringInterval);
+      if (audioCtx && audioCtx.state !== 'closed') {
+        audioCtx.close().catch(() => {});
+      }
+      if (notif) notif.close();
+    };
+  }, [callState?.status, callState?.callerName, callState?.callerRole, onAcceptCall]);
+
   if (!callState || callState.status === 'idle') return null;
 
   const isIncoming = callState.status === 'ringing';
