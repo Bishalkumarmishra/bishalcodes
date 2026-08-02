@@ -1173,8 +1173,8 @@ const FileTransfer: React.FC = () => {
                     <p className="text-[11px] font-bold text-amber-400 truncate max-w-[160px] relative z-10 px-2" title={reactivatingTransfer.fileName}>
                       {reactivatingTransfer.fileName}
                     </p>
-                    <span className="text-[9px] sm:text-[10px] mt-2 font-semibold text-slate-400 relative z-10">
-                      Drag or click to re-host link
+                    <span className="text-[10px] mt-2 font-extrabold text-amber-300 animate-pulse text-center max-w-[190px] relative z-10">
+                      Drop files here to start hosting!
                     </span>
                     <button
                       onClick={(e) => {
