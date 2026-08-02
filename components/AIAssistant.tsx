@@ -1752,29 +1752,35 @@ If you generate code snippets, enclose them in markdown block code syntax so the
               </div>
             )}
 
-            {/* Developer Picture Floating Launcher Button */}
-            <button
-              onClick={() => {
-                setIsOpen(true);
-                setShowGreetingBubble(false);
-                playNotificationSound();
-              }}
-              className="group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 hover:bg-[#e52521] text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-slate-200 dark:border-slate-800 p-0.5 overflow-hidden cursor-pointer"
-              aria-label="Open Chat Support"
-            >
-              <div className="w-full h-full rounded-full overflow-hidden bg-slate-950 flex items-center justify-center">
-                {!avatarError ? (
-                  <img
-                    src="/bishal.png"
-                    alt="Bishal Mishra"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    onError={() => setAvatarError(true)}
-                  />
-                ) : (
-                  <span className="text-white font-bold text-base">BM</span>
-                )}
-              </div>
-            </button>
+            {/* Developer Picture Floating Launcher Button with Wave Effect */}
+            <div className="relative flex items-center justify-center">
+              {/* Ripple Wave Effects */}
+              <div className="absolute inset-0 rounded-full bg-[#e52521]/40 animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite]"></div>
+              <div className="absolute inset-0 rounded-full bg-[#e52521]/30 animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite]" style={{ animationDelay: '1s' }}></div>
+              
+              <button
+                onClick={() => {
+                  setIsOpen(true);
+                  setShowGreetingBubble(false);
+                  playNotificationSound();
+                }}
+                className="group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 hover:bg-[#e52521] text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-slate-200 dark:border-slate-800 p-0.5 overflow-hidden cursor-pointer z-10"
+                aria-label="Open Chat Support"
+              >
+                <div className="w-full h-full rounded-full overflow-hidden bg-slate-950 flex items-center justify-center">
+                  {!avatarError ? (
+                    <img
+                      src="/bishal.png"
+                      alt="Bishal Mishra"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={() => setAvatarError(true)}
+                    />
+                  ) : (
+                    <span className="text-white font-bold text-base">BM</span>
+                  )}
+                </div>
+              </button>
+            </div>
           </div>
         )}
       </div>
