@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
 import { list, put, del } from '@vercel/blob';
 
+const DEFAULT_BLOB_TOKEN = "vercel_blob_rw_h0f2XzbTd4xwqWqx_zPXqoCadxukmvdKc90T9u5JDBu2T09";
+
 export async function GET() {
   try {
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      process.env.BLOB_READ_WRITE_TOKEN = DEFAULT_BLOB_TOKEN;
+    }
     const token = process.env.BLOB_READ_WRITE_TOKEN;
     if (!token) {
       return NextResponse.json({
@@ -35,6 +40,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      process.env.BLOB_READ_WRITE_TOKEN = DEFAULT_BLOB_TOKEN;
+    }
     const token = process.env.BLOB_READ_WRITE_TOKEN;
     if (!token) {
       return NextResponse.json({ success: false, message: 'BLOB_READ_WRITE_TOKEN missing' }, { status: 400 });
@@ -55,18 +63,22 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      process.env.BLOB_READ_WRITE_TOKEN = DEFAULT_BLOB_TOKEN;
+    }
     const token = process.env.BLOB_READ_WRITE_TOKEN;
     if (!token) {
       return NextResponse.json({ success: false, message: 'BLOB_READ_WRITE_TOKEN missing' }, { status: 400 });
     }
 
-    const { url } = await request.json();
+    const body = await request.json();
+    const { url } = body;
     if (!url) {
-      return NextResponse.json({ success: false, message: 'URL parameter required' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'URL is required' }, { status: 400 });
     }
 
     await del(url);
-    return NextResponse.json({ success: true, message: 'Blob deleted successfully' });
+    return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
 import { get, getAll } from '@vercel/edge-config';
 
+const DEFAULT_EDGE_CONFIG = "https://edge-config.vercel.com/ecfg_fe9ne7zterdt9gyaamxywx4ur9xc?token=7bc6a082-a975-4c98-a27b-b11d182ca9a7";
+
 export async function GET() {
   try {
+    if (!process.env.EDGE_CONFIG) {
+      process.env.EDGE_CONFIG = DEFAULT_EDGE_CONFIG;
+    }
     const edgeConfigConnectionString = process.env.EDGE_CONFIG || process.env.GLOBAL_CONFIG;
     if (!edgeConfigConnectionString) {
       return NextResponse.json({
