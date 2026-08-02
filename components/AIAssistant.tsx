@@ -1347,8 +1347,8 @@ If you generate code snippets, enclose them in markdown block code syntax so the
         }}
       />
 
-      {/* Floating Chat Launcher / Support Desk */}
-      <div className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-[100]">
+      {/* Floating Customer Support Live Chat Box Container */}
+      <div className="fixed bottom-4 left-4 sm:bottom-5 sm:left-5 z-[100]">
         {isOpen ? (
           <div className="w-[calc(100vw-2rem)] sm:w-[350px] h-[480px] max-h-[82vh] bg-white dark:bg-slate-950 rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-800 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
 
@@ -1710,7 +1710,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                   setShowGreetingBubble(false);
                   playNotificationSound();
                 }}
-                className="absolute bottom-full right-0 mb-3 w-72 sm:w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-800 dark:text-slate-100 p-3.5 rounded-2xl shadow-2xl border border-red-100 dark:border-slate-700 animate-in fade-in slide-in-from-bottom-3 duration-300 cursor-pointer group/bubble hover:border-indigo-400 dark:hover:border-[#e52521]"
+                className="absolute bottom-full left-0 mb-3 w-72 sm:w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-800 dark:text-slate-100 p-3.5 rounded-2xl shadow-2xl border border-red-100 dark:border-slate-700 animate-in fade-in slide-in-from-bottom-3 duration-300 cursor-pointer group/bubble hover:border-indigo-400 dark:hover:border-[#e52521]"
               >
                 <div className="flex items-start gap-3">
                   <div className="relative shrink-0">
@@ -1749,24 +1749,35 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                   </button>
                 </div>
                 {/* Pointer triangle */}
-                <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-white dark:bg-slate-900 rotate-45 border-r border-b border-red-100 dark:border-slate-700" />
+                <div className="absolute -bottom-1.5 left-6 w-3 h-3 bg-white dark:bg-slate-900 rotate-45 border-l border-b border-red-100 dark:border-slate-700" />
               </div>
             )}
 
-            {/* Pure Floating Message Icon Button */}
+            {/* Developer Picture Floating Launcher Button */}
             <button
               onClick={() => {
                 setIsOpen(true);
                 setShowGreetingBubble(false);
                 playNotificationSound();
               }}
-              className="group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-tr from-[#d01f1c] to-[#e52521] hover:from-[#b91c1c] hover:to-[#d01f1c] text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-emerald-400/50"
+              className="group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 hover:bg-[#e52521] text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-emerald-400 p-0.5 overflow-hidden cursor-pointer"
               aria-label="Open Chat Support"
             >
-              <CustomerSupportChatIcon size={30} className="text-white transition-transform group-hover:scale-110" />
+              <div className="w-full h-full rounded-full overflow-hidden bg-slate-950 flex items-center justify-center">
+                {!avatarError ? (
+                  <img
+                    src="/bishal.png"
+                    alt="Bishal Mishra"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    onError={() => setAvatarError(true)}
+                  />
+                ) : (
+                  <span className="text-white font-bold text-base">BM</span>
+                )}
+              </div>
 
               {/* Pulsing Green Online Indicator Badge */}
-              <span className="absolute top-0 right-0 w-4 h-4 bg-emerald-400 border-2 border-slate-950 rounded-full animate-pulse shadow-md" />
+              <span className="absolute top-0 right-0 w-4 h-4 bg-emerald-400 border-2 border-slate-950 rounded-full animate-pulse shadow-md z-10" />
             </button>
           </div>
         )}
