@@ -441,9 +441,9 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
         </div>
       </>
 
-      <div className="w-full max-w-md px-6 z-20 flex flex-col items-center">
+      <div className="w-full max-w-4xl px-6 z-20 flex flex-col items-center">
         {/* Brand Header */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 text-xl font-extrabold text-white mb-1">
             Bishal<span className="text-[#03df7a]">Codes</span>
           </div>
@@ -452,7 +452,7 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
 
         {/* ── Loading Card ── */}
         {loadState === 'loading' && (
-          <div className="w-full rounded-[28px] bg-slate-900/60 backdrop-blur-md border border-slate-800 p-12 text-center shadow-2xl">
+          <div className="w-full max-w-md mx-auto rounded-[28px] bg-slate-900/60 backdrop-blur-md border border-slate-800 p-12 text-center shadow-2xl">
             <Loader2 size={36} className="mx-auto animate-spin text-[#03df7a] mb-4" />
             <p className="text-sm font-bold text-slate-300">Retrieving secure transfer info…</p>
           </div>
@@ -460,7 +460,7 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
 
         {/* ── Not Found Card ── */}
         {loadState === 'notfound' && (
-          <div className="w-full rounded-[28px] bg-slate-900/60 backdrop-blur-md border border-slate-800 p-8 text-center shadow-2xl space-y-5">
+          <div className="w-full max-w-md mx-auto rounded-[28px] bg-slate-900/60 backdrop-blur-md border border-slate-800 p-8 text-center shadow-2xl space-y-5">
             <div className="w-14 h-14 bg-rose-500/10 border border-rose-500/20 rounded-full flex items-center justify-center mx-auto">
               <AlertTriangle size={26} className="text-rose-400" />
             </div>
@@ -483,7 +483,7 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
 
         {/* ── Expired Card ── */}
         {loadState === 'expired' && (
-          <div className="w-full rounded-[28px] bg-slate-900/60 backdrop-blur-md border border-slate-800 p-8 text-center shadow-2xl space-y-5">
+          <div className="w-full max-w-md mx-auto rounded-[28px] bg-slate-900/60 backdrop-blur-md border border-slate-800 p-8 text-center shadow-2xl space-y-5">
             <div className="w-14 h-14 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center mx-auto">
               <Clock size={26} className="text-amber-400" />
             </div>
@@ -507,7 +507,7 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
 
         {/* ── Error Card ── */}
         {loadState === 'error' && (
-          <div className="w-full rounded-[28px] bg-slate-900/60 backdrop-blur-md border border-slate-800 p-8 text-center shadow-2xl space-y-5">
+          <div className="w-full max-w-md mx-auto rounded-[28px] bg-slate-900/60 backdrop-blur-md border border-slate-800 p-8 text-center shadow-2xl space-y-5">
             <div className="w-14 h-14 bg-rose-500/10 border border-rose-500/20 rounded-full flex items-center justify-center mx-auto">
               <AlertTriangle size={26} className="text-rose-400" />
             </div>
@@ -536,142 +536,151 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
 
         {/* ── Ready Card (Download details) ── */}
         {loadState === 'ready' && metadata && (
-          <div className="w-full rounded-[32px] bg-slate-900/60 backdrop-blur-md border border-[#03df7a]/20 overflow-hidden shadow-[0_15px_50px_rgba(3,223,122,0.08)] space-y-6 p-6">
+          <div className="w-full rounded-[32px] bg-slate-900/60 backdrop-blur-md border border-[#03df7a]/20 overflow-hidden shadow-[0_15px_50px_rgba(3,223,122,0.08)] p-6 md:p-8">
             
-            {/* File Icon & Info */}
-            <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-950/40 border border-slate-800/80">
-              <div className="w-12 h-12 bg-[#03df7a]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                {metadata.fileName.endsWith('.zip') ? (
-                  <FileArchive size={24} className="text-[#03df7a]" />
-                ) : (
-                  <File size={24} className="text-[#03df7a]" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h2 className="text-sm font-extrabold text-white truncate" title={metadata.fileName}>
-                  {metadata.fileName}
-                </h2>
-                <p className="text-xs text-slate-400 mt-1 font-semibold">
-                  {formatBytes(metadata.fileSize)}
-                </p>
-                <div className="flex items-center gap-1.5 mt-2">
-                  <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full ${
-                    senderStatus !== 'offline' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-                  }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${senderStatus !== 'offline' ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
-                    Sender is {senderStatus !== 'offline' ? 'Online' : 'Offline'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Compatibility Warning for Large Files */}
-            {metadata.fileSize > 1024 * 1024 * 1024 && typeof window !== 'undefined' && !('showSaveFilePicker' in window) && (
-              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-400 leading-normal space-y-1">
-                <p className="font-bold flex items-center gap-1.5">
-                  <AlertTriangle size={14} className="text-amber-500" /> Large File Warning
-                </p>
-                <p>
-                  This file is larger than 1GB. Since your current browser does not support streaming directly to disk, the download might fail due to browser memory limits. We highly recommend using a desktop browser like Chrome, Edge, or Opera.
-                </p>
-              </div>
-            )}
-
-            {/* Meta Table info */}
-            <div className="grid grid-cols-2 gap-4 text-[11px] p-4 rounded-2xl bg-slate-950/20 border border-slate-800/50">
-              <div>
-                <p className="text-slate-500 font-bold uppercase tracking-wider mb-1">Sent Date</p>
-                <p className="text-slate-300 font-bold">{createdFormatted}</p>
-              </div>
-              <div>
-                <p className="text-slate-500 font-bold uppercase tracking-wider mb-1">Expiration</p>
-                <p className={`font-bold ${daysLeft <= 1 ? 'text-amber-400' : 'text-slate-300'}`}>
-                  {expiryFormatted}
-                  {daysLeft <= 1 && <span className="ml-1 text-[9px] block text-amber-500 font-semibold">(expires soon)</span>}
-                </p>
-              </div>
-            </div>
-
-            {/* Expiry Progress Bar */}
-            <div className="px-2">
-              <div className="flex justify-between text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1.5">
-                <span>Time remaining</span>
-                <span className="text-[#03df7a]">{daysLeft} day{daysLeft !== 1 ? 's' : ''} left</span>
-              </div>
-              <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full ${daysLeft <= 1 ? 'bg-amber-400' : 'bg-gradient-to-r from-[#00d084] to-[#03df7a]'}`}
-                  style={{ width: `${Math.min(100, (daysLeft / 7) * 100)}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Download Status & Progress */}
-            {downloading && (
-              <div className="p-4 rounded-2xl bg-slate-950/40 border border-slate-800/80 space-y-3 text-left">
-                <div className="flex justify-between items-center text-xs font-bold text-slate-400">
-                  <span className="flex items-center gap-1.5">
-                    <Loader2 size={12} className="animate-spin text-[#03df7a]" />
-                    Status: <span className="text-[#03df7a]">{connectionStateText}</span>
-                  </span>
-                  {downloadSpeed && <span className="text-[#03df7a] font-mono">{downloadSpeed}</span>}
-                </div>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[9px] text-slate-500 font-bold uppercase tracking-wider">
-                    <span>Progress</span>
-                    <span>{downloadProgress}%</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+              
+              {/* Left Column: File Info & Metadata */}
+              <div className="space-y-5">
+                {/* File Icon & Info */}
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-950/40 border border-slate-800/80">
+                  <div className="w-12 h-12 bg-[#03df7a]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    {metadata.fileName.endsWith('.zip') ? (
+                      <FileArchive size={24} className="text-[#03df7a]" />
+                    ) : (
+                      <File size={24} className="text-[#03df7a]" />
+                    )}
                   </div>
-                  <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-[#00d084] to-[#03df7a] transition-all duration-75"
-                      style={{ width: `${downloadProgress}%` }}
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-sm font-extrabold text-white truncate" title={metadata.fileName}>
+                      {metadata.fileName}
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-1 font-semibold">
+                      {formatBytes(metadata.fileSize)}
+                    </p>
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                        senderStatus !== 'offline' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${senderStatus !== 'offline' ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
+                        Sender is {senderStatus !== 'offline' ? 'Online' : 'Offline'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Compatibility Warning for Large Files */}
+                {metadata.fileSize > 1024 * 1024 * 1024 && typeof window !== 'undefined' && !('showSaveFilePicker' in window) && (
+                  <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-400 leading-normal space-y-1">
+                    <p className="font-bold flex items-center gap-1.5">
+                      <AlertTriangle size={14} className="text-amber-500" /> Large File Warning
+                    </p>
+                    <p>
+                      This file is larger than 1GB. Streaming might fail due to browser memory limits. We highly recommend using Chrome, Edge, or Opera.
+                    </p>
+                  </div>
+                )}
+
+                {/* Meta Table info */}
+                <div className="grid grid-cols-2 gap-4 text-[11px] p-4 rounded-2xl bg-slate-950/20 border border-slate-800/50">
+                  <div>
+                    <p className="text-slate-500 font-bold uppercase tracking-wider mb-1">Sent Date</p>
+                    <p className="text-slate-300 font-bold">{createdFormatted}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-500 font-bold uppercase tracking-wider mb-1">Expiration</p>
+                    <p className={`font-bold ${daysLeft <= 1 ? 'text-amber-400' : 'text-slate-300'}`}>
+                      {expiryFormatted}
+                      {daysLeft <= 1 && <span className="ml-1 text-[9px] block text-amber-500 font-semibold">(expires soon)</span>}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Expiry Progress Bar */}
+                <div className="px-2">
+                  <div className="flex justify-between text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1.5">
+                    <span>Time remaining</span>
+                    <span className="text-[#03df7a]">{daysLeft} day{daysLeft !== 1 ? 's' : ''} left</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${daysLeft <= 1 ? 'bg-amber-400' : 'bg-gradient-to-r from-[#00d084] to-[#03df7a]'}`}
+                      style={{ width: `${Math.min(100, (daysLeft / 7) * 100)}%` }}
                     />
                   </div>
                 </div>
               </div>
-            )}
 
-            {/* Action Download Button */}
-            <div className="space-y-4 pt-2">
-              <button
-                onClick={handleDownload}
-                disabled={downloading || senderStatus === 'offline'}
-                className="w-full flex items-center justify-center gap-2.5 text-black bg-[#03df7a] hover:bg-[#00ff87] disabled:opacity-45 font-extrabold py-4 rounded-full text-sm uppercase tracking-wider transition-all duration-300 shadow-[0_4px_25px_rgba(3,223,122,0.25)] transform active:scale-[0.98]"
-              >
-                {downloading ? (
-                  <><Loader2 size={16} className="animate-spin text-black" /> Connecting &amp; Receiving…</>
-                ) : senderStatus === 'offline' ? (
-                  <><Lock size={16} /> Sender is Offline</>
-                ) : (
-                  <><Download size={16} /> Download File</>
+              {/* Right Column: Actions & Help Guides */}
+              <div className="space-y-4">
+                {/* Download Status & Progress */}
+                {downloading && (
+                  <div className="p-4 rounded-2xl bg-slate-950/40 border border-slate-800/80 space-y-3 text-left">
+                    <div className="flex justify-between items-center text-xs font-bold text-slate-400">
+                      <span className="flex items-center gap-1.5">
+                        <Loader2 size={12} className="animate-spin text-[#03df7a]" />
+                        Status: <span className="text-[#03df7a]">{connectionStateText}</span>
+                      </span>
+                      {downloadSpeed && <span className="text-[#03df7a] font-mono">{downloadSpeed}</span>}
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[9px] text-slate-500 font-bold uppercase tracking-wider">
+                        <span>Progress</span>
+                        <span>{downloadProgress}%</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-[#00d084] to-[#03df7a] transition-all duration-75"
+                          style={{ width: `${downloadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 )}
-              </button>
 
-              {senderStatus === 'offline' && (
-                <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[10px] text-rose-400 leading-relaxed text-left font-semibold">
-                  <strong className="text-rose-400 block font-bold mb-0.5">Sender appears to be offline:</strong>
-                  The sender closed or refreshed their tab, so the direct P2P link is offline. Ask the sender to open their browser, visit the transfer tool, and click <strong className="text-[#03df7a]">"Re-activate"</strong> on this link to resume hosting.
+                {/* Action Download Button */}
+                <button
+                  onClick={handleDownload}
+                  disabled={downloading || senderStatus === 'offline'}
+                  className="w-full flex items-center justify-center gap-2.5 text-black bg-[#03df7a] hover:bg-[#00ff87] disabled:opacity-45 font-extrabold py-4 rounded-full text-sm uppercase tracking-wider transition-all duration-300 shadow-[0_4px_25px_rgba(3,223,122,0.25)] transform active:scale-[0.98]"
+                >
+                  {downloading ? (
+                    <><Loader2 size={16} className="animate-spin text-black" /> Connecting &amp; Receiving…</>
+                  ) : senderStatus === 'offline' ? (
+                    <><Lock size={16} /> Sender is Offline</>
+                  ) : (
+                    <><Download size={16} /> Download File</>
+                  )}
+                </button>
+
+                {senderStatus === 'offline' && (
+                  <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[10px] text-rose-400 leading-relaxed text-left font-semibold">
+                    <strong className="text-rose-400 block font-bold mb-0.5">Sender appears to be offline:</strong>
+                    The sender closed or refreshed their tab, so the direct P2P link is offline. Ask the sender to open their browser, visit the transfer tool, and click <strong className="text-[#03df7a]">"Re-activate"</strong> on this link to resume hosting.
+                  </div>
+                )}
+
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-[10px] text-amber-400 leading-relaxed text-left font-semibold">
+                  <strong>Attention:</strong> Since this is a Peer-to-Peer transfer, the sender must keep their browser tab open for the transfer to complete.
                 </div>
-              )}
 
-              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-[10px] text-amber-400 leading-relaxed text-left">
-                <strong>Attention:</strong> Since this is a Peer-to-Peer transfer, the sender must keep their browser tab open for the transfer to complete.
+                <div className="p-3 bg-[#03df7a]/5 border border-[#03df7a]/10 rounded-xl text-[10px] text-slate-400 leading-relaxed text-left space-y-1">
+                  <strong className="text-[#03df7a] block font-bold uppercase tracking-wider text-[9px]">Steps to Download:</strong>
+                  <ul className="list-disc list-inside space-y-1 font-semibold">
+                    <li>Ensure the sender has their browser window open on their transfer page.</li>
+                    <li>Click <span className="text-[#03df7a]">"Download File"</span> to establish the P2P connection.</li>
+                    <li>Choose where to save the file (or wait for in-memory download to complete).</li>
+                  </ul>
+                </div>
+
+                <div className="flex items-center justify-center gap-4 text-[10px] text-slate-500 font-semibold pt-1">
+                  <span className="flex items-center gap-1"><Lock size={10} className="text-[#03df7a]" /> Stored Encrypted</span>
+                  <span className="flex items-center gap-1"><Clock size={10} className="text-[#03df7a]" /> Auto-deleted</span>
+                </div>
               </div>
 
-              <div className="p-3 bg-[#03df7a]/5 border border-[#03df7a]/10 rounded-xl text-[10px] text-slate-400 leading-relaxed text-left space-y-1">
-                <strong className="text-[#03df7a] block font-bold uppercase tracking-wider text-[9px]">Steps to Download:</strong>
-                <ul className="list-disc list-inside space-y-1 font-semibold">
-                  <li>Ensure the sender has their browser window open on their transfer page.</li>
-                  <li>Click <span className="text-[#03df7a]">"Download File"</span> to establish the P2P connection.</li>
-                  <li>Choose where to save the file (or wait for in-memory download to complete).</li>
-                </ul>
-              </div>
-
-              <div className="flex items-center justify-center gap-4 text-[10px] text-slate-500 font-semibold">
-                <span className="flex items-center gap-1"><Lock size={10} className="text-[#03df7a]" /> Stored Encrypted</span>
-                <span className="flex items-center gap-1"><Clock size={10} className="text-[#03df7a]" /> Auto-deleted</span>
-              </div>
             </div>
+
           </div>
         )}
 
