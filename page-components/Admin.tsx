@@ -593,6 +593,7 @@ const Admin: React.FC = () => {
   const [seedTarget, setSeedTarget] = useState<'all' | 'blog' | 'pricing' | 'faq' | 'legal' | 'socials' | 'testimonials' | 'experience' | 'services'>('all');
   const [fileUploadProgress, setFileUploadProgress] = useState<number | null>(null);
   const [mediaLinkInput, setMediaLinkInput] = useState<string>(''); // State for direct media link input
+  const [draggedMediaIndex, setDraggedMediaIndex] = useState<number | null>(null); // State for drag and drop media reordering
   const fileInputRef = useRef<HTMLInputElement>(null);
 
 
@@ -2817,7 +2818,13 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         </div>
                         
                         <div className="md:col-span-2 p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4 text-left">
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">Project Media</p>
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Project Media & Front Banner</p>
+                            <p className="text-[11px] text-slate-500 mt-0.5">
+                              💡 <span className="font-semibold text-slate-700">Drag & drop</span> any image to reorder. The 1st image marked with <span className="text-[#e52521] font-bold">★ FRONT BANNER</span> is displayed on the main showcase card.
+                            </p>
+                          </div>
+
                           <input type="file" ref={fileInputRef} multiple accept="image/*,video/*,application/pdf" onChange={handleFileUpload} className="block w-full text-[10px] text-slate-600 file:bg-slate-100 file:text-slate-900 file:border-0 file:px-4 file:py-2 file:rounded-lg file:mr-4 file:font-semibold cursor-pointer" />
                           
                           <div className="flex gap-2">
@@ -2825,22 +2832,81 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                              <button onClick={() => { if(mediaLinkInput) setProjectForm(p=>({...p, images:[...p.images, {url: mediaLinkInput, type: mediaLinkInput.includes('youtube')?'video':'image'}]})); setMediaLinkInput(''); }} className="bg-slate-900 text-white px-4 py-2 rounded-lg font-semibold text-xs hover:bg-slate-800 transition-all">Add URL</button>
                           </div>
     
-                          <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
                             {projectForm.images.map((img, i) => (
-                              <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 group">
+                              <div
+                                key={i}
+                                draggable
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData('text/plain', i.toString());
+                                  setDraggedMediaIndex(i);
+                                }}
+                                onDragOver={(e) => e.preventDefault()}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  const fromIndex = draggedMediaIndex ?? parseInt(e.dataTransfer.getData('text/plain'));
+                                  if (!isNaN(fromIndex) && fromIndex !== i) {
+                                    setProjectForm(prev => {
+                                      const updated = [...prev.images];
+                                      const [moved] = updated.splice(fromIndex, 1);
+                                      updated.splice(i, 0, moved);
+                                      return { ...prev, images: updated };
+                                    });
+                                  }
+                                  setDraggedMediaIndex(null);
+                                }}
+                                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all cursor-grab active:cursor-grabbing group shadow-sm ${
+                                  i === 0 
+                                    ? 'border-[#e52521] ring-2 ring-[#e52521]/20 bg-rose-50/10' 
+                                    : 'border-slate-200 hover:border-slate-400 bg-white'
+                                }`}
+                              >
                                 {img.type === 'image' ? (
                                     <img src={img.url} className="w-full h-full object-cover" alt={`Project media ${i}`} />
                                 ) : img.type === 'video' ? (
                                     <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-400">
-                                        <Video size={20} />
+                                        <Video size={24} />
                                     </div>
                                 ) : (
                                     <div className="w-full h-full bg-slate-800 flex flex-col items-center justify-center text-slate-400 p-2">
-                                        <FileText size={20} />
-                                        <span className="text-[8px] mt-1 font-bold text-center select-none truncate w-full">{img.type.toUpperCase()}</span>
+                                        <FileText size={24} />
+                                        <span className="text-[9px] mt-1 font-bold text-center select-none truncate w-full">{img.type.toUpperCase()}</span>
                                     </div>
                                 )}
-                                <button onClick={() => removeMedia(i)} className="absolute inset-0 bg-rose-500/80 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Trash2 size={14}/></button>
+
+                                {/* Front Banner Badge */}
+                                {i === 0 ? (
+                                  <div className="absolute top-1.5 left-1.5 bg-[#e52521] text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md flex items-center gap-1 z-10">
+                                    <Star size={10} className="fill-white" />
+                                    <span>Front Banner</span>
+                                  </div>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setProjectForm(prev => {
+                                        const updated = [...prev.images];
+                                        const [selected] = updated.splice(i, 1);
+                                        return { ...prev, images: [selected, ...updated] };
+                                      });
+                                    }}
+                                    className="absolute top-1.5 left-1.5 bg-slate-900/90 hover:bg-[#e52521] text-white text-[9px] font-bold px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-all flex items-center gap-1 z-10"
+                                    title="Set as Front Banner"
+                                  >
+                                    <Star size={10} />
+                                    <span>Make Banner</span>
+                                  </button>
+                                )}
+
+                                {/* Delete Media Button */}
+                                <button
+                                  type="button"
+                                  onClick={() => removeMedia(i)}
+                                  className="absolute top-1.5 right-1.5 bg-rose-600 hover:bg-rose-700 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-md"
+                                  title="Remove Media"
+                                >
+                                  <Trash2 size={12}/>
+                                </button>
                               </div>
                             ))}
                           </div>
