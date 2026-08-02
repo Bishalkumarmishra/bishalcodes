@@ -1,4 +1,6 @@
+"use client";
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { usePathname } from 'next/navigation';
 import { GoogleGenAI } from "@google/genai";
 import { X, Send, PhoneCall, Phone, Shield, ExternalLink, Sparkles, Loader2, Copy, Check, MessageCircle, HelpCircle, Wrench, DollarSign, BookOpen, Key, ArrowRight, User, Paperclip, Image as ImageIcon, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -638,6 +640,8 @@ const AIAssistant: React.FC = () => {
   const { apiKey, saveApiKey, isKeyAvailable, clearApiKey } = useApiKey();
   const { navigate } = useNavigation();
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
+  
+  const pathname = usePathname();
 
   // Check if component is loaded inside an embedded iframe or widget URL
   const [isEmbeddedIframe, setIsEmbeddedIframe] = useState(false);
