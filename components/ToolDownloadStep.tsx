@@ -214,7 +214,7 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
             Continue to...
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-            <Link href="/file-transfer" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
+            <Link href="/tools/file-transfer" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded bg-[#f2f2f2] dark:bg-slate-800 flex items-center justify-center text-[#e52521]">
                   <Send size={18} strokeWidth={2.5} />
@@ -224,7 +224,7 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
               <ChevronRight size={16} className="text-slate-400 group-hover:text-[#e52521]" />
             </Link>
 
-            <Link href="/image-compressor" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
+            <Link href="/tools/image-compressor" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded bg-[#f2f2f2] dark:bg-slate-800 flex items-center justify-center text-green-600">
                   <ImageIcon size={18} strokeWidth={2.5} />
@@ -234,7 +234,7 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
               <ChevronRight size={16} className="text-slate-400 group-hover:text-[#e52521]" />
             </Link>
 
-            <Link href="/ocr-converter" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
+            <Link href="/tools/ocr-converter" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded bg-[#f2f2f2] dark:bg-slate-800 flex items-center justify-center text-[#e52521]">
                   <FileText size={18} strokeWidth={2.5} />
@@ -244,7 +244,7 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
               <ChevronRight size={16} className="text-slate-400 group-hover:text-[#e52521]" />
             </Link>
 
-            <Link href="/qr-studio" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
+            <Link href="/tools/qr-studio" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded bg-[#f2f2f2] dark:bg-slate-800 flex items-center justify-center text-orange-500">
                   <QrCodeIcon size={18} strokeWidth={2.5} />
@@ -254,7 +254,7 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
               <ChevronRight size={16} className="text-slate-400 group-hover:text-[#e52521]" />
             </Link>
 
-            <Link href="/dev-card" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
+            <Link href="/tools/dev-card-studio" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded bg-[#f2f2f2] dark:bg-slate-800 flex items-center justify-center text-[#e52521]">
                   <Code2 size={18} strokeWidth={2.5} />
@@ -264,7 +264,7 @@ export const ToolDownloadStep: React.FC<ToolDownloadStepProps> = ({
               <ChevronRight size={16} className="text-slate-400 group-hover:text-[#e52521]" />
             </Link>
 
-            <Link href="/code-runner" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
+            <Link href="/tools/code-runner" className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#e52521] dark:hover:border-[#e52521] hover:shadow-md transition-all group">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded bg-[#f2f2f2] dark:bg-slate-800 flex items-center justify-center text-slate-800 dark:text-slate-200">
                   <Terminal size={18} strokeWidth={2.5} />
