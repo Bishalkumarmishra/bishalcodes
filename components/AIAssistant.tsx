@@ -1714,7 +1714,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
               >
                 <div className="flex items-start gap-3">
                   <div className="relative shrink-0">
-                    <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-emerald-400 shadow-xs bg-slate-900 flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-full overflow-hidden shadow-xs bg-slate-900 flex items-center justify-center">
                       {!avatarError ? (
                         <img
                           src="/bishal.png"
@@ -1726,7 +1726,6 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                         <span className="text-white font-bold text-xs">BM</span>
                       )}
                     </div>
-                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-white dark:border-slate-900 rounded-full" />
                   </div>
                   <div className="flex-1 pr-3">
                     <div className="flex items-center gap-1.5">
@@ -1760,7 +1759,7 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                 setShowGreetingBubble(false);
                 playNotificationSound();
               }}
-              className="group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 hover:bg-[#e52521] text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-emerald-400 p-0.5 overflow-hidden cursor-pointer"
+              className="group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 hover:bg-[#e52521] text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-slate-200 dark:border-slate-800 p-0.5 overflow-hidden cursor-pointer"
               aria-label="Open Chat Support"
             >
               <div className="w-full h-full rounded-full overflow-hidden bg-slate-950 flex items-center justify-center">
@@ -1775,9 +1774,6 @@ If you generate code snippets, enclose them in markdown block code syntax so the
                   <span className="text-white font-bold text-base">BM</span>
                 )}
               </div>
-
-              {/* Pulsing Green Online Indicator Badge */}
-              <span className="absolute top-0 right-0 w-4 h-4 bg-emerald-400 border-2 border-slate-950 rounded-full animate-pulse shadow-md z-10" />
             </button>
           </div>
         )}
