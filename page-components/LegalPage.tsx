@@ -67,6 +67,14 @@ const PAGE_CONFIGS: Record<string, {
     badgeBg: 'bg-emerald-50 dark:bg-emerald-950/40',
     badgeText: 'text-emerald-600 dark:text-emerald-400',
   },
+  'privacy-choices': {
+    icon: <Shield size={28} />,
+    badge: 'Privacy Choices',
+    accentFrom: '#00529b',
+    accentTo: '#003b73',
+    badgeBg: 'bg-blue-50 dark:bg-blue-950/40',
+    badgeText: 'text-blue-600 dark:text-blue-400',
+  },
 };
 
 const DEFAULT_CONFIG = {
@@ -108,6 +116,12 @@ const PAGE_HIGHLIGHTS: Record<string, { icon: React.ReactNode; label: string; de
     { icon: <CheckCircle size={16} />, label: 'Process', desc: 'Auto-Credit to Source' },
     { icon: <Globe size={16} />, label: 'Applicability', desc: 'All SaaS Plans' },
     { icon: <Mail size={16} />, label: 'Contact', desc: 'developer@bishalcodes.com' },
+  ],
+  'privacy-choices': [
+    { icon: <Eye size={16} />, label: 'Opt-Out', desc: 'Targeted Advertising' },
+    { icon: <Cookie size={16} />, label: 'Cookies', desc: 'Manage Preferences' },
+    { icon: <Shield size={16} />, label: 'Compliance', desc: 'CCPA & CPRA Ready' },
+    { icon: <CheckCircle size={16} />, label: 'GPC', desc: 'Global Privacy Control' },
   ],
 };
 
@@ -564,6 +578,41 @@ Under the **Nepal Individual Privacy Act, 2075** and **GDPR Article 17**, you ha
 - **Response Guarantee:** We will acknowledge your request within 5 business days and complete processing within 30 days.
 `,
 
+  'privacy-choices': `
+## Overview
+
+At Bishal Codes, we are committed to giving you control over your personal data. If you are a resident of California or any other jurisdiction with applicable privacy laws (such as CCPA/CPRA, GDPR, or Nepal Individual Privacy Act), this page explains how you can exercise your right to opt-out of the sale or sharing of your personal information.
+
+We **do not sell** your personal information for monetary value. However, like many websites, we use third-party analytics and advertising services (such as Google AdSense and Google Analytics) which may collect and share your data for targeted advertising purposes. Under some privacy laws, this sharing may be considered a "sale" or "sharing" of personal information.
+
+## How to Opt-Out
+
+You can exercise your right to opt-out of targeted advertising and the sharing of your personal information in the following ways:
+
+### 1. Adjust Your Browser or Device Settings
+- **Global Privacy Control (GPC):** If your browser supports GPC signals, we respect them automatically. Enabling GPC in your browser or extension will opt you out of targeted advertising cookies on this site.
+- **Cookie Preferences:** You can block third-party cookies directly through your browser settings.
+
+### 2. Google Advertising Settings
+Since we use Google AdSense, you can manage how Google uses your data for ads:
+- Visit the [Google Ad Settings](https://adssettings.google.com/) page to turn off personalized ads.
+- You can also use the [Google Analytics Opt-out Browser Add-on](https://tools.google.com/dlpage/gaoptout) to prevent your data from being used by Google Analytics.
+
+### 3. Industry Opt-Out Tools
+You can opt-out of interest-based advertising broadly by visiting:
+- [Network Advertising Initiative (NAI) Opt-Out](http://optout.networkadvertising.org/)
+- [Digital Advertising Alliance (DAA) WebChoices](http://optout.aboutads.info/)
+
+## Data Deletion & Access
+If you wish to fully delete your data or access the data we have collected, please visit our [Data Deletion Request](/legal/data-deletion-request) page or email us directly at **developer@bishalcodes.com**.
+
+## Contact Us
+If you have any questions about your privacy choices or need assistance exercising your rights, please contact us:
+- **Email:** developer@bishalcodes.com
+- **Phone:** +977 9827801575
+- **Address:** Nepal
+`,
+
 };
 
 const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
@@ -611,6 +660,7 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
                    slug === 'privacy-policy' ? 'Privacy Policy' :
                    slug === 'cookies-policy' ? 'Cookie Policy' :
                    slug === 'refund-policy' ? 'Refund Policy' :
+                   slug === 'privacy-choices' ? 'Your Privacy Choices' :
                    slug === 'data-deletion-request' ? 'Data Deletion Request' : 'Legal Document',
             content: FALLBACK_CONTENT[slug],
             createdAt: Date.now(),
@@ -631,6 +681,7 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
                    slug === 'privacy-policy' ? 'Privacy Policy' :
                    slug === 'cookies-policy' ? 'Cookie Policy' :
                    slug === 'refund-policy' ? 'Refund Policy' :
+                   slug === 'privacy-choices' ? 'Your Privacy Choices' :
                    slug === 'data-deletion-request' ? 'Data Deletion Request' : 'Legal Document',
             content: FALLBACK_CONTENT[slug],
             createdAt: Date.now(),
@@ -756,6 +807,7 @@ const LegalPage: React.FC<LegalPageProps> = ({ slug }) => {
     { slug: 'cookies-policy', label: 'Cookie Policy' },
     { slug: 'refund-policy', label: 'Refund Policy' },
     { slug: 'data-deletion-request', label: 'Data Deletion Request' },
+    { slug: 'privacy-choices', label: 'Your Privacy Choices' },
   ].filter(p => p.slug !== slug);
 
   return (

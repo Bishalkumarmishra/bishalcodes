@@ -63,14 +63,14 @@ const Footer: React.FC = () => {
 
   const renderNewsletterForm = (isMobile: boolean) => {
     return (
-      <div style={{ marginTop: isMobile ? '32px' : '32px' }} className={isMobile ? 'col-span-2 md:hidden' : 'hidden md:block'}>
+      <div style={{ marginTop: isMobile ? '32px' : '36px' }} className={isMobile ? 'col-span-2 md:hidden' : 'hidden md:block'}>
         <p style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3d4a5c', marginBottom: '10px' }}>
           Newsletter
         </p>
-        <p style={{ fontSize: '12.5px', color: '#5a6478', lineHeight: '1.5', marginBottom: '14px', maxWidth: isMobile ? '100%' : '240px' }}>
+        <p style={{ fontSize: '12.5px', color: '#5a6478', lineHeight: '1.5', marginBottom: '14px', maxWidth: isMobile ? '100%' : '320px' }}>
           Subscribe to get notified when new projects, tools, or articles are published.
         </p>
-        <form onSubmit={handleNewsletterSubmit} style={{ display: 'flex', gap: '6px', maxWidth: isMobile ? '360px' : '260px', width: '100%' }}>
+        <form onSubmit={handleNewsletterSubmit} style={{ display: 'flex', gap: '6px', maxWidth: isMobile ? '360px' : '320px', width: '100%' }}>
           <input
             type="email"
             required
@@ -240,6 +240,9 @@ const Footer: React.FC = () => {
                 </a>
               ))}
             </div>
+
+            {/* Desktop-only Newsletter */}
+            {renderNewsletterForm(false)}
           </div>
 
           {/* Quick links */}
@@ -266,9 +269,6 @@ const Footer: React.FC = () => {
                 </li>
               ))}
             </ul>
-
-            {/* Desktop-only Newsletter */}
-            {renderNewsletterForm(false)}
           </div>
 
           {/* Contact + Legal */}
@@ -325,6 +325,26 @@ const Footer: React.FC = () => {
                     {page.title}
                   </a>
                 ))}
+                
+                {/* CCPA / CPRA Your Privacy Choices */}
+                <a
+                  href="/legal/privacy-choices"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('legal-page', 'privacy-choices');
+                  }}
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '13.5px', color: '#5a6478', textAlign: 'left', transition: 'color 0.15s', textDecoration: 'none', display: 'flex', alignItems: 'center' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#c8d0dc')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#5a6478')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 20" width="28" height="14" style={{ flexShrink: 0, marginRight: '7px' }}>
+                    <rect width="40" height="20" rx="10" fill="#005af0" />
+                    <path d="M0 10 C0 4.47715 4.47715 0 10 0 L20 0 L15 20 L10 20 C4.47715 20 0 15.5228 0 10 Z" fill="white" />
+                    <path d="M6 10.5 L9 13.5 L14 6.5" fill="none" stroke="#005af0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M24 6 L32 14 M32 6 L24 14" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  Your Privacy Choices
+                </a>
                 <button
                   onClick={() => setIsReportOpen(true)}
                   style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '13px', color: '#e05252', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 500 }}
