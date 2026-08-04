@@ -268,6 +268,7 @@ const FileTransfer: React.FC = () => {
   const [incomingPairRequest, setIncomingPairRequest] = useState<any | null>(null);
   const [pairedDevice, setPairedDevice] = useState<any | null>(null);
   const [pairingStatus, setPairingStatus] = useState<string>('');
+  const [receivedFileModal, setReceivedFileModal] = useState<any | null>(null);
 
   const myDeviceIdRef = useRef<string>('');
   const myDeviceNameRef = useRef<string>('');
@@ -307,15 +308,18 @@ const FileTransfer: React.FC = () => {
             setIncomingPairRequest(dataPost.incomingRequests[0]);
           }
           if (dataPost.incomingFiles && dataPost.incomingFiles.length > 0) {
-            for (const filePayload of dataPost.incomingFiles) {
+            const received = dataPost.incomingFiles[0];
+            setReceivedFileModal(received);
+            // Try auto click download
+            try {
               const a = document.createElement('a');
-              a.href = filePayload.fileData;
-              a.download = filePayload.fileName;
+              a.href = received.fileData;
+              a.download = received.fileName;
               document.body.appendChild(a);
               a.click();
               document.body.removeChild(a);
-              setPairingStatus(`🎉 Directly received "${filePayload.fileName}" from ${filePayload.senderName}!`);
-            }
+            } catch (e) {}
+            setPairingStatus(`🎉 Directly received "${received.fileName}" from ${received.senderName}!`);
           }
         }
       } catch (e) {
@@ -914,6 +918,32 @@ const FileTransfer: React.FC = () => {
     }
 
     if (!entries.length) return;
+
+    if (pairedDevice) {
+      for (const entry of entries) {
+        setPairingStatus(`Transferring "${entry.relativePath}" directly to ${pairedDevice.name}...`);
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const base64Data = reader.result as string;
+          await fetch('/api/v1/radar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'send_direct_file',
+              id: myDeviceIdRef.current,
+              name: myDeviceNameRef.current,
+              targetId: pairedDevice.id,
+              fileName: entry.relativePath,
+              fileSize: entry.file.size,
+              fileData: base64Data
+            })
+          });
+          setPairingStatus(`🎉 Directly sent "${entry.relativePath}" to ${pairedDevice.name}!`);
+        };
+        reader.readAsDataURL(entry.file);
+      }
+      return;
+    }
 
     setFileEntries(entries);
     const needsZip = entries.length > 1 || (entries.length === 1 && entries[0].relativePath.includes('/'));
@@ -1585,6 +1615,32 @@ const FileTransfer: React.FC = () => {
                       Accept &amp; Connect
                     </button>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Received File Download Modal (For iOS / Safari / Desktop) */}
+            {receivedFileModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                <div className="bg-slate-900 border-2 border-[#03df7a] rounded-2xl p-6 max-w-sm w-full shadow-[0_0_50px_rgba(3,223,122,0.4)] text-center animate-in fade-in zoom-in duration-200">
+                  <div className="w-14 h-14 rounded-full bg-[#03df7a]/20 border border-[#03df7a] flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <Download size={28} className="text-[#03df7a]" />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-white mb-1">File Received! 🎉</h3>
+                  <p className="text-xs text-slate-350 mb-2">
+                    Received <strong className="text-white">{receivedFileModal.fileName}</strong> from <strong className="text-[#03df7a]">{receivedFileModal.senderName}</strong>.
+                  </p>
+                  <p className="text-[11px] text-slate-400 mb-6">
+                    Tap the button below to save the file to your device.
+                  </p>
+                  <a
+                    href={receivedFileModal.fileData}
+                    download={receivedFileModal.fileName}
+                    onClick={() => setReceivedFileModal(null)}
+                    className="block w-full py-3 rounded-xl bg-[#03df7a] hover:bg-[#02be68] text-black font-extrabold text-xs shadow-lg transition-all active:scale-95 text-center"
+                  >
+                    📥 Save File to Device
+                  </a>
                 </div>
               </div>
             )}
