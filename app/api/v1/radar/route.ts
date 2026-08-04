@@ -19,10 +19,21 @@ interface PairRequest {
   timestamp: number;
 }
 
+interface DirectFilePayload {
+  id: string;
+  senderId: string;
+  senderName: string;
+  targetId: string;
+  fileName: string;
+  fileSize: number;
+  fileData: string; // Base64 data string
+  timestamp: number;
+}
+
 let activeDevices: Map<string, RadarDevice> = new Map();
 let pairRequests: Map<string, PairRequest> = new Map();
+let directFiles: Map<string, DirectFilePayload> = new Map();
 
-// Strict 10-second cleanup to ensure NO fake or stale devices remain
 function cleanupStaleDevices() {
   const now = Date.now();
   for (const [id, device] of activeDevices.entries()) {
@@ -33,6 +44,11 @@ function cleanupStaleDevices() {
   for (const [reqId, req] of pairRequests.entries()) {
     if (now - req.timestamp > 30000) {
       pairRequests.delete(reqId);
+    }
+  }
+  for (const [fId, file] of directFiles.entries()) {
+    if (now - file.timestamp > 60000) {
+      directFiles.delete(fId);
     }
   }
 }
@@ -49,7 +65,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { action, id, name, platform, ip, port, status, targetId, requestId, responseStatus } = body;
+    const { action, id, name, platform, ip, port, status, targetId, requestId, responseStatus, fileName, fileSize, fileData } = body;
 
     cleanupStaleDevices();
 
@@ -102,6 +118,31 @@ export async function POST(req: Request) {
       });
     }
 
+    // 4. Send Direct File Action (No Link / No QR Code!)
+    if (action === 'send_direct_file') {
+      if (!targetId || !fileName || !fileData) {
+        return NextResponse.json({ error: 'Target ID, File Name, and Data required' }, { status: 400 });
+      }
+      const fileId = 'file-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+      const payload: DirectFilePayload = {
+        id: fileId,
+        senderId: id,
+        senderName: name || 'Paired Device',
+        targetId,
+        fileName,
+        fileSize: fileSize || 0,
+        fileData,
+        timestamp: Date.now()
+      };
+      directFiles.set(fileId, payload);
+
+      return NextResponse.json({
+        success: true,
+        message: 'Direct file payload buffered for recipient',
+        fileId
+      });
+    }
+
     // Standard Heartbeat Registration
     if (!id || !name) {
       return NextResponse.json({ error: 'Device ID and Name are required' }, { status: 400 });
@@ -124,11 +165,19 @@ export async function POST(req: Request) {
       r => r.targetId === id && r.status === 'pending'
     );
 
+    // Fetch incoming direct files targeting THIS device
+    const incomingFiles = Array.from(directFiles.values()).filter(r => r.targetId === id);
+    // Remove retrieved files from buffer
+    for (const f of incomingFiles) {
+      directFiles.delete(f.id);
+    }
+
     return NextResponse.json({
       success: true,
       registeredDevice: device,
       activeDevices: Array.from(activeDevices.values()),
-      incomingRequests
+      incomingRequests,
+      incomingFiles
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });

@@ -306,6 +306,17 @@ const FileTransfer: React.FC = () => {
           if (dataPost.incomingRequests && dataPost.incomingRequests.length > 0) {
             setIncomingPairRequest(dataPost.incomingRequests[0]);
           }
+          if (dataPost.incomingFiles && dataPost.incomingFiles.length > 0) {
+            for (const filePayload of dataPost.incomingFiles) {
+              const a = document.createElement('a');
+              a.href = filePayload.fileData;
+              a.download = filePayload.fileName;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              setPairingStatus(`🎉 Directly received "${filePayload.fileName}" from ${filePayload.senderName}!`);
+            }
+          }
         }
       } catch (e) {
         // Silently handle radar poll error
@@ -1345,7 +1356,34 @@ const FileTransfer: React.FC = () => {
                       onChange={async (e) => {
                         const files = Array.from(e.target.files || []);
                         if (!files.length) return;
-                        await processIncomingFiles(files, false);
+
+                        if (pairedDevice) {
+                          // NEARBY METHOD (SHAREit / AIRDROP STYLE): DIRECT INSTANT STREAM! NO LINK / NO QR CODE!
+                          const file = files[0];
+                          setPairingStatus(`Transferring "${file.name}" directly to ${pairedDevice.name}...`);
+                          const reader = new FileReader();
+                          reader.onload = async () => {
+                            const base64Data = reader.result as string;
+                            await fetch('/api/v1/radar', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                action: 'send_direct_file',
+                                id: myDeviceIdRef.current,
+                                name: myDeviceNameRef.current,
+                                targetId: pairedDevice.id,
+                                fileName: file.name,
+                                fileSize: file.size,
+                                fileData: base64Data
+                              })
+                            });
+                            setPairingStatus(`🎉 Direct file transfer sent to ${pairedDevice.name}!`);
+                          };
+                          reader.readAsDataURL(file);
+                        } else {
+                          // FAR METHOD: CREATE P2P LINK & QR CODE
+                          await processIncomingFiles(files, false);
+                        }
                       }} 
                     />
                     <input
