@@ -1,6 +1,5 @@
 package com.bishalcodes.filetransfer.ui.screens
 
-import android.net.nsd.NsdServiceInfo
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -11,6 +10,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bishalcodes.filetransfer.network.UnifiedDevice
 import com.bishalcodes.filetransfer.ui.theme.Black
 import com.bishalcodes.filetransfer.ui.theme.DarkGray
 import com.bishalcodes.filetransfer.ui.theme.NeonGreen
@@ -28,8 +30,8 @@ import com.bishalcodes.filetransfer.ui.theme.White
 
 @Composable
 fun RadarScreen(
-    discoveredDevices: List<NsdServiceInfo>,
-    onConnectDevice: (NsdServiceInfo) -> Unit
+    discoveredDevices: List<UnifiedDevice>,
+    onConnectDevice: (UnifiedDevice) -> Unit
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "radar")
     val radius by infiniteTransition.animateFloat(
@@ -63,21 +65,21 @@ fun RadarScreen(
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = White,
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+            modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
         )
 
         Text(
-            text = "Scanning for nearby active devices...",
-            fontSize = 14.sp,
+            text = "Scanning for Android apps, iPhones & Web Browsers...",
+            fontSize = 12.sp,
             color = Color.Gray,
-            modifier = Modifier.padding(bottom = 24.dp)
+            modifier = Modifier.padding(bottom = 20.dp)
         )
 
         // Radar Canvas Animation
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(260.dp),
+                .height(240.dp),
             contentAlignment = Alignment.Center
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
@@ -109,9 +111,9 @@ fun RadarScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Phone,
-                    contentDescription = "This Device",
-                    tint = White
+                    imageVector = Icons.Default.Send,
+                    contentDescription = "Radar Active",
+                    tint = Black
                 )
             }
         }
@@ -136,9 +138,9 @@ fun RadarScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Searching for nearby devices on Wi-Fi...",
+                    text = "Searching for nearby devices on Wi-Fi & Web...",
                     color = Color.Gray,
-                    fontSize = 14.sp
+                    fontSize = 13.sp
                 )
             }
         } else {
@@ -160,25 +162,54 @@ fun RadarScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
-                                Text(
-                                    text = device.serviceName,
-                                    fontWeight = FontWeight.Bold,
-                                    color = White,
-                                    fontSize = 16.sp
-                                )
-                                Text(
-                                    text = "Port: ${device.port}",
-                                    color = Color.Gray,
-                                    fontSize = 12.sp
-                                )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(38.dp)
+                                        .clip(CircleShape)
+                                        .background(Black),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    val icon = when (device.platform) {
+                                        "ios_web" -> Icons.Default.Share
+                                        "desktop_web" -> Icons.Default.Send
+                                        else -> Icons.Default.Phone
+                                    }
+                                    Icon(
+                                        imageVector = icon,
+                                        contentDescription = device.platform,
+                                        tint = NeonGreen,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column {
+                                    Text(
+                                        text = device.name,
+                                        fontWeight = FontWeight.Bold,
+                                        color = White,
+                                        fontSize = 15.sp
+                                    )
+                                    val platformText = when (device.platform) {
+                                        "ios_web" -> "iPhone (Safari Web)"
+                                        "desktop_web" -> "Web Browser / Desktop"
+                                        "android_web" -> "Android (Chrome Web)"
+                                        else -> "Android Native App"
+                                    }
+                                    Text(
+                                        text = platformText,
+                                        color = Color.Gray,
+                                        fontSize = 11.sp
+                                    )
+                                }
                             }
+
                             Button(
                                 onClick = { onConnectDevice(device) },
                                 colors = ButtonDefaults.buttonColors(containerColor = NeonGreen),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
-                                Text("Connect", color = Black)
+                                Text("Connect", color = Black, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

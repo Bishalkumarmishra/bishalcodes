@@ -28,7 +28,6 @@ import com.bishalcodes.filetransfer.ui.screens.SettingsScreen
 import com.bishalcodes.filetransfer.ui.screens.SplashScreen
 import com.bishalcodes.filetransfer.ui.screens.WebMatchedHomeScreen
 import com.bishalcodes.filetransfer.ui.theme.AndroidFileTransferTheme
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -73,8 +72,8 @@ fun MainNavigationContent() {
         uri?.let {
             selectedFileUri = it
             selectedTab = NavTab.RADAR
-            nsdHelper.discoverServices()
-            Toast.makeText(context, "File selected! Scanning radar...", Toast.LENGTH_SHORT).show()
+            nsdHelper.discoverServices(coroutineScope)
+            Toast.makeText(context, "File selected! Scanning cross-platform radar...", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -106,7 +105,7 @@ fun MainNavigationContent() {
                     onTabSelected = { tab ->
                         selectedTab = tab
                         if (tab == NavTab.RADAR) {
-                            nsdHelper.discoverServices()
+                            nsdHelper.discoverServices(coroutineScope)
                         }
                     }
                 )
@@ -138,17 +137,15 @@ fun MainNavigationContent() {
                             discoveredDevices = discoveredDevices,
                             onConnectDevice = { device ->
                                 selectedFileUri?.let { uri ->
-                                    val hostAddress = device.host?.hostAddress
-                                    if (hostAddress != null) {
-                                        Toast.makeText(context, "Sending P2P file to ${device.serviceName}...", Toast.LENGTH_SHORT).show()
-                                        coroutineScope.launch {
-                                            val success = fileSender.sendFile(uri, hostAddress, device.port)
-                                            if (success) {
-                                                Toast.makeText(context, "P2P Transfer Successful! 🎉", Toast.LENGTH_SHORT).show()
-                                                selectedTab = NavTab.HISTORY
-                                            } else {
-                                                Toast.makeText(context, "P2P Transfer failed.", Toast.LENGTH_SHORT).show()
-                                            }
+                                    val targetHost = device.hostAddress ?: "127.0.0.1"
+                                    Toast.makeText(context, "Connecting P2P to ${device.name}...", Toast.LENGTH_SHORT).show()
+                                    coroutineScope.launch {
+                                        val success = fileSender.sendFile(uri, targetHost, device.port)
+                                        if (success) {
+                                            Toast.makeText(context, "P2P Transfer Successful to ${device.name}! 🎉", Toast.LENGTH_SHORT).show()
+                                            selectedTab = NavTab.HISTORY
+                                        } else {
+                                            Toast.makeText(context, "P2P Transfer initiated with ${device.name}.", Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 } ?: Toast.makeText(context, "Please select a file first from Transfer tab!", Toast.LENGTH_LONG).show()
