@@ -264,9 +264,46 @@ const FileTransfer: React.FC = () => {
   const [reactivatingTransfer, setReactivatingTransfer] = useState<SavedTransfer | null>(null);
   const [reactivatingId, setReactivatingId] = useState<string | null>(null);
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(null);
+  const [radarDevices, setRadarDevices] = useState<any[]>([]);
 
   useEffect(() => {
     setHistory(getTransferHistory());
+  }, []);
+
+  // Web P2P Radar Device Heartbeat & Discovery
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+    const platform = isIOS ? 'ios_web' : isAndroid ? 'android_web' : 'desktop_web';
+    const deviceName = isIOS ? 'iPhone (Safari Web)' : isAndroid ? 'Android (Chrome Web)' : 'Desktop Browser';
+    const deviceId = 'web-' + Math.random().toString(36).substring(2, 9);
+
+    const pollRadar = async () => {
+      try {
+        await fetch('/api/v1/radar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: deviceId,
+            name: deviceName,
+            platform,
+            status: 'active'
+          })
+        });
+        const res = await fetch('/api/v1/radar');
+        const data = await res.json();
+        if (data.success && data.devices) {
+          setRadarDevices(data.devices.filter((d: any) => d.id !== deviceId));
+        }
+      } catch (e) {
+        // Silently handle radar poll error
+      }
+    };
+
+    pollRadar();
+    const interval = setInterval(pollRadar, 4000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -1345,6 +1382,46 @@ const FileTransfer: React.FC = () => {
                     <p className="text-xs text-rose-355 font-semibold text-rose-350">{error}</p>
                   </div>
                 )}
+            </div>
+
+            {/* Live Active Devices Radar Bar */}
+            <div className="w-full max-w-xl mt-6 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 backdrop-blur-md text-left shadow-xl">
+              <div className="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#03df7a] animate-ping" />
+                  <span className="text-xs font-extrabold text-white uppercase tracking-wider">Nearby Active P2P Devices ({radarDevices.length})</span>
+                </div>
+                <span className="text-[10px] text-slate-400 font-mono">Auto-Connecting Web & Android</span>
+              </div>
+              {radarDevices.length === 0 ? (
+                <div className="text-xs text-slate-400 italic text-center py-3">
+                  📡 Scanning for active Android apps, iPhones &amp; Web browsers...
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
+                  {radarDevices.map((dev: any) => (
+                    <div key={dev.id} className="flex items-center justify-between p-2.5 bg-slate-950/80 border border-slate-800 rounded-xl hover:border-[#03df7a]/60 transition-all">
+                      <div className="flex items-center gap-3">
+                        <span className="text-base">
+                          {dev.platform === 'android_app' ? '📱' : dev.platform === 'ios_web' ? '🍎' : '💻'}
+                        </span>
+                        <div>
+                          <div className="text-xs font-bold text-white">{dev.name}</div>
+                          <div className="text-[10px] text-slate-400 font-mono">
+                            {dev.platform === 'android_app' ? 'Android App' : dev.platform === 'ios_web' ? 'iPhone (Safari)' : 'Web Browser'}
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-3 py-1.5 bg-[#03df7a] hover:bg-[#02be68] text-black font-extrabold text-xs rounded-lg transition-all active:scale-95 shadow-sm"
+                      >
+                        Connect &amp; Send File
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Steps to Use Hover Trigger Popup */}
