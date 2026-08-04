@@ -24,6 +24,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import AdminLiveChat from '../components/AdminLiveChat';
 import VercelAdminControl from '../components/VercelAdminControl';
+import AdminPushNotification from '../components/AdminPushNotification';
 
 type AdminTab = 'dashboard' | 'hero' | 'about' | 'projects' | 'blog' | 'pricing' | 'faq' | 'leads' | 'system' | 'legal' | 'socials' | 'reports' | 'payments' | 'testimonials' | 'experience' | 'services' | 'seo' | 'users' | 'desktop' | 'live-chat' | 'vercel';
 
@@ -4993,77 +4994,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
 
                 {/* Send Custom Push Notification */}
                 <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 space-y-4">
-                  <div>
-                    <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                      <Bell size={16} className="text-[#e52521]" /> Send Custom Push Notification
-                    </h3>
-                    <p className="text-slate-500 text-[10px] font-normal">Broadcast an instant native push notification alert to all running desktop app installations.</p>
-                  </div>
-                  <div className="grid grid-cols-1 gap-3 max-w-lg">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">Notification Title</label>
-                      <input 
-                        type="text" 
-                        value={notificationTitle} 
-                        onChange={e => setNotificationTitle(e.target.value)} 
-                        placeholder="e.g., Happy Vijaya Dashami!" 
-                        className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-slate-900 outline-none focus:border-[#e52521] transition-all text-xs" 
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">Message Body</label>
-                      <textarea 
-                        rows={3} 
-                        value={notificationBody} 
-                        onChange={e => setNotificationBody(e.target.value)} 
-                        placeholder="e.g., Wishing you a prosperous, peaceful and happy Dashain festival." 
-                        className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-slate-900 outline-none focus:border-[#e52521] transition-all text-xs resize-none" 
-                      />
-                    </div>
-                    <button 
-                      onClick={handleSendNotification} 
-                      disabled={sendingNotification}
-                      className="bg-[#e52521] hover:bg-[#d01f1c] disabled:bg-indigo-400 text-white px-5 py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-2 shadow-sm max-w-xs transition-all active:scale-95"
-                    >
-                      {sendingNotification ? 'Publishing...' : 'Publish Notification'}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Broadcast History Log */}
-                <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 space-y-4">
-                  <div>
-                    <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                      <Send size={16} className="text-[#e52521]" /> Broadcast History
-                    </h3>
-                    <p className="text-slate-500 text-[10px] font-normal">Review and manage previously broadcasted push notifications.</p>
-                  </div>
-                  {notificationsHistory.length === 0 ? (
-                    <div className="text-xs text-slate-500 italic">No broadcast history found.</div>
-                  ) : (
-                    <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-                      {notificationsHistory.map((notif) => (
-                        <div key={notif.id} className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 flex justify-between items-start gap-4">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">{notif.title}</span>
-                              <span className="text-[9px] text-slate-400 font-normal">
-                                {new Date(notif.timestamp).toLocaleString()}
-                              </span>
-                            </div>
-                            <p className="text-slate-600 dark:text-slate-400 text-xs leading-normal font-normal">{notif.body}</p>
-                          </div>
-                          <button 
-                            onClick={() => handleDeleteNotification(notif.id)}
-                            className="text-slate-400 hover:text-red-500 transition-colors p-1.5 hover:bg-red-50 rounded-lg"
-                            title="Delete Notification"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <AdminPushNotification />
                 </div>
 
                 <div className="mt-8">
@@ -5097,9 +5028,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                   <h2 className="text-lg font-bold text-slate-900 mb-1">Users & Activity Log</h2>
                   <p className="text-slate-500 text-xs font-normal">View registered dashboard users and their recent profile update logs.</p>
                 </div>
-
-                <div className="space-y-6">
-                  {/* Users Table */}
+                {/* Users Table */}
                   <div className="border border-slate-100 rounded-xl overflow-hidden bg-white">
                     <table className="w-full text-left border-collapse">
                       <thead>
@@ -5174,8 +5103,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
           </div>
         </div>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="primary">#E52521</color>
+    <color name="primaryDark">#D01F1C</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">File Transfer</string>
+    <style name="Theme.AndroidFileTransfer" parent="android:Theme.Material.Light.NoActionBar"/>
+</resources>

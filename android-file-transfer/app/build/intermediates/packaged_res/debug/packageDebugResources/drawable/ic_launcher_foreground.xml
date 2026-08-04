@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Outer File Tile Shape -->
+    <path
+        android:fillColor="#0B0F0C"
+        android:pathData="M32,24 H64 L78,38 V82 C78,85.3 75.3,88 72,88 H36 C32.7,88 30,85.3 30,82 V28 C30,24.7 32.7,24 36,24 Z" />
+    
+    <!-- Folded Corner -->
+    <path
+        android:fillColor="#00E676"
+        android:pathData="M64,24 L78,38 H64 Z" />
+
+    <!-- Neon Green Charging Bolt in Center -->
+    <path
+        android:fillColor="#00E676"
+        android:pathData="M58,34 L38,56 L52,56 L44,78 L68,52 L54,52 Z" />
+</vector>
