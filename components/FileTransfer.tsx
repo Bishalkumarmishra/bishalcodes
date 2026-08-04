@@ -310,16 +310,9 @@ const FileTransfer: React.FC = () => {
           if (dataPost.incomingFiles && dataPost.incomingFiles.length > 0) {
             const received = dataPost.incomingFiles[0];
             setReceivedFileModal(received);
-            // Try auto click download
-            try {
-              const a = document.createElement('a');
-              a.href = received.fileData;
-              a.download = received.fileName;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-            } catch (e) {}
             setPairingStatus(`🎉 Directly received "${received.fileName}" from ${received.senderName}!`);
+            // Attempt instant automatic download
+            triggerDirectBlobDownload(received.fileData, received.fileName);
           }
         }
       } catch (e) {
@@ -331,6 +324,40 @@ const FileTransfer: React.FC = () => {
     const interval = setInterval(pollRadar, 2500);
     return () => clearInterval(interval);
   }, []);
+
+  const triggerDirectBlobDownload = (dataURI: string, fileName: string) => {
+    try {
+      const parts = dataURI.split(',');
+      const mimeMatch = parts[0].match(/:(.*?);/);
+      const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+      const bstr = atob(parts[1] || parts[0]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      const blob = new Blob([u8arr], { type: mime });
+      const blobUrl = URL.createObjectURL(blob);
+
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        window.open(blobUrl, '_blank');
+      } else {
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(blobUrl);
+        }, 2000);
+      }
+    } catch (err) {
+      console.error('Direct download error:', err);
+      window.open(dataURI, '_blank');
+    }
+  };
 
   const handleConnectToDevice = async (dev: any) => {
     setPairingStatus(`Sending connection request to ${dev.name}...`);
@@ -1633,14 +1660,15 @@ const FileTransfer: React.FC = () => {
                   <p className="text-[11px] text-slate-400 mb-6">
                     Tap the button below to save the file to your device.
                   </p>
-                  <a
-                    href={receivedFileModal.fileData}
-                    download={receivedFileModal.fileName}
-                    onClick={() => setReceivedFileModal(null)}
-                    className="block w-full py-3 rounded-xl bg-[#03df7a] hover:bg-[#02be68] text-black font-extrabold text-xs shadow-lg transition-all active:scale-95 text-center"
+                  <button
+                    onClick={() => {
+                      triggerDirectBlobDownload(receivedFileModal.fileData, receivedFileModal.fileName);
+                      setReceivedFileModal(null);
+                    }}
+                    className="block w-full py-3 rounded-xl bg-[#03df7a] hover:bg-[#02be68] text-black font-extrabold text-xs shadow-lg transition-all active:scale-95 text-center cursor-pointer"
                   >
                     📥 Save File to Device
-                  </a>
+                  </button>
                 </div>
               </div>
             )}
