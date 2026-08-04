@@ -4,7 +4,7 @@ import QRCode from 'qrcode';
 import {
   ArrowLeft, Upload, X, File, Folder, Copy, Check,
   Send, Link2, AlertCircle, Loader2, CloudUpload, Mail,
-  ShieldCheck, Clock, FileArchive, Lock, Zap, Globe, FileDown
+  ShieldCheck, Clock, FileArchive, Lock, Zap, Globe, FileDown, Download
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
 
