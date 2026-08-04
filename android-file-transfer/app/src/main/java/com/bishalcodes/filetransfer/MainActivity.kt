@@ -15,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.bishalcodes.filetransfer.network.AdminNotificationPoller
 import com.bishalcodes.filetransfer.network.FileReceiverService
 import com.bishalcodes.filetransfer.network.FileSender
 import com.bishalcodes.filetransfer.network.NsdHelper
@@ -88,6 +89,8 @@ fun MainNavigationContent() {
                 )
             )
         }
+        // Start live polling for bishalcodes.com Admin Push Notifications
+        AdminNotificationPoller.startPolling(context, coroutineScope)
     }
 
     Scaffold(

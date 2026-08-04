@@ -1,5 +1,7 @@
 package com.bishalcodes.filetransfer.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -11,15 +13,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +31,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bishalcodes.filetransfer.R
+import com.bishalcodes.filetransfer.network.AdminNotificationPoller
 import com.bishalcodes.filetransfer.ui.theme.Black
 import com.bishalcodes.filetransfer.ui.theme.BrightGreen
 import com.bishalcodes.filetransfer.ui.theme.CardGray
@@ -35,6 +39,8 @@ import com.bishalcodes.filetransfer.ui.theme.DarkGray
 import com.bishalcodes.filetransfer.ui.theme.DarkGreen
 import com.bishalcodes.filetransfer.ui.theme.NeonGreen
 import com.bishalcodes.filetransfer.ui.theme.White
+import java.text.SimpleDateFormat
+import java.util.*
 
 val NavyDark = Color(0xFF090E17)
 val MutedBlue = Color(0xFF8F9CAE)
@@ -45,7 +51,9 @@ fun WebMatchedHomeScreen(
     onSendClick: () -> Unit,
     onReceiveClick: () -> Unit
 ) {
+    val context = LocalContext.current
     val density = LocalDensity.current
+    var showNotificationDialog by remember { mutableStateOf(false) }
 
     val infiniteTransition = rememberInfiniteTransition(label = "wavePulse")
     val waveProgress by infiniteTransition.animateFloat(
@@ -66,7 +74,7 @@ fun WebMatchedHomeScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top Header matching bishalcodes.com
+        // Top Header matching bishalcodes.com with Notification Bell Icon
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -98,19 +106,49 @@ fun WebMatchedHomeScreen(
                 )
             }
 
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .border(1.dp, NeonGreen, RoundedCornerShape(20.dp))
-                    .background(DarkGray)
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
-            ) {
-                Text(
-                    text = "File Transfer",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = NeonGreen
-                )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Notification Bell Icon with Badge
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(DarkGray)
+                        .clickable {
+                            AdminNotificationPoller.unreadCount = 0
+                            showNotificationDialog = true
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Notifications",
+                        tint = NeonGreen,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    if (AdminNotificationPoller.unreadCount > 0) {
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .align(Alignment.TopEnd)
+                                .background(Color.Red, CircleShape)
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .border(1.dp, NeonGreen, RoundedCornerShape(20.dp))
+                        .background(DarkGray)
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = "File Transfer",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = NeonGreen
+                    )
+                }
             }
         }
 
@@ -311,5 +349,80 @@ fun WebMatchedHomeScreen(
                 Text("Superfast P2P", fontSize = 11.sp, color = Color.Gray)
             }
         }
+    }
+
+    // Admin Notification History Dialog
+    if (showNotificationDialog) {
+        AlertDialog(
+            onDismissRequest = { showNotificationDialog = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Default.Notifications, contentDescription = "Alerts", tint = NeonGreen)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Admin Notifications", color = White, fontWeight = FontWeight.Bold)
+                }
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 350.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    val list = AdminNotificationPoller.notificationHistory
+                    if (list.isEmpty()) {
+                        Text(
+                            "No broadcast notifications received yet.",
+                            color = Color.Gray,
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+                    } else {
+                        list.forEach { notif ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp),
+                                colors = CardDefaults.cardColors(containerColor = DarkGray)
+                            ) {
+                                Column(modifier = Modifier.padding(14.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(notif.title, color = White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                        val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(notif.timestamp))
+                                        Text(timeStr, color = Color.Gray, fontSize = 11.sp)
+                                    }
+
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(notif.message, color = Color.LightGray, fontSize = 12.sp)
+
+                                    if (!notif.actionUrl.isNullOrEmpty()) {
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = "Open Link ↗",
+                                            color = NeonGreen,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.clickable {
+                                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(notif.actionUrl))
+                                                context.startActivity(intent)
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showNotificationDialog = false }) {
+                    Text("Close", color = NeonGreen, fontWeight = FontWeight.Bold)
+                }
+            },
+            containerColor = CardGray
+        )
     }
 }

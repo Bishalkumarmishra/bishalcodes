@@ -45,6 +45,14 @@
             android:name=".network.FileReceiverService" 
             android:foregroundServiceType="dataSync" 
             android:exported="false" />
+
+        <receiver 
+            android:name=".network.AdminNotificationReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.bishalcodes.filetransfer.TEST_NOTIFICATION" />
+            </intent-filter>
+        </receiver>
             
     </application>
 
