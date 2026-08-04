@@ -22,6 +22,7 @@ import com.bishalcodes.filetransfer.network.NsdHelper
 import com.bishalcodes.filetransfer.ui.components.BottomNavBar
 import com.bishalcodes.filetransfer.ui.components.NavTab
 import com.bishalcodes.filetransfer.ui.screens.HistoryScreen
+import com.bishalcodes.filetransfer.ui.screens.NotificationScreen
 import com.bishalcodes.filetransfer.ui.screens.RadarScreen
 import com.bishalcodes.filetransfer.ui.screens.SettingsScreen
 import com.bishalcodes.filetransfer.ui.screens.SplashScreen
@@ -61,6 +62,8 @@ fun MainNavigationContent() {
 
     var selectedTab by remember { mutableStateOf(NavTab.TRANSFER) }
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
+    var isNotificationScreenOpen by remember { mutableStateOf(false) }
+
     val discoveredDevices by nsdHelper.discoveredDevices.collectAsState(initial = emptyList())
 
     // File Picker Launcher
@@ -93,66 +96,73 @@ fun MainNavigationContent() {
         AdminNotificationPoller.startPolling(context, coroutineScope)
     }
 
-    Scaffold(
-        bottomBar = {
-            BottomNavBar(
-                selectedTab = selectedTab,
-                onTabSelected = { tab ->
-                    selectedTab = tab
-                    if (tab == NavTab.RADAR) {
-                        nsdHelper.discoverServices()
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            when (selectedTab) {
-                NavTab.TRANSFER -> {
-                    WebMatchedHomeScreen(
-                        onSendClick = { filePickerLauncher.launch("*/*") },
-                        onReceiveClick = {
-                            nsdHelper.registerService(12345)
-                            val intent = Intent(context, FileReceiverService::class.java)
-                            context.startForegroundService(intent)
-                            Toast.makeText(context, "Receiver active! Waiting for P2P connection...", Toast.LENGTH_LONG).show()
+    if (isNotificationScreenOpen) {
+        NotificationScreen(onBack = { isNotificationScreenOpen = false })
+    } else {
+        Scaffold(
+            bottomBar = {
+                BottomNavBar(
+                    selectedTab = selectedTab,
+                    onTabSelected = { tab ->
+                        selectedTab = tab
+                        if (tab == NavTab.RADAR) {
+                            nsdHelper.discoverServices()
                         }
-                    )
-                }
+                    }
+                )
+            }
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                when (selectedTab) {
+                    NavTab.TRANSFER -> {
+                        WebMatchedHomeScreen(
+                            onSendClick = { filePickerLauncher.launch("*/*") },
+                            onReceiveClick = {
+                                nsdHelper.registerService(12345)
+                                val intent = Intent(context, FileReceiverService::class.java)
+                                context.startForegroundService(intent)
+                                Toast.makeText(context, "Receiver active! Waiting for P2P connection...", Toast.LENGTH_LONG).show()
+                            },
+                            onNotificationClick = {
+                                isNotificationScreenOpen = true
+                            }
+                        )
+                    }
 
-                NavTab.RADAR -> {
-                    RadarScreen(
-                        discoveredDevices = discoveredDevices,
-                        onConnectDevice = { device ->
-                            selectedFileUri?.let { uri ->
-                                val hostAddress = device.host?.hostAddress
-                                if (hostAddress != null) {
-                                    Toast.makeText(context, "Sending P2P file to ${device.serviceName}...", Toast.LENGTH_SHORT).show()
-                                    coroutineScope.launch {
-                                        val success = fileSender.sendFile(uri, hostAddress, device.port)
-                                        if (success) {
-                                            Toast.makeText(context, "P2P Transfer Successful! 🎉", Toast.LENGTH_SHORT).show()
-                                            selectedTab = NavTab.HISTORY
-                                        } else {
-                                            Toast.makeText(context, "P2P Transfer failed.", Toast.LENGTH_SHORT).show()
+                    NavTab.RADAR -> {
+                        RadarScreen(
+                            discoveredDevices = discoveredDevices,
+                            onConnectDevice = { device ->
+                                selectedFileUri?.let { uri ->
+                                    val hostAddress = device.host?.hostAddress
+                                    if (hostAddress != null) {
+                                        Toast.makeText(context, "Sending P2P file to ${device.serviceName}...", Toast.LENGTH_SHORT).show()
+                                        coroutineScope.launch {
+                                            val success = fileSender.sendFile(uri, hostAddress, device.port)
+                                            if (success) {
+                                                Toast.makeText(context, "P2P Transfer Successful! 🎉", Toast.LENGTH_SHORT).show()
+                                                selectedTab = NavTab.HISTORY
+                                            } else {
+                                                Toast.makeText(context, "P2P Transfer failed.", Toast.LENGTH_SHORT).show()
+                                            }
                                         }
                                     }
-                                }
-                            } ?: Toast.makeText(context, "Please select a file first from Transfer tab!", Toast.LENGTH_LONG).show()
-                        }
-                    )
-                }
+                                } ?: Toast.makeText(context, "Please select a file first from Transfer tab!", Toast.LENGTH_LONG).show()
+                            }
+                        )
+                    }
 
-                NavTab.HISTORY -> {
-                    HistoryScreen()
-                }
+                    NavTab.HISTORY -> {
+                        HistoryScreen()
+                    }
 
-                NavTab.SETTINGS -> {
-                    SettingsScreen()
+                    NavTab.SETTINGS -> {
+                        SettingsScreen()
+                    }
                 }
             }
         }

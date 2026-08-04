@@ -1,7 +1,5 @@
 package com.bishalcodes.filetransfer.ui.screens
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -39,8 +37,6 @@ import com.bishalcodes.filetransfer.ui.theme.DarkGray
 import com.bishalcodes.filetransfer.ui.theme.DarkGreen
 import com.bishalcodes.filetransfer.ui.theme.NeonGreen
 import com.bishalcodes.filetransfer.ui.theme.White
-import java.text.SimpleDateFormat
-import java.util.*
 
 val NavyDark = Color(0xFF090E17)
 val MutedBlue = Color(0xFF8F9CAE)
@@ -49,11 +45,11 @@ val MutedGrey = Color(0xFF6B7A90)
 @Composable
 fun WebMatchedHomeScreen(
     onSendClick: () -> Unit,
-    onReceiveClick: () -> Unit
+    onReceiveClick: () -> Unit,
+    onNotificationClick: () -> Unit
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
-    var showNotificationDialog by remember { mutableStateOf(false) }
 
     val infiniteTransition = rememberInfiniteTransition(label = "wavePulse")
     val waveProgress by infiniteTransition.animateFloat(
@@ -107,15 +103,15 @@ fun WebMatchedHomeScreen(
             }
 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                // Notification Bell Icon with Badge
+                // Notification Bell Icon with Red Unread Count Badge
                 Box(
                     modifier = Modifier
-                        .size(36.dp)
+                        .size(38.dp)
                         .clip(CircleShape)
                         .background(DarkGray)
                         .clickable {
                             AdminNotificationPoller.unreadCount = 0
-                            showNotificationDialog = true
+                            onNotificationClick()
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -128,10 +124,19 @@ fun WebMatchedHomeScreen(
                     if (AdminNotificationPoller.unreadCount > 0) {
                         Box(
                             modifier = Modifier
-                                .size(10.dp)
+                                .size(16.dp)
                                 .align(Alignment.TopEnd)
-                                .background(Color.Red, CircleShape)
-                        )
+                                .clip(CircleShape)
+                                .background(Color.Red),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "${AdminNotificationPoller.unreadCount}",
+                                color = White,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
 
@@ -176,7 +181,7 @@ fun WebMatchedHomeScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // EXACT MATCH Circular Drop Target matching Image 2
+        // EXACT MATCH Circular Drop Target
         Box(
             modifier = Modifier
                 .size(280.dp)
@@ -349,80 +354,5 @@ fun WebMatchedHomeScreen(
                 Text("Superfast P2P", fontSize = 11.sp, color = Color.Gray)
             }
         }
-    }
-
-    // Admin Notification History Dialog
-    if (showNotificationDialog) {
-        AlertDialog(
-            onDismissRequest = { showNotificationDialog = false },
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.Notifications, contentDescription = "Alerts", tint = NeonGreen)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Admin Notifications", color = White, fontWeight = FontWeight.Bold)
-                }
-            },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 350.dp)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    val list = AdminNotificationPoller.notificationHistory
-                    if (list.isEmpty()) {
-                        Text(
-                            "No broadcast notifications received yet.",
-                            color = Color.Gray,
-                            fontSize = 13.sp,
-                            modifier = Modifier.padding(vertical = 16.dp)
-                        )
-                    } else {
-                        list.forEach { notif ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 6.dp),
-                                colors = CardDefaults.cardColors(containerColor = DarkGray)
-                            ) {
-                                Column(modifier = Modifier.padding(14.dp)) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(notif.title, color = White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                        val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(notif.timestamp))
-                                        Text(timeStr, color = Color.Gray, fontSize = 11.sp)
-                                    }
-
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(notif.message, color = Color.LightGray, fontSize = 12.sp)
-
-                                    if (!notif.actionUrl.isNullOrEmpty()) {
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            text = "Open Link ↗",
-                                            color = NeonGreen,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.clickable {
-                                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(notif.actionUrl))
-                                                context.startActivity(intent)
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showNotificationDialog = false }) {
-                    Text("Close", color = NeonGreen, fontWeight = FontWeight.Bold)
-                }
-            },
-            containerColor = CardGray
-        )
     }
 }
