@@ -265,36 +265,47 @@ const FileTransfer: React.FC = () => {
   const [reactivatingId, setReactivatingId] = useState<string | null>(null);
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(null);
   const [radarDevices, setRadarDevices] = useState<any[]>([]);
+  const [incomingPairRequest, setIncomingPairRequest] = useState<any | null>(null);
+  const [pairedDevice, setPairedDevice] = useState<any | null>(null);
+  const [pairingStatus, setPairingStatus] = useState<string>('');
+
+  const myDeviceIdRef = useRef<string>('');
+  const myDeviceNameRef = useRef<string>('');
+  const myPlatformRef = useRef<string>('');
 
   useEffect(() => {
     setHistory(getTransferHistory());
   }, []);
 
-  // Web P2P Radar Device Heartbeat & Discovery
+  // Web P2P Radar Device Heartbeat, Discovery & Pairing
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isAndroid = /Android/.test(navigator.userAgent);
-    const platform = isIOS ? 'ios_web' : isAndroid ? 'android_web' : 'desktop_web';
-    const deviceName = isIOS ? 'iPhone (Safari Web)' : isAndroid ? 'Android (Chrome Web)' : 'Desktop Browser';
-    const deviceId = 'web-' + Math.random().toString(36).substring(2, 9);
+    myPlatformRef.current = isIOS ? 'ios_web' : isAndroid ? 'android_web' : 'desktop_web';
+    myDeviceNameRef.current = isIOS ? 'iPhone (Safari Web)' : isAndroid ? 'Android (Chrome Web)' : 'Desktop Browser';
+    myDeviceIdRef.current = 'web-' + Math.random().toString(36).substring(2, 9);
 
     const pollRadar = async () => {
       try {
-        await fetch('/api/v1/radar', {
+        const resPost = await fetch('/api/v1/radar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            id: deviceId,
-            name: deviceName,
-            platform,
+            id: myDeviceIdRef.current,
+            name: myDeviceNameRef.current,
+            platform: myPlatformRef.current,
             status: 'active'
           })
         });
-        const res = await fetch('/api/v1/radar');
-        const data = await res.json();
-        if (data.success && data.devices) {
-          setRadarDevices(data.devices.filter((d: any) => d.id !== deviceId));
+        const dataPost = await resPost.json();
+        if (dataPost.success) {
+          if (dataPost.activeDevices) {
+            setRadarDevices(dataPost.activeDevices.filter((d: any) => d.id !== myDeviceIdRef.current));
+          }
+          if (dataPost.incomingRequests && dataPost.incomingRequests.length > 0) {
+            setIncomingPairRequest(dataPost.incomingRequests[0]);
+          }
         }
       } catch (e) {
         // Silently handle radar poll error
@@ -302,9 +313,84 @@ const FileTransfer: React.FC = () => {
     };
 
     pollRadar();
-    const interval = setInterval(pollRadar, 4000);
+    const interval = setInterval(pollRadar, 2500);
     return () => clearInterval(interval);
   }, []);
+
+  const handleConnectToDevice = async (dev: any) => {
+    setPairingStatus(`Sending connection request to ${dev.name}...`);
+    try {
+      const res = await fetch('/api/v1/radar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'connect_request',
+          id: myDeviceIdRef.current,
+          name: myDeviceNameRef.current,
+          targetId: dev.id
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPairingStatus(`Waiting for ${dev.name} to accept...`);
+        // Start polling for acceptance
+        const checkInterval = setInterval(async () => {
+          const resCheck = await fetch('/api/v1/radar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'check_pair_status',
+              id: myDeviceIdRef.current
+            })
+          });
+          const dataCheck = await resCheck.json();
+          if (dataCheck.success && dataCheck.sentRequests) {
+            const req = dataCheck.sentRequests.find((r: any) => r.id === data.pairRequest.id);
+            if (req) {
+              if (req.status === 'accepted') {
+                clearInterval(checkInterval);
+                setPairedDevice(dev);
+                setPairingStatus(`⚡ Connected & Paired to ${dev.name}! Choose file to send.`);
+                fileInputRef.current?.click();
+              } else if (req.status === 'rejected') {
+                clearInterval(checkInterval);
+                setPairingStatus(`${dev.name} declined connection request.`);
+              }
+            }
+          }
+        }, 1500);
+      }
+    } catch (e) {
+      setPairingStatus('Failed to send connection request.');
+    }
+  };
+
+  const handleRespondPairRequest = async (accept: boolean) => {
+    if (!incomingPairRequest) return;
+    const responseStatus = accept ? 'accepted' : 'rejected';
+    try {
+      await fetch('/api/v1/radar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'respond_request',
+          requestId: incomingPairRequest.id,
+          responseStatus
+        })
+      });
+
+      if (accept) {
+        setPairedDevice({
+          id: incomingPairRequest.fromId,
+          name: incomingPairRequest.fromName
+        });
+        setPairingStatus(`⚡ Connected & Paired to ${incomingPairRequest.fromName}!`);
+      }
+      setIncomingPairRequest(null);
+    } catch (e) {
+      setIncomingPairRequest(null);
+    }
+  };
 
   useEffect(() => {
     const handleUnload = () => {
@@ -1391,8 +1477,20 @@ const FileTransfer: React.FC = () => {
                   <div className="w-2.5 h-2.5 rounded-full bg-[#03df7a] animate-ping" />
                   <span className="text-xs font-extrabold text-white uppercase tracking-wider">Nearby Active P2P Devices ({radarDevices.length})</span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono">Auto-Connecting Web & Android</span>
+                <span className="text-[10px] text-slate-400 font-mono">Auto-Connecting Web &amp; Android</span>
               </div>
+
+              {pairingStatus && (
+                <div className="mb-3 p-2.5 bg-[#03df7a]/10 border border-[#03df7a]/40 rounded-xl text-xs font-bold text-[#03df7a] flex items-center justify-between">
+                  <span>{pairingStatus}</span>
+                  {pairedDevice && (
+                    <button onClick={() => { setPairedDevice(null); setPairingStatus(''); }} className="text-[10px] text-slate-400 underline hover:text-white">
+                      Disconnect
+                    </button>
+                  )}
+                </div>
+              )}
+
               {radarDevices.length === 0 ? (
                 <div className="text-xs text-slate-400 italic text-center py-3">
                   📡 Scanning for active Android apps, iPhones &amp; Web browsers...
@@ -1408,21 +1506,50 @@ const FileTransfer: React.FC = () => {
                         <div>
                           <div className="text-xs font-bold text-white">{dev.name}</div>
                           <div className="text-[10px] text-slate-400 font-mono">
-                            {dev.platform === 'android_app' ? 'Android App' : dev.platform === 'ios_web' ? 'iPhone (Safari)' : 'Web Browser'}
+                            {dev.platform === 'android_app' ? 'Android Native App' : dev.platform === 'ios_web' ? 'iPhone (Safari)' : 'Web Browser'}
                           </div>
                         </div>
                       </div>
                       <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="px-3 py-1.5 bg-[#03df7a] hover:bg-[#02be68] text-black font-extrabold text-xs rounded-lg transition-all active:scale-95 shadow-sm"
+                        onClick={() => handleConnectToDevice(dev)}
+                        className="px-3.5 py-1.5 bg-[#03df7a] hover:bg-[#02be68] text-black font-extrabold text-xs rounded-lg transition-all active:scale-95 shadow-sm flex items-center gap-1.5"
                       >
-                        Connect &amp; Send File
+                        <Zap size={12} /> Connect &amp; Send File
                       </button>
                     </div>
                   ))}
                 </div>
               )}
             </div>
+
+            {/* Incoming Connection Request Modal (SHAREit Style) */}
+            {incomingPairRequest && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                <div className="bg-slate-900 border-2 border-[#03df7a] rounded-2xl p-6 max-w-sm w-full shadow-[0_0_50px_rgba(3,223,122,0.3)] text-center animate-in fade-in zoom-in duration-200">
+                  <div className="w-14 h-14 rounded-full bg-[#03df7a]/20 border border-[#03df7a] flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <Zap size={28} className="text-[#03df7a]" />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-white mb-1">Incoming Connection Request</h3>
+                  <p className="text-xs text-slate-350 mb-6">
+                    <strong className="text-[#03df7a]">{incomingPairRequest.fromName}</strong> wants to connect and send files directly via P2P.
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => handleRespondPairRequest(false)}
+                      className="flex-1 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700 transition-all"
+                    >
+                      Decline
+                    </button>
+                    <button
+                      onClick={() => handleRespondPairRequest(true)}
+                      className="flex-1 py-2.5 rounded-xl bg-[#03df7a] hover:bg-[#02be68] text-black font-extrabold text-xs shadow-lg transition-all active:scale-95"
+                    >
+                      Accept &amp; Connect
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Steps to Use Hover Trigger Popup */}
             <div className="relative group mt-6 z-30">
