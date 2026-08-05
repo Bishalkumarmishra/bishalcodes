@@ -1,6 +1,7 @@
 package com.bishalcodes.filetransfer.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,8 +21,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bishalcodes.filetransfer.ui.theme.DarkGray
-import com.bishalcodes.filetransfer.ui.theme.NeonGreen
+import com.bishalcodes.filetransfer.ui.theme.DarkText
+import com.bishalcodes.filetransfer.ui.theme.LightCard
+import com.bishalcodes.filetransfer.ui.theme.PrimaryGreen
+import com.bishalcodes.filetransfer.ui.theme.SubText
 
 enum class NavTab(val title: String, val icon: ImageVector) {
     TRANSFER("Transfer", Icons.Default.Share),
@@ -38,16 +41,17 @@ fun BottomNavBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(72.dp)
-            .background(DarkGray)
+            .height(68.dp)
+            .background(LightCard)
+            .border(1.dp, Color(0xFFE0F2E6), RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             .padding(horizontal = 12.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
         NavTab.values().forEach { tab ->
             val isSelected = selectedTab == tab
-            val activeColor = NeonGreen
-            val inactiveColor = Color.Gray
+            val activeColor = PrimaryGreen
+            val inactiveColor = SubText
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -55,15 +59,15 @@ fun BottomNavBar(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
                     .clickable { onTabSelected(tab) }
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                    .padding(horizontal = 14.dp, vertical = 4.dp)
             ) {
                 Icon(
                     imageVector = tab.icon,
                     contentDescription = tab.title,
                     tint = if (isSelected) activeColor else inactiveColor,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(22.dp)
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = tab.title,
                     fontSize = 11.sp,

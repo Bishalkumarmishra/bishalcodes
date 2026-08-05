@@ -1,6 +1,7 @@
 package com.bishalcodes.filetransfer.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,10 +18,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bishalcodes.filetransfer.ui.theme.Black
-import com.bishalcodes.filetransfer.ui.theme.DarkGray
-import com.bishalcodes.filetransfer.ui.theme.NeonGreen
-import com.bishalcodes.filetransfer.ui.theme.White
+import com.bishalcodes.filetransfer.ui.theme.DarkText
+import com.bishalcodes.filetransfer.ui.theme.LightBg
+import com.bishalcodes.filetransfer.ui.theme.LightCard
+import com.bishalcodes.filetransfer.ui.theme.PrimaryGreen
+import com.bishalcodes.filetransfer.ui.theme.SubText
 
 data class TransferLog(
     val filename: String,
@@ -34,15 +36,15 @@ fun HistoryScreen(logs: List<TransferLog> = emptyList()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Black)
+            .background(LightBg)
             .padding(16.dp)
     ) {
         Text(
             text = "P2P Transfer History",
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = White,
-            modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
+            fontWeight = FontWeight.Black,
+            color = DarkText,
+            modifier = Modifier.padding(top = 12.dp, bottom = 16.dp)
         )
 
         if (logs.isEmpty()) {
@@ -56,20 +58,20 @@ fun HistoryScreen(logs: List<TransferLog> = emptyList()) {
                     Icon(
                         imageVector = Icons.Default.List,
                         contentDescription = "Empty History",
-                        tint = Color.DarkGray,
+                        tint = SubText,
                         modifier = Modifier.size(64.dp)
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "No P2P file transfers yet.",
-                        color = Color.Gray,
+                        color = DarkText,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Files sent or received over your local Wi-Fi will appear here.",
-                        color = Color.DarkGray,
+                        color = SubText,
                         fontSize = 12.sp
                     )
                 }
@@ -82,8 +84,9 @@ fun HistoryScreen(logs: List<TransferLog> = emptyList()) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp)),
-                        colors = CardDefaults.cardColors(containerColor = DarkGray)
+                            .clip(RoundedCornerShape(12.dp))
+                            .border(1.dp, Color(0xFFE0F2E6), RoundedCornerShape(12.dp)),
+                        colors = CardDefaults.cardColors(containerColor = LightCard)
                     ) {
                         Row(
                             modifier = Modifier
@@ -94,7 +97,7 @@ fun HistoryScreen(logs: List<TransferLog> = emptyList()) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = "Success",
-                                tint = NeonGreen,
+                                tint = PrimaryGreen,
                                 modifier = Modifier.size(32.dp)
                             )
 
@@ -104,20 +107,20 @@ fun HistoryScreen(logs: List<TransferLog> = emptyList()) {
                                 Text(
                                     text = log.filename,
                                     fontWeight = FontWeight.Bold,
-                                    color = White,
-                                    fontSize = 16.sp
+                                    color = DarkText,
+                                    fontSize = 15.sp
                                 )
                                 Text(
                                     text = "${if (log.isSent) "Sent" else "Received"} • ${log.size}",
-                                    color = Color.Gray,
-                                    fontSize = 13.sp
+                                    color = SubText,
+                                    fontSize = 12.sp
                                 )
                             }
 
                             Text(
                                 text = log.timestamp,
-                                color = Color.Gray,
-                                fontSize = 12.sp
+                                color = SubText,
+                                fontSize = 11.sp
                             )
                         }
                     }

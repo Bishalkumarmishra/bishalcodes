@@ -5,19 +5,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bishalcodes.filetransfer.ui.theme.Black
-import com.bishalcodes.filetransfer.ui.theme.NeonGreen
+import com.bishalcodes.filetransfer.ui.theme.DarkText
+import com.bishalcodes.filetransfer.ui.theme.LightBg
+import com.bishalcodes.filetransfer.ui.theme.PrimaryGreen
+import com.bishalcodes.filetransfer.ui.theme.SubText
 import com.bishalcodes.filetransfer.ui.theme.White
 import kotlinx.coroutines.delay
 
@@ -35,14 +36,14 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
     )
 
     LaunchedEffect(Unit) {
-        delay(1800)
+        delay(1500)
         onSplashFinished()
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Black),
+            .background(LightBg),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -54,19 +55,19 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
                 modifier = Modifier
                     .size(120.dp)
                     .scale(scale)
-                    .background(NeonGreen.copy(alpha = 0.2f), shape = CircleShape)
+                    .background(PrimaryGreen.copy(alpha = 0.15f), shape = CircleShape)
                     .padding(16.dp)
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(80.dp)
-                        .background(NeonGreen, shape = CircleShape)
+                        .background(PrimaryGreen, shape = CircleShape)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Share,
+                        imageVector = Icons.Default.Send,
                         contentDescription = "App Logo",
-                        tint = Black,
+                        tint = White,
                         modifier = Modifier.size(40.dp)
                     )
                 }
@@ -78,7 +79,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
                 text = "FILE TRANSFER",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Black,
-                color = White,
+                color = DarkText,
                 letterSpacing = 2.sp
             )
 
@@ -88,7 +89,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
                 text = "Powered by BishalCodes P2P",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.Gray
+                color = SubText
             )
         }
     }

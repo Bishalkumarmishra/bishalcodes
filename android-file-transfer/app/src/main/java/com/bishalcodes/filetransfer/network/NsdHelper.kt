@@ -29,7 +29,8 @@ class NsdHelper(context: Context) {
 
     private val nsdManager = context.getSystemService(Context.NSD_SERVICE) as NsdManager
     private val serviceType = "_bfiletransfer._tcp."
-    private val serviceName = "BishalFileTransfer-${Build.MODEL}"
+    private val myCleanName = getCleanDeviceName()
+    private val serviceName = "BishalFT-$myCleanName"
 
     private val _discoveredDevices = MutableStateFlow<List<UnifiedDevice>>(emptyList())
     val discoveredDevices: StateFlow<List<UnifiedDevice>> = _discoveredDevices
@@ -38,6 +39,19 @@ class NsdHelper(context: Context) {
     private var discoveryListener: NsdManager.DiscoveryListener? = null
     private var isCloudPolling = false
     private val myDeviceId = "device-" + Build.MODEL.replace(" ", "_") + "-" + (1000..9999).random()
+
+    companion object {
+        fun getCleanDeviceName(): String {
+            val model = Build.MODEL
+            val manufacturer = Build.MANUFACTURER
+            return if (model.startsWith(manufacturer, ignoreCase = true)) {
+                model.capitalize()
+            } else {
+                "${manufacturer.capitalize()} $model"
+            }.replace("sdk_gphone16k_x86_64", "Android Emulator")
+                .replace("sdk_gphone", "Android Device")
+        }
+    }
 
     fun registerService(port: Int) {
         val serviceInfo = NsdServiceInfo().apply {
@@ -55,13 +69,8 @@ class NsdHelper(context: Context) {
                 Log.e("NsdHelper", "Registration failed: $errorCode")
             }
 
-            override fun onServiceUnregistered(arg0: NsdServiceInfo) {
-                Log.d("NsdHelper", "Service unregistered")
-            }
-
-            override fun onUnregistrationFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
-                Log.e("NsdHelper", "Unregistration failed: $errorCode")
-            }
+            override fun onServiceUnregistered(arg0: NsdServiceInfo) {}
+            override fun onUnregistrationFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {}
         }
 
         try {
@@ -73,19 +82,22 @@ class NsdHelper(context: Context) {
 
     fun discoverServices(scope: CoroutineScope) {
         discoveryListener = object : NsdManager.DiscoveryListener {
-            override fun onDiscoveryStarted(regType: String) {
-                Log.d("NsdHelper", "Service discovery started")
-            }
+            override fun onDiscoveryStarted(regType: String) {}
 
             override fun onServiceFound(service: NsdServiceInfo) {
-                if (service.serviceType == serviceType) {
+                if (service.serviceType == serviceType && !service.serviceName.contains(myCleanName)) {
                     nsdManager.resolveService(service, object : NsdManager.ResolveListener {
                         override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {}
 
                         override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
+                            val cleanName = serviceInfo.serviceName
+                                .replace("BishalFileTransfer-", "")
+                                .replace("BishalFT-", "")
+                                .replace("sdk_gphone16k_x86_64", "Android Emulator")
+
                             val unified = UnifiedDevice(
                                 id = serviceInfo.serviceName,
-                                name = serviceInfo.serviceName,
+                                name = cleanName,
                                 platform = "android_app",
                                 hostAddress = serviceInfo.host?.hostAddress,
                                 port = serviceInfo.port,
@@ -93,7 +105,7 @@ class NsdHelper(context: Context) {
                             )
 
                             val currentList = _discoveredDevices.value.toMutableList()
-                            if (currentList.none { it.id == unified.id }) {
+                            if (currentList.none { it.id == unified.id || it.name == cleanName }) {
                                 currentList.add(unified)
                                 _discoveredDevices.value = currentList
                             }
@@ -128,7 +140,7 @@ class NsdHelper(context: Context) {
                     } catch (e: Exception) {
                         Log.e("NsdHelper", "Cloud radar error: ${e.message}")
                     }
-                    delay(4000)
+                    delay(3000)
                 }
             }
         }
@@ -150,7 +162,7 @@ class NsdHelper(context: Context) {
 
                 val payload = JSONObject()
                 payload.put("id", myDeviceId)
-                payload.put("name", "Android (${Build.MODEL})")
+                payload.put("name", myCleanName)
                 payload.put("platform", "android_app")
                 payload.put("port", 12345)
                 payload.put("status", "active")
@@ -170,7 +182,12 @@ class NsdHelper(context: Context) {
                         val devId = d.optString("id")
                         if (devId == myDeviceId) continue
 
-                        val devName = d.optString("name", "Web Device")
+                        val rawName = d.optString("name", "Web Device")
+                        val devName = rawName
+                            .replace("BishalFileTransfer-", "")
+                            .replace("BishalFT-", "")
+                            .replace("sdk_gphone16k_x86_64", "Android Emulator")
+
                         val devPlatform = d.optString("platform", "desktop_web")
                         val devIp = d.optString("ip", "127.0.0.1")
                         val devPort = d.optInt("port", 12345)
@@ -183,7 +200,7 @@ class NsdHelper(context: Context) {
                             port = devPort
                         )
 
-                        if (currentList.none { it.id == devId }) {
+                        if (currentList.none { it.id == devId || it.name == devName }) {
                             currentList.add(unified)
                         }
                     }

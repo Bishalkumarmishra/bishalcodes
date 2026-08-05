@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -14,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,10 +25,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bishalcodes.filetransfer.network.AdminNotificationPoller
-import com.bishalcodes.filetransfer.ui.theme.Black
-import com.bishalcodes.filetransfer.ui.theme.CardGray
-import com.bishalcodes.filetransfer.ui.theme.DarkGray
-import com.bishalcodes.filetransfer.ui.theme.NeonGreen
+import com.bishalcodes.filetransfer.ui.theme.DarkText
+import com.bishalcodes.filetransfer.ui.theme.LightBg
+import com.bishalcodes.filetransfer.ui.theme.LightCard
+import com.bishalcodes.filetransfer.ui.theme.PrimaryGreen
+import com.bishalcodes.filetransfer.ui.theme.SubText
 import com.bishalcodes.filetransfer.ui.theme.White
 import java.text.SimpleDateFormat
 import java.util.*
@@ -50,7 +49,7 @@ fun NotificationScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "Notifications",
-                            color = White,
+                            color = DarkText,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
@@ -78,7 +77,7 @@ fun NotificationScreen(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = White
+                            tint = DarkText
                         )
                     }
                 },
@@ -92,15 +91,15 @@ fun NotificationScreen(
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Clear All",
-                                tint = Color.Gray
+                                tint = SubText
                             )
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Black)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = LightBg)
             )
         },
-        containerColor = Black
+        containerColor = LightBg
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -121,27 +120,27 @@ fun NotificationScreen(
                             modifier = Modifier
                                 .size(64.dp)
                                 .clip(CircleShape)
-                                .background(DarkGray),
+                                .background(Color(0xFFE0F2E6)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Notifications,
                                 contentDescription = "No notifications",
-                                tint = Color.Gray,
+                                tint = PrimaryGreen,
                                 modifier = Modifier.size(32.dp)
                             )
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = "No Notifications Received",
-                            color = White,
+                            color = DarkText,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Admin updates and push alerts from bishalcodes.com will appear here.",
-                            color = Color.Gray,
+                            color = SubText,
                             fontSize = 12.sp,
                             textAlign = TextAlign.Center
                         )
@@ -153,8 +152,8 @@ fun NotificationScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 6.dp)
-                            .border(1.dp, DarkGray, RoundedCornerShape(16.dp)),
-                        colors = CardDefaults.cardColors(containerColor = CardGray),
+                            .border(1.dp, Color(0xFFE0F2E6), RoundedCornerShape(16.dp)),
+                        colors = CardDefaults.cardColors(containerColor = LightCard),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -171,12 +170,12 @@ fun NotificationScreen(
                                         modifier = Modifier
                                             .size(8.dp)
                                             .clip(CircleShape)
-                                            .background(NeonGreen)
+                                            .background(PrimaryGreen)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = item.title,
-                                        color = White,
+                                        color = DarkText,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 15.sp
                                     )
@@ -184,7 +183,7 @@ fun NotificationScreen(
                                 val timeStr = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()).format(Date(item.timestamp))
                                 Text(
                                     text = timeStr,
-                                    color = Color.Gray,
+                                    color = SubText,
                                     fontSize = 11.sp
                                 )
                             }
@@ -193,7 +192,7 @@ fun NotificationScreen(
 
                             Text(
                                 text = item.message,
-                                color = Color(0xFFD1D5DB),
+                                color = DarkText,
                                 fontSize = 13.sp,
                                 lineHeight = 18.sp
                             )
@@ -205,23 +204,16 @@ fun NotificationScreen(
                                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(item.actionUrl))
                                         context.startActivity(intent)
                                     },
-                                    colors = ButtonDefaults.buttonColors(containerColor = DarkGray),
+                                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen),
                                     shape = RoundedCornerShape(10.dp),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .border(1.dp, NeonGreen, RoundedCornerShape(10.dp))
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center
-                                    ) {
-                                        Text(
-                                            text = "Open Link ↗",
-                                            color = NeonGreen,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 13.sp
-                                        )
-                                    }
+                                    Text(
+                                        text = "Open Link ↗",
+                                        color = White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.sp
+                                    )
                                 }
                             }
                         }

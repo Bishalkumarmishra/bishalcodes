@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,10 +26,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bishalcodes.filetransfer.ui.theme.Black
-import com.bishalcodes.filetransfer.ui.theme.CardGray
-import com.bishalcodes.filetransfer.ui.theme.DarkGray
-import com.bishalcodes.filetransfer.ui.theme.NeonGreen
+import com.bishalcodes.filetransfer.ui.theme.DarkText
+import com.bishalcodes.filetransfer.ui.theme.LightBg
+import com.bishalcodes.filetransfer.ui.theme.LightCard
+import com.bishalcodes.filetransfer.ui.theme.PrimaryGreen
+import com.bishalcodes.filetransfer.ui.theme.SubText
 import com.bishalcodes.filetransfer.ui.theme.White
 
 @Composable
@@ -46,31 +46,32 @@ fun SettingsScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Black)
+            .background(LightBg)
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
         Text(
             text = "Settings & Legal",
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = White,
-            modifier = Modifier.padding(top = 16.dp, bottom = 20.dp)
+            fontWeight = FontWeight.Black,
+            color = DarkText,
+            modifier = Modifier.padding(top = 12.dp, bottom = 20.dp)
         )
 
         // About & Branding Section Card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp)),
-            colors = CardDefaults.cardColors(containerColor = CardGray)
+                .clip(RoundedCornerShape(16.dp))
+                .border(1.dp, Color(0xFFE0F2E6), RoundedCornerShape(16.dp)),
+            colors = CardDefaults.cardColors(containerColor = LightCard)
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = "About",
-                        tint = NeonGreen,
+                        tint = PrimaryGreen,
                         modifier = Modifier.size(28.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -78,36 +79,36 @@ fun SettingsScreen() {
                         Text(
                             text = "File Transfer Native",
                             fontWeight = FontWeight.Bold,
-                            color = White,
+                            color = DarkText,
                             fontSize = 18.sp
                         )
                         Text(
                             text = "Version 1.0.0 • Google Play Verified",
-                            color = Color.Gray,
+                            color = SubText,
                             fontSize = 12.sp
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-                Divider(color = DarkGray)
+                Divider(color = Color(0xFFE0F2E6))
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
                     text = "Developer & Brand",
-                    color = Color.Gray,
+                    color = SubText,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = "BishalCodes Inc.",
-                    color = White,
+                    color = DarkText,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "https://bishalcodes.com",
-                    color = NeonGreen,
+                    color = PrimaryGreen,
                     fontSize = 14.sp,
                     modifier = Modifier.clickable { openWebUrl("https://bishalcodes.com") }
                 )
@@ -116,38 +117,38 @@ fun SettingsScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Play Store Legal & Privacy Policy Section (Opens Website Directly)
+        // Play Store Legal & Privacy Policy Section
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp)),
-            colors = CardDefaults.cardColors(containerColor = CardGray)
+                .clip(RoundedCornerShape(16.dp))
+                .border(1.dp, Color(0xFFE0F2E6), RoundedCornerShape(16.dp)),
+            colors = CardDefaults.cardColors(containerColor = LightCard)
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Lock,
                         contentDescription = "Policy",
-                        tint = NeonGreen,
+                        tint = PrimaryGreen,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "Policies on bishalcodes.com",
                         fontWeight = FontWeight.Bold,
-                        color = White,
+                        color = DarkText,
                         fontSize = 16.sp
                     )
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Privacy Policy Web Button
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
-                        .background(DarkGray)
+                        .background(Color(0xFFEBF7F0))
                         .clickable { openWebUrl("https://bishalcodes.com/privacy-policy") }
                         .padding(14.dp)
                 ) {
@@ -156,19 +157,18 @@ fun SettingsScreen() {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Privacy Policy (Official Web)", color = White, fontWeight = FontWeight.SemiBold)
-                        Text("Open ↗", color = NeonGreen, fontSize = 13.sp)
+                        Text("Privacy Policy (Official Web)", color = DarkText, fontWeight = FontWeight.SemiBold)
+                        Text("Open ↗", color = PrimaryGreen, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Terms of Service Web Button
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
-                        .background(DarkGray)
+                        .background(Color(0xFFEBF7F0))
                         .clickable { openWebUrl("https://bishalcodes.com/terms") }
                         .padding(14.dp)
                 ) {
@@ -177,8 +177,8 @@ fun SettingsScreen() {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Terms of Service (Official Web)", color = White, fontWeight = FontWeight.SemiBold)
-                        Text("Open ↗", color = NeonGreen, fontSize = 13.sp)
+                        Text("Terms of Service (Official Web)", color = DarkText, fontWeight = FontWeight.SemiBold)
+                        Text("Open ↗", color = PrimaryGreen, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -186,105 +186,55 @@ fun SettingsScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Data Safety & P2P Security Diagnostics
+        // Security Diagnostics
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp)),
-            colors = CardDefaults.cardColors(containerColor = CardGray)
+                .clip(RoundedCornerShape(16.dp))
+                .border(1.dp, Color(0xFFE0F2E6), RoundedCornerShape(16.dp)),
+            colors = CardDefaults.cardColors(containerColor = LightCard)
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = "Security",
-                        tint = NeonGreen,
+                        tint = PrimaryGreen,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "Security & Data Safety",
                         fontWeight = FontWeight.Bold,
-                        color = White,
+                        color = DarkText,
                         fontSize = 16.sp
                     )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Text("• Zero Cloud Upload: 100% Direct P2P Device Transfer", color = Color.LightGray, fontSize = 13.sp)
+                Text("• Zero Cloud Storage: 100% Direct P2P Transfer", color = SubText, fontSize = 13.sp)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("• Encryption: Local AES-256 Socket Connection", color = Color.LightGray, fontSize = 13.sp)
+                Text("• Encryption: Local Socket Connection", color = SubText, fontSize = 13.sp)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("• Local Save Directory: /Downloads/FileTransfer/", color = Color.LightGray, fontSize = 13.sp)
+                Text("• Save Directory: /Downloads/FileTransfer/", color = SubText, fontSize = 13.sp)
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Admin Push Notifications Card
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp)),
-            colors = CardDefaults.cardColors(containerColor = CardGray)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Notifications",
-                        tint = NeonGreen,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "BishalCodes Push Alerts",
-                            fontWeight = FontWeight.Bold,
-                            color = White,
-                            fontSize = 15.sp
-                        )
-                        Text(
-                            text = "Admin Panel API: Active",
-                            color = NeonGreen,
-                            fontSize = 11.sp
-                        )
-                    }
-                }
-
-                Switch(
-                    checked = pushNotificationsEnabled,
-                    onCheckedChange = { pushNotificationsEnabled = it },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Black,
-                        checkedTrackColor = NeonGreen
-                    )
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // App Maintenance: Clear Cache Button
+        // Clear Cache Button
         Button(
             onClick = {
                 Toast.makeText(context, "App cache & temporary files cleared!", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp)
-                .border(1.dp, NeonGreen, RoundedCornerShape(12.dp)),
-            colors = ButtonDefaults.buttonColors(containerColor = DarkGray),
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Icon(imageVector = Icons.Default.Refresh, contentDescription = "Clear", tint = NeonGreen)
+            Icon(imageVector = Icons.Default.Refresh, contentDescription = "Clear", tint = White)
             Spacer(modifier = Modifier.width(8.dp))
             Text("Clear App Cache", color = White, fontWeight = FontWeight.Bold)
         }
