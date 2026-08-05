@@ -124,7 +124,7 @@ fun MainNavigationContent() {
         uri?.let { selectedUri ->
             val meta = getFileMetadata(context, selectedUri)
             val transferId = "p2p-" + (100000..999999).random()
-            val webLink = "https://bishalcodes.com/tools/file_transfer?id=$transferId"
+            val webLink = "https://bishalcodes.com/tools/file-transfer?id=$transferId"
             farP2PSession = FarP2PSession(
                 fileName = meta.first,
                 fileSize = meta.second,

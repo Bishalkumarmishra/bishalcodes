@@ -601,7 +601,7 @@ const FileTransfer: React.FC = () => {
     try {
       const transferId = existingTransferId || (Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10));
       activeTransferIdRef.current = transferId;
-      const downloadPageUrl = `${window.location.origin}/transfer/${transferId}`;
+      const downloadPageUrl = `${window.location.origin}/tools/file-transfer?id=${transferId}`;
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
       const pc = new RTCPeerConnection({
