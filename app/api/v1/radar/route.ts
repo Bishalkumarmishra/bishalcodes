@@ -30,9 +30,18 @@ interface DirectFilePayload {
   timestamp: number;
 }
 
+interface P2PLinkPayload {
+  transferId: string;
+  fileName: string;
+  fileSize: number;
+  fileData: string;
+  timestamp: number;
+}
+
 let activeDevices: Map<string, RadarDevice> = new Map();
 let pairRequests: Map<string, PairRequest> = new Map();
 let directFiles: Map<string, DirectFilePayload> = new Map();
+let p2pLinks: Map<string, P2PLinkPayload> = new Map();
 
 function cleanupStaleDevices() {
   const now = Date.now();
@@ -51,10 +60,26 @@ function cleanupStaleDevices() {
       directFiles.delete(fId);
     }
   }
+  for (const [pId, payload] of p2pLinks.entries()) {
+    if (now - payload.timestamp > 24 * 60 * 60 * 1000) { // 24 hours
+      p2pLinks.delete(pId);
+    }
+  }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   cleanupStaleDevices();
+  const { searchParams } = new URL(req.url);
+  const transferId = searchParams.get('transferId');
+
+  if (transferId && p2pLinks.has(transferId)) {
+    const payload = p2pLinks.get(transferId);
+    return NextResponse.json({
+      success: true,
+      payload
+    });
+  }
+
   return NextResponse.json({
     success: true,
     count: activeDevices.size,
@@ -65,11 +90,43 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { action, id, name, platform, ip, port, status, targetId, requestId, responseStatus, fileName, fileSize, fileData } = body;
+    const { action, id, name, platform, ip, port, status, targetId, requestId, responseStatus, fileName, fileSize, fileData, transferId } = body;
 
     cleanupStaleDevices();
 
-    // 1. Connection Request Action (Device A wants to pair with Device B)
+    // 1. Register P2P Link & QR Transfer Payload (From Android Drop Zone / Web Drop Zone)
+    if (action === 'register_p2p_link') {
+      if (!transferId || !fileName || !fileData) {
+        return NextResponse.json({ error: 'Transfer ID, File Name & Data required' }, { status: 400 });
+      }
+      const payload: P2PLinkPayload = {
+        transferId,
+        fileName,
+        fileSize: fileSize || 0,
+        fileData,
+        timestamp: Date.now()
+      };
+      p2pLinks.set(transferId, payload);
+      return NextResponse.json({
+        success: true,
+        message: 'P2P Link registered successfully',
+        transferId
+      });
+    }
+
+    // 2. Fetch P2P Link Payload when Recipient Scans QR or Opens Link
+    if (action === 'get_p2p_link') {
+      if (!transferId || !p2pLinks.has(transferId)) {
+        return NextResponse.json({ error: 'Transfer link not found or expired' }, { status: 404 });
+      }
+      const payload = p2pLinks.get(transferId);
+      return NextResponse.json({
+        success: true,
+        payload
+      });
+    }
+
+    // 3. Connection Request Action
     if (action === 'connect_request') {
       if (!id || !targetId) {
         return NextResponse.json({ error: 'Sender and Target IDs required' }, { status: 400 });
@@ -92,7 +149,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // 2. Respond Request Action (Device B accepts or declines Device A's request)
+    // 4. Respond Request Action
     if (action === 'respond_request') {
       if (!requestId || !responseStatus) {
         return NextResponse.json({ error: 'Request ID and Status required' }, { status: 400 });
@@ -109,7 +166,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // 3. Check Pair Status for Sender Device A
+    // 5. Check Pair Status
     if (action === 'check_pair_status') {
       const mySentRequests = Array.from(pairRequests.values()).filter(r => r.fromId === id);
       return NextResponse.json({
@@ -118,7 +175,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // 4. Send Direct File Action (No Link / No QR Code!)
+    // 6. Send Direct File Action
     if (action === 'send_direct_file') {
       if (!targetId || !fileName || !fileData) {
         return NextResponse.json({ error: 'Target ID, File Name, and Data required' }, { status: 400 });
@@ -160,14 +217,11 @@ export async function POST(req: Request) {
 
     activeDevices.set(id, device);
 
-    // Fetch incoming pair requests targeting THIS device
     const incomingRequests = Array.from(pairRequests.values()).filter(
       r => r.targetId === id && r.status === 'pending'
     );
 
-    // Fetch incoming direct files targeting THIS device
     const incomingFiles = Array.from(directFiles.values()).filter(r => r.targetId === id);
-    // Remove retrieved files from buffer
     for (const f of incomingFiles) {
       directFiles.delete(f.id);
     }

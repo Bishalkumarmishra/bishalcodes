@@ -276,6 +276,24 @@ const FileTransfer: React.FC = () => {
 
   useEffect(() => {
     setHistory(getTransferHistory());
+
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const transferId = urlParams.get('id');
+      if (transferId) {
+        fetch(`/api/v1/radar?transferId=${transferId}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && data.payload) {
+              const { fileName, fileData } = data.payload;
+              setReceivedFileModal({ fileName, senderName: 'P2P Link Share', fileData });
+              setPairingStatus(`🎉 Starting direct download of "${fileName}"...`);
+              triggerDirectBlobDownload(fileData, fileName);
+            }
+          })
+          .catch(() => {});
+      }
+    }
   }, []);
 
   // Web P2P Radar Device Heartbeat, Discovery & Pairing

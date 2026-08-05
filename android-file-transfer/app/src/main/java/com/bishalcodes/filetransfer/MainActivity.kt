@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.util.Base64
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -57,7 +58,11 @@ import com.bishalcodes.filetransfer.ui.theme.PrimaryGreen
 import com.bishalcodes.filetransfer.ui.theme.SubText
 import com.bishalcodes.filetransfer.ui.theme.White
 import com.bishalcodes.filetransfer.utils.QRCodeUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,7 +131,40 @@ fun MainNavigationContent() {
                 link = webLink,
                 uri = selectedUri
             )
-            Toast.makeText(context, "P2P Link & QR Code generated!", Toast.LENGTH_SHORT).show()
+
+            // Register payload to cloud radar signaling so link & QR scanner downloads immediately
+            coroutineScope.launch(Dispatchers.IO) {
+                try {
+                    val bytes = context.contentResolver.openInputStream(selectedUri)?.use { it.readBytes() }
+                    if (bytes != null) {
+                        val base64Data = "data:application/octet-stream;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
+                        val targetUrl = URL("https://bishalcodes.com/api/v1/radar")
+                        val conn = targetUrl.openConnection() as HttpURLConnection
+                        conn.requestMethod = "POST"
+                        conn.setRequestProperty("Content-Type", "application/json")
+                        conn.doOutput = true
+                        conn.connectTimeout = 5000
+
+                        val payload = JSONObject()
+                        payload.put("action", "register_p2p_link")
+                        payload.put("transferId", transferId)
+                        payload.put("fileName", meta.first)
+                        payload.put("fileSize", bytes.size)
+                        payload.put("fileData", base64Data)
+
+                        val payloadBytes = payload.toString().toByteArray()
+                        conn.outputStream.use { os -> os.write(payloadBytes) }
+                        val code = conn.responseCode
+                        if (code == 200) {
+                            coroutineScope.launch(Dispatchers.Main) {
+                                Toast.makeText(context, "P2P Link & QR Code live & ready for instant download!", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 
@@ -221,7 +259,7 @@ fun MainNavigationContent() {
                     }
                 }
 
-                // EXACT WEB MATCH: Far P2P Dashboard Modal (Link + QR Code + Live Tracking)
+                // EXACT WEB MATCH: Far P2P Dashboard Modal (Link + QR Code + Instant Download Signal)
                 farP2PSession?.let { session ->
                     AlertDialog(
                         onDismissRequest = { farP2PSession = null },
@@ -356,7 +394,8 @@ fun MainNavigationContent() {
                                     onClick = {
                                         val sendIntent = Intent().apply {
                                             action = Intent.ACTION_SEND
-                                            putExtra(Intent.EXTRA_TEXT, "Download file '${session.fileName}' directly via P2P: ${session.link}")
+                                            // PURE RAW URL ONLY so scanners and browsers open link directly!
+                                            putExtra(Intent.EXTRA_TEXT, session.link)
                                             type = "text/plain"
                                         }
                                         context.startActivity(Intent.createChooser(sendIntent, "Share P2P Link"))
