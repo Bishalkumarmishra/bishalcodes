@@ -26,7 +26,7 @@ interface DirectFilePayload {
   targetId: string;
   fileName: string;
   fileSize: number;
-  fileData: string; // Base64 data string
+  fileData: string;
   timestamp: number;
 }
 
@@ -38,10 +38,16 @@ interface P2PLinkPayload {
   timestamp: number;
 }
 
-let activeDevices: Map<string, RadarDevice> = new Map();
-let pairRequests: Map<string, PairRequest> = new Map();
-let directFiles: Map<string, DirectFilePayload> = new Map();
-let p2pLinks: Map<string, P2PLinkPayload> = new Map();
+const g = globalThis as any;
+g.activeDevices = g.activeDevices || new Map<string, RadarDevice>();
+g.pairRequests = g.pairRequests || new Map<string, PairRequest>();
+g.directFiles = g.directFiles || new Map<string, DirectFilePayload>();
+g.p2pLinks = g.p2pLinks || new Map<string, P2PLinkPayload>();
+
+const activeDevices: Map<string, RadarDevice> = g.activeDevices;
+const pairRequests: Map<string, PairRequest> = g.pairRequests;
+const directFiles: Map<string, DirectFilePayload> = g.directFiles;
+const p2pLinks: Map<string, P2PLinkPayload> = g.p2pLinks;
 
 function cleanupStaleDevices() {
   const now = Date.now();
@@ -61,7 +67,7 @@ function cleanupStaleDevices() {
     }
   }
   for (const [pId, payload] of p2pLinks.entries()) {
-    if (now - payload.timestamp > 24 * 60 * 60 * 1000) { // 24 hours
+    if (now - payload.timestamp > 24 * 60 * 60 * 1000) {
       p2pLinks.delete(pId);
     }
   }
@@ -94,7 +100,7 @@ export async function POST(req: Request) {
 
     cleanupStaleDevices();
 
-    // 1. Register P2P Link & QR Transfer Payload (From Android Drop Zone / Web Drop Zone)
+    // 1. Register P2P Link & QR Transfer Payload
     if (action === 'register_p2p_link') {
       if (!transferId || !fileName || !fileData) {
         return NextResponse.json({ error: 'Transfer ID, File Name & Data required' }, { status: 400 });

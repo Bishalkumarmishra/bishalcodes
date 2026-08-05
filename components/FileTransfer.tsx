@@ -274,6 +274,40 @@ const FileTransfer: React.FC = () => {
   const myDeviceNameRef = useRef<string>('');
   const myPlatformRef = useRef<string>('');
 
+  const triggerDirectBlobDownload = (dataURI: string, fileName: string) => {
+    try {
+      const parts = dataURI.split(',');
+      const mimeMatch = parts[0].match(/:(.*?);/);
+      const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+      const bstr = atob(parts[1] || parts[0]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      const blob = new Blob([u8arr], { type: mime });
+      const blobUrl = URL.createObjectURL(blob);
+
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        window.open(blobUrl, '_blank');
+      } else {
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(blobUrl);
+        }, 2000);
+      }
+    } catch (err) {
+      console.error('Direct download error:', err);
+      window.open(dataURI, '_blank');
+    }
+  };
+
   useEffect(() => {
     setHistory(getTransferHistory());
 
@@ -343,39 +377,7 @@ const FileTransfer: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const triggerDirectBlobDownload = (dataURI: string, fileName: string) => {
-    try {
-      const parts = dataURI.split(',');
-      const mimeMatch = parts[0].match(/:(.*?);/);
-      const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
-      const bstr = atob(parts[1] || parts[0]);
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
-      }
-      const blob = new Blob([u8arr], { type: mime });
-      const blobUrl = URL.createObjectURL(blob);
 
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      if (isIOS) {
-        window.open(blobUrl, '_blank');
-      } else {
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-          document.body.removeChild(a);
-          URL.revokeObjectURL(blobUrl);
-        }, 2000);
-      }
-    } catch (err) {
-      console.error('Direct download error:', err);
-      window.open(dataURI, '_blank');
-    }
-  };
 
   const handleConnectToDevice = async (dev: any) => {
     setPairingStatus(`Sending connection request to ${dev.name}...`);
