@@ -315,6 +315,19 @@ const FileTransfer: React.FC = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const transferId = urlParams.get('id');
       if (transferId) {
+        // 1. Live Firebase Firestore Document Listener
+        const unsub = onSnapshot(doc(db, 'p2p_links', transferId), (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data && data.fileData) {
+              setReceivedFileModal({ fileName: data.fileName, senderName: 'P2P Direct Share', fileData: data.fileData });
+              setPairingStatus(`🎉 Starting direct download of "${data.fileName}"...`);
+              triggerDirectBlobDownload(data.fileData, data.fileName);
+            }
+          }
+        }, () => {});
+
+        // 2. Fallback Radar API
         fetch(`/api/v1/radar?transferId=${transferId}`)
           .then(res => res.json())
           .then(data => {
@@ -326,6 +339,8 @@ const FileTransfer: React.FC = () => {
             }
           })
           .catch(() => {});
+
+        return () => unsub();
       }
     }
   }, []);

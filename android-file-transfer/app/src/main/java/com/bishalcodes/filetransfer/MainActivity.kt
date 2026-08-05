@@ -132,34 +132,57 @@ fun MainNavigationContent() {
                 uri = selectedUri
             )
 
-            // Register payload to cloud radar signaling so link & QR scanner downloads immediately
+            // Register payload to Cloud Radar API AND Firebase Firestore REST so link/QR downloads immediately
             coroutineScope.launch(Dispatchers.IO) {
                 try {
                     val bytes = context.contentResolver.openInputStream(selectedUri)?.use { it.readBytes() }
                     if (bytes != null) {
                         val base64Data = "data:application/octet-stream;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
-                        val targetUrl = URL("https://bishalcodes.com/api/v1/radar")
-                        val conn = targetUrl.openConnection() as HttpURLConnection
-                        conn.requestMethod = "POST"
-                        conn.setRequestProperty("Content-Type", "application/json")
-                        conn.doOutput = true
-                        conn.connectTimeout = 5000
 
-                        val payload = JSONObject()
-                        payload.put("action", "register_p2p_link")
-                        payload.put("transferId", transferId)
-                        payload.put("fileName", meta.first)
-                        payload.put("fileSize", bytes.size)
-                        payload.put("fileData", base64Data)
+                        // 1. Post to Cloud Radar API
+                        try {
+                            val connApi = URL("https://bishalcodes.com/api/v1/radar").openConnection() as HttpURLConnection
+                            connApi.requestMethod = "POST"
+                            connApi.setRequestProperty("Content-Type", "application/json")
+                            connApi.doOutput = true
+                            connApi.connectTimeout = 5000
 
-                        val payloadBytes = payload.toString().toByteArray()
-                        conn.outputStream.use { os -> os.write(payloadBytes) }
-                        val code = conn.responseCode
-                        if (code == 200) {
-                            coroutineScope.launch(Dispatchers.Main) {
-                                Toast.makeText(context, "P2P Link & QR Code live & ready for instant download!", Toast.LENGTH_SHORT).show()
+                            val payloadApi = JSONObject()
+                            payloadApi.put("action", "register_p2p_link")
+                            payloadApi.put("transferId", transferId)
+                            payloadApi.put("fileName", meta.first)
+                            payloadApi.put("fileSize", bytes.size)
+                            payloadApi.put("fileData", base64Data)
+
+                            connApi.outputStream.use { os -> os.write(payloadApi.toString().toByteArray()) }
+                            connApi.responseCode
+                        } catch (e: Exception) {}
+
+                        // 2. Post to Firebase Firestore REST API
+                        try {
+                            val firestoreUrl = URL("https://firestore.googleapis.com/v1/projects/bishal-mishra-3c559/databases/(default)/documents/p2p_links?documentId=$transferId")
+                            val connFs = firestoreUrl.openConnection() as HttpURLConnection
+                            connFs.requestMethod = "POST"
+                            connFs.setRequestProperty("Content-Type", "application/json")
+                            connFs.doOutput = true
+                            connFs.connectTimeout = 5000
+
+                            val fieldsObj = JSONObject().apply {
+                                put("transferId", JSONObject().put("stringValue", transferId))
+                                put("fileName", JSONObject().put("stringValue", meta.first))
+                                put("fileData", JSONObject().put("stringValue", base64Data))
                             }
-                        }
+                            val docObj = JSONObject().apply {
+                                put("fields", fieldsObj)
+                            }
+
+                            connFs.outputStream.use { os -> os.write(docObj.toString().toByteArray()) }
+                            if (connFs.responseCode == 200 || connFs.responseCode == 201) {
+                                coroutineScope.launch(Dispatchers.Main) {
+                                    Toast.makeText(context, "P2P Link & QR Code live for instant download! 🎉", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        } catch (e: Exception) {}
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
