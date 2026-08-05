@@ -140,6 +140,10 @@ service cloud.firestore {
       }
     }
 
+    match /p2p_links/{linkId} {
+      allow read, write: if true;
+    }
+
     // SEO & Meta Tags configuration
     match /seo_settings/{pageId} {
       allow read: if true;
