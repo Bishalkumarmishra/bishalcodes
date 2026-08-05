@@ -42,6 +42,7 @@ import com.bishalcodes.filetransfer.network.AdminNotificationPoller
 import com.bishalcodes.filetransfer.network.FileReceiverService
 import com.bishalcodes.filetransfer.network.FileSender
 import com.bishalcodes.filetransfer.network.NsdHelper
+import com.bishalcodes.filetransfer.network.UnifiedDevice
 import com.bishalcodes.filetransfer.ui.components.BottomNavBar
 import com.bishalcodes.filetransfer.ui.components.NavTab
 import com.bishalcodes.filetransfer.ui.screens.HistoryScreen
@@ -59,6 +60,7 @@ import com.bishalcodes.filetransfer.ui.theme.SubText
 import com.bishalcodes.filetransfer.ui.theme.White
 import com.bishalcodes.filetransfer.utils.QRCodeUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.net.HttpURLConnection
@@ -82,6 +84,13 @@ data class FarP2PSession(
     val uri: Uri
 )
 
+data class AndroidPairRequest(
+    val id: String,
+    val fromId: String,
+    val fromName: String,
+    val targetId: String
+)
+
 @Composable
 fun MainAppContainer() {
     var showSplash by remember { mutableStateOf(true) }
@@ -98,22 +107,91 @@ fun MainNavigationContent() {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val nsdHelper = remember { NsdHelper(context) }
-    val fileSender = remember { FileSender(context) }
 
     var selectedTab by remember { mutableStateOf(NavTab.TRANSFER) }
     var isNotificationScreenOpen by remember { mutableStateOf(false) }
 
     val discoveredDevices by nsdHelper.discoveredDevices.collectAsState(initial = emptyList())
 
+    // Unique Device ID & Clean Model Name for Android App
+    val myDeviceId = remember { "android-" + Build.MODEL.replace(" ", "") + "-" + (1000..9999).random() }
+    val myDeviceName = remember { NsdHelper.getCleanDeviceName(Build.MODEL) }
+
+    // Pairing States
+    var incomingPairRequest by remember { mutableStateOf<AndroidPairRequest?>(null) }
+    var targetPairedDeviceId by remember { mutableStateOf<String?>(null) }
+    var pairedDeviceName by remember { mutableStateOf<String?>(null) }
+
     // Far P2P Drop Zone Session
     var farP2PSession by remember { mutableStateOf<FarP2PSession?>(null) }
 
-    // Direct File Picker for Nearby Radar Transfer
+    // Direct File Picker for Nearby Paired Transfer
     val directNearbyPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let {
-            Toast.makeText(context, "Sending file directly over Nearby Wi-Fi...", Toast.LENGTH_SHORT).show()
+        uri?.let { selectedUri ->
+            val targetId = targetPairedDeviceId ?: return@rememberLauncherForActivityResult
+            val meta = getFileMetadata(context, selectedUri)
+            Toast.makeText(context, "Sending '${meta.first}' to $pairedDeviceName...", Toast.LENGTH_SHORT).show()
+
+            coroutineScope.launch(Dispatchers.IO) {
+                try {
+                    val bytes = context.contentResolver.openInputStream(selectedUri)?.use { it.readBytes() }
+                    if (bytes != null) {
+                        val mimeType = context.contentResolver.getType(selectedUri) ?: "application/octet-stream"
+                        val base64Data = "data:$mimeType;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
+
+                        // 1. Post to Cloud Radar API
+                        try {
+                            val connApi = URL("https://bishalcodes.com/api/v1/radar").openConnection() as HttpURLConnection
+                            connApi.requestMethod = "POST"
+                            connApi.setRequestProperty("Content-Type", "application/json")
+                            connApi.doOutput = true
+                            connApi.connectTimeout = 5000
+
+                            val payloadApi = JSONObject().apply {
+                                put("action", "send_direct_file")
+                                put("id", myDeviceId)
+                                put("name", myDeviceName)
+                                put("targetId", targetId)
+                                put("fileName", meta.first)
+                                put("fileSize", bytes.size)
+                                put("fileData", base64Data)
+                            }
+
+                            connApi.outputStream.use { os -> os.write(payloadApi.toString().toByteArray()) }
+                            if (connApi.responseCode == 200) {
+                                coroutineScope.launch(Dispatchers.Main) {
+                                    Toast.makeText(context, "🎉 '${meta.first}' sent successfully to $pairedDeviceName!", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        } catch (e: Exception) {}
+
+                        // 2. Post to Firebase Firestore REST API for Direct File
+                        try {
+                            val firestoreUrl = URL("https://firestore.googleapis.com/v1/projects/bishal-mishra-3c559/databases/(default)/documents/p2p_direct_files?documentId=$targetId")
+                            val connFs = firestoreUrl.openConnection() as HttpURLConnection
+                            connFs.requestMethod = "POST"
+                            connFs.setRequestProperty("Content-Type", "application/json")
+                            connFs.doOutput = true
+                            connFs.connectTimeout = 5000
+
+                            val fieldsObj = JSONObject().apply {
+                                put("senderId", JSONObject().put("stringValue", myDeviceId))
+                                put("senderName", JSONObject().put("stringValue", myDeviceName))
+                                put("targetId", JSONObject().put("stringValue", targetId))
+                                put("fileName", JSONObject().put("stringValue", meta.first))
+                                put("fileData", JSONObject().put("stringValue", base64Data))
+                            }
+                            val docObj = JSONObject().apply { put("fields", fieldsObj) }
+                            connFs.outputStream.use { os -> os.write(docObj.toString().toByteArray()) }
+                            connFs.responseCode
+                        } catch (e: Exception) {}
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 
@@ -188,6 +266,49 @@ fun MainNavigationContent() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
+            }
+        }
+    }
+
+    // Radar Heartbeat & Incoming Pair Request Listener
+    LaunchedEffect(Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            while (true) {
+                try {
+                    val conn = URL("https://bishalcodes.com/api/v1/radar").openConnection() as HttpURLConnection
+                    conn.requestMethod = "POST"
+                    conn.setRequestProperty("Content-Type", "application/json")
+                    conn.doOutput = true
+                    conn.connectTimeout = 3000
+
+                    val body = JSONObject().apply {
+                        put("id", myDeviceId)
+                        put("name", myDeviceName)
+                        put("platform", "android_app")
+                        put("status", "active")
+                    }
+
+                    conn.outputStream.use { os -> os.write(body.toString().toByteArray()) }
+                    if (conn.responseCode == 200) {
+                        val responseStr = conn.inputStream.bufferedReader().use { it.readText() }
+                        val json = JSONObject(responseStr)
+                        if (json.optBoolean("success")) {
+                            val reqs = json.optJSONArray("incomingRequests")
+                            if (reqs != null && reqs.length() > 0) {
+                                val reqObj = reqs.getJSONObject(0)
+                                coroutineScope.launch(Dispatchers.Main) {
+                                    incomingPairRequest = AndroidPairRequest(
+                                        id = reqObj.getString("id"),
+                                        fromId = reqObj.getString("fromId"),
+                                        fromName = reqObj.optString("fromName", "Nearby Device"),
+                                        targetId = reqObj.getString("targetId")
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {}
+                delay(2500)
             }
         }
     }
@@ -267,9 +388,83 @@ fun MainNavigationContent() {
                     NavTab.RADAR -> {
                         RadarScreen(
                             discoveredDevices = discoveredDevices,
+                            // EXACT SHAREIT WORKFLOW: Tapping Connect sends Invitation & Polls for Acceptance!
                             onConnectDevice = { device ->
-                                Toast.makeText(context, "Pairing with ${device.name}...", Toast.LENGTH_SHORT).show()
-                                directNearbyPickerLauncher.launch("*/*")
+                                Toast.makeText(context, "Sending connection invitation to ${device.name}...", Toast.LENGTH_SHORT).show()
+
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    try {
+                                        val conn = URL("https://bishalcodes.com/api/v1/radar").openConnection() as HttpURLConnection
+                                        conn.requestMethod = "POST"
+                                        conn.setRequestProperty("Content-Type", "application/json")
+                                        conn.doOutput = true
+                                        conn.connectTimeout = 5000
+
+                                        val body = JSONObject().apply {
+                                            put("action", "connect_request")
+                                            put("id", myDeviceId)
+                                            put("name", myDeviceName)
+                                            put("targetId", device.id)
+                                        }
+
+                                        conn.outputStream.use { os -> os.write(body.toString().toByteArray()) }
+                                        if (conn.responseCode == 200) {
+                                            val respStr = conn.inputStream.bufferedReader().use { it.readText() }
+                                            val respObj = JSONObject(respStr)
+                                            val pairReq = respObj.optJSONObject("pairRequest")
+                                            val reqId = pairReq?.optString("id")
+
+                                            if (reqId != null) {
+                                                // Poll for acceptance
+                                                var accepted = false
+                                                for (i in 0 until 15) { // 30s timeout
+                                                    delay(2000)
+                                                    val connCheck = URL("https://bishalcodes.com/api/v1/radar").openConnection() as HttpURLConnection
+                                                    connCheck.requestMethod = "POST"
+                                                    connCheck.setRequestProperty("Content-Type", "application/json")
+                                                    connCheck.doOutput = true
+                                                    connCheck.connectTimeout = 3000
+
+                                                    val checkBody = JSONObject().apply {
+                                                        put("action", "check_pair_status")
+                                                        put("id", myDeviceId)
+                                                    }
+                                                    connCheck.outputStream.use { os -> os.write(checkBody.toString().toByteArray()) }
+                                                    if (connCheck.responseCode == 200) {
+                                                        val checkStr = connCheck.inputStream.bufferedReader().use { it.readText() }
+                                                        val checkObj = JSONObject(checkStr)
+                                                        val sentReqs = checkObj.optJSONArray("sentRequests")
+                                                        if (sentReqs != null) {
+                                                            for (j in 0 until sentReqs.length()) {
+                                                                val r = sentReqs.getJSONObject(j)
+                                                                if (r.optString("id") == reqId && r.optString("status") == "accepted") {
+                                                                    accepted = true
+                                                                    break
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    if (accepted) break
+                                                }
+
+                                                coroutineScope.launch(Dispatchers.Main) {
+                                                    if (accepted) {
+                                                        targetPairedDeviceId = device.id
+                                                        pairedDeviceName = device.name
+                                                        Toast.makeText(context, "⚡ Connected to ${device.name}! Choose file to send.", Toast.LENGTH_LONG).show()
+                                                        directNearbyPickerLauncher.launch("*/*")
+                                                    } else {
+                                                        Toast.makeText(context, "Pairing request to ${device.name} timed out or declined.", Toast.LENGTH_SHORT).show()
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } catch (e: Exception) {
+                                        coroutineScope.launch(Dispatchers.Main) {
+                                            Toast.makeText(context, "Failed to connect to ${device.name}", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }
                             }
                         )
                     }
@@ -281,6 +476,86 @@ fun MainNavigationContent() {
                     NavTab.SETTINGS -> {
                         SettingsScreen()
                     }
+                }
+
+                // INCOMING PAIRING INVITATION ALERT DIALOG (RECEIVER DEVICE)
+                incomingPairRequest?.let { req ->
+                    AlertDialog(
+                        onDismissRequest = { incomingPairRequest = null },
+                        containerColor = LightBg,
+                        title = {
+                            Text("🔔 Pairing Invitation", color = DarkText, fontWeight = FontWeight.Black, fontSize = 18.sp)
+                        },
+                        text = {
+                            Text(
+                                text = "${req.fromName} wants to connect with your device for instant direct file transfer.",
+                                color = DarkText,
+                                fontSize = 13.sp
+                            )
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    val reqId = req.id
+                                    val senderName = req.fromName
+                                    val senderId = req.fromId
+                                    incomingPairRequest = null
+                                    targetPairedDeviceId = senderId
+                                    pairedDeviceName = senderName
+
+                                    coroutineScope.launch(Dispatchers.IO) {
+                                        try {
+                                            val conn = URL("https://bishalcodes.com/api/v1/radar").openConnection() as HttpURLConnection
+                                            conn.requestMethod = "POST"
+                                            conn.setRequestProperty("Content-Type", "application/json")
+                                            conn.doOutput = true
+                                            conn.connectTimeout = 3000
+
+                                            val body = JSONObject().apply {
+                                                put("action", "respond_request")
+                                                put("requestId", reqId)
+                                                put("responseStatus", "accepted")
+                                            }
+                                            conn.outputStream.use { os -> os.write(body.toString().toByteArray()) }
+                                            conn.responseCode
+                                        } catch (e: Exception) {}
+                                    }
+
+                                    Toast.makeText(context, "⚡ Accepted! Paired with $senderName.", Toast.LENGTH_SHORT).show()
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)
+                            ) {
+                                Text("Accept", color = White, fontWeight = FontWeight.Bold)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    val reqId = req.id
+                                    incomingPairRequest = null
+
+                                    coroutineScope.launch(Dispatchers.IO) {
+                                        try {
+                                            val conn = URL("https://bishalcodes.com/api/v1/radar").openConnection() as HttpURLConnection
+                                            conn.requestMethod = "POST"
+                                            conn.setRequestProperty("Content-Type", "application/json")
+                                            conn.doOutput = true
+
+                                            val body = JSONObject().apply {
+                                                put("action", "respond_request")
+                                                put("requestId", reqId)
+                                                put("responseStatus", "rejected")
+                                            }
+                                            conn.outputStream.use { os -> os.write(body.toString().toByteArray()) }
+                                            conn.responseCode
+                                        } catch (e: Exception) {}
+                                    }
+                                }
+                            ) {
+                                Text("Decline", color = SubText)
+                            }
+                        }
+                    )
                 }
 
                 // EXACT WEB MATCH: Far P2P Dashboard Modal (Link + QR Code + Instant Download Signal)

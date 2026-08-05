@@ -41,8 +41,8 @@ class NsdHelper(context: Context) {
     private val myDeviceId = "device-" + Build.MODEL.replace(" ", "_") + "-" + (1000..9999).random()
 
     companion object {
-        fun getCleanDeviceName(): String {
-            val model = Build.MODEL
+        fun getCleanDeviceName(rawModel: String = Build.MODEL): String {
+            val model = rawModel
             val manufacturer = Build.MANUFACTURER
             return if (model.startsWith(manufacturer, ignoreCase = true)) {
                 model.capitalize()
