@@ -137,7 +137,8 @@ fun MainNavigationContent() {
                 try {
                     val bytes = context.contentResolver.openInputStream(selectedUri)?.use { it.readBytes() }
                     if (bytes != null) {
-                        val base64Data = "data:application/octet-stream;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
+                        val mimeType = context.contentResolver.getType(selectedUri) ?: "application/octet-stream"
+                        val base64Data = "data:$mimeType;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
 
                         // 1. Post to Cloud Radar API
                         try {

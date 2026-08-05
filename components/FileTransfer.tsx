@@ -274,11 +274,33 @@ const FileTransfer: React.FC = () => {
   const myDeviceNameRef = useRef<string>('');
   const myPlatformRef = useRef<string>('');
 
+  const getMimeFromFilename = (name: string): string => {
+    const ext = name.split('.').pop()?.toLowerCase() || '';
+    switch (ext) {
+      case 'png': return 'image/png';
+      case 'jpg': case 'jpeg': return 'image/jpeg';
+      case 'gif': return 'image/gif';
+      case 'webp': return 'image/webp';
+      case 'svg': return 'image/svg+xml';
+      case 'pdf': return 'application/pdf';
+      case 'mp4': return 'video/mp4';
+      case 'mp3': return 'audio/mpeg';
+      case 'zip': return 'application/zip';
+      case 'apk': return 'application/vnd.android.package-archive';
+      case 'json': return 'application/json';
+      case 'txt': return 'text/plain';
+      default: return 'application/octet-stream';
+    }
+  };
+
   const triggerDirectBlobDownload = (dataURI: string, fileName: string) => {
     try {
       const parts = dataURI.split(',');
       const mimeMatch = parts[0].match(/:(.*?);/);
-      const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+      let mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+      if (mime === 'application/octet-stream' || !mime) {
+        mime = getMimeFromFilename(fileName);
+      }
       const bstr = atob(parts[1] || parts[0]);
       let n = bstr.length;
       const u8arr = new Uint8Array(n);
@@ -288,20 +310,16 @@ const FileTransfer: React.FC = () => {
       const blob = new Blob([u8arr], { type: mime });
       const blobUrl = URL.createObjectURL(blob);
 
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      if (isIOS) {
-        window.open(blobUrl, '_blank');
-      } else {
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-          document.body.removeChild(a);
-          URL.revokeObjectURL(blobUrl);
-        }, 2000);
-      }
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+      }, 3000);
     } catch (err) {
       console.error('Direct download error:', err);
       window.open(dataURI, '_blank');
