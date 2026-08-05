@@ -1,25 +1,40 @@
 package com.bishalcodes.filetransfer
 
 import android.Manifest
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
+import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bishalcodes.filetransfer.network.AdminNotificationPoller
@@ -37,8 +52,11 @@ import com.bishalcodes.filetransfer.ui.screens.WebMatchedHomeScreen
 import com.bishalcodes.filetransfer.ui.theme.AndroidFileTransferTheme
 import com.bishalcodes.filetransfer.ui.theme.DarkText
 import com.bishalcodes.filetransfer.ui.theme.LightBg
+import com.bishalcodes.filetransfer.ui.theme.LightCard
 import com.bishalcodes.filetransfer.ui.theme.PrimaryGreen
+import com.bishalcodes.filetransfer.ui.theme.SubText
 import com.bishalcodes.filetransfer.ui.theme.White
+import com.bishalcodes.filetransfer.utils.QRCodeUtils
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -51,6 +69,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+data class FarP2PSession(
+    val fileName: String,
+    val fileSize: String,
+    val link: String,
+    val uri: Uri
+)
 
 @Composable
 fun MainAppContainer() {
@@ -71,20 +96,37 @@ fun MainNavigationContent() {
     val fileSender = remember { FileSender(context) }
 
     var selectedTab by remember { mutableStateOf(NavTab.TRANSFER) }
-    var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
     var isNotificationScreenOpen by remember { mutableStateOf(false) }
-    var showFarP2PDialog by remember { mutableStateOf(false) }
-    var farP2PLink by remember { mutableStateOf("") }
 
     val discoveredDevices by nsdHelper.discoveredDevices.collectAsState(initial = emptyList())
 
-    // File Picker Launcher for Nearby Direct Stream
-    val directFilePickerLauncher = rememberLauncherForActivityResult(
+    // Far P2P Drop Zone Session
+    var farP2PSession by remember { mutableStateOf<FarP2PSession?>(null) }
+
+    // Direct File Picker for Nearby Radar Transfer
+    val directNearbyPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            selectedFileUri = it
-            Toast.makeText(context, "Sending file directly to nearby device...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Sending file directly over Nearby Wi-Fi...", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Drop Zone File Picker Launcher for Far P2P Link & QR Generation
+    val dropZonePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { selectedUri ->
+            val meta = getFileMetadata(context, selectedUri)
+            val transferId = "p2p-" + (100000..999999).random()
+            val webLink = "https://bishalcodes.com/tools/file_transfer?id=$transferId"
+            farP2PSession = FarP2PSession(
+                fileName = meta.first,
+                fileSize = meta.second,
+                link = webLink,
+                uri = selectedUri
+            )
+            Toast.makeText(context, "P2P Link & QR Code generated!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -141,13 +183,11 @@ fun MainNavigationContent() {
                 when (selectedTab) {
                     NavTab.TRANSFER -> {
                         WebMatchedHomeScreen(
-                            // METHOD A: Central Drop Zone -> Far P2P Link & QR Generator
+                            // Tapping Circular Drop Zone -> Pick File & Generate Link + QR Code!
                             onSendClick = {
-                                val transferId = "p2p-" + (100000..999999).random()
-                                farP2PLink = "https://bishalcodes.com/tools/file_transfer?id=$transferId"
-                                showFarP2PDialog = true
+                                dropZonePickerLauncher.launch("*/*")
                             },
-                            // METHOD B: Send / Receive Nearby Device Buttons
+                            // Tapping Send/Receive Nearby Buttons -> SHAREit Mode!
                             onReceiveClick = {
                                 selectedTab = NavTab.RADAR
                                 nsdHelper.registerService(12345)
@@ -166,9 +206,8 @@ fun MainNavigationContent() {
                         RadarScreen(
                             discoveredDevices = discoveredDevices,
                             onConnectDevice = { device ->
-                                // Send Invitation Prompt to Device -> On Acceptance -> Pick File & Stream!
-                                Toast.makeText(context, "Sending pairing invitation to ${device.name}...", Toast.LENGTH_SHORT).show()
-                                directFilePickerLauncher.launch("*/*")
+                                Toast.makeText(context, "Pairing with ${device.name}...", Toast.LENGTH_SHORT).show()
+                                directNearbyPickerLauncher.launch("*/*")
                             }
                         )
                     }
@@ -182,47 +221,151 @@ fun MainNavigationContent() {
                     }
                 }
 
-                // Far P2P Link & QR Dialog (Method A)
-                if (showFarP2PDialog) {
+                // EXACT WEB MATCH: Far P2P Dashboard Modal (Link + QR Code + Live Tracking)
+                farP2PSession?.let { session ->
                     AlertDialog(
-                        onDismissRequest = { showFarP2PDialog = false },
+                        onDismissRequest = { farP2PSession = null },
                         containerColor = LightBg,
                         title = {
-                            Text("Far P2P Share Link", color = DarkText, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("P2P Transfer Dashboard", color = DarkText, fontWeight = FontWeight.Black, fontSize = 18.sp)
+                                IconButton(onClick = { farP2PSession = null }) {
+                                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close", tint = SubText)
+                                }
+                            }
                         },
                         text = {
-                            Column {
-                                Text("Share this direct link to transfer files across long distances:", fontSize = 13.sp, color = Color.Gray)
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                // Selected File Card
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(LightCard, shape = RoundedCornerShape(12.dp))
+                                        .border(1.dp, Color(0xFFE0F2E6), RoundedCornerShape(12.dp))
+                                        .padding(12.dp)
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .clip(CircleShape)
+                                                .background(PrimaryGreen),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(imageVector = Icons.Default.Share, contentDescription = null, tint = White, modifier = Modifier.size(18.dp))
+                                        }
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        Column {
+                                            Text(
+                                                text = session.fileName,
+                                                fontWeight = FontWeight.Bold,
+                                                color = DarkText,
+                                                fontSize = 13.sp,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            Text(
+                                                text = "Size: ${session.fileSize} • End-to-End Encrypted",
+                                                color = SubText,
+                                                fontSize = 11.sp
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                // QR Code Display
+                                val qrBitmap = remember(session.link) {
+                                    QRCodeUtils.generateQRCode(session.link, 300, 300)
+                                }
+
+                                qrBitmap?.let { bmp ->
+                                    Box(
+                                        modifier = Modifier
+                                            .size(180.dp)
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(White)
+                                            .border(2.dp, PrimaryGreen, RoundedCornerShape(16.dp))
+                                            .padding(10.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Image(
+                                            bitmap = bmp.asImageBitmap(),
+                                            contentDescription = "P2P QR Code",
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+                                }
+
                                 Spacer(modifier = Modifier.height(12.dp))
+
+                                Text(
+                                    text = "Scan QR code or share link below to download directly:",
+                                    fontSize = 11.sp,
+                                    color = SubText,
+                                    textAlign = TextAlign.Center
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                // Link Box
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .background(Color(0xFFE0F2E6), shape = RoundedCornerShape(8.dp))
-                                        .padding(12.dp)
+                                        .padding(10.dp)
                                 ) {
-                                    Text(farP2PLink, fontSize = 12.sp, color = PrimaryGreen, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        text = session.link,
+                                        fontSize = 11.sp,
+                                        color = PrimaryGreen,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                                 }
                             }
                         },
                         confirmButton = {
-                            Button(
-                                onClick = {
-                                    val sendIntent = Intent().apply {
-                                        action = Intent.ACTION_SEND
-                                        putExtra(Intent.EXTRA_TEXT, farP2PLink)
-                                        type = "text/plain"
-                                    }
-                                    context.startActivity(Intent.createChooser(sendIntent, "Share Far P2P Link"))
-                                    showFarP2PDialog = false
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text("Share Link", color = White, fontWeight = FontWeight.Bold)
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showFarP2PDialog = false }) {
-                                Text("Close", color = Color.Gray)
+                                Button(
+                                    onClick = {
+                                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                        val clip = android.content.ClipData.newPlainText("P2P Link", session.link)
+                                        clipboard.setPrimaryClip(clip)
+                                        Toast.makeText(context, "P2P Link copied to clipboard!", Toast.LENGTH_SHORT).show()
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)
+                                ) {
+                                    Text("Copy Link", color = White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                }
+
+                                Button(
+                                    onClick = {
+                                        val sendIntent = Intent().apply {
+                                            action = Intent.ACTION_SEND
+                                            putExtra(Intent.EXTRA_TEXT, "Download file '${session.fileName}' directly via P2P: ${session.link}")
+                                            type = "text/plain"
+                                        }
+                                        context.startActivity(Intent.createChooser(sendIntent, "Share P2P Link"))
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF121A15))
+                                ) {
+                                    Text("Share", color = White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                }
                             }
                         }
                     )
@@ -230,4 +373,29 @@ fun MainNavigationContent() {
             }
         }
     }
+}
+
+fun getFileMetadata(context: Context, uri: Uri): Pair<String, String> {
+    var name = "Shared_File"
+    var sizeStr = "Unknown Size"
+    try {
+        val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                val sizeIndex = it.getColumnIndex(OpenableColumns.SIZE)
+                if (nameIndex != -1) name = it.getString(nameIndex) ?: "Shared_File"
+                if (sizeIndex != -1) {
+                    val bytes = it.getLong(sizeIndex)
+                    sizeStr = when {
+                        bytes > 1024 * 1024 * 1024 -> String.format("%.2f GB", bytes.toDouble() / (1024 * 1024 * 1024))
+                        bytes > 1024 * 1024 -> String.format("%.2f MB", bytes.toDouble() / (1024 * 1024))
+                        bytes > 1024 -> String.format("%.2f KB", bytes.toDouble() / 1024)
+                        else -> "$bytes Bytes"
+                    }
+                }
+            }
+        }
+    } catch (e: Exception) {}
+    return Pair(name, sizeStr)
 }

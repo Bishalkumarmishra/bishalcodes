@@ -1,8 +1,9 @@
-#Wed Aug 05 12:39:27 NPT 2026
+#Wed Aug 05 14:44:13 NPT 2026
 path.4=7/classes.dex
 path.3=12/classes.dex
 path.2=11/classes.dex
 path.1=0/classes.dex
+path.7=13/classes.dex
 path.6=15/classes.dex
 path.5=classes2.dex
 path.0=classes.dex
@@ -15,7 +16,9 @@ renamed.3=classes4.dex
 renamed.2=classes3.dex
 renamed.1=classes2.dex
 renamed.0=classes.dex
+renamed.7=classes8.dex
 renamed.6=classes7.dex
+base.7=C\:\\Users\\BISHAL\\Desktop\\bishal\\android-file-transfer\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\13\\classes.dex
 renamed.5=classes6.dex
 base.6=C\:\\Users\\BISHAL\\Desktop\\bishal\\android-file-transfer\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\15\\classes.dex
 renamed.4=classes5.dex
