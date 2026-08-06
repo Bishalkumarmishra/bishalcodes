@@ -326,6 +326,121 @@ const FileTransfer: React.FC = () => {
     }
   };
 
+  const connectWebRTCReceiver = async (transferId: string) => {
+    setStage('connecting');
+    setConnectionStateText('Connecting to sender browser...');
+    cleanupConnection();
+
+    try {
+      const pc = new RTCPeerConnection({
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' },
+        ]
+      });
+      pcRef.current = pc;
+
+      let receivedBuffers: ArrayBuffer[] = [];
+      let receivedSize = 0;
+      let totalExpectedSize = 0;
+      let targetFileName = 'downloaded_file';
+
+      pc.onicecandidate = async (event) => {
+        if (event.candidate) {
+          try {
+            const candidateRef = doc(collection(db, 'transfers', transferId, 'receiverCandidates'));
+            await setDoc(candidateRef, event.candidate.toJSON());
+          } catch (e) {}
+        }
+      };
+
+      pc.ondatachannel = (event) => {
+        const dc = event.channel;
+        dc.binaryType = 'arraybuffer';
+        dcRef.current = dc;
+
+        dc.onopen = () => {
+          setStage('transferring');
+          setConnectionStateText('Connected to sender! Receiving file stream...');
+        };
+
+        dc.onmessage = (eMsg) => {
+          if (typeof eMsg.data === 'string') {
+            try {
+              const meta = JSON.parse(eMsg.data);
+              if (meta.type === 'META') {
+                targetFileName = meta.fileName || targetFileName;
+                totalExpectedSize = meta.fileSize || totalExpectedSize;
+              } else if (meta.type === 'DONE') {
+                const blob = new Blob(receivedBuffers, { type: getMimeFromFilename(targetFileName) });
+                const blobUrl = URL.createObjectURL(blob);
+                triggerDirectBlobDownload(blobUrl, targetFileName);
+                setStage('done');
+                setConnectionStateText(`🎉 Download complete: "${targetFileName}"`);
+              }
+            } catch (e) {}
+          } else if (eMsg.data instanceof ArrayBuffer) {
+            receivedBuffers.push(eMsg.data);
+            receivedSize += eMsg.data.byteLength;
+            if (totalExpectedSize > 0) {
+              const pct = Math.round((receivedSize / totalExpectedSize) * 100);
+              setUploadProgress(pct);
+            }
+          }
+        };
+      };
+
+      const transferRef = doc(db, 'transfers', transferId);
+      const unsubTransfer = onSnapshot(transferRef, async (snapshot) => {
+        const data = snapshot.data();
+        if (data) {
+          if (data.fileName) targetFileName = data.fileName;
+          if (data.fileSize) totalExpectedSize = data.fileSize;
+          setResult({
+            transferId,
+            downloadPageUrl: `${window.location.origin}/tools/file-transfer?id=${transferId}`,
+            expiresAt: data.expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            fileName: data.fileName || 'Shared File',
+            fileSize: data.fileSize || 0
+          });
+
+          if (data.offer && pc.signalingState === 'stable') {
+            try {
+              await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+              const answer = await pc.createAnswer();
+              await pc.setLocalDescription(answer);
+              await updateDoc(transferRef, {
+                answer: { type: answer.type, sdp: answer.sdp },
+                receiverStatus: 'connecting'
+              });
+            } catch (e) {
+              console.error('Error creating answer:', e);
+            }
+          }
+        }
+      });
+      unsubscribeRefs.current.push(unsubTransfer);
+
+      const senderCandidatesCol = collection(db, 'transfers', transferId, 'senderCandidates');
+      const unsubCandidates = onSnapshot(senderCandidatesCol, (snapshot) => {
+        snapshot.docChanges().forEach(async (change) => {
+          if (change.type === 'added') {
+            const candidateData = change.doc.data();
+            try {
+              await pc.addIceCandidate(new RTCIceCandidate(candidateData as RTCIceCandidateInit));
+            } catch (e) {}
+          }
+        });
+      });
+      unsubscribeRefs.current.push(unsubCandidates);
+
+    } catch (err: any) {
+      setError(err.message || 'Failed to connect to sender.');
+      setStage('error');
+    }
+  };
+
   useEffect(() => {
     setHistory(getTransferHistory());
 
@@ -333,8 +448,15 @@ const FileTransfer: React.FC = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const transferId = urlParams.get('id');
       if (transferId) {
-        // 1. Live Firebase Firestore Document Listener
-        const unsub = onSnapshot(doc(db, 'p2p_links', transferId), (snap) => {
+        // 1. Web P2P WebRTC Session Listener
+        const unsubTransfers = onSnapshot(doc(db, 'transfers', transferId), (snap) => {
+          if (snap.exists()) {
+            connectWebRTCReceiver(transferId);
+          }
+        }, () => {});
+
+        // 2. Direct P2P Link Listener
+        const unsubLinks = onSnapshot(doc(db, 'p2p_links', transferId), (snap) => {
           if (snap.exists()) {
             const data = snap.data();
             if (data && data.fileData) {
@@ -345,7 +467,7 @@ const FileTransfer: React.FC = () => {
           }
         }, () => {});
 
-        // 2. Fallback Radar API
+        // 3. Fallback Radar API
         fetch(`/api/v1/radar?transferId=${transferId}`)
           .then(res => res.json())
           .then(data => {
@@ -358,7 +480,10 @@ const FileTransfer: React.FC = () => {
           })
           .catch(() => {});
 
-        return () => unsub();
+        return () => {
+          unsubTransfers();
+          unsubLinks();
+        };
       }
     }
   }, []);
