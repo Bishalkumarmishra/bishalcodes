@@ -386,6 +386,13 @@ const FileTransfer: React.FC = () => {
             if (totalExpectedSize > 0) {
               const pct = Math.round((receivedSize / totalExpectedSize) * 100);
               setUploadProgress(pct);
+              if (receivedSize >= totalExpectedSize) {
+                const blob = new Blob(receivedBuffers, { type: getMimeFromFilename(targetFileName) });
+                const blobUrl = URL.createObjectURL(blob);
+                triggerDirectBlobDownload(blobUrl, targetFileName);
+                setStage('done');
+                setConnectionStateText(`🎉 Download complete: "${targetFileName}"`);
+              }
             }
           }
         };
@@ -405,7 +412,7 @@ const FileTransfer: React.FC = () => {
             fileSize: data.fileSize || 0
           });
 
-          if (data.offer && pc.signalingState === 'stable') {
+          if (data.offer && !pc.remoteDescription) {
             try {
               await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
               const answer = await pc.createAnswer();
