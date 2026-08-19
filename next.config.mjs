@@ -13,6 +13,45 @@ const nextConfig = {
     webpackBuildWorker: false,
     cpus: 1,
   },
+  async redirects() {
+    return [
+      {
+        source: '/tools/currency-calculator',
+        destination: '/tools/currency-converter',
+        permanent: true,
+      },
+      {
+        source: '/tools/experience',
+        destination: '/experience',
+        permanent: true,
+      },
+      {
+        source: '/docs/widgets-integration',
+        destination: '/docs',
+        permanent: true,
+      },
+      {
+        source: '/developers/currency',
+        destination: '/developers',
+        permanent: true,
+      },
+      {
+        source: '/legal/privacy',
+        destination: '/legal/privacy-policy',
+        permanent: true,
+      },
+      {
+        source: '/legal/terms',
+        destination: '/legal/terms-and-conditions',
+        permanent: true,
+      },
+      {
+        source: '/legal/cookies',
+        destination: '/legal/cookies-policy',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

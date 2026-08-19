@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const SITE_URL = 'https://www.bishalcodes.com';
+const SITE_URL = 'https://bishalcodes.com';
 const PROJECT_ID = 'bishal-mishra-3c559';
 
 // Static pages with their priorities
@@ -15,6 +15,8 @@ const STATIC_PAGES = [
   { url: '/blog', priority: '0.9', changefreq: 'daily' },
   { url: '/tools', priority: '0.9', changefreq: 'daily' },
   { url: '/projects', priority: '0.8', changefreq: 'weekly' },
+  { url: '/skills', priority: '0.8', changefreq: 'weekly' },
+  { url: '/experience', priority: '0.8', changefreq: 'weekly' },
   { url: '/about', priority: '0.7', changefreq: 'monthly' },
   { url: '/contact', priority: '0.6', changefreq: 'monthly' },
   { url: '/docs', priority: '0.7', changefreq: 'weekly' },
@@ -80,9 +82,12 @@ export async function GET() {
     // Include all hardcoded developer tools to ensure they rank extremely fast on Google
     const HARDCODED_TOOLS = [
       'date-converter', 'currency-converter', 'translator', 'ai-summarizer',
-      'pdf-to-image', 'pdf-to-word', 'add-page-numbers', 'merge-pdf', 'jpg-to-pdf',
+      'pdf-to-image', 'pdf-to-word', 'word-to-pdf', 'excel-to-pdf', 'pdf-to-excel',
+      'split-pdf', 'edit-pdf', 'add-page-numbers', 'merge-pdf', 'jpg-to-pdf',
       'image-compressor', 'emi-calculator', 'qr-studio', 'json-formatter',
-      'diff-checker', 'code-runner', 'screenshot-studio'
+      'diff-checker', 'code-runner', 'screenshot-studio', 'secure-vault',
+      'dev-card-studio', 'font-downloader', 'ocr-converter', 'bg-remover',
+      'scan-pdf', 'typing-practice', 'file-transfer'
     ];
     
     // Deduplicate any overlapping tools
