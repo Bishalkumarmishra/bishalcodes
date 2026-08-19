@@ -81,36 +81,47 @@ class NsdHelper(context: Context) {
     }
 
     fun discoverServices(scope: CoroutineScope) {
+        // Stop any active discovery listener first to prevent NsdManager FAILURE_ALREADY_ACTIVE or hanging
+        stopDiscovery()
+
         discoveryListener = object : NsdManager.DiscoveryListener {
-            override fun onDiscoveryStarted(regType: String) {}
+            override fun onDiscoveryStarted(regType: String) {
+                Log.d("NsdHelper", "Discovery started for $regType")
+            }
 
             override fun onServiceFound(service: NsdServiceInfo) {
-                if (service.serviceType == serviceType && !service.serviceName.contains(myCleanName)) {
-                    nsdManager.resolveService(service, object : NsdManager.ResolveListener {
-                        override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {}
-
-                        override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
-                            val cleanName = serviceInfo.serviceName
-                                .replace("BishalFileTransfer-", "")
-                                .replace("BishalFT-", "")
-                                .replace("sdk_gphone16k_x86_64", "Android Emulator")
-
-                            val unified = UnifiedDevice(
-                                id = serviceInfo.serviceName,
-                                name = cleanName,
-                                platform = "android_app",
-                                hostAddress = serviceInfo.host?.hostAddress,
-                                port = serviceInfo.port,
-                                nsdInfo = serviceInfo
-                            )
-
-                            val currentList = _discoveredDevices.value.toMutableList()
-                            if (currentList.none { it.id == unified.id || it.name == cleanName }) {
-                                currentList.add(unified)
-                                _discoveredDevices.value = currentList
+                if (service.serviceType.contains("_bfiletransfer") && !service.serviceName.contains(myCleanName)) {
+                    try {
+                        nsdManager.resolveService(service, object : NsdManager.ResolveListener {
+                            override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
+                                Log.e("NsdHelper", "Resolve failed: $errorCode")
                             }
-                        }
-                    })
+
+                            override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
+                                val cleanName = serviceInfo.serviceName
+                                    .replace("BishalFileTransfer-", "")
+                                    .replace("BishalFT-", "")
+                                    .replace("sdk_gphone16k_x86_64", "Android Emulator")
+
+                                val unified = UnifiedDevice(
+                                    id = serviceInfo.serviceName,
+                                    name = cleanName,
+                                    platform = "android_app",
+                                    hostAddress = serviceInfo.host?.hostAddress,
+                                    port = serviceInfo.port,
+                                    nsdInfo = serviceInfo
+                                )
+
+                                val currentList = _discoveredDevices.value.toMutableList()
+                                if (currentList.none { it.id == unified.id || it.name == cleanName }) {
+                                    currentList.add(unified)
+                                    _discoveredDevices.value = currentList
+                                }
+                            }
+                        })
+                    } catch (e: Exception) {
+                        Log.e("NsdHelper", "Error resolving service: ${e.message}")
+                    }
                 }
             }
 
@@ -120,9 +131,18 @@ class NsdHelper(context: Context) {
                 _discoveredDevices.value = currentList
             }
 
-            override fun onDiscoveryStopped(serviceType: String) {}
-            override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) {}
-            override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {}
+            override fun onDiscoveryStopped(serviceType: String) {
+                Log.d("NsdHelper", "Discovery stopped")
+            }
+
+            override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) {
+                Log.e("NsdHelper", "Start discovery failed: $errorCode")
+                stopDiscovery()
+            }
+
+            override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {
+                Log.e("NsdHelper", "Stop discovery failed: $errorCode")
+            }
         }
 
         try {
@@ -158,7 +178,8 @@ class NsdHelper(context: Context) {
                 conn.requestMethod = "POST"
                 conn.setRequestProperty("Content-Type", "application/json")
                 conn.doOutput = true
-                conn.connectTimeout = 3000
+                conn.connectTimeout = 1200
+                conn.readTimeout = 1200
 
                 val payload = JSONObject()
                 payload.put("id", myDeviceId)
@@ -218,7 +239,10 @@ class NsdHelper(context: Context) {
         discoveryListener?.let {
             try {
                 nsdManager.stopServiceDiscovery(it)
-            } catch (e: Exception) {}
+            } catch (e: Exception) {
+                Log.e("NsdHelper", "Error stopping discovery: ${e.message}")
+            }
+            discoveryListener = null
         }
     }
 

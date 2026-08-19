@@ -51,7 +51,15 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
       case 'skills': return { page: 'skills', id: null };
       case 'projects': return { page: 'projects', id: null };
       case 'experience': return { page: 'experience', id: null };
-      case 'tools': return { page: 'services', id: id };
+      case 'tools': {
+        if (id === 'file-transfer' && typeof window !== 'undefined') {
+          const transferQueryId = new URLSearchParams(window.location.search).get('id');
+          if (transferQueryId) {
+            return { page: 'transfer', id: transferQueryId };
+          }
+        }
+        return { page: 'services', id: id };
+      }
       case 'blog': return { page: (id ? 'blog-post' : 'blog') as PathPage, id: id };
       case 'contact': return { page: 'contact', id: null };
       case 'legal': return { page: 'legal-page', id: id };

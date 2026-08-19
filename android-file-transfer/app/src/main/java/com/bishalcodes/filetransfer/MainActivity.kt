@@ -93,13 +93,7 @@ data class AndroidPairRequest(
 
 @Composable
 fun MainAppContainer() {
-    var showSplash by remember { mutableStateOf(true) }
-
-    if (showSplash) {
-        SplashScreen(onSplashFinished = { showSplash = false })
-    } else {
-        MainNavigationContent()
-    }
+    MainNavigationContent()
 }
 
 @Composable
@@ -279,7 +273,8 @@ fun MainNavigationContent() {
                     conn.requestMethod = "POST"
                     conn.setRequestProperty("Content-Type", "application/json")
                     conn.doOutput = true
-                    conn.connectTimeout = 3000
+                    conn.connectTimeout = 1200
+                    conn.readTimeout = 1200
 
                     val body = JSONObject().apply {
                         put("id", myDeviceId)
@@ -353,6 +348,8 @@ fun MainNavigationContent() {
                         selectedTab = tab
                         if (tab == NavTab.RADAR) {
                             nsdHelper.discoverServices(coroutineScope)
+                        } else {
+                            nsdHelper.stopDiscovery()
                         }
                     }
                 )

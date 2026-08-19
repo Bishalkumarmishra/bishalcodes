@@ -41,3 +41,11 @@ out
 .agents/
 
 .env*
+
+# Android build outputs & keystores
+android-file-transfer/build/
+android-file-transfer/*/build/
+android-file-transfer/.gradle/
+*.keystore
+*.jks
+key.properties

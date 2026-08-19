@@ -7,6 +7,7 @@ import {
   ShieldCheck, Clock, FileArchive, Lock, Zap, Globe, FileDown, Download
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import FileTransferDownload from './FileTransferDownload';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 import { doc, setDoc, collection, onSnapshot, updateDoc } from 'firebase/firestore';
@@ -240,6 +241,22 @@ const deleteCachedFiles = async (transferId: string) => {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const FileTransfer: React.FC = () => {
+  const [queryTransferId, setQueryTransferId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+      if (id) {
+        setQueryTransferId(id);
+      }
+    }
+  }, []);
+
+  if (queryTransferId) {
+    return <FileTransferDownload transferId={queryTransferId} />;
+  }
+
   const { navigate } = useNavigation();
   const [user] = useAuthState(auth);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -406,7 +423,7 @@ const FileTransfer: React.FC = () => {
           if (data.fileSize) totalExpectedSize = data.fileSize;
           setResult({
             transferId,
-            downloadPageUrl: `${window.location.origin}/tools/file-transfer?id=${transferId}`,
+            downloadPageUrl: `${window.location.origin}/transfer/${transferId}`,
             expiresAt: data.expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
             fileName: data.fileName || 'Shared File',
             fileSize: data.fileSize || 0
@@ -768,14 +785,41 @@ const FileTransfer: React.FC = () => {
     try {
       const transferId = existingTransferId || (Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10));
       activeTransferIdRef.current = transferId;
-      const downloadPageUrl = `${window.location.origin}/tools/file-transfer?id=${transferId}`;
+      const downloadPageUrl = `${window.location.origin}/transfer/${transferId}`;
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+      // Instant fallback caching for single files under 15MB (e.g. photos, docs)
+      if (!needsZip && entries.length > 0 && totalSz < 15 * 1024 * 1024) {
+        try {
+          const reader = new FileReader();
+          reader.onload = async (e) => {
+            if (e.target?.result && typeof e.target.result === 'string') {
+              try {
+                await setDoc(doc(db, 'p2p_links', transferId), {
+                  transferId,
+                  fileName,
+                  fileSize: totalSz,
+                  fileData: e.target.result,
+                  createdAt: new Date().toISOString()
+                });
+              } catch (cacheErr) {
+                console.warn('p2p_links cache notice:', cacheErr);
+              }
+            }
+          };
+          reader.readAsDataURL(entries[0].file);
+        } catch (e) {}
+      }
 
       const pc = new RTCPeerConnection({
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
           { urls: 'stun:stun1.l.google.com:19302' },
           { urls: 'stun:stun2.l.google.com:19302' },
+          { urls: 'stun:stun3.l.google.com:19302' },
+          { urls: 'stun:stun4.l.google.com:19302' },
+          { urls: 'stun:stun.services.mozilla.com' },
+          { urls: 'stun:stun.cloudflare.com:3478' }
         ]
       });
       pcRef.current = pc;
@@ -824,12 +868,33 @@ const FileTransfer: React.FC = () => {
 
       setConnectionStateText('Waiting for recipient to connect... Keep this page open.');
 
+      const pendingReceiverCandidates: RTCIceCandidateInit[] = [];
+      const addReceiverCandidate = async (candidateData: RTCIceCandidateInit) => {
+        if (pc.remoteDescription) {
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(candidateData));
+          } catch (e) {
+            console.error('Error adding receiver ICE candidate:', e);
+          }
+        } else {
+          pendingReceiverCandidates.push(candidateData);
+        }
+      };
+
       const unsubTransfer = onSnapshot(transferRef, async (snapshot) => {
         const data = snapshot.data();
         if (data && data.answer && !pc.remoteDescription) {
           try {
             await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
             await updateDoc(transferRef, { senderStatus: 'connecting' });
+            while (pendingReceiverCandidates.length > 0) {
+              const cand = pendingReceiverCandidates.shift();
+              if (cand) {
+                try {
+                  await pc.addIceCandidate(new RTCIceCandidate(cand));
+                } catch (e) {}
+              }
+            }
           } catch (e) {
             console.error('Error setting remote description:', e);
           }
@@ -841,12 +906,8 @@ const FileTransfer: React.FC = () => {
       const unsubCandidates = onSnapshot(receiverCandidatesCol, (snapshot) => {
         snapshot.docChanges().forEach(async (change) => {
           if (change.type === 'added') {
-            const candidateData = change.doc.data();
-            try {
-              await pc.addIceCandidate(new RTCIceCandidate(candidateData as RTCIceCandidateInit));
-            } catch (e) {
-              console.error('Error adding receiver ICE candidate:', e);
-            }
+            const candidateData = change.doc.data() as RTCIceCandidateInit;
+            await addReceiverCandidate(candidateData);
           }
         });
       });

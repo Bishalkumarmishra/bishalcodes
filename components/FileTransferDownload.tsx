@@ -30,8 +30,22 @@ interface Props {
 
 type LoadState = 'loading' | 'ready' | 'expired' | 'notfound' | 'error';
 
-const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
+const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) => {
+  const [urlId, setUrlId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const idFromSearch = new URLSearchParams(window.location.search).get('id');
+      const idFromPath = window.location.pathname.startsWith('/transfer/') 
+        ? window.location.pathname.replace('/transfer/', '').split('/')[0].split('?')[0] 
+        : null;
+      setUrlId(idFromSearch || idFromPath || null);
+    }
+  }, []);
+
+  const transferId = propTransferId || urlId;
   const [metadata, setMetadata] = useState<TransferMetadata | null>(null);
+  const [directFileData, setDirectFileData] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [downloading, setDownloading] = useState(false);
   const [senderStatus, setSenderStatus] = useState<string>('offline');
@@ -99,33 +113,120 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
     };
   }, [cleanupConnection]);
 
+  const getMimeFromFilename = (name: string): string => {
+    const ext = name.split('.').pop()?.toLowerCase() || '';
+    switch (ext) {
+      case 'png': return 'image/png';
+      case 'jpg': case 'jpeg': return 'image/jpeg';
+      case 'gif': return 'image/gif';
+      case 'webp': return 'image/webp';
+      case 'svg': return 'image/svg+xml';
+      case 'pdf': return 'application/pdf';
+      case 'mp4': return 'video/mp4';
+      case 'mp3': return 'audio/mpeg';
+      case 'zip': return 'application/zip';
+      case 'apk': return 'application/vnd.android.package-archive';
+      case 'json': return 'application/json';
+      case 'txt': return 'text/plain';
+      default: return 'application/octet-stream';
+    }
+  };
+
+  const triggerDirectBlobDownload = (dataURI: string, fileName: string) => {
+    try {
+      const parts = dataURI.split(',');
+      const mimeMatch = parts[0].match(/:(.*?);/);
+      let mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+      if (mime === 'application/octet-stream' || !mime) {
+        mime = getMimeFromFilename(fileName);
+      }
+      const bstr = atob(parts[1] || parts[0]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      const blob = new Blob([u8arr], { type: mime });
+      const blobUrl = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+      }, 3000);
+    } catch (err) {
+      console.error('Direct download error:', err);
+      window.open(dataURI, '_blank');
+    }
+  };
+
   useEffect(() => {
     if (!transferId) { setLoadState('notfound'); return; }
 
     const transferDocRef = doc(db, 'transfers', transferId);
     const unsubscribeTransfer = onSnapshot(transferDocRef, (snap) => {
-      if (!snap.exists()) {
-        setLoadState('notfound');
-        return;
-      }
-      const data = snap.data();
-      const meta: TransferMetadata = {
-        transferId: data.transferId,
-        fileName: data.fileName,
-        fileSize: data.fileSize,
-        expiresAt: data.expiresAt,
-        createdAt: data.createdAt,
-      };
-      setMetadata(meta);
-      setSenderStatus(data.senderStatus || 'offline');
+      if (snap.exists()) {
+        const data = snap.data();
+        const meta: TransferMetadata = {
+          transferId: data.transferId || transferId,
+          fileName: data.fileName || 'Shared File',
+          fileSize: data.fileSize || 0,
+          expiresAt: data.expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          createdAt: data.createdAt || new Date().toISOString(),
+        };
+        setMetadata(meta);
+        setSenderStatus(data.senderStatus || 'offline');
 
-      // Check expiry
-      const now = new Date();
-      const expiry = new Date(data.expiresAt);
-      if (now > expiry) {
-        setLoadState('expired');
+        const now = new Date();
+        const expiry = new Date(meta.expiresAt);
+        if (now > expiry) {
+          setLoadState('expired');
+        } else {
+          setLoadState('ready');
+        }
       } else {
-        setLoadState('ready');
+        // Fallback to p2p_links
+        getDoc(doc(db, 'p2p_links', transferId)).then(p2pSnap => {
+          if (p2pSnap.exists()) {
+            const data = p2pSnap.data();
+            setDirectFileData(data.fileData || null);
+            setMetadata({
+              transferId,
+              fileName: data.fileName || 'Shared File',
+              fileSize: data.fileSize || (data.fileData ? data.fileData.length : 0),
+              expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+              createdAt: new Date().toISOString(),
+            });
+            setSenderStatus('online');
+            setLoadState('ready');
+          } else {
+            // Fallback to radar API
+            fetch(`/api/v1/radar?transferId=${transferId}`)
+              .then(res => res.json())
+              .then(radarRes => {
+                if (radarRes.success && radarRes.payload) {
+                  setDirectFileData(radarRes.payload.fileData);
+                  setMetadata({
+                    transferId,
+                    fileName: radarRes.payload.fileName || 'Shared File',
+                    fileSize: radarRes.payload.fileSize || 0,
+                    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    createdAt: new Date().toISOString(),
+                  });
+                  setSenderStatus('online');
+                  setLoadState('ready');
+                } else {
+                  setLoadState('notfound');
+                }
+              })
+              .catch(() => setLoadState('notfound'));
+          }
+        }).catch(() => setLoadState('notfound'));
       }
     }, err => {
       console.error('Failed to listen to transfer document:', err);
@@ -139,6 +240,16 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
 
   const handleDownload = async () => {
     if (!metadata || !transferId) return;
+    if (directFileData) {
+      setDownloading(true);
+      setConnectionStateText('Downloading file...');
+      triggerDirectBlobDownload(directFileData, metadata.fileName);
+      setDownloading(false);
+      setDownloadProgress(100);
+      setConnectionStateText('Download complete!');
+      return;
+    }
+
     setDownloading(true);
     setDownloadProgress(0);
     setConnectionStateText('Initializing P2P link...');
@@ -162,6 +273,10 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
           { urls: 'stun:stun.l.google.com:19302' },
           { urls: 'stun:stun1.l.google.com:19302' },
           { urls: 'stun:stun2.l.google.com:19302' },
+          { urls: 'stun:stun3.l.google.com:19302' },
+          { urls: 'stun:stun4.l.google.com:19302' },
+          { urls: 'stun:stun.services.mozilla.com' },
+          { urls: 'stun:stun.cloudflare.com:3478' }
         ]
       });
       pcRef.current = pc;
@@ -223,14 +338,12 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
             });
           } else {
             const buffer = e.data as ArrayBuffer;
-            // Synchronously copy the buffer to protect it from event-loop recycling/mutations.
             const bufferCopy = buffer.slice(0);
             bytesReceived += bufferCopy.byteLength;
 
-            // Calculate Speed
             const now = performance.now();
             const elapsed = (now - lastTime) / 1000;
-            if (elapsed >= 1.0) {
+            if (elapsed >= 0.5) {
               const speed = (bytesReceived - lastBytes) / elapsed;
               setDownloadSpeed(`${formatBytes(speed)}/s`);
               lastTime = now;
@@ -243,7 +356,6 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
             if (fileWriter) {
               writeQueue = writeQueue.then(async () => {
                 if (hasError) return;
-                // Wrap in Uint8Array for engine write compatibility
                 await fileWriter.write(new Uint8Array(bufferCopy));
               }).catch(async (err) => {
                 if (hasError) return;
@@ -276,8 +388,7 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
             setDownloadProgress(100);
             setConnectionStateText('Done!');
           } else {
-            // Memory compilation
-            const blob = new Blob(receivedChunks, { type: 'application/octet-stream' });
+            const blob = new Blob(receivedChunks, { type: getMimeFromFilename(metadata.fileName) });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -292,7 +403,6 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
             setConnectionStateText('Done!');
           }
 
-          // Send ACK_DONE back to sender to confirm completion
           try {
             dc.send(JSON.stringify({ type: 'ACK_DONE' }));
           } catch (err) {
@@ -314,8 +424,43 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
         throw new Error('Offer signal not found.');
       }
 
+      const pendingSenderCandidates: RTCIceCandidateInit[] = [];
+      const addSenderCandidate = async (candidateData: RTCIceCandidateInit) => {
+        if (pc.remoteDescription) {
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(candidateData));
+          } catch (e) {
+            console.error('Error adding sender ICE candidate:', e);
+          }
+        } else {
+          pendingSenderCandidates.push(candidateData);
+        }
+      };
+
+      // Subscribe to Sender ICE Candidates
+      const senderCandidatesCol = collection(db, 'transfers', transferId, 'senderCandidates');
+      const unsubCandidates = onSnapshot(senderCandidatesCol, (snapshot) => {
+        snapshot.docChanges().forEach(async (change) => {
+          if (change.type === 'added') {
+            const candidateData = change.doc.data() as RTCIceCandidateInit;
+            await addSenderCandidate(candidateData);
+          }
+        });
+      });
+      unsubscribeRefs.current.push(unsubCandidates);
+
       // Set Remote Description (SDP Offer)
       await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+
+      // Flush buffered sender candidates
+      while (pendingSenderCandidates.length > 0) {
+        const cand = pendingSenderCandidates.shift();
+        if (cand) {
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(cand));
+          } catch (e) {}
+        }
+      }
 
       // Create local SDP Answer
       const answer = await pc.createAnswer();
@@ -326,22 +471,6 @@ const FileTransferDownload: React.FC<Props> = ({ transferId }) => {
         answer: { type: answer.type, sdp: answer.sdp },
         receiverStatus: 'connecting'
       });
-
-      // Subscribe to Sender ICE Candidates
-      const senderCandidatesCol = collection(db, 'transfers', transferId, 'senderCandidates');
-      const unsubCandidates = onSnapshot(senderCandidatesCol, (snapshot) => {
-        snapshot.docChanges().forEach(async (change) => {
-          if (change.type === 'added') {
-            const candidateData = change.doc.data();
-            try {
-              await pc.addIceCandidate(new RTCIceCandidate(candidateData as RTCIceCandidateInit));
-            } catch (e) {
-              console.error('Error adding sender ICE candidate:', e);
-            }
-          }
-        });
-      });
-      unsubscribeRefs.current.push(unsubCandidates);
 
       setConnectionStateText('Connecting to sender browser...');
 
