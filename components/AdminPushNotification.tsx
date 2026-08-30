@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Send, Link, FileUp, CheckCircle, AlertCircle, Loader2, Smartphone, Globe, Radio, ShieldCheck } from 'lucide-react';
+import { Bell, Send, Link, FileUp, CheckCircle, AlertCircle, Loader2, Smartphone, Globe, Radio, ShieldCheck, RotateCcw, Sparkles, CornerDownLeft, Zap } from 'lucide-react';
 import { PushNotificationPayload } from '../types';
 
 export default function AdminPushNotification() {
@@ -13,12 +13,69 @@ export default function AdminPushNotification() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<NotificationPermission | 'unsupported'>('default');
 
+  const [aiTitleSuggestion, setAiTitleSuggestion] = useState('');
+  const [aiMsgSuggestion, setAiMsgSuggestion] = useState('');
+
+  const titleDictionary: Record<string, string> = {
+    'file': 'File Transfer 1.0 Native Released!',
+    'app': 'App Update Available - Faster P2P & Bug Fixes',
+    'new': 'New Feature Released: Try It Today on BishalCodes!',
+    'sec': 'Security & Encryption Update - Zero Knowledge Vault',
+    'nep': 'Nepali Desktop Calendar & Converter Updated!',
+    'ai': 'AI Assistant Studio 2.0 Released on BishalCodes',
+    'sys': 'System Maintenance Completed - All Services Active'
+  };
+
+  const messageDictionary: Record<string, string> = {
+    'down': 'Download the official BishalCodes app for maximum speed, offline access, and security.',
+    'check': 'Check out the latest tools and features live on BishalCodes.com today!',
+    'try': 'Try out the new developer utilities, API keys, and instant file sharing features now.',
+    'upd': 'Updated with performance improvements, bug fixes, and enhanced user interface.',
+    'sec': 'Your files and data remain end-to-end encrypted with zero-knowledge AES-256.'
+  };
+
+  const presetTemplates = [
+    {
+      name: '🚀 File Transfer Release',
+      title: 'File Transfer 1.0 Native Released!',
+      message: 'Download the official Android P2P File Transfer app from bishalcodes.com.',
+      actionUrl: 'https://bishalcodes.com/tools/file_transfer',
+      fileUrl: 'https://bishalcodes.com/seo-images/file-transfer.png',
+      targetAudience: 'all' as const
+    },
+    {
+      name: '🔒 Secure Vault Update',
+      title: 'Secure File Locker & Vault Live!',
+      message: 'Encrypt files locally with zero-knowledge AES-256-GCM. Share password-protected links & QR codes.',
+      actionUrl: 'https://bishalcodes.com/tools/secure-vault',
+      fileUrl: '',
+      targetAudience: 'all' as const
+    },
+    {
+      name: '📅 Desktop Calendar App',
+      title: 'Nepali Desktop Calendar Available!',
+      message: 'Install the native Desktop Calendar app with live widgets and date converter.',
+      actionUrl: 'https://bishalcodes.com/widgets/calendar',
+      fileUrl: '',
+      targetAudience: 'all' as const
+    },
+    {
+      name: '⚡ Developer APIs & Tools',
+      title: 'New Developer Utilities Added!',
+      message: 'Explore AI Summarizer, Document OCR, JSON Formatter & Code Runner on BishalCodes.',
+      actionUrl: 'https://bishalcodes.com/developers',
+      fileUrl: '',
+      targetAudience: 'web' as const
+    }
+  ];
+
   const [broadcastHistory, setBroadcastHistory] = useState<PushNotificationPayload[]>([
     {
       id: '1',
       title: 'File Transfer 1.0 Native Released!',
       message: 'Download the official Android P2P File Transfer app from bishalcodes.com.',
       actionUrl: 'https://bishalcodes.com/tools/file_transfer',
+      fileUrl: 'https://bishalcodes.com/seo-images/file-transfer.png',
       targetAudience: 'all',
       timestamp: Date.now() - 3600000,
       status: 'sent'
@@ -32,6 +89,73 @@ export default function AdminPushNotification() {
       setPermissionStatus('unsupported');
     }
   }, []);
+
+  // AI Autocomplete listener for Title
+  useEffect(() => {
+    if (!title.trim()) {
+      setAiTitleSuggestion('');
+      return;
+    }
+    const lower = title.toLowerCase().trim();
+    const key = Object.keys(titleDictionary).find(k => lower.startsWith(k));
+    if (key && titleDictionary[key].toLowerCase() !== lower) {
+      setAiTitleSuggestion(titleDictionary[key]);
+    } else {
+      setAiTitleSuggestion('');
+    }
+  }, [title]);
+
+  // AI Autocomplete listener for Message
+  useEffect(() => {
+    if (!message.trim()) {
+      setAiMsgSuggestion('');
+      return;
+    }
+    const lower = message.toLowerCase().trim();
+    const key = Object.keys(messageDictionary).find(k => lower.startsWith(k));
+    if (key && messageDictionary[key].toLowerCase() !== lower) {
+      setAiMsgSuggestion(messageDictionary[key]);
+    } else {
+      setAiMsgSuggestion('');
+    }
+  }, [message]);
+
+  const handleApplyPreset = (preset: typeof presetTemplates[0]) => {
+    setTitle(preset.title);
+    setMessage(preset.message);
+    setActionUrl(preset.actionUrl);
+    setFileUrl(preset.fileUrl);
+    setTargetAudience(preset.targetAudience);
+    setSuccessMsg(`Preset template "${preset.name}" loaded into editor!`);
+    setErrorMsg(null);
+  };
+
+  const handleReuseHistoryItem = (item: PushNotificationPayload) => {
+    setTitle(item.title);
+    setMessage(item.message);
+    setActionUrl(item.actionUrl || 'https://bishalcodes.com');
+    setFileUrl(item.fileUrl || '');
+    setTargetAudience(item.targetAudience || 'all');
+    setSuccessMsg(`Loaded past notification "${item.title}" into editor! Ready to resend.`);
+    setErrorMsg(null);
+    window.scrollTo({ top: 120, behavior: 'smooth' });
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Tab' && aiTitleSuggestion) {
+      e.preventDefault();
+      setTitle(aiTitleSuggestion);
+      setAiTitleSuggestion('');
+    }
+  };
+
+  const handleMsgKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Tab' && aiMsgSuggestion) {
+      e.preventDefault();
+      setMessage(aiMsgSuggestion);
+      setAiMsgSuggestion('');
+    }
+  };
 
   const handleEnableNotifications = async () => {
     if ('Notification' in window) {
@@ -77,7 +201,6 @@ export default function AdminPushNotification() {
       if (res.ok && data.success) {
         setSuccessMsg('Broadcast sent successfully to all connected Android, iOS PWA & Web clients!');
         
-        // Trigger local notification test
         if ('Notification' in window && Notification.permission === 'granted') {
           const options = {
             body: message,
@@ -163,9 +286,35 @@ export default function AdminPushNotification() {
 
       {/* Broadcast Form Card */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
-        <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-          <Send className="text-[#e52521]" size={18} /> Compose Push Notification
-        </h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+            <Send className="text-[#e52521]" size={18} /> Compose Push Notification
+          </h3>
+
+          <div className="text-[11px] font-semibold text-slate-500 flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded-lg">
+            <Sparkles size={12} className="text-[#e52521]" />
+            <span>AI Smart Type & Tab Autocomplete Active</span>
+          </div>
+        </div>
+
+        {/* Quick Preset Templates */}
+        <div className="space-y-2">
+          <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <Zap size={13} className="text-[#e52521]" /> Quick Preset Templates (1-Click Fill)
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {presetTemplates.map((p) => (
+              <button
+                key={p.name}
+                type="button"
+                onClick={() => handleApplyPreset(p)}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-[#e52521]/10 text-slate-700 hover:text-[#e52521] border border-slate-200 hover:border-[#e52521]/30 rounded-xl text-xs font-semibold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+              >
+                {p.name}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {successMsg && (
           <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2.5 text-emerald-800 text-xs font-semibold">
@@ -179,19 +328,43 @@ export default function AdminPushNotification() {
           </div>
         )}
 
-        <form onSubmit={handleSendBroadcast} className="space-y-4">
+        <form onSubmit={handleSendBroadcast} className="space-y-4 pt-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Title */}
             <div className="space-y-1.5">
-              <label className="text-slate-700 text-xs font-bold uppercase tracking-wider">Notification Title *</label>
+              <div className="flex items-center justify-between">
+                <label className="text-slate-700 text-xs font-bold uppercase tracking-wider">Notification Title *</label>
+                {aiTitleSuggestion && (
+                  <button
+                    type="button"
+                    onClick={() => { setTitle(aiTitleSuggestion); setAiTitleSuggestion(''); }}
+                    className="text-[11px] font-bold text-[#e52521] hover:text-[#d01f1c] flex items-center gap-1 bg-[#e52521]/10 px-2 py-0.5 rounded border border-[#e52521]/20 cursor-pointer"
+                  >
+                    <Sparkles size={11} /> Press <kbd className="bg-white px-1 py-0.2 rounded border border-slate-200 text-[10px] font-mono text-slate-800">Tab</kbd> to complete
+                  </button>
+                )}
+              </div>
               <input
                 type="text"
                 value={title}
+                onKeyDown={handleTitleKeyDown}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. File Transfer App 1.0 Released!"
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-[#e52521] transition-colors"
                 required
               />
+              {aiTitleSuggestion && (
+                <div className="text-[11px] text-slate-600 font-mono bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 flex items-center justify-between">
+                  <span className="truncate">AI Suggestion: <strong className="text-slate-900">{aiTitleSuggestion}</strong></span>
+                  <button
+                    type="button"
+                    onClick={() => { setTitle(aiTitleSuggestion); setAiTitleSuggestion(''); }}
+                    className="text-[#e52521] font-bold hover:underline shrink-0 ml-2 cursor-pointer flex items-center gap-1"
+                  >
+                    <CornerDownLeft size={11} /> Apply (Tab)
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Target Audience */}
@@ -211,15 +384,39 @@ export default function AdminPushNotification() {
 
           {/* Message Body */}
           <div className="space-y-1.5">
-            <label className="text-slate-700 text-xs font-bold uppercase tracking-wider">Message Content *</label>
+            <div className="flex items-center justify-between">
+              <label className="text-slate-700 text-xs font-bold uppercase tracking-wider">Message Content *</label>
+              {aiMsgSuggestion && (
+                <button
+                  type="button"
+                  onClick={() => { setMessage(aiMsgSuggestion); setAiMsgSuggestion(''); }}
+                  className="text-[11px] font-bold text-[#e52521] hover:text-[#d01f1c] flex items-center gap-1 bg-[#e52521]/10 px-2 py-0.5 rounded border border-[#e52521]/20 cursor-pointer"
+                >
+                  <Sparkles size={11} /> Press <kbd className="bg-white px-1 py-0.2 rounded border border-slate-200 text-[10px] font-mono text-slate-800">Tab</kbd> to complete
+                </button>
+              )}
+            </div>
             <textarea
               value={message}
+              onKeyDown={handleMsgKeyDown}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="e.g. Download the official P2P file transfer app for maximum speed and security."
               rows={3}
               className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-[#e52521] transition-colors resize-none"
               required
             />
+            {aiMsgSuggestion && (
+              <div className="text-[11px] text-slate-600 font-mono bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 flex items-center justify-between">
+                <span className="truncate">AI Suggestion: <strong className="text-slate-900">{aiMsgSuggestion}</strong></span>
+                <button
+                  type="button"
+                  onClick={() => { setMessage(aiMsgSuggestion); setAiMsgSuggestion(''); }}
+                  className="text-[#e52521] font-bold hover:underline shrink-0 ml-2 cursor-pointer flex items-center gap-1"
+                >
+                  <CornerDownLeft size={11} /> Apply (Tab)
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -285,7 +482,7 @@ export default function AdminPushNotification() {
                 <th className="p-3">Audience</th>
                 <th className="p-3">Action Link</th>
                 <th className="p-3">Timestamp</th>
-                <th className="p-3 text-right">Status</th>
+                <th className="p-3 text-right">Actions / Resend</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -309,8 +506,15 @@ export default function AdminPushNotification() {
                   <td className="p-3 text-[11px] text-slate-400" suppressHydrationWarning>
                     {new Date(item.timestamp).toLocaleString()}
                   </td>
-                  <td className="p-3 text-right font-semibold text-emerald-600 flex items-center justify-end gap-1">
-                    <CheckCircle size={12} /> Sent
+                  <td className="p-3 text-right font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => handleReuseHistoryItem(item)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#e52521]/10 hover:bg-[#e52521]/20 text-[#e52521] border border-[#e52521]/30 rounded-lg text-[11px] font-bold transition-all active:scale-95 cursor-pointer shadow-sm"
+                      title="Load this past message into editor to resend"
+                    >
+                      <RotateCcw size={11} /> Reuse & Resend
+                    </button>
                   </td>
                 </tr>
               ))}
