@@ -133,6 +133,47 @@ const SecureVault: React.FC = () => {
   const [shareUrl, setShareUrl] = useState('');
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [copied, setCopied] = useState(false);
+  const [copiedSuggested, setCopiedSuggested] = useState(false);
+
+  const handleSuggestPassword = () => {
+    const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const lowercase = 'abcdefghijkmnopqrstuvwxyz';
+    const numbers = '23456789';
+    const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const allChars = uppercase + lowercase + numbers + symbols;
+
+    const rand = new Uint32Array(16);
+    crypto.getRandomValues(rand);
+
+    let pwd = [
+      uppercase[rand[0] % uppercase.length],
+      lowercase[rand[1] % lowercase.length],
+      numbers[rand[2] % numbers.length],
+      symbols[rand[3] % symbols.length],
+    ];
+
+    for (let i = 4; i < 16; i++) {
+      pwd.push(allChars[rand[i] % allChars.length]);
+    }
+
+    for (let i = pwd.length - 1; i > 0; i--) {
+      const j = rand[i] % (i + 1);
+      [pwd[i], pwd[j]] = [pwd[j], pwd[i]];
+    }
+
+    const generated = pwd.join('');
+    setPassword(generated);
+    setConfirmPassword(generated);
+    setShowPassword(true);
+    setError('');
+  };
+
+  const handleCopySuggested = () => {
+    if (!password) return;
+    navigator.clipboard.writeText(password);
+    setCopiedSuggested(true);
+    setTimeout(() => setCopiedSuggested(false), 2000);
+  };
 
   // Drag state
   const [isDragging, setIsDragging] = useState(false);
@@ -437,19 +478,43 @@ const SecureVault: React.FC = () => {
 
                 {/* Password Fields */}
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
-                  <div className="flex items-center gap-2 text-sm font-bold text-white mb-1">
-                    <Lock size={14} className="text-zinc-400" />
-                    Security Key setup
+                  <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                    <div className="flex items-center gap-2 text-sm font-bold text-white">
+                      <Lock size={14} className="text-zinc-400" />
+                      Security Key setup
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleSuggestPassword}
+                      className="flex items-center gap-1.5 text-xs font-semibold bg-[#e52521]/15 hover:bg-[#e52521]/25 text-[#e52521] border border-[#e52521]/30 rounded-lg px-2.5 py-1 transition-all active:scale-95 cursor-pointer shadow-sm"
+                      title="Generate Google-style strong password"
+                    >
+                      <Key size={12} />
+                      Suggest Strong Password
+                    </button>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs text-zinc-400 font-bold">Password *</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-zinc-400 font-bold">Password *</label>
+                      {password && (
+                        <button
+                          type="button"
+                          onClick={handleCopySuggested}
+                          className="text-[11px] font-semibold text-zinc-400 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          {copiedSuggested ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
+                          <span>{copiedSuggested ? 'Copied!' : 'Copy Password'}</span>
+                        </button>
+                      )}
+                    </div>
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={e => setPassword(e.target.value)}
-                        placeholder="Enter a strong password..."
+                        placeholder="Enter or generate a strong password..."
                         className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 pr-10 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-700 transition-all"
                       />
                       <button
@@ -468,7 +533,10 @@ const SecureVault: React.FC = () => {
                             style={{ width: `${(strength.score / 5) * 100}%` }}
                           />
                         </div>
-                        <span className="text-xs text-zinc-300 w-20 text-right font-bold">{strength.label}</span>
+                        <span className="text-xs text-zinc-300 w-24 text-right font-bold flex items-center justify-end gap-1">
+                          <ShieldCheck size={12} className={strength.score >= 4 ? 'text-emerald-400' : 'text-zinc-400'} />
+                          {strength.label}
+                        </span>
                       </div>
                     )}
                   </div>
