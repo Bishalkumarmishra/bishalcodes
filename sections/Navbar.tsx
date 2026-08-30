@@ -156,7 +156,26 @@ const Navbar: React.FC = () => {
             className="flex items-center group relative z-[210] outline-none"
           >
             <img 
-              src={(theme === 'dark' || (typeof window !== 'undefined' && (window.location.pathname.toLowerCase().includes('file-transfer') || window.location.pathname.toLowerCase().includes('transfer')))) ? "/logo-dark.svg" : "/logo.svg"}
+              src={
+                (theme === 'dark' || 
+                 currentPage === 'services' || 
+                 currentPage === 'widgets' || 
+                 currentPage === 'developers' || 
+                 currentPage === 'ai-studio' || 
+                 currentPage === 'docs' ||
+                 (typeof window !== 'undefined' && (
+                   document.documentElement.classList.contains('dark') ||
+                   window.location.pathname.toLowerCase().includes('/tools') ||
+                   window.location.pathname.toLowerCase().includes('/ai-studio') ||
+                   window.location.pathname.toLowerCase().includes('/developers') ||
+                   window.location.pathname.toLowerCase().includes('/docs') ||
+                   window.location.pathname.toLowerCase().includes('transfer') ||
+                   window.location.pathname.toLowerCase().includes('file-transfer') ||
+                   window.location.pathname.toLowerCase().includes('vault')
+                 )))
+                  ? "/logo-dark.svg" 
+                  : "/logo.svg"
+              }
               alt="BishalCodes Logo" 
               className="brand-logo-img h-10 sm:h-12 w-auto object-contain shrink-0 transition-transform duration-300 group-hover:scale-[1.02]"
             />
