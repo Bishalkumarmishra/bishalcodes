@@ -2,63 +2,39 @@
 
 import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import NotificationListener from '../../components/NotificationListener';
 
 // Dynamically import the App component with SSR enabled
 // to support search engine crawlers and pre-render correct content.
 const App = dynamic(() => import('../../App'), { ssr: true });
 
 export default function ClientApp({ initialSlug = [] }: { initialSlug?: string[] }) {
-  // Register the service worker for offline PWA support
+  // Register the service worker for offline PWA & push notification support
   useEffect(() => {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      const isDev = window.location.hostname === 'localhost' || 
-                    window.location.hostname === '127.0.0.1' || 
-                    window.location.hostname.startsWith('192.168.');
+      navigator.serviceWorker
+        .register('/service-worker.js')
+        .then((registration) => {
+          console.log('[SW] Registered with scope:', registration.scope);
 
-      if (isDev) {
-        // Active unregister on localhost to clean up developer browser environment
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-          for (let registration of registrations) {
-            registration.unregister().then((success) => {
-              if (success) {
-                console.log('[SW] Unregistered active service worker to prevent HMR conflict on localhost.');
-                // Clean cache storage to be 100% clean
-                if ('caches' in window) {
-                  caches.keys().then((names) => {
-                    for (let name of names) caches.delete(name);
-                  });
+          // When a new SW is found, activate it immediately
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (
+                  newWorker.state === 'activated' &&
+                  navigator.serviceWorker.controller
+                ) {
+                  console.log('[SW] New version activated.');
                 }
-              }
-            });
-          }
-        });
-      } else {
-        // Production: Register SW for offline PWA capabilities
-        navigator.serviceWorker
-          .register('/service-worker.js')
-          .then((registration) => {
-            console.log('[SW] Registered with scope:', registration.scope);
-
-            // When a new SW is found, activate it immediately
-            registration.addEventListener('updatefound', () => {
-              const newWorker = registration.installing;
-              if (newWorker) {
-                newWorker.addEventListener('statechange', () => {
-                  if (
-                    newWorker.state === 'activated' &&
-                    navigator.serviceWorker.controller
-                  ) {
-                    console.log('[SW] New version activated, reloading...');
-                    window.location.reload();
-                  }
-                });
-              }
-            });
-          })
-          .catch((err) => {
-            console.error('[SW] Registration failed:', err);
+              });
+            }
           });
-      }
+        })
+        .catch((err) => {
+          console.error('[SW] Registration failed:', err);
+        });
     }
   }, []);
 
@@ -152,5 +128,10 @@ export default function ClientApp({ initialSlug = [] }: { initialSlug?: string[]
     };
   }, []);
 
-  return <App initialSlug={initialSlug} />;
+  return (
+    <>
+      <NotificationListener />
+      <App initialSlug={initialSlug} />
+    </>
+  );
 }

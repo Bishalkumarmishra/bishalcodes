@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 let pushNotificationsStore: Array<{
   id: string;
   title: string;

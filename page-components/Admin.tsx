@@ -3705,16 +3705,16 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                             ${p.status === 'approved' ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : ''}
                             ${p.status === 'declined' ? 'bg-rose-100 text-rose-600 border border-rose-200' : ''}
                           `}>{p.status}</span>
-                          <p className="text-slate-500 text-xs font-medium">{new Date(p.timestamp).toLocaleString()}</p>
+                          <p className="text-slate-500 text-xs font-medium" suppressHydrationWarning>{p.timestamp ? new Date(p.timestamp).toLocaleString() : ''}</p>
                         </div>
-                        <p className="text-slate-900 font-bold text-base">{p.userName} (<span className="font-normal text-slate-500">{p.userEmail}</span>)</p>
-                        <p className="text-slate-600 text-sm mt-1">Package: <span className="font-semibold text-[#e52521]">{p.creditPackage.name}</span> (+{p.creditPackage.credits} Credits for Rs. {p.creditPackage.price})</p>
+                        <p className="text-slate-900 font-bold text-base">{p.userName || 'Unknown User'} (<span className="font-normal text-slate-500">{p.userEmail || 'N/A'}</span>)</p>
+                        <p className="text-slate-600 text-sm mt-1">Package: <span className="font-semibold text-[#e52521]">{p.creditPackage?.name || (p as any).packageName || (p as any).planName || 'Standard Package'}</span> (+{p.creditPackage?.credits ?? (p as any).credits ?? 0} Credits for Rs. {p.creditPackage?.price ?? (p as any).amount ?? (p as any).price ?? 0})</p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-                        <button onClick={() => { setIsProofViewerOpen(true); setCurrentProofBase64(p.paymentProofBase64); }} className="flex-1 sm:flex-none px-4 py-2 bg-slate-100 text-sky-600 rounded-lg hover:bg-red-100 hover:text-indigo-700 transition-all text-xs font-semibold flex items-center justify-center gap-2"><ImageIcon size={16} /> View Proof</button>
+                        <button onClick={() => { setIsProofViewerOpen(true); setCurrentProofBase64(p.paymentProofBase64 || ''); }} className="flex-1 sm:flex-none px-4 py-2 bg-slate-100 text-sky-600 rounded-lg hover:bg-red-100 hover:text-indigo-700 transition-all text-xs font-semibold flex items-center justify-center gap-2"><ImageIcon size={16} /> View Proof</button>
                         {p.status === 'pending' && (
                           <>
-                            <button onClick={() => handleApprovePayment(p.id!, p.userId, p.creditPackage.credits)} className="flex-1 sm:flex-none p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-500 hover:text-white transition-all"><CheckCircle size={16} /></button>
+                            <button onClick={() => handleApprovePayment(p.id!, p.userId, p.creditPackage?.credits ?? (p as any).credits ?? 0)} className="flex-1 sm:flex-none p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-500 hover:text-white transition-all"><CheckCircle size={16} /></button>
                             <button onClick={() => handleDeclinePayment(p.id!)} className="flex-1 sm:flex-none p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-500 hover:text-white transition-all"><X size={16} /></button>
                           </>
                         )}
@@ -5062,7 +5062,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                                 </td>
                                 <td className="p-4 text-xs font-medium">{u.email}</td>
                                 <td className="p-4 font-mono text-[10px] text-slate-400">{u.id}</td>
-                                <td className="p-4 text-slate-400 text-xs">{u.lastActive ? new Date(u.lastActive).toLocaleString() : 'N/A'}</td>
+                                <td className="p-4 text-slate-400 text-xs" suppressHydrationWarning>{u.lastActive ? new Date(u.lastActive).toLocaleString() : 'N/A'}</td>
                                 <td className="p-4 text-right">
                                   <button 
                                     onClick={() => handleSendPasswordReset(u.email)}
@@ -5094,7 +5094,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                               <p className="text-xs font-semibold text-slate-900">{act.displayName || act.email || 'System user'}</p>
                               <p className="text-xs text-slate-500 mt-1">{act.details}</p>
                             </div>
-                            <span className="text-[10px] text-slate-400 font-mono shrink-0">{new Date(act.timestamp).toLocaleString()}</span>
+                            <span className="text-[10px] text-slate-400 font-mono shrink-0" suppressHydrationWarning>{act.timestamp ? new Date(act.timestamp).toLocaleString() : ''}</span>
                           </div>
                         ))
                       ) : (

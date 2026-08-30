@@ -207,3 +207,76 @@ self.addEventListener('fetch', (event) => {
       })
   );
 });
+
+// ── PUSH & NOTIFICATIONS: System OS Push Notification Handlers ──
+self.addEventListener('push', (event) => {
+  let data = { title: 'Bishal Codes Alert', body: 'New system notification received!', url: '/' };
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data.body = event.data.text();
+    }
+  }
+
+  const options = {
+    body: data.body || data.message || 'New push broadcast from Bishal Codes',
+    icon: data.icon || '/apple-touch-icon.png',
+    badge: '/favicon.svg',
+    image: data.image || data.fileUrl || undefined,
+    data: {
+      url: data.url || data.actionUrl || '/',
+      timestamp: data.timestamp || Date.now()
+    },
+    vibrate: [200, 100, 200, 100, 200],
+    tag: data.tag || 'bishalcodes-push-' + Date.now(),
+    renotify: true,
+    requireInteraction: true
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'Bishal Codes Broadcast', options)
+  );
+});
+
+// Message listener from foreground client window to trigger SW notification
+self.addEventListener('message', (event) => {
+  if (event.data && (event.data.type === 'SHOW_PUSH_NOTIFICATION' || event.data.type === 'BROADCAST_NOTIFICATION')) {
+    const payload = event.data.payload || {};
+    const title = payload.title || 'Bishal Codes Alert';
+    const options = {
+      body: payload.message || payload.body || '',
+      icon: '/apple-touch-icon.png',
+      badge: '/favicon.svg',
+      image: payload.fileUrl || undefined,
+      data: { url: payload.actionUrl || '/' },
+      vibrate: [200, 100, 200],
+      tag: 'push-msg-' + Date.now(),
+      renotify: true,
+      requireInteraction: true
+    };
+    event.waitUntil(self.registration.showNotification(title, options));
+  }
+});
+
+// Click notification to focus/open app window
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : '/';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          if ('navigate' in client) {
+            client.navigate(targetUrl);
+          }
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
+      }
+    })
+  );
+});

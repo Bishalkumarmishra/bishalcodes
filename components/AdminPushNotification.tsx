@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Bell, Send, Link, FileUp, CheckCircle, AlertCircle, Loader2, Smartphone, Globe, Radio } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Bell, Send, Link, FileUp, CheckCircle, AlertCircle, Loader2, Smartphone, Globe, Radio, ShieldCheck } from 'lucide-react';
 import { PushNotificationPayload } from '../types';
 
 export default function AdminPushNotification() {
@@ -11,6 +11,7 @@ export default function AdminPushNotification() {
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [permissionStatus, setPermissionStatus] = useState<NotificationPermission | 'unsupported'>('default');
 
   const [broadcastHistory, setBroadcastHistory] = useState<PushNotificationPayload[]>([
     {
@@ -23,6 +24,28 @@ export default function AdminPushNotification() {
       status: 'sent'
     }
   ]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      setPermissionStatus(Notification.permission);
+    } else {
+      setPermissionStatus('unsupported');
+    }
+  }, []);
+
+  const handleEnableNotifications = async () => {
+    if ('Notification' in window) {
+      try {
+        const perm = await Notification.requestPermission();
+        setPermissionStatus(perm);
+        if (perm === 'granted') {
+          alert('System notifications granted! You will now receive instant push banners.');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
 
   const handleSendBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +75,33 @@ export default function AdminPushNotification() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setSuccessMsg('Broadcast sent successfully to all connected Android & Web clients!');
+        setSuccessMsg('Broadcast sent successfully to all connected Android, iOS PWA & Web clients!');
+        
+        // Trigger local notification test
+        if ('Notification' in window && Notification.permission === 'granted') {
+          const options = {
+            body: message,
+            icon: '/apple-touch-icon.png',
+            badge: '/favicon.svg',
+            image: fileUrl || undefined,
+            data: { url: actionUrl || '/' },
+            vibrate: [200, 100, 200],
+            tag: 'broadcast-' + Date.now(),
+            renotify: true,
+            requireInteraction: true
+          };
+
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then((reg) => {
+              reg.showNotification(title, options);
+            }).catch(() => {
+              new Notification(title, options);
+            });
+          } else {
+            new Notification(title, options);
+          }
+        }
+
         const newPayload: PushNotificationPayload = {
           id: Date.now().toString(),
           title,
@@ -84,19 +133,30 @@ export default function AdminPushNotification() {
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-xs font-semibold uppercase tracking-wider mb-2">
-            <Radio size={14} /> Live Push Notification Channel
+            <Radio size={14} /> Live Instant Push Notification Channel
           </div>
           <h2 className="text-xl font-bold text-white tracking-tight">Push Notification Broadcast Center</h2>
           <p className="text-slate-400 text-xs mt-1">
-            Broadcast real-time system alerts, updates, and file links directly to Android devices & Web browsers.
+            Broadcast real-time system alerts, updates, and file links directly to Android devices, iOS PWAs, & Web browsers.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-800 shrink-0">
-          <Bell className="text-emerald-400" size={20} />
-          <div>
-            <div className="text-white font-semibold text-xs">API Key Active</div>
-            <div className="text-slate-400 font-mono text-[10px]">BISHALCODES_API_KEY_LIVE_99812</div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          {permissionStatus !== 'granted' && (
+            <button
+              onClick={handleEnableNotifications}
+              className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <ShieldCheck size={16} /> Enable Device Notifications
+            </button>
+          )}
+
+          <div className="flex items-center gap-3 bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-800 shrink-0">
+            <Bell className="text-emerald-400" size={20} />
+            <div>
+              <div className="text-white font-semibold text-xs">API Key Active</div>
+              <div className="text-slate-400 font-mono text-[10px]">BISHALCODES_API_KEY_LIVE_99812</div>
+            </div>
           </div>
         </div>
       </div>
@@ -142,9 +202,9 @@ export default function AdminPushNotification() {
                 onChange={(e) => setTargetAudience(e.target.value as any)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-[#e52521] transition-colors"
               >
-                <option value="all">All Devices (Android Native + Web)</option>
+                <option value="all">All Devices (Android Native + iOS PWA + Web)</option>
                 <option value="android">Android Native App Only</option>
-                <option value="web">Web Subscribers Only</option>
+                <option value="web">Web & iOS PWA Subscribers Only</option>
               </select>
             </div>
           </div>
@@ -246,13 +306,11 @@ export default function AdminPushNotification() {
                       {item.actionUrl}
                     </a>
                   </td>
-                  <td className="p-3 text-[11px] text-slate-400">
+                  <td className="p-3 text-[11px] text-slate-400" suppressHydrationWarning>
                     {new Date(item.timestamp).toLocaleString()}
                   </td>
-                  <td className="p-3 text-right">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 rounded text-[10px] font-bold">
-                      <CheckCircle size={10} /> Sent
-                    </span>
+                  <td className="p-3 text-right font-semibold text-emerald-600 flex items-center justify-end gap-1">
+                    <CheckCircle size={12} /> Sent
                   </td>
                 </tr>
               ))}

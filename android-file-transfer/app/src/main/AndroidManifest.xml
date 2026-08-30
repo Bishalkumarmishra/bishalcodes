@@ -18,7 +18,6 @@
     
     <!-- For Foreground Service -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <application
         android:allowBackup="true"
@@ -43,7 +42,6 @@
         
         <service 
             android:name=".network.FileReceiverService" 
-            android:foregroundServiceType="dataSync" 
             android:exported="false" />
 
         <receiver 

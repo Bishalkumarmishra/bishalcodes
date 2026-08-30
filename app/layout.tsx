@@ -1,4 +1,5 @@
 import React from 'react';
+import Script from 'next/script';
 import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
 
@@ -56,16 +57,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
+    <html lang="en" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
       <head>
         <meta name="google-site-verification" content="9UfBNUlB0bN6D8aODWOnvRyMp93nqwVzLWLNniUNpoo" />
         
         {/* Google AdSense ownership verification & client code */}
         <meta name="google-adsense-account" content="ca-pub-2257248018050891" />
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2257248018050891" crossOrigin="anonymous"></script>
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2257248018050891"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         
         {/* Dropbox SDK for native file picking */}
-        <script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key={process.env.NEXT_PUBLIC_DROPBOX_APP_KEY || "8b28kpk6kjm5p0y"}></script>
+        <Script
+          src="https://www.dropbox.com/static/api/2/dropins.js"
+          id="dropboxjs"
+          data-app-key={process.env.NEXT_PUBLIC_DROPBOX_APP_KEY || "8b28kpk6kjm5p0y"}
+          strategy="afterInteractive"
+        />
 
         
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -82,22 +93,23 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="msapplication-TileColor" content="#FFFFFF" />
 
-
-
-
         {/* Gemini API Key Shim */}
-        <script dangerouslySetInnerHTML={{ __html: `
-          window.__GEMINI_API_KEY__ = '${process.env.GEMINI_API_KEY || 'YOUR_GEMINI_API_KEY_HERE'}';
-          if (typeof window !== 'undefined') {
-            try {
-              window.process = window.process || {};
-              window.process.env = window.process.env || {};
-              window.process.env.API_KEY = '${process.env.GEMINI_API_KEY || 'YOUR_GEMINI_API_KEY_HERE'}';
-            } catch (e) {
-              console.warn('Could not inject window.process.env.API_KEY shim:', e);
+        <Script
+          id="gemini-shim"
+          dangerouslySetInnerHTML={{ __html: `
+            window.__GEMINI_API_KEY__ = '${process.env.GEMINI_API_KEY || 'YOUR_GEMINI_API_KEY_HERE'}';
+            if (typeof window !== 'undefined') {
+              try {
+                window.process = window.process || {};
+                window.process.env = window.process.env || {};
+                window.process.env.API_KEY = '${process.env.GEMINI_API_KEY || 'YOUR_GEMINI_API_KEY_HERE'}';
+              } catch (e) {
+                console.warn('Could not inject window.process.env.API_KEY shim:', e);
+              }
             }
-          }
-        `}} />
+          `}}
+          strategy="beforeInteractive"
+        />
 
         {/* Structured JSON-LD Data Schemas */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: `
@@ -284,7 +296,7 @@ export default function RootLayout({
         }
         `}} />
       </head>
-      <body className="bg-[#FFFFFF] selection:bg-[#e52521] selection:text-white">
+      <body className="bg-[#FFFFFF] selection:bg-[#e52521] selection:text-white" suppressHydrationWarning>
         {/* Sky-Blue mobile status bar filler */}
         <div className="sky-status-bar" />
         {children}

@@ -98,8 +98,8 @@ export interface PaymentRequest {
   userId: string;
   userEmail: string;
   userName: string;
-  creditPackage: { name: string; credits: number; price: number; };
-  paymentProofBase64: string;
+  creditPackage?: { name: string; credits: number; price: number; };
+  paymentProofBase64?: string;
   status: 'pending' | 'approved' | 'declined';
   timestamp: number;
 }

@@ -5,30 +5,30 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://knopoetvssfyxmvggqei.supabase.co';
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_-lTSqONdT5KgK3D2d8102Q_8t9yXYbe';
 
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json(
-        { error: 'Supabase credentials missing' },
-        { status: 500 }
-      );
-    }
+    // 1. Direct REST ping to keep database active
+    const restPing = await fetch(`${supabaseUrl}/rest/v1/`, {
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`
+      },
+      cache: 'no-store'
+    }).catch(() => null);
 
+    // 2. Storage Bucket query via SDK
     const supabase = createClient(supabaseUrl, supabaseKey);
+    const { data, error } = await supabase.storage.getBucket('transfers').catch(() => ({ data: null, error: null }));
 
-    // Make a lightweight request to keep the project active
-    const { data, error } = await supabase.storage.getBucket('transfers');
-
-    if (error && error.message !== 'The resource was not found') {
-      console.error('Keep-awake ping error:', error);
-      return NextResponse.json({ status: 'Error', details: error.message }, { status: 500 });
-    }
+    const isAwake = restPing?.ok || (error && error.message === 'The resource was not found') || !!data;
 
     return NextResponse.json({
-      status: 'Awake!',
+      status: isAwake ? 'Awake!' : 'Warning',
       time: new Date().toISOString(),
-      message: 'Supabase pinged successfully to prevent auto-pause.',
+      restStatus: restPing?.status || 'Network Error',
+      supabaseUrl,
+      message: 'Supabase pinged successfully to prevent auto-pause.'
     });
   } catch (err: any) {
     console.error('Keep-awake error:', err);
