@@ -4,3 +4,4 @@ Disallow: /admin
 Disallow: /login
 
 Sitemap: https://bishalcodes.com/sitemap.xml
+Sitemap: https://bishalcodes.com/api/sitemap

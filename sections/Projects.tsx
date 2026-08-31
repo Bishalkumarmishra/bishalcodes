@@ -68,6 +68,40 @@ const Projects: React.FC = () => {
 
   return (
     <section id="projects" className="py-10 sm:py-14 bg-white relative overflow-hidden">
+      {/* Schema.org JSON-LD Structured Data for Google Search Indexing */}
+      {projects.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              "name": "Bishal Codes Projects & Applications Showcase",
+              "description": "Featured applications, digital tools, and software projects developed by Bishal Mishra.",
+              "numberOfItems": projects.length,
+              "itemListElement": projects.map((p, idx) => ({
+                "@type": "ListItem",
+                "position": idx + 1,
+                "item": {
+                  "@type": "SoftwareApplication",
+                  "name": p.title,
+                  "description": p.seoDescription || p.description,
+                  "url": p.liveUrl || `https://bishalcodes.com/projects`,
+                  "image": p.images?.[0]?.url || 'https://bishalcodes.com/logo.png',
+                  "applicationCategory": "DeveloperApplication",
+                  "operatingSystem": "Web, Android, iOS",
+                  "author": {
+                    "@type": "Person",
+                    "name": "Bishal Mishra",
+                    "url": "https://bishalcodes.com"
+                  }
+                }
+              }))
+            })
+          }}
+        />
+      )}
+
       <div className="w-full px-[5vw] relative z-10">
         <div className="mb-12">
           <div className="flex items-center gap-2 mb-2">

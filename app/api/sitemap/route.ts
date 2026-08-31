@@ -47,7 +47,8 @@ export async function GET() {
     const urlsToFetch = [
       { name: 'blog', url: `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/blog?pageSize=200` },
       { name: 'services', url: `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/services?pageSize=200` },
-      { name: 'legalPages', url: `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/legalPages?pageSize=200` }
+      { name: 'legalPages', url: `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/legalPages?pageSize=200` },
+      { name: 'projects', url: `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/projects?pageSize=200` }
     ];
 
     const fetchResults = await Promise.allSettled(
@@ -60,6 +61,7 @@ export async function GET() {
     let blogUrls: string[] = [];
     let serviceUrls: string[] = [];
     let legalUrls: string[] = [];
+    let projectUrls: string[] = [];
     
     // Parse blog posts
     const blogRes = fetchResults[0];
@@ -102,6 +104,15 @@ export async function GET() {
       }
     }
 
+    // Parse projects for Google Indexing
+    const projectsRes = fetchResults[3];
+    if (projectsRes.status === 'fulfilled' && projectsRes.value.ok) {
+      const data = await projectsRes.value.json();
+      if (data.documents) {
+        projectUrls = data.documents.map((doc: any) => doc.name.split('/').pop()).filter(Boolean);
+      }
+    }
+
     const now = new Date().toISOString();
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -126,12 +137,18 @@ ${serviceUrls.map(id => `  <url>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>`).join('\n')}
+${projectUrls.map(id => `  <url>
+    <loc>${SITE_URL}/projects/${escapeXml(id)}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>`).join('\n')}
 ${legalUrls.map(id => `  <url>
     <loc>${SITE_URL}/legal/${escapeXml(id)}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
-  </url>`).join('\n')}
+  </url>`).join('\n')}`;
 </urlset>`;
 
     return new NextResponse(xml, {
