@@ -197,6 +197,7 @@ const DeveloperPortal: React.FC<{ apiId?: string | null }> = ({ apiId }) => {
   const [apiKey, setApiKey] = useState<string>(''); // Sandbox key
   const [prodApiKey, setProdApiKey] = useState<string>(''); // Live production key
   const [apiPlan, setApiPlan] = useState<string>('');
+  const [keyStatus, setKeyStatus] = useState<'active' | 'revoked'>('active');
   
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedProdKey, setCopiedProdKey] = useState(false);
@@ -244,6 +245,9 @@ const DeveloperPortal: React.FC<{ apiId?: string | null }> = ({ apiId }) => {
             }
             if (data.api_plan) {
               setApiPlan(data.api_plan);
+            }
+            if (data.api_key_status) {
+              setKeyStatus(data.api_key_status);
             }
           }
         } catch (err) {
@@ -295,6 +299,70 @@ const DeveloperPortal: React.FC<{ apiId?: string | null }> = ({ apiId }) => {
     const newKey = `bc_live_${salt}`;
     setApiKey(newKey);
     localStorage.setItem('developer_api_key', newKey);
+  };
+
+  const handleGenerateNewProdKey = async () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let salt = '';
+    for (let i = 0; i < 32; i++) {
+      salt += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const newKey = `bc_prod_${salt}`;
+    setProdApiKey(newKey);
+    setApiKey(newKey);
+    setKeyStatus('active');
+    localStorage.setItem('developer_api_key', newKey);
+
+    if (user) {
+      try {
+        await setDoc(doc(db, 'users', user.uid), {
+          api_production_key: newKey,
+          api_key_status: 'active',
+          api_plan: apiPlan || 'free',
+          updatedAt: Date.now()
+        }, { merge: true });
+      } catch (err) {
+        console.warn('Error saving new production key to Firestore:', err);
+      }
+    }
+    alert('New Production API Key generated successfully!');
+  };
+
+  const handleRevokeApiKey = async () => {
+    if (!confirm('Are you sure you want to REVOKE your Production API key? Any active application sending requests with this key will immediately receive 401 Unauthorized.')) return;
+    
+    setKeyStatus('revoked');
+    if (user) {
+      try {
+        await setDoc(doc(db, 'users', user.uid), {
+          api_key_status: 'revoked',
+          updatedAt: Date.now()
+        }, { merge: true });
+      } catch (err) {
+        console.warn('Error revoking key in Firestore:', err);
+      }
+    }
+    alert('API Key revoked successfully.');
+  };
+
+  const handleDeleteApiKey = async () => {
+    if (!confirm('Are you sure you want to DELETE your API key from your account?')) return;
+    
+    setProdApiKey('');
+    setApiKey('');
+    localStorage.removeItem('developer_api_key');
+    if (user) {
+      try {
+        await setDoc(doc(db, 'users', user.uid), {
+          api_production_key: '',
+          api_key_status: 'deleted',
+          updatedAt: Date.now()
+        }, { merge: true });
+      } catch (err) {
+        console.warn('Error deleting key in Firestore:', err);
+      }
+    }
+    alert('API Key deleted successfully.');
   };
 
   const copyToClipboard = (text: string, setCopied: (v: boolean) => void) => {
@@ -543,8 +611,8 @@ func main() {
       <Navbar />
 
       {/* Hero section */}
-      <div className="pt-28 pb-12 w-full px-[5vw] relative z-10 border-b border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-955/60 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto">
+      <div className="pt-28 pb-12 w-full px-4 sm:px-8 relative z-10 border-b border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-955/60 backdrop-blur-md">
+        <div className="w-full max-w-none">
           <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1 rounded-full mb-3 text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-wider text-[9px]">
             <Terminal size={12} />
             API Store & Developer Hub
@@ -552,18 +620,18 @@ func main() {
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-none animate-none">
             Developer APIs For Core Utilities
           </h1>
-          <p className="text-[#475569] dark:text-slate-400 text-sm sm:text-base leading-relaxed mt-3 max-w-2xl font-normal">
+          <p className="text-[#475569] dark:text-slate-400 text-sm sm:text-base leading-relaxed mt-3 max-w-3xl font-normal">
             Integrate robust, production-level, and lightning-fast developer utility endpoints. Instantly test requests via the Live Playground and get ready-to-use code snippets.
           </p>
         </div>
       </div>
 
       {/* Main content grid */}
-      <div className="flex-grow w-full px-[5vw] py-10 relative z-10">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="flex-grow w-full px-4 sm:px-8 py-8 relative z-10">
+        <div className="w-full max-w-none grid grid-cols-1 lg:grid-cols-12 gap-6">
           
           {/* Sidebar - API Switcher */}
-          <div className="lg:col-span-1 space-y-2">
+          <div className="lg:col-span-3 space-y-2">
             <p className="text-[#475569] dark:text-slate-400 font-bold uppercase tracking-wider text-[9px] px-3 mb-2">Available APIs</p>
             {API_ENDPOINTS.map(api => {
               const isSelected = selectedApi.id === api.id;
@@ -758,6 +826,49 @@ func main() {
                       {selectedApi.responseExample}
                     </pre>
                   </div>
+
+                  {/* API Terms, Rate Limits & HTTP Error Status Codes */}
+                  <div className="pt-6 border-t border-slate-200 dark:border-slate-900 space-y-4">
+                    <h3 className="text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider">API Terms & HTTP Error Response Codes</h3>
+                    <div className="border border-slate-200 dark:border-slate-900 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-950/40">
+                      <table className="w-full text-[10px] sm:text-xs text-left">
+                        <thead>
+                          <tr className="border-b border-slate-200 dark:border-slate-900 bg-slate-100/50 dark:bg-slate-900/50 text-[#475569] dark:text-slate-400 font-bold uppercase tracking-wider text-[9px]">
+                            <th className="px-4 py-2.5">HTTP Code</th>
+                            <th className="px-4 py-2.5">Status</th>
+                            <th className="px-4 py-2.5">Description & Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200 dark:divide-slate-900 font-medium">
+                          <tr>
+                            <td className="px-4 py-2.5 font-mono font-bold text-emerald-600">200 OK</td>
+                            <td className="px-4 py-2.5 font-bold text-[#0f172a] dark:text-white">Success</td>
+                            <td className="px-4 py-2.5 text-slate-500">Request processed successfully and returned valid payload.</td>
+                          </tr>
+                          <tr>
+                            <td className="px-4 py-2.5 font-mono font-bold text-amber-600">400 Bad Request</td>
+                            <td className="px-4 py-2.5 font-bold text-[#0f172a] dark:text-white">Invalid Payload</td>
+                            <td className="px-4 py-2.5 text-slate-500">Missing required parameters (e.g. `url` or `text`) or invalid JSON body.</td>
+                          </tr>
+                          <tr>
+                            <td className="px-4 py-2.5 font-mono font-bold text-[#e52521]">401 Unauthorized</td>
+                            <td className="px-4 py-2.5 font-bold text-[#0f172a] dark:text-white">Key Invalid / Revoked</td>
+                            <td className="px-4 py-2.5 text-slate-500">Missing `X-API-Key` header or key was revoked. Generate a new key in API Keys tab.</td>
+                          </tr>
+                          <tr>
+                            <td className="px-4 py-2.5 font-mono font-bold text-purple-600">429 Too Many Requests</td>
+                            <td className="px-4 py-2.5 font-bold text-[#0f172a] dark:text-white">Rate Limit Hit</td>
+                            <td className="px-4 py-2.5 text-slate-500">Exceeded daily sandbox limit (100 req/day) or per-minute rate limit.</td>
+                          </tr>
+                          <tr>
+                            <td className="px-4 py-2.5 font-mono font-bold text-rose-600">500 Server Error</td>
+                            <td className="px-4 py-2.5 font-bold text-[#0f172a] dark:text-white">Execution Fault</td>
+                            <td className="px-4 py-2.5 text-slate-500">Server-side execution timeout or target website failed to load.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -800,11 +911,11 @@ func main() {
                             </select>
                           ) : (
                             <input
-                              type="text"
+                              type={p.type === 'number' ? 'number' : 'text'}
                               value={playgroundParams[p.name] || ''}
                               onChange={(e) => handleParamChange(p.name, e.target.value)}
-                              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-[#0f172a] dark:text-white outline-none focus:border-[#e52521] dark:focus:border-red-500 transition-colors font-mono"
-                              placeholder={p.defaultVal || p.desc}
+                              className="w-full bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-[#0f172a] dark:text-white outline-none focus:border-[#e52521] dark:focus:border-red-500 transition-colors font-mono placeholder:text-slate-400 dark:placeholder:text-slate-700"
+                              placeholder={p.desc}
                             />
                           )}
                         </div>
@@ -812,41 +923,41 @@ func main() {
                     </div>
 
                     <button
-                      onClick={runPlayground}
+                      onClick={executePlaygroundRequest}
                       disabled={loadingPlayground}
-                      className="w-full flex items-center justify-center gap-2 bg-[#e52521] hover:bg-[#d01f1c] text-white py-3 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                     >
                       {loadingPlayground ? (
                         <>
-                          <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Sending Query...
+                          <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Executing Request...
                         </>
                       ) : (
                         <>
-                          <Send size={12} />
+                          <Send size={14} />
                           Send API Request
                         </>
                       )}
                     </button>
                   </div>
 
-                  {/* Right Column: Response Panel */}
-                  <div className="flex flex-col h-full min-h-[300px]">
+                  {/* Right Column: Live Output Box */}
+                  <div className="flex flex-col h-full min-h-[350px]">
                     <div className="flex items-center justify-between mb-2">
-                      <h2 className="text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider">Server Response</h2>
+                      <h2 className="text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider">Live Response Payload</h2>
                       {executionTime !== null && (
-                        <span className="text-[9px] font-mono text-emerald-600 dark:text-emerald-450 bg-emerald-500/10 px-2 py-0.5 rounded leading-none border border-emerald-500/20">
+                        <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">
                           {executionTime}ms
                         </span>
                       )}
                     </div>
 
-                    {isImageResult ? (
-                      <div className="flex-grow flex flex-col items-center justify-center border border-slate-200 dark:border-slate-900 bg-slate-50 dark:bg-slate-950 rounded-xl p-4 min-h-[220px]">
+                    {isImageResult && imageUrlResult ? (
+                      <div className="flex-grow p-4 rounded-xl bg-slate-955 border border-slate-900 flex flex-col items-center justify-center min-h-[300px]">
                         <img 
                           src={imageUrlResult} 
-                          alt="Playground API Result" 
-                          className="max-w-full max-h-[280px] object-contain rounded-lg border border-slate-200 dark:border-slate-800 shadow-md bg-white dark:bg-slate-900" 
+                          alt="Screenshot API Result" 
+                          className="max-h-[320px] max-w-full object-contain rounded-lg border border-slate-800 shadow-xl"
                         />
                         <span className="text-[10px] text-[#475569] dark:text-slate-400 font-bold uppercase tracking-wider mt-3">Raw Render Output</span>
                       </div>
@@ -897,121 +1008,140 @@ func main() {
                 </div>
               )}
 
-              {/* API KEYS TAB */}
+              {/* API KEYS TAB WITH REVOKE, DELETE & GENERATE NEW KEY */}
               {activeTab === 'keys' && (
                 <div className="space-y-6 animate-none">
-                  <div>
-                    <h2 className="text-xl font-extrabold text-[#0f172a] dark:text-white mb-2">API Authentication Keys</h2>
-                    <p className="text-[#475569] dark:text-slate-400 text-xs sm:text-sm leading-relaxed font-normal">
-                      Manage your sandbox testing keys and active live commercial credentials.
-                    </p>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                    <div>
+                      <h2 className="text-xl font-extrabold text-[#0f172a] dark:text-white mb-1">API Credentials & Key Management</h2>
+                      <p className="text-[#475569] dark:text-slate-400 text-xs sm:text-sm leading-relaxed font-normal">
+                        Generate new keys, revoke credentials, or delete active keys for your applications.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={handleGenerateNewProdKey}
+                      className="px-4 py-2.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer shrink-0 active:scale-95"
+                    >
+                      <Zap size={14} /> Get / Generate New API Key
+                    </button>
                   </div>
 
                   {/* Keys Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Sandbox Key Card */}
-                    <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-900 bg-slate-50/50 dark:bg-slate-950/20">
-                      <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+                    <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-900 bg-slate-50/50 dark:bg-slate-950/20 space-y-4">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/80">
                         <div className="flex items-center gap-2 text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider">
                           <Key size={14} className="text-slate-500" />
                           Developer Sandbox Key
                         </div>
-                        <button 
-                          onClick={generateNewKey} 
-                          className="text-[9px] font-bold text-[#e52521] dark:text-[#d01f1c] hover:text-[#d01f1c] dark:hover:text-red-300 transition-colors uppercase tracking-wider"
-                        >
-                          Regenerate
-                        </button>
+                        <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded uppercase tracking-wider">
+                          Sandbox
+                        </span>
                       </div>
                       
                       <div className="flex items-center gap-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl p-1">
                         <code className="text-[10px] sm:text-xs font-mono font-bold text-[#e52521] dark:text-red-300 px-3 truncate select-all flex-grow">
-                          {apiKey}
+                          {apiKey || 'bc_live_sandbox_demo_key'}
                         </code>
                         <button 
                           onClick={() => copyToClipboard(apiKey, setCopiedKey)}
                           className="p-2 text-slate-400 hover:text-[#0f172a] dark:hover:text-white rounded-lg bg-slate-50 dark:bg-slate-900 transition-colors cursor-pointer shrink-0"
+                          title="Copy sandbox key"
                         >
                           {copiedKey ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
                         </button>
                       </div>
 
-                      <div className="flex items-center gap-1.5 mt-3 text-[9px] text-slate-500 font-medium">
-                        <Info size={10} />
-                        Sandbox key has a limit of 100 requests per day.
+                      <div className="flex items-center justify-between pt-2">
+                        <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-medium">
+                          <Info size={10} /> Limit: 100 req/day
+                        </div>
+                        <button 
+                          onClick={generateNewKey} 
+                          className="text-[10px] font-bold text-[#e52521] dark:text-[#d01f1c] hover:underline cursor-pointer"
+                        >
+                          Regenerate Sandbox Key
+                        </button>
                       </div>
                     </div>
 
-                    {/* Production Key Card */}
-                    <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-900/30 flex flex-col justify-between">
-                      {user ? (
-                        <>
-                          <div>
-                            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
-                              <div className="flex items-center gap-2 text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider">
-                                <Zap size={14} className="text-amber-500" />
-                                Live Production Key
-                              </div>
-                              {prodApiKey && (
-                                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-450 bg-emerald-500/10 px-2 py-0.5 rounded uppercase tracking-wider leading-none">
-                                  {apiPlan === 'pro' ? 'Pro' : 'Enterprise'}
-                                </span>
-                              )}
+                    {/* Live Production Key Card */}
+                    <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-900/30 flex flex-col justify-between space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/80 mb-3">
+                          <div className="flex items-center gap-2 text-xs font-bold text-[#0f172a] dark:text-white uppercase tracking-wider">
+                            <Zap size={14} className="text-amber-500" />
+                            Live Production Key
+                          </div>
+                          {keyStatus === 'revoked' ? (
+                            <span className="text-[9px] font-bold text-rose-600 bg-rose-500/10 px-2 py-0.5 rounded uppercase tracking-wider">
+                              REVOKED
+                            </span>
+                          ) : (
+                            <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-450 bg-emerald-500/10 px-2 py-0.5 rounded uppercase tracking-wider">
+                              ACTIVE (50,000 req/mo)
+                            </span>
+                          )}
+                        </div>
+
+                        {prodApiKey || apiKey ? (
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl p-1">
+                              <code className={`text-[10px] sm:text-xs font-mono font-bold px-3 truncate select-all flex-grow ${
+                                keyStatus === 'revoked' ? 'line-through text-slate-400' : 'text-amber-600 dark:text-amber-400'
+                              }`}>
+                                {prodApiKey || apiKey}
+                              </code>
+                              <button 
+                                onClick={() => copyToClipboard(prodApiKey || apiKey, setCopiedProdKey)}
+                                className="p-2 text-slate-400 hover:text-[#0f172a] dark:hover:text-white rounded-lg bg-slate-50 dark:bg-slate-900 transition-colors cursor-pointer shrink-0"
+                                title="Copy production key"
+                              >
+                                {copiedProdKey ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                              </button>
                             </div>
 
-                            {prodApiKey ? (
-                              <div className="space-y-3">
-                                <div className="flex items-center gap-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl p-1">
-                                  <code className="text-[10px] sm:text-xs font-mono font-bold text-amber-600 dark:text-amber-400 px-3 truncate select-all flex-grow">
-                                    {prodApiKey}
-                                  </code>
-                                  <button 
-                                    onClick={() => copyToClipboard(prodApiKey, setCopiedProdKey)}
-                                    className="p-2 text-slate-400 hover:text-[#0f172a] dark:hover:text-white rounded-lg bg-slate-50 dark:bg-slate-900 transition-colors cursor-pointer shrink-0"
-                                  >
-                                    {copiedProdKey ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-                                  </button>
-                                </div>
-                                <div className="text-[10px] text-[#475569] dark:text-slate-400 space-y-1">
-                                  <p>• <strong>Rate Limit</strong>: {apiPlan === 'pro' ? '60 req/min' : '500 req/min'}</p>
-                                  <p>• <strong>Monthly Quota</strong>: {apiPlan === 'pro' ? '50,000 requests' : 'Unlimited'}</p>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="text-center py-2">
-                                <p className="text-[11px] text-[#475569] dark:text-slate-400 mb-3 font-normal">
-                                  No active live commercial key associated with this account.
-                                </p>
-                                <button 
-                                  onClick={() => {
-                                    const pricingEl = document.getElementById('api-pricing-section');
-                                    if (pricingEl) {
-                                      pricingEl.scrollIntoView({ behavior: 'smooth' });
-                                    }
-                                  }}
-                                  className="inline-flex items-center gap-1 bg-[#e52521] hover:bg-[#d01f1c] text-white px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider cursor-pointer shadow-sm transition-colors"
-                                >
-                                  Get Live Key
-                                  <ArrowRight size={10} />
-                                </button>
-                              </div>
-                            )}
+                            {/* Action Control Buttons (Revoke, Delete, Get New) */}
+                            <div className="flex items-center gap-2 pt-2">
+                              <button
+                                onClick={handleGenerateNewProdKey}
+                                className="flex-1 py-1.5 px-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                              >
+                                Get New Key
+                              </button>
+
+                              <button
+                                onClick={handleRevokeApiKey}
+                                className="py-1.5 px-2.5 bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer border border-amber-200 dark:border-amber-900"
+                              >
+                                Revoke Key
+                              </button>
+
+                              <button
+                                onClick={handleDeleteApiKey}
+                                className="py-1.5 px-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-300 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer border border-rose-200 dark:border-rose-900"
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </div>
-                        </>
-                      ) : (
-                        <div className="text-center py-6 flex flex-col items-center justify-center h-full">
-                          <Lock size={20} className="text-slate-400 mb-2" />
-                          <p className="text-xs text-[#475569] dark:text-slate-400 mb-3 font-medium">
-                            Log in to retrieve or manage your live keys.
-                          </p>
-                          <button 
-                            onClick={() => navigate('login')}
-                            className="bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
-                          >
-                            Sign In / Register
-                          </button>
-                        </div>
-                      )}
+                        ) : (
+                          <div className="text-center py-4">
+                            <p className="text-[11px] text-[#475569] dark:text-slate-400 mb-3 font-normal">
+                              No active live key found. Generate your 100% free production key now.
+                            </p>
+                            <button 
+                              onClick={handleGenerateNewProdKey}
+                              className="inline-flex items-center gap-1.5 bg-[#e52521] hover:bg-[#d01f1c] text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider cursor-pointer shadow-sm transition-colors"
+                            >
+                              Generate Production Key Now
+                              <ArrowRight size={10} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
