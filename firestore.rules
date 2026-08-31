@@ -183,5 +183,9 @@ service cloud.firestore {
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['downloads']);
       allow delete: if isAllowedAdmin();
     }
+    // Media assets library & Cloudinary resources catalog
+    match /media_assets/{assetId} {
+      allow read, write, delete: if true;
+    }
   }
 }

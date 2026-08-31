@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { UploadCloud, Image as ImageIcon, Video, FileText, Trash2, Copy, Check, ExternalLink, Search, RefreshCw, Loader2, Filter, HardDrive, Plus, X, Layers, Sparkles } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, Video, FileText, Trash2, Copy, Check, ExternalLink, Search, RefreshCw, Loader2, HardDrive, X } from 'lucide-react';
 import { db } from '../services/firebase';
-import { collection, query, orderBy, getDocs, addDoc, deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { uploadToCloudinary, CloudinaryUploadResult } from '../services/cloudinary';
 
 export interface MediaAsset {
@@ -32,21 +32,39 @@ export default function AdminMediaAssets() {
     fetchAndMigrateMedia();
   }, []);
 
-  // Scan all site collections (Projects, Blog, Services, Hero, Notifications, Testimonials) and aggregate all media
+  // Fetch ALL media directly from Cloudinary Account API + scan all site collections (Projects, Blog, Services, Hero, Notifications)
   const fetchAndMigrateMedia = async () => {
     try {
       setLoading(true);
-      
-      // 1. Fetch existing saved media assets
-      const q = query(collection(db, 'media_assets'), orderBy('createdAt', 'desc'));
-      const snapshot = await getDocs(q);
-      const existingAssets: MediaAsset[] = snapshot.docs.map(d => ({
-        id: d.id,
-        ...d.data()
-      } as MediaAsset));
+      const allAssetsMap = new Map<string, MediaAsset>();
 
-      const existingUrls = new Set(existingAssets.map(a => a.url));
-      const newlyDiscoveredAssets: MediaAsset[] = [];
+      // 1. Fetch ALL Cloudinary account assets directly from /api/cloudinary/resources API
+      try {
+        const cRes = await fetch('/api/cloudinary/resources');
+        if (cRes.ok) {
+          const cData = await cRes.json();
+          if (cData.resources && Array.isArray(cData.resources)) {
+            cData.resources.forEach((item: MediaAsset) => {
+              allAssetsMap.set(item.url, item);
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Failed calling /api/cloudinary/resources API:', err);
+      }
+
+      // 2. Fetch saved Firestore media assets (safe query without order constraints)
+      try {
+        const snapshot = await getDocs(collection(db, 'media_assets'));
+        snapshot.docs.forEach(d => {
+          const data = d.data() as MediaAsset;
+          if (data.url) {
+            allAssetsMap.set(data.url, { id: d.id, ...data });
+          }
+        });
+      } catch (err) {
+        console.warn('Error reading media_assets Firestore collection:', err);
+      }
 
       // Helper to classify URL type
       const getMediaType = (url: string): 'image' | 'video' | 'pdf' | 'raw' => {
@@ -56,20 +74,21 @@ export default function AdminMediaAssets() {
         return 'image';
       };
 
-      // Helper to safely add discovered URL
+      // Helper to safely add discovered URL from site collections
       const trackMediaUrl = (url: string | undefined | null, name: string, source: string) => {
-        if (!url || typeof url !== 'string' || !url.startsWith('http') || existingUrls.has(url)) return;
-        existingUrls.add(url);
-        newlyDiscoveredAssets.push({
-          name: name || 'Site Media Asset',
-          url: url,
-          type: getMediaType(url),
-          createdAt: Date.now(),
-          source: source
-        });
+        if (!url || typeof url !== 'string' || !url.startsWith('http')) return;
+        if (!allAssetsMap.has(url)) {
+          allAssetsMap.set(url, {
+            name: name || 'Site Media Asset',
+            url: url,
+            type: getMediaType(url),
+            createdAt: Date.now(),
+            source: source
+          });
+        }
       };
 
-      // 2. Scan Projects collection
+      // 3. Scan Projects collection
       try {
         const projSnap = await getDocs(collection(db, 'projects'));
         projSnap.docs.forEach(docSnap => {
@@ -83,7 +102,7 @@ export default function AdminMediaAssets() {
         });
       } catch (e) { console.warn('Projects scan error:', e); }
 
-      // 3. Scan Blog collection
+      // 4. Scan Blog collection
       try {
         const blogSnap = await getDocs(collection(db, 'blog'));
         blogSnap.docs.forEach(docSnap => {
@@ -92,7 +111,7 @@ export default function AdminMediaAssets() {
         });
       } catch (e) { console.warn('Blog scan error:', e); }
 
-      // 4. Scan Services collection
+      // 5. Scan Services collection
       try {
         const serviceSnap = await getDocs(collection(db, 'services'));
         serviceSnap.docs.forEach(docSnap => {
@@ -102,7 +121,7 @@ export default function AdminMediaAssets() {
         });
       } catch (e) { console.warn('Services scan error:', e); }
 
-      // 5. Scan Notifications collection
+      // 6. Scan Notifications collection
       try {
         const notifSnap = await getDocs(collection(db, 'notifications'));
         notifSnap.docs.forEach(docSnap => {
@@ -111,7 +130,7 @@ export default function AdminMediaAssets() {
         });
       } catch (e) { console.warn('Notifications scan error:', e); }
 
-      // 6. Scan Testimonials & Settings/Hero
+      // 7. Scan Testimonials & Settings/Hero
       try {
         const testSnap = await getDocs(collection(db, 'testimonials'));
         testSnap.docs.forEach(docSnap => {
@@ -137,20 +156,8 @@ export default function AdminMediaAssets() {
         }
       } catch (e) { console.warn('Settings/Testimonials scan error:', e); }
 
-      // 7. Auto-save newly discovered site media assets to Firestore
-      if (newlyDiscoveredAssets.length > 0) {
-        for (const item of newlyDiscoveredAssets) {
-          try {
-            const docRef = await addDoc(collection(db, 'media_assets'), item);
-            item.id = docRef.id;
-            existingAssets.unshift(item);
-          } catch (err) {
-            console.warn('Failed saving auto-migrated asset:', err);
-          }
-        }
-      }
-
-      setAssets(existingAssets);
+      const finalAssetList = Array.from(allAssetsMap.values()).sort((a, b) => b.createdAt - a.createdAt);
+      setAssets(finalAssetList);
     } catch (e) {
       console.warn('Error fetching and migrating media assets:', e);
     } finally {
@@ -180,8 +187,11 @@ export default function AdminMediaAssets() {
           source: 'Cloudinary Direct Upload'
         };
 
-        const docRef = await addDoc(collection(db, 'media_assets'), newAsset);
-        newAsset.id = docRef.id;
+        try {
+          const docRef = await addDoc(collection(db, 'media_assets'), newAsset);
+          newAsset.id = docRef.id;
+        } catch (err) { console.warn('Saved local asset:', err); }
+
         setAssets(prev => [newAsset, ...prev]);
       }
       alert('Media files uploaded to Cloudinary successfully!');
@@ -200,15 +210,15 @@ export default function AdminMediaAssets() {
   };
 
   const handleDelete = async (asset: MediaAsset) => {
-    if (!confirm(`Are you sure you want to remove "${asset.name}" from your media library?`)) return;
+    if (!confirm(`Are you sure you want to remove "${asset.name}" from your media library view?`)) return;
     try {
       if (asset.id) {
         await deleteDoc(doc(db, 'media_assets', asset.id));
       }
-      setAssets(prev => prev.filter(a => a.id !== asset.id));
+      setAssets(prev => prev.filter(a => a.url !== asset.url));
     } catch (err) {
       console.error('Error deleting asset:', err);
-      alert('Failed to delete asset from media library.');
+      setAssets(prev => prev.filter(a => a.url !== asset.url));
     }
   };
 
@@ -221,7 +231,7 @@ export default function AdminMediaAssets() {
   });
 
   const formatFileSize = (bytes?: number) => {
-    if (!bytes) return 'Cloud Link';
+    if (!bytes) return 'Cloud Asset';
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
@@ -234,9 +244,9 @@ export default function AdminMediaAssets() {
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#e52521]/10 border border-[#e52521]/20 text-[#e52521] rounded-lg text-xs font-semibold uppercase tracking-wider mb-2">
             <HardDrive size={14} /> Cloudinary & Site Media Library
           </div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Media Assets & Cloudinary Manager</h2>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Cloudinary Media Assets & Site Gallery</h2>
           <p className="text-slate-500 text-xs mt-1">
-            All images, videos, banners, and PDFs used across BishalCodes auto-aggregated and saved in full resolution.
+            All files stored on your Cloudinary account and used across BishalCodes listed in full quality.
           </p>
         </div>
 
@@ -246,10 +256,10 @@ export default function AdminMediaAssets() {
             onClick={() => { setSyncing(true); fetchAndMigrateMedia(); }}
             disabled={loading || syncing}
             className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition-all border border-slate-300 flex items-center gap-1.5 cursor-pointer active:scale-95"
-            title="Scan site and auto-import all missing images/videos"
+            title="Fetch all media files directly from Cloudinary account & site database"
           >
             <RefreshCw size={14} className={syncing || loading ? 'animate-spin text-[#e52521]' : 'text-slate-600'} />
-            {syncing ? 'Scanning Site Media...' : 'Sync All Site Media'}
+            {syncing ? 'Fetching Cloudinary Assets...' : 'Fetch All Cloudinary Media'}
           </button>
 
           <label className="px-4 py-2.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer active:scale-95 shrink-0">
@@ -283,7 +293,7 @@ export default function AdminMediaAssets() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search media files by title, category, or URL..."
+            placeholder="Search media files by title, category, or Cloudinary URL..."
             className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-slate-900 text-xs focus:outline-none focus:border-[#e52521] transition-colors"
           />
         </div>
@@ -329,16 +339,16 @@ export default function AdminMediaAssets() {
       {loading ? (
         <div className="py-20 text-center space-y-3 bg-white rounded-2xl border border-slate-200 shadow-sm">
           <Loader2 className="animate-spin text-[#e52521] mx-auto" size={32} />
-          <p className="text-xs font-semibold text-slate-600">Scanning site database and Cloudinary assets...</p>
+          <p className="text-xs font-semibold text-slate-600">Connecting to Cloudinary Account & fetching media assets...</p>
         </div>
       ) : filteredAssets.length === 0 ? (
         <div className="py-16 text-center space-y-3 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
           <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto text-slate-400">
             <UploadCloud size={24} />
           </div>
-          <h3 className="text-sm font-bold text-slate-800">No media assets found</h3>
+          <h3 className="text-sm font-bold text-slate-800">No Cloudinary media found</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Click "Sync All Site Media" above or upload images, banners, or videos to populate your library.
+            Click "Fetch All Cloudinary Media" above or upload images and videos directly to your library.
           </p>
         </div>
       ) : (
@@ -421,7 +431,7 @@ export default function AdminMediaAssets() {
                   <button
                     onClick={() => handleDelete(asset)}
                     className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors cursor-pointer"
-                    title="Delete from library"
+                    title="Delete from view"
                   >
                     <Trash2 size={13} />
                   </button>
@@ -490,8 +500,16 @@ export function MediaPickerModal({
   const fetchMediaAssets = async () => {
     try {
       setLoading(true);
-      const q = query(collection(db, 'media_assets'), orderBy('createdAt', 'desc'));
-      const snapshot = await getDocs(q);
+      const cRes = await fetch('/api/cloudinary/resources');
+      if (cRes.ok) {
+        const cData = await cRes.json();
+        if (cData.resources && Array.isArray(cData.resources)) {
+          setAssets(cData.resources);
+          return;
+        }
+      }
+
+      const snapshot = await getDocs(collection(db, 'media_assets'));
       const items: MediaAsset[] = snapshot.docs.map(d => ({
         id: d.id,
         ...d.data()
@@ -534,11 +552,11 @@ export function MediaPickerModal({
         <div className="overflow-y-auto flex-1 grid grid-cols-2 sm:grid-cols-3 gap-3 p-1">
           {loading ? (
             <div className="col-span-full py-12 text-center text-xs text-slate-500">
-              <Loader2 size={24} className="animate-spin text-[#e52521] mx-auto mb-2" /> Loading assets...
+              <Loader2 size={24} className="animate-spin text-[#e52521] mx-auto mb-2" /> Fetching Cloudinary files...
             </div>
           ) : filtered.length === 0 ? (
             <div className="col-span-full py-12 text-center text-xs text-slate-500">
-              No media files found in library.
+              No media files found in Cloudinary.
             </div>
           ) : (
             filtered.map(asset => (
