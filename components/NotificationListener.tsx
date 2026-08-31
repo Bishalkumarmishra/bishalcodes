@@ -154,6 +154,8 @@ export default function NotificationListener() {
         const data = await res.json();
         if (!data.success || !Array.isArray(data.notifications) || data.notifications.length === 0) return;
 
+        const latest = data.notifications[0];
+
         // Sync fetched notifications into Notification Center history & update unread badge
         try {
           const STORAGE_KEY = 'bishalcodes_notification_center_history';
