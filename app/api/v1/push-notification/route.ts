@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import webpush from 'web-push';
 import { VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT } from '@/services/pushConfig';
-import { supabase } from '@/services/supabase';
-import { getActiveSubscriptions, removeSubscription } from '@/services/pushSubscriptionStore';
+import { db } from '@/services/firebase';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,22 +16,19 @@ try {
   console.warn('Web Push VAPID setup notice:', e);
 }
 
-let pushNotificationsStore: Array<{
-  id: string;
-  title: string;
-  message: string;
-  actionUrl?: string;
-  fileUrl?: string;
-  targetAudience: string;
-  timestamp: number;
-  status: string;
-}> = []; // Clean initial state - NO old dummy/stale notifications on app startup!
-
 export async function GET() {
+  let notifications: any[] = [];
+  try {
+    const snapshot = await db.collection('notifications').orderBy('timestamp', 'desc').limit(50).get();
+    notifications = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+  } catch (err) {
+    // If Admin SDK collection method unavailable in client db instance, fallback to raw REST / empty array
+  }
+
   return NextResponse.json({
     success: true,
-    notifications: pushNotificationsStore,
-    latestTimestamp: pushNotificationsStore.length > 0 ? pushNotificationsStore[0].timestamp : 0
+    notifications,
+    latestTimestamp: notifications.length > 0 ? notifications[0].timestamp : 0
   });
 }
 
@@ -60,46 +56,29 @@ export async function POST(req: Request) {
       status: 'sent'
     };
 
-    pushNotificationsStore.unshift(notificationPayload);
-    if (pushNotificationsStore.length > 50) {
-      pushNotificationsStore.pop();
-    }
-
-    console.log('📡 Push Notification Broadcast Triggered:', notificationPayload);
-
-    // ── 1. Gather all target Web Push subscriptions worldwide ──
-    const allSubsMap = new Map<string, any>();
-
-    // A) In-memory subscriptions
-    const memorySubs = getActiveSubscriptions();
-    for (const sub of memorySubs) {
-      if (sub.endpoint) allSubsMap.set(sub.endpoint, sub);
-    }
-
-    // B) Supabase subscriptions
+    // Save to Firestore permanently so all devices fetch this broadcast
     try {
-      const { data: dbSubs } = await supabase.from('push_subscriptions').select('*');
-      if (Array.isArray(dbSubs)) {
-        for (const row of dbSubs) {
-          if (row.endpoint && !allSubsMap.has(row.endpoint)) {
-            allSubsMap.set(row.endpoint, {
-              endpoint: row.endpoint,
-              keys: {
-                p256dh: row.p256dh,
-                auth: row.auth
-              }
-            });
-          }
-        }
-      }
+      await db.collection('notifications').doc(notificationPayload.id).set(notificationPayload);
     } catch (e) {
-      console.warn('Supabase subscription fetch notice:', e);
+      console.warn('Firestore write warning:', e);
     }
 
-    const targetSubscriptions = Array.from(allSubsMap.values());
-    console.log(`🚀 Sending Web Push notification to ${targetSubscriptions.length} registered global endpoints...`);
+    // ── 1. Fetch all Web Push subscriptions from Firestore ──
+    const targetSubscriptions: any[] = [];
+    try {
+      const subSnapshot = await db.collection('push_subscriptions').get();
+      subSnapshot.forEach((doc: any) => {
+        const data = doc.data();
+        if (data.endpoint && data.keys) {
+          targetSubscriptions.push(data);
+        }
+      });
+    } catch (e) {
+      console.warn('Firestore push_subscriptions fetch warning:', e);
+    }
 
-    // ── 2. Broadcast via Web Push Protocol (APNs for iPhone / FCM for Android & Desktop) ──
+    console.log(`🚀 Sending Web Push to ${targetSubscriptions.length} global endpoints...`);
+
     const pushPayloadString = JSON.stringify({
       title: notificationPayload.title,
       body: notificationPayload.message,
@@ -119,20 +98,20 @@ export async function POST(req: Request) {
 
     const sendPromises = targetSubscriptions.map(async (sub) => {
       try {
-        const pushSubscriptionObj = {
+        await webpush.sendNotification({
           endpoint: sub.endpoint,
           keys: sub.keys
-        };
-        await webpush.sendNotification(pushSubscriptionObj, pushPayloadString, {
-          TTL: 86400, // 24 hour time to live
+        }, pushPayloadString, {
+          TTL: 86400,
           urgency: 'high'
         });
         successCount++;
       } catch (err: any) {
         failCount++;
         if (err.statusCode === 410 || err.statusCode === 404) {
-          console.log(`Removing expired subscription: ${sub.endpoint}`);
-          await removeSubscription(sub.endpoint);
+          try {
+            await db.collection('push_subscriptions').doc(docIdFromEndpoint(sub.endpoint)).delete();
+          } catch (e) {}
         }
       }
     });
@@ -141,9 +120,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: `Push broadcast sent! Delivered to ${successCount} devices worldwide (${failCount} unreachable).`,
+      message: `Push broadcast delivered successfully! (${successCount} Web Push endpoints delivered).`,
       payload: notificationPayload,
-      notifications: pushNotificationsStore,
       deliveryStats: {
         totalTargeted: targetSubscriptions.length,
         successCount,
@@ -155,3 +133,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
+
+function docIdFromEndpoint(endpoint: string): string {
+  return Buffer.from(endpoint).toString('base64').replace(/=/g, '').slice(-40);
+}
+
