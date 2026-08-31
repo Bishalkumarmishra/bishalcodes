@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Send, Link, FileUp, CheckCircle, AlertCircle, Loader2, Smartphone, Globe, Radio, ShieldCheck, RotateCcw, Sparkles, CornerDownLeft, Zap } from 'lucide-react';
+import { Bell, Send, Link, FileUp, CheckCircle, AlertCircle, Loader2, Smartphone, Globe, Radio, ShieldCheck, RotateCcw, Sparkles, CornerDownLeft, Zap, Image as ImageIcon, X } from 'lucide-react';
 import { PushNotificationPayload } from '../types';
+import { uploadToCloudinary } from '@/services/cloudinary';
 
 export default function AdminPushNotification() {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [actionUrl, setActionUrl] = useState('https://bishalcodes.com/tools/file_transfer');
   const [fileUrl, setFileUrl] = useState('');
+  const [uploadingBanner, setUploadingBanner] = useState(false);
   const [targetAudience, setTargetAudience] = useState<'all' | 'android' | 'web'>('all');
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -154,6 +156,24 @@ export default function AdminPushNotification() {
       e.preventDefault();
       setMessage(aiMsgSuggestion);
       setAiMsgSuggestion('');
+    }
+  };
+
+  const handleBannerFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingBanner(true);
+      setErrorMsg(null);
+      const res = await uploadToCloudinary(file);
+      setFileUrl(res.url);
+      setSuccessMsg(`Custom banner uploaded to Cloudinary successfully! (${(file.size / (1024 * 1024)).toFixed(1)}MB full quality)`);
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Failed uploading banner image to Cloudinary.');
+    } finally {
+      setUploadingBanner(false);
     }
   };
 
@@ -431,18 +451,61 @@ export default function AdminPushNotification() {
               />
             </div>
 
-            {/* Attached File or Image URL */}
+            {/* Attached File or Image URL / Cloudinary Upload */}
             <div className="space-y-1.5">
-              <label className="text-slate-700 text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                <FileUp size={13} className="text-[#e52521]" /> Attachment File / Image URL (Optional)
-              </label>
-              <input
-                type="text"
-                value={fileUrl}
-                onChange={(e) => setFileUrl(e.target.value)}
-                placeholder="https://bishalcodes.com/seo-images/file-transfer.png"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-[#e52521] transition-colors"
-              />
+              <div className="flex items-center justify-between">
+                <label className="text-slate-700 text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                  <ImageIcon size={13} className="text-[#e52521]" /> Custom Banner / Image (Direct Link or Cloudinary Upload up to 100MB)
+                </label>
+                {fileUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setFileUrl('')}
+                    className="text-[10px] text-rose-500 font-bold hover:underline flex items-center gap-0.5 cursor-pointer"
+                  >
+                    <X size={11} /> Clear Banner
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={fileUrl}
+                  onChange={(e) => setFileUrl(e.target.value)}
+                  placeholder="Paste direct URL or upload file to Cloudinary ->"
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-[#e52521] transition-colors"
+                />
+
+                <label className="px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer shrink-0 border border-slate-800">
+                  {uploadingBanner ? (
+                    <>
+                      <Loader2 className="animate-spin text-[#e52521]" size={14} /> Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <FileUp size={14} className="text-[#e52521]" /> Upload Banner (100MB)
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*,video/*,.gif"
+                    onChange={handleBannerFileUpload}
+                    disabled={uploadingBanner}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
+              {fileUrl && (
+                <div className="mt-2 p-2 bg-slate-100 rounded-xl border border-slate-200 flex items-center gap-3">
+                  <img src={fileUrl} alt="Banner Preview" className="w-16 h-12 object-cover rounded-lg border border-slate-300 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[11px] font-bold text-slate-800 truncate">Cloudinary Full Quality Banner Active</div>
+                    <div className="text-[10px] text-slate-500 truncate font-mono">{fileUrl}</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

@@ -245,9 +245,15 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
                 }`}
               >
                 <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-[#e52521]/10 border border-[#e52521]/20 flex items-center justify-center text-[#e52521] shrink-0 mt-0.5">
-                    <Sparkles size={14} />
-                  </div>
+                  {item.fileUrl ? (
+                    <div className="w-9 h-9 rounded-lg overflow-hidden border border-[#e52521]/30 shrink-0 mt-0.5 bg-slate-950">
+                      <img src={item.fileUrl} alt="Thumbnail" className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 rounded-lg bg-[#e52521]/10 border border-[#e52521]/20 flex items-center justify-center text-[#e52521] shrink-0 mt-0.5">
+                      <Bell size={14} />
+                    </div>
+                  )}
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <h4 className={`text-xs font-bold truncate ${item.read ? 'text-slate-600 dark:text-slate-300' : 'text-slate-900 dark:text-white'}`}>
@@ -262,8 +268,8 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
                     </p>
 
                     {item.fileUrl && (
-                      <div className="mt-2 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 max-h-24 max-w-xs">
-                        <img src={item.fileUrl} alt="Attachment" className="w-full h-auto object-cover" />
+                      <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 max-h-36 w-full shadow-sm bg-slate-950">
+                        <img src={item.fileUrl} alt="Attachment Banner" className="w-full h-auto object-cover max-h-36" />
                       </div>
                     )}
 

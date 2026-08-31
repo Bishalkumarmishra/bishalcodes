@@ -338,23 +338,23 @@ const Navbar: React.FC = () => {
             {/* Global Instant Search Button */}
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-900/90 hover:bg-slate-900 border border-slate-700/80 hover:border-[#e52521]/50 text-white rounded-xl text-xs font-medium transition-all active:scale-95 cursor-pointer shadow-sm"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-900/90 hover:bg-slate-200 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-700/80 hover:border-[#e52521]/50 text-slate-800 dark:text-white rounded-xl text-xs font-medium transition-all active:scale-95 cursor-pointer shadow-sm"
               title="Search tools, docs, blogs... (Ctrl+K)"
             >
               <Search size={14} className="text-[#e52521]" />
-              <span className="hidden sm:inline text-[11px] text-slate-300 font-semibold">Search</span>
-              <kbd className="hidden sm:inline bg-slate-800 text-slate-400 px-1 py-0.2 rounded text-[10px] font-mono border border-slate-700 ml-1">⌘K</kbd>
+              <span className="hidden sm:inline text-[11px] text-slate-700 dark:text-slate-300 font-semibold">Search</span>
+              <kbd className="hidden sm:inline bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1 py-0.2 rounded text-[10px] font-mono border border-slate-300 dark:border-slate-700 ml-1">⌘K</kbd>
             </button>
 
             {/* Notification Bell Button */}
             <button
               onClick={() => setIsNotificationOpen(true)}
-              className="relative w-8 h-8 rounded-xl flex items-center justify-center bg-slate-900/90 border border-slate-700/80 hover:border-[#e52521]/50 text-white transition-all active:scale-95 cursor-pointer shadow-sm"
+              className="relative w-8 h-8 rounded-xl flex items-center justify-center bg-slate-100 dark:bg-slate-900/90 hover:bg-slate-200 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-700/80 hover:border-[#e52521]/50 text-slate-800 dark:text-white transition-all active:scale-95 cursor-pointer shadow-sm"
               title="Notification Center"
             >
-              <Bell size={15} className={unreadCount > 0 ? 'text-[#e52521]' : 'text-slate-300'} />
+              <Bell size={15} className={unreadCount > 0 ? 'text-[#e52521]' : 'text-slate-600 dark:text-slate-300'} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-[#e52521] text-white text-[9px] font-extrabold rounded-full flex items-center justify-center border-2 border-slate-950 shadow-sm animate-pulse">
+                <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-[#e52521] text-white text-[9px] font-extrabold rounded-full flex items-center justify-center border-2 border-white dark:border-slate-950 shadow-sm">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -368,7 +368,7 @@ const Navbar: React.FC = () => {
                 className={`hidden lg:flex w-8 h-8 rounded-xl items-center justify-center border transition-all active:scale-95 cursor-pointer ${
                   liveEditActive 
                     ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-sm' 
-                    : 'bg-slate-900 border-slate-700 text-white'
+                    : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white'
                 }`}
               >
                 <Edit2 size={13} className={liveEditActive ? 'animate-pulse' : ''} />
