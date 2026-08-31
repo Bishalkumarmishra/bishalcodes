@@ -55,12 +55,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Title and message are required' }, { status: 400 });
     }
 
-    const notificationPayload = {
+    const notificationPayload: Record<string, any> = {
       id: 'notif-' + Date.now(),
       title,
       message,
       actionUrl: actionUrl || 'https://bishalcodes.com/tools/file_transfer',
-      fileUrl: fileUrl || undefined,
+      fileUrl: fileUrl || '',
       targetAudience: targetAudience || 'all',
       timestamp: Date.now(),
       status: 'sent'
@@ -70,8 +70,11 @@ export async function POST(req: Request) {
     memoryNotifications.unshift(notificationPayload);
     if (memoryNotifications.length > 50) memoryNotifications.pop();
 
-    // 2. Non-blocking async firestore save in background
-    setDoc(doc(db, 'notifications', notificationPayload.id), notificationPayload).catch((e) => {
+    // 2. Non-blocking async firestore save in background (sanitized doc object)
+    const firestoreDoc = { ...notificationPayload };
+    if (!firestoreDoc.fileUrl) delete firestoreDoc.fileUrl;
+
+    setDoc(doc(db, 'notifications', notificationPayload.id), firestoreDoc).catch((e) => {
       console.warn('Background Firestore notification write warning:', e);
     });
 
