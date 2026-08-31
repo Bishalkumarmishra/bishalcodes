@@ -292,7 +292,7 @@ export default async function CatchAllPage(props: PageProps) {
             "name": "Bishal Codes",
             "logo": {
               "@type": "ImageObject",
-              "url": "https://ik.imagekit.io/bishalc/desktop.png"
+              "url": "https://www.bishalcodes.com/bishal.png"
             }
           },
           "mainEntityOfPage": {
@@ -377,7 +377,7 @@ interface PageProps {
 
 // Helper to convert SVG images to raster format (PNG) for social media crawlers
 function getSocialPreviewImage(url: string): string {
-  if (!url) return "https://ik.imagekit.io/bishalc/desktop.png";
+  if (!url) return "https://www.bishalcodes.com/bishal.png";
 
   // Strip query parameters to check extension
   const baseUrl = url.split('?')[0];
@@ -387,7 +387,7 @@ function getSocialPreviewImage(url: string): string {
       return url.replace(/\.svg(\?|$)/i, '.png$1');
     }
     // Fallback if SVG cannot be dynamically converted by the hosting provider
-    return "https://ik.imagekit.io/bishalc/desktop.png";
+    return "https://www.bishalcodes.com/bishal.png";
   }
 
   return url;
@@ -395,7 +395,7 @@ function getSocialPreviewImage(url: string): string {
 
 const DEFAULT_OG_IMAGES = [
   {
-    url: "https://ik.imagekit.io/bishalc/desktop.png",
+    url: "https://www.bishalcodes.com/bishal.png",
     width: 1200,
     height: 630,
     alt: "Bishal Codes | Portfolio and Developer Utilities",
@@ -408,7 +408,7 @@ const DEFAULT_TWITTER_CONFIG = {
   creator: "@bishalmishra",
   title: "Bishal Mishra | Full-Stack Web Developer & Designer Portfolio",
   description: "Hi, I'm Bishal Mishra. I build fast, clean, and interactive websites and web applications. Explore my portfolio projects, read my blog, or get in touch for custom web development.",
-  images: ["https://ik.imagekit.io/bishalc/desktop.png"]
+  images: ["https://www.bishalcodes.com/bishal.png"]
 };
 
 interface FirestoreSeoDoc {

@@ -25,8 +25,9 @@ import remarkGfm from 'remark-gfm';
 import AdminLiveChat from '../components/AdminLiveChat';
 import VercelAdminControl from '../components/VercelAdminControl';
 import AdminPushNotification from '../components/AdminPushNotification';
+import GscAdminControl from '../components/GscAdminControl';
 
-type AdminTab = 'dashboard' | 'hero' | 'about' | 'projects' | 'blog' | 'pricing' | 'faq' | 'leads' | 'system' | 'legal' | 'socials' | 'reports' | 'payments' | 'testimonials' | 'experience' | 'services' | 'seo' | 'users' | 'desktop' | 'live-chat' | 'vercel';
+type AdminTab = 'dashboard' | 'hero' | 'about' | 'projects' | 'blog' | 'pricing' | 'faq' | 'leads' | 'system' | 'legal' | 'socials' | 'reports' | 'payments' | 'testimonials' | 'experience' | 'services' | 'seo' | 'users' | 'desktop' | 'live-chat' | 'vercel' | 'gsc';
 
 // FIX: Define an interface for sidebar tab items to ensure correct type inference.
 interface SidebarTab {
@@ -117,56 +118,56 @@ const PaymentProofViewer: React.FC<PaymentProofViewerProps> = ({ base64Image, on
       description: "Hi, I'm Bishal Mishra. I build fast, clean, and interactive websites and web applications. Explore my portfolio projects, read my blog, or get in touch for custom web development.",
       keywords: "Bishal Mishra, Bishal Codes, Full Stack Developer Nepal, Web Developer, Next.js Expert, React Developer, UI/UX Designer, Professional Web Development, JavaScript Expert, TypeScript, Freelance Web Developer",
       canonical: "https://bishalcodes.com/",
-      ogImage: "https://ik.imagekit.io/bishalc/desktop.png",
+      ogImage: "https://www.bishalcodes.com/bishal.png",
     },
     about: {
       title: "About Me | Bishal Mishra | Full-Stack Web Developer & Designer",
       description: "Learn more about Bishal Mishra, a passionate software developer and designer specialized in Next.js, React, Node.js, and cloud architectures.",
       keywords: "Bishal Mishra, software engineer Nepal, portfolio, about bishal, web designer",
       canonical: "https://bishalcodes.com/about",
-      ogImage: "https://ik.imagekit.io/bishalc/desktop.png",
+      ogImage: "https://www.bishalcodes.com/bishal.png",
     },
     services: {
       title: "Services & Developer Utilities | Bishal Codes",
       description: "Explore clean, high-utility online developer tools, converters, compressors, formatters, and custom web development packages.",
       keywords: "developer tools, utilities, online converters, file compression, JSON formatter, Bishal Codes",
       canonical: "https://bishalcodes.com/services",
-      ogImage: "https://ik.imagekit.io/bishalc/desktop.png",
+      ogImage: "https://www.bishalcodes.com/bishal.png",
     },
     projects: {
       title: "Portfolio Projects | Bishal Mishra | Full-Stack Web Architect",
       description: "Browse custom projects, web applications, SaaS platforms, and digital designs built by full-stack developer Bishal Mishra.",
       keywords: "portfolio projects, SaaS applications, nextjs portfolio, developer work",
       canonical: "https://bishalcodes.com/projects",
-      ogImage: "https://ik.imagekit.io/bishalc/desktop.png",
+      ogImage: "https://www.bishalcodes.com/bishal.png",
     },
     experience: {
       title: "Professional Experience & Resume | Bishal Mishra",
       description: "View the career timeline, technologies used, and project achievements of software engineer Bishal Mishra.",
       keywords: "resume, cv, work timeline, professional developer, software engineer",
       canonical: "https://bishalcodes.com/experience",
-      ogImage: "https://ik.imagekit.io/bishalc/desktop.png",
+      ogImage: "https://www.bishalcodes.com/bishal.png",
     },
     contact: {
       title: "Contact & Collaboration | Hire Full-Stack Developer | Bishal Mishra",
       description: "Get in touch with Bishal Mishra for freelancing, custom web development, consulting, or project collaborations.",
       keywords: "hire developer, contact bishal, freelance developer, software consulting",
       canonical: "https://bishalcodes.com/contact",
-      ogImage: "https://ik.imagekit.io/bishalc/desktop.png",
+      ogImage: "https://www.bishalcodes.com/bishal.png",
     },
     blog: {
       title: "Bishal Codes Blog | Full-Stack Development Insights",
       description: "Read technical articles, tutorials, web design tips, and career guides on modern JavaScript, React, Next.js, and cloud engineering.",
       keywords: "programming blog, web development tips, nextjs tutorial, tech articles",
       canonical: "https://bishalcodes.com/blog",
-      ogImage: "https://ik.imagekit.io/bishalc/desktop.png",
+      ogImage: "https://www.bishalcodes.com/bishal.png",
     },
     docs: {
       title: "Developer Documentation Hub | Bishal Codes Utilities",
       description: "Comprehensive API guides, direct usage instructions, and comparisons for the developer utility suite by Bishal Codes.",
       keywords: "API docs, developer guides, file transfer limit comparison, utilities documentation",
       canonical: "https://bishalcodes.com/docs",
-      ogImage: "https://ik.imagekit.io/bishalc/desktop.png",
+      ogImage: "https://www.bishalcodes.com/bishal.png",
     },
     'tools-date-converter': {
       title: "Nepali Date Converter | AD to BS & BS to AD Date Converter | Bishal Codes",
@@ -496,7 +497,7 @@ const Admin: React.FC = () => {
     bio: "Hi! I'm Bishal, a full-stack developer based in Nepal. I've spent the past 3+ years designing and building web solutions that bridge the gap between clean, scalable backends and fast, intuitive user interfaces. I love taking complex business ideas and turning them into solid, maintainable code.\n\nTo me, engineering isn't just about using the latest framework; it's about solving real-world problems, optimizing for the user experience, and ensuring that everything is secure, fast, and easy to maintain. I work primarily with Next.js, React, Node.js, and cloud ecosystems, building everything from custom APIs to full e-commerce architectures.", 
     phone: '+977 9827801575', 
     email: 'developer@bishalcodes.com',
-    imageUrl: 'https://ik.imagekit.io/bishalc/bishal.png',
+    imageUrl: 'https://www.bishalcodes.com/bishal.png',
     images: [] as string[],
     projectsCompleted: '300+',
     whatsappUrl: 'https://wa.me/9779827801575'
@@ -2218,6 +2219,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
               { id: 'users', label: 'Users & Activity', icon: <Users size={15} />, description: 'Track user profiles & live logins.' },
               { id: 'desktop', label: 'Desktop App', icon: <Package size={15} />, description: 'Update calendar installer metadata.' },
               { id: 'seo', label: 'SEO & Metadata', icon: <Search size={15} />, description: 'Optimize page sitemaps & keywords.' },
+              { id: 'gsc', label: 'Search Console API', icon: <Globe size={15} />, description: 'Google Indexing & Search Console API.' },
               { id: 'system', label: 'System Tools', icon: <Database size={15} />, description: 'Backup registry & purge data.' },
               { id: 'vercel', label: 'Vercel Infrastructure', icon: <Server size={15} />, description: 'Manage Edge Config, Blobs, & Crons.' },
             ] as SidebarTab[]
@@ -4928,7 +4930,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         type="url"
                         value={seoForm.ogImage}
                         onChange={(e) => setSeoForm({ ...seoForm, ogImage: e.target.value })}
-                        placeholder="https://ik.imagekit.io/bishalc/... or image host URL"
+                        placeholder="https://www.bishalcodes.com/bishal.png or image host URL"
                         className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-900 outline-none focus:border-slate-950 focus:bg-white transition-all text-xs font-normal placeholder:text-slate-350"
                       />
                       <div className="relative flex items-center">
@@ -5104,6 +5106,8 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                   </div>
                 </div>
               )}
+
+              {activeTab === 'gsc' && <GscAdminControl />}
 
           </div>
         </div>

@@ -33,7 +33,7 @@ export const metadata = {
     description: "Hi, I'm Bishal Mishra. Explore my portfolio projects, read technical blogs, and get 100% free production API keys for developer utilities, OCR, Screenshot, and Currency APIs.",
     images: [
       {
-        url: "https://ik.imagekit.io/bishalc/desktop.png",
+        url: "https://www.bishalcodes.com/bishal.png",
         width: 1200,
         height: 630,
       }
@@ -47,7 +47,7 @@ export const metadata = {
     creator: "@bishalmishra",
     title: "Bishal Mishra | Full-Stack Web Developer & Free Developer APIs",
     description: "Hi, I'm Bishal Mishra. Explore my portfolio projects, read technical blogs, and get 100% free production API keys for developer utilities, OCR, Screenshot, and Currency APIs.",
-    images: ["https://ik.imagekit.io/bishalc/desktop.png"],
+    images: ["https://www.bishalcodes.com/bishal.png"],
   }
 };
 
@@ -137,7 +137,7 @@ export default function RootLayout({
           "@type": "Person",
           "name": "Bishal Mishra",
           "url": "https://bishalcodes.com/",
-          "image": "https://ik.imagekit.io/bishalc/bishal.png",
+          "image": "https://www.bishalcodes.com/bishal.png",
           "sameAs": [
             "https://www.facebook.com/share/1AhoqK2XMo/",
             "https://www.instagram.com/bishalmishra9827?igsh=NHo2d2I5YTBmdms3",
@@ -161,7 +161,7 @@ export default function RootLayout({
           "@context": "https://schema.org",
           "@type": "ProfessionalService",
           "name": "Bishal Codes",
-          "image": "https://ik.imagekit.io/bishalc/desktop.png",
+          "image": "https://www.bishalcodes.com/bishal.png",
           "@id": "https://bishalcodes.com/",
           "url": "https://bishalcodes.com/",
           "telephone": "+9779827801575",

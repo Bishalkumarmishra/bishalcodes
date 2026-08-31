@@ -835,7 +835,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ sectionId }) => {
       "@type": "TechArticle",
       "headline": `${activeSection.title} - Bishal Codes Documentation`,
       "description": `Official documentation guide for ${activeSection.title} on Bishal Codes.`,
-      "image": "https://ik.imagekit.io/bishalc/desktop.png",
+      "image": "https://www.bishalcodes.com/bishal.png",
       "author": {
         "@type": "Person",
         "name": "Bishal Mishra",

@@ -30,7 +30,7 @@
     <meta property="og:url" content="https://bishalcodes.com/">
     <meta property="og:title" content="Bishal Mishra | Premium Full-Stack Developer & 3D Architect">
     <meta property="og:description" content="Explore the portfolio of Bishal Mishra. Delivering elite digital transformation through 3D visuals, scalable cloud logic, and high-conversion UI/UX.">
-    <meta property="og:image" content="https://ik.imagekit.io/bishalc/desktop.png">
+    <meta property="og:image" content="https://www.bishalcodes.com/bishal.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="Bishal Codes">
@@ -41,7 +41,7 @@
     <meta name="twitter:url" content="https://bishalcodes.com/">
     <meta name="twitter:title" content="Bishal Mishra | Premium Full-Stack Developer">
     <meta name="twitter:description" content="Engineering high-performance web ecosystems. 3D visuals, custom logic, and enterprise-grade deployment.">
-    <meta name="twitter:image" content="https://ik.imagekit.io/bishalc/desktop.png">
+    <meta name="twitter:image" content="https://www.bishalcodes.com/bishal.png">
     <meta name="twitter:creator" content="@bishalmishra">
     <meta name="twitter:site" content="@bishalmishra">
 
@@ -114,7 +114,7 @@
       "@type": "Person",
       "name": "Bishal Mishra",
       "url": "https://bishalcodes.com/",
-      "image": "https://ik.imagekit.io/bishalc/bishal.png",
+      "image": "https://www.bishalcodes.com/bishal.png",
       "sameAs": [
         "https://www.facebook.com/share/1AhoqK2XMo/",
         "https://www.instagram.com/bishalmishra9827?igsh=NHo2d2I5YTBmdms3",
@@ -139,7 +139,7 @@
       "@context": "https://schema.org",
       "@type": "ProfessionalService",
       "name": "Bishal Codes",
-      "image": "https://ik.imagekit.io/bishalc/desktop.png",
+      "image": "https://www.bishalcodes.com/bishal.png",
       "@id": "https://bishalcodes.com/",
       "url": "https://bishalcodes.com/",
       "telephone": "+9779827801575",

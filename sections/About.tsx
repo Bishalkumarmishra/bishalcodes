@@ -13,7 +13,7 @@ const About: React.FC = () => {
     bio: "Hi! I'm Bishal, a full-stack developer based in Nepal. I've spent the past 3+ years designing and building web solutions that bridge the gap between clean, scalable backends and fast, intuitive user interfaces. I love taking complex business ideas and turning them into solid, maintainable code.\n\nTo me, engineering isn't just about using the latest framework; it's about solving real-world problems, optimizing for the user experience, and ensuring that everything is secure, fast, and easy to maintain. I work primarily with Next.js, React, Node.js, and cloud ecosystems, building everything from custom APIs to full e-commerce architectures.",
     phone: '+977 9827801575',
     email: 'developer@bishalcodes.com',
-    imageUrl: 'https://ik.imagekit.io/bishalc/bishal.png',
+    imageUrl: 'https://www.bishalcodes.com/bishal.png',
     images: [] as string[],
     projectsCompleted: '300+',
     whatsappUrl: 'https://wa.me/9779827801575'
@@ -36,7 +36,7 @@ const About: React.FC = () => {
             bio: data.bio || "Hi! I'm Bishal, a full-stack developer based in Nepal. I've spent the past 3+ years designing and building web solutions that bridge the gap between clean, scalable backends and fast, intuitive user interfaces. I love taking complex business ideas and turning them into solid, maintainable code.\n\nTo me, engineering isn't just about using the latest framework; it's about solving real-world problems, optimizing for the user experience, and ensuring that everything is secure, fast, and easy to maintain. I work primarily with Next.js, React, Node.js, and cloud ecosystems, building everything from custom APIs to full e-commerce architectures.",
             phone: (data.phone && data.phone.replace(/\s+/g, '') === '+9779828701575') ? '+977 9827801575' : (data.phone || '+977 9827801575'),
             email: data.email || 'developer@bishalcodes.com',
-            imageUrl: data.imageUrl || 'https://ik.imagekit.io/bishalc/bishal.png',
+            imageUrl: data.imageUrl || 'https://www.bishalcodes.com/bishal.png',
             images: data.images || [],
             projectsCompleted: data.projectsCompleted || '300+',
             whatsappUrl: (data.whatsappUrl && data.whatsappUrl.includes('9828701575')) ? 'https://wa.me/9779827801575' : (data.whatsappUrl || 'https://wa.me/9779827801575')

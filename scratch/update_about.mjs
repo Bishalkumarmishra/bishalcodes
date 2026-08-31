@@ -24,8 +24,8 @@ async function run() {
     bio: newBio,
     phone: '+977 9827801575',
     email: 'developer@bishalcodes.com',
-    imageUrl: 'https://ik.imagekit.io/bishalc/bishal.png',
-    images: ['https://ik.imagekit.io/bishalc/bishal.png'],
+    imageUrl: 'https://www.bishalcodes.com/bishal.png',
+    images: ['https://www.bishalcodes.com/bishal.png'],
     projectsCompleted: '300+',
     whatsappUrl: 'https://wa.me/9779827801575'
   }, { merge: true });
