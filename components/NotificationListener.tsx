@@ -96,19 +96,38 @@ export default function NotificationListener() {
           syncPushSubscription();
         }
       });
-    }
 
-    // 2. Request Notification Permission automatically on app startup if default
-    if ('Notification' in window && Notification.permission === 'default') {
-      const permTimer = setTimeout(() => {
-        Notification.requestPermission().then((permission) => {
-          console.log('📢 [Push System] Notification permission:', permission);
-          if (permission === 'granted') {
-            syncPushSubscription();
-          }
-        }).catch(() => {});
-      }, 2000);
-      return () => clearTimeout(permTimer);
+      // Continuous auto-resync when PWA or tab comes into foreground on mobile
+      const handleVisibilityOrFocus = () => {
+        if (document.visibilityState === 'visible' && Notification.permission === 'granted') {
+          syncPushSubscription();
+        }
+      };
+
+      window.addEventListener('focus', handleVisibilityOrFocus);
+      document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+
+      // 2. Request Notification Permission automatically on app startup if default
+      if ('Notification' in window && Notification.permission === 'default') {
+        const permTimer = setTimeout(() => {
+          Notification.requestPermission().then((permission) => {
+            console.log('📢 [Push System] Notification permission:', permission);
+            if (permission === 'granted') {
+              syncPushSubscription();
+            }
+          }).catch(() => {});
+        }, 2000);
+        return () => {
+          clearTimeout(permTimer);
+          window.removeEventListener('focus', handleVisibilityOrFocus);
+          document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+        };
+      }
+
+      return () => {
+        window.removeEventListener('focus', handleVisibilityOrFocus);
+        document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      };
     }
   }, []);
 

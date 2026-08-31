@@ -121,17 +121,29 @@ export async function POST(req: Request) {
 
     const sendPromises = targetSubscriptions.map(async (sub) => {
       try {
+        const isApple = sub.endpoint && sub.endpoint.includes('apple.com');
+        const options: webpush.RequestOptions = {
+          TTL: 86400,
+          urgency: 'high'
+        };
+
+        if (isApple) {
+          options.headers = {
+            'apns-push-type': 'alert',
+            'apns-priority': '10'
+          };
+        }
+
         await webpush.sendNotification({
           endpoint: sub.endpoint,
           keys: sub.keys
-        }, pushPayloadString, {
-          TTL: 86400,
-          urgency: 'high'
-        });
+        }, pushPayloadString, options);
         successCount++;
       } catch (err: any) {
         failCount++;
-        if (err.statusCode === 410 || err.statusCode === 404) {
+        console.warn(`[WebPush] Push delivery status ${err.statusCode} for ${sub.endpoint}:`, err.message);
+        // Only delete token if APNs/FCM explicitly returns 410 Gone
+        if (err.statusCode === 410) {
           await removeSubscription(sub.endpoint);
           try {
             await deleteDoc(doc(db, 'push_subscriptions', docIdFromEndpoint(sub.endpoint)));
