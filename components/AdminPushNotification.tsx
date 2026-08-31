@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Send, Link, FileUp, CheckCircle, AlertCircle, Loader2, Smartphone, Globe, Radio, ShieldCheck, RotateCcw, Sparkles, CornerDownLeft, Zap, Image as ImageIcon, X } from 'lucide-react';
+import { Bell, Send, Link, FileUp, CheckCircle, AlertCircle, Loader2, Smartphone, Globe, Radio, ShieldCheck, RotateCcw, Sparkles, CornerDownLeft, Zap, Image as ImageIcon, X, FolderPlus } from 'lucide-react';
 import { PushNotificationPayload } from '../types';
 import { uploadToCloudinary } from '@/services/cloudinary';
+import { MediaPickerModal } from './AdminMediaAssets';
 
 export default function AdminPushNotification() {
   const [title, setTitle] = useState('');
@@ -9,6 +10,7 @@ export default function AdminPushNotification() {
   const [actionUrl, setActionUrl] = useState('https://bishalcodes.com/tools/file_transfer');
   const [fileUrl, setFileUrl] = useState('');
   const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [targetAudience, setTargetAudience] = useState<'all' | 'android' | 'web'>('all');
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -473,9 +475,17 @@ export default function AdminPushNotification() {
                   type="text"
                   value={fileUrl}
                   onChange={(e) => setFileUrl(e.target.value)}
-                  placeholder="Paste direct URL or upload file to Cloudinary ->"
+                  placeholder="Paste direct URL, pick from Media Library, or upload..."
                   className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-[#e52521] transition-colors"
                 />
+
+                <button
+                  type="button"
+                  onClick={() => setIsMediaPickerOpen(true)}
+                  className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition-all border border-slate-300 flex items-center gap-1.5 cursor-pointer shrink-0"
+                >
+                  <FolderPlus size={14} className="text-[#e52521]" /> Media Library
+                </button>
 
                 <label className="px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer shrink-0 border border-slate-800">
                   {uploadingBanner ? (
@@ -496,6 +506,13 @@ export default function AdminPushNotification() {
                   />
                 </label>
               </div>
+
+              {/* Media Picker Modal */}
+              <MediaPickerModal
+                isOpen={isMediaPickerOpen}
+                onClose={() => setIsMediaPickerOpen(false)}
+                onSelectMedia={(selectedUrl) => setFileUrl(selectedUrl)}
+              />
 
               {fileUrl && (
                 <div className="mt-2 p-2 bg-slate-100 rounded-xl border border-slate-200 flex items-center gap-3">

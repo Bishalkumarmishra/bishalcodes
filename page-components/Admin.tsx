@@ -26,8 +26,9 @@ import AdminLiveChat from '../components/AdminLiveChat';
 import VercelAdminControl from '../components/VercelAdminControl';
 import AdminPushNotification from '../components/AdminPushNotification';
 import GscAdminControl from '../components/GscAdminControl';
+import AdminMediaAssets, { MediaPickerModal } from '../components/AdminMediaAssets';
 
-type AdminTab = 'dashboard' | 'hero' | 'about' | 'projects' | 'blog' | 'pricing' | 'faq' | 'leads' | 'system' | 'legal' | 'socials' | 'reports' | 'payments' | 'testimonials' | 'experience' | 'services' | 'seo' | 'users' | 'desktop' | 'live-chat' | 'vercel' | 'gsc';
+type AdminTab = 'dashboard' | 'hero' | 'about' | 'projects' | 'blog' | 'pricing' | 'faq' | 'leads' | 'system' | 'legal' | 'socials' | 'reports' | 'payments' | 'testimonials' | 'experience' | 'services' | 'seo' | 'users' | 'desktop' | 'live-chat' | 'vercel' | 'gsc' | 'media';
 
 // FIX: Define an interface for sidebar tab items to ensure correct type inference.
 interface SidebarTab {
@@ -2202,6 +2203,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
           {(
             [
               { id: 'dashboard', label: 'Dashboard', icon: <Activity size={15} />, description: 'Overview of traffic stats & live activity.' },
+              { id: 'media', label: 'Media Assets', icon: <GalleryVertical size={15} />, description: 'Cloudinary media library & file upload.' },
               { id: 'live-chat', label: 'Live Chat Support', icon: <MessageSquare size={15} />, description: 'Interact with live website visitors.' },
               { id: 'projects', label: 'Projects', icon: <Layout size={15} />, description: 'Manage showcase portfolio works.' },
               { id: 'services', label: 'Services', icon: <Cpu size={15} />, description: 'Control utility tools & configurations.' },
@@ -2333,6 +2335,10 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                  ))}
               </div>
             ) : null}
+
+            {activeTab === 'media' && (
+              <AdminMediaAssets />
+            )}
 
             {activeTab === 'vercel' && (
               <VercelAdminControl />
