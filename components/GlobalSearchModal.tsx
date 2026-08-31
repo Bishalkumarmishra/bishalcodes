@@ -212,15 +212,15 @@ export default function GlobalSearchModal({ isOpen, onClose }: { isOpen: boolean
 
   return (
     <div 
-      className="fixed inset-0 z-[9999] flex items-start justify-center p-4 pt-16 md:pt-24 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-[9999] flex items-start justify-center p-4 pt-16 md:pt-24 bg-slate-950/40 backdrop-blur-md animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div 
-        className="w-full max-w-2xl bg-slate-900 border border-slate-800 text-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95 duration-150"
+        className="w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input Box */}
-        <div className="p-4 bg-slate-950 border-b border-slate-800 flex items-center gap-3">
+        <div className="p-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3">
           <Search size={20} className="text-[#e52521] shrink-0" />
           <input
             ref={inputRef}
@@ -232,31 +232,31 @@ export default function GlobalSearchModal({ isOpen, onClose }: { isOpen: boolean
               setSelectedIndex(0);
             }}
             placeholder="Search tools, docs, blogs, APIs & utilities... (Press Esc to exit)"
-            className="w-full bg-transparent text-white placeholder-slate-500 text-sm focus:outline-none"
+            className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="text-slate-500 hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
+              className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
             >
               <X size={16} />
             </button>
           )}
-          <div className="hidden sm:flex items-center gap-1 bg-slate-800/80 px-2 py-1 rounded-md text-[10px] font-mono text-slate-400 border border-slate-700">
+          <div className="hidden sm:flex items-center gap-1 bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-md text-[10px] font-mono text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700">
             <Command size={11} /> <span>K</span>
           </div>
         </div>
 
         {/* Instant Suggestions Bar */}
-        <div className="px-4 py-2 bg-slate-900/90 border-b border-slate-800/80 flex items-center gap-2 overflow-x-auto text-xs">
+        <div className="px-4 py-2 bg-slate-100/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 overflow-x-auto text-xs">
           <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider shrink-0 flex items-center gap-1">
-            <Sparkles size={11} className="text-[#e52521]" /> Suggested:
+            <Zap size={11} className="text-[#e52521]" /> Suggested:
           </span>
           {suggestions.map((sug) => (
             <button
               key={sug}
               onClick={() => setQuery(sug)}
-              className="px-2.5 py-1 bg-slate-800 hover:bg-[#e52521]/20 text-slate-300 hover:text-[#e52521] border border-slate-700 rounded-lg text-[11px] font-medium transition-colors cursor-pointer shrink-0"
+              className="px-2.5 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-[#e52521]/20 text-slate-700 dark:text-slate-300 hover:text-[#e52521] border border-slate-300 dark:border-slate-700 rounded-lg text-[11px] font-medium transition-colors cursor-pointer shrink-0"
             >
               {sug}
             </button>
@@ -264,10 +264,10 @@ export default function GlobalSearchModal({ isOpen, onClose }: { isOpen: boolean
         </div>
 
         {/* Search Results List */}
-        <div className="overflow-y-auto p-2 divide-y divide-slate-800/50 flex-1 space-y-1">
+        <div className="overflow-y-auto p-2 divide-y divide-slate-200 dark:divide-slate-800/50 flex-1 space-y-1">
           {filteredResults.length === 0 ? (
             <div className="py-12 text-center text-slate-500 text-xs">
-              No matching tools, blogs, or docs found for "<strong className="text-slate-300">{query}</strong>"
+              No matching tools, blogs, or docs found for "<strong className="text-slate-800 dark:text-slate-300">{query}</strong>"
             </div>
           ) : (
             filteredResults.map((item, idx) => {
@@ -278,25 +278,27 @@ export default function GlobalSearchModal({ isOpen, onClose }: { isOpen: boolean
                   onClick={() => handleSelect(item)}
                   onMouseEnter={() => setSelectedIndex(idx)}
                   className={`p-3 rounded-xl transition-all flex items-center justify-between gap-3 cursor-pointer ${
-                    isSelected ? 'bg-[#e52521]/15 border border-[#e52521]/40 text-white' : 'hover:bg-slate-800/60 text-slate-300'
+                    isSelected 
+                      ? 'bg-[#e52521]/10 dark:bg-[#e52521]/15 border border-[#e52521]/40 text-slate-900 dark:text-white' 
+                      : 'hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
                       {item.icon}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h4 className="text-xs font-bold text-white truncate">{item.title}</h4>
-                        <span className="px-2 py-0.5 bg-slate-800 border border-slate-700 text-slate-400 rounded text-[9px] font-semibold uppercase tracking-wider">
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">{item.title}</h4>
+                        <span className="px-2 py-0.5 bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded text-[9px] font-semibold uppercase tracking-wider">
                           {item.category}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400 truncate mt-0.5">{item.description}</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{item.description}</p>
                     </div>
                   </div>
 
-                  <ArrowRight size={14} className={`shrink-0 transition-transform ${isSelected ? 'translate-x-1 text-[#e52521]' : 'text-slate-600'}`} />
+                  <ArrowRight size={14} className={`shrink-0 transition-transform ${isSelected ? 'translate-x-1 text-[#e52521]' : 'text-slate-400 dark:text-slate-600'}`} />
                 </div>
               );
             })
@@ -304,9 +306,9 @@ export default function GlobalSearchModal({ isOpen, onClose }: { isOpen: boolean
         </div>
 
         {/* Footer info */}
-        <div className="p-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-500 font-mono">
-          <span>Use <kbd className="bg-slate-800 px-1 py-0.5 rounded text-slate-300">↑</kbd> <kbd className="bg-slate-800 px-1 py-0.5 rounded text-slate-300">↓</kbd> to navigate</span>
-          <span>Press <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">Enter</kbd> to select</span>
+        <div className="p-3 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-500 font-mono">
+          <span>Use <kbd className="bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded text-slate-700 dark:text-slate-300">↑</kbd> <kbd className="bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded text-slate-700 dark:text-slate-300">↓</kbd> to navigate</span>
+          <span>Press <kbd className="bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-700 dark:text-slate-300">Enter</kbd> to select</span>
         </div>
       </div>
     </div>
