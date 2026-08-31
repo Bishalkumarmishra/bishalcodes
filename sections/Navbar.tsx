@@ -360,12 +360,12 @@ const Navbar: React.FC = () => {
               )}
             </button>
 
-            {/* Live Visual Edit toggle in navbar */}
+            {/* Live Visual Edit toggle in navbar (Desktop) */}
             {(isAdmin || (typeof window !== 'undefined' && window.location.hostname === 'localhost')) && (
               <button
                 onClick={toggleLiveEdit}
                 title={liveEditActive ? 'Exit Live Edit' : 'Live Visual Edit'}
-                className={`w-8 h-8 rounded-xl flex items-center justify-center border transition-all active:scale-95 cursor-pointer ${
+                className={`hidden lg:flex w-8 h-8 rounded-xl items-center justify-center border transition-all active:scale-95 cursor-pointer ${
                   liveEditActive 
                     ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-sm' 
                     : 'bg-slate-900 border-slate-700 text-white'
@@ -375,10 +375,10 @@ const Navbar: React.FC = () => {
               </button>
             )}
 
-            {/* Theme Toggle Pill */}
+            {/* Theme Toggle Pill (Desktop) */}
             <button 
               onClick={toggleTheme}
-              className="flex items-center gap-1 bg-[var(--burger-bg)] border border-[var(--nav-border)] rounded-full p-0.5 transition-all active:scale-95 cursor-pointer"
+              className="hidden lg:flex items-center gap-1 bg-[var(--burger-bg)] border border-[var(--nav-border)] rounded-full p-0.5 transition-all active:scale-95 cursor-pointer"
               title="Toggle theme"
             >
               <div className={`p-1 rounded-full transition-all ${theme === 'light' ? 'bg-amber-500 text-white shadow-sm' : 'text-slate-500'}`}>
@@ -389,23 +389,23 @@ const Navbar: React.FC = () => {
               </div>
             </button>
 
-            {/* Facebook Link */}
+            {/* Facebook Link (Desktop) */}
             <a 
               href="https://www.facebook.com/share/1AhoqK2XMo/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-500/10 text-blue-600 border border-blue-500/20 hover:scale-105 active:scale-95 transition-all"
+              className="hidden lg:flex w-7 h-7 rounded-lg items-center justify-center bg-blue-500/10 text-blue-600 border border-blue-500/20 hover:scale-105 active:scale-95 transition-all"
               aria-label="Facebook"
             >
               <Facebook size={14} />
             </a>
 
-            {/* WhatsApp Link */}
+            {/* WhatsApp Link (Desktop) */}
             <a 
               href="https://wa.me/9779827801575" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 hover:scale-105 active:scale-95 transition-all"
+              className="hidden lg:flex w-7 h-7 rounded-lg items-center justify-center bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 hover:scale-105 active:scale-95 transition-all"
               aria-label="WhatsApp"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.197 1.451 4.811 1.452 5.518 0 10.006-4.485 10.009-10.004.002-2.673-1.026-5.185-2.895-7.057-1.87-1.872-4.38-2.903-7.056-2.904-5.523 0-10.015 4.486-10.018 10.008-.001 1.702.449 3.361 1.309 4.815l-.997 3.637 3.737-.981zm11.368-6.41c-.263-.13-1.55-.762-1.789-.85-.238-.087-.412-.13-.587.13-.174.26-.675.85-.826 1.022-.15.174-.301.196-.564.065-.263-.13-1.112-.41-2.119-1.312-.783-.7-1.312-1.562-1.466-1.824-.154-.263-.016-.404.117-.534.12-.117.264-.307.396-.462.131-.154.174-.262.263-.437.089-.174.045-.328-.022-.459-.067-.13-.587-1.412-.804-1.936-.211-.508-.444-.44-.607-.44-.156-.002-.336-.002-.516-.002-.18 0-.472.067-.719.336-.247.27-1.012.99-1.012 2.414 0 1.424 1.034 2.799 1.178 2.99.144.192 2.037 3.111 4.935 4.364.69.298 1.228.476 1.648.609.693.22 1.324.19 1.823.115.556-.083 1.55-.632 1.769-1.246.22-.613.22-1.139.154-1.246-.067-.108-.247-.174-.51-.304z"/></svg>
@@ -502,9 +502,54 @@ const Navbar: React.FC = () => {
           })}
         </ul>
 
-        <div className="mt-auto flex flex-col gap-6">
-          <div className="border-t border-[var(--connect-border)] pt-6">
-            <p className="opacity-60 font-semibold text-[10px] uppercase tracking-wider mb-4">Connect</p>
+        <div className="mt-auto flex flex-col gap-4">
+          {/* Appearance & Customization Section */}
+          <div className="border-t border-[var(--connect-border)] pt-4">
+            <p className="opacity-60 font-semibold text-[10px] uppercase tracking-wider mb-3">Appearance</p>
+            <div className="flex flex-col gap-2.5">
+              {/* Theme Toggle Row */}
+              <div className="flex items-center justify-between bg-[var(--social-bg)] border border-[var(--connect-border)] p-3 rounded-xl">
+                <span className="text-xs font-semibold text-[var(--nav-text)] flex items-center gap-2">
+                  {theme === 'dark' ? <Moon size={14} className="text-[#e52521]" /> : <Sun size={14} className="text-amber-500" />}
+                  Theme Appearance ({theme === 'dark' ? 'Dark Mode' : 'Light Mode'})
+                </span>
+                <button
+                  onClick={toggleTheme}
+                  className="flex items-center gap-1 bg-[var(--burger-bg)] border border-[var(--nav-border)] rounded-full p-0.5 transition-all active:scale-95 cursor-pointer"
+                >
+                  <div className={`p-1 rounded-full transition-all ${theme === 'light' ? 'bg-amber-500 text-white shadow-sm' : 'text-slate-500'}`}>
+                    <Sun size={12} />
+                  </div>
+                  <div className={`p-1 rounded-full transition-all ${theme === 'dark' ? 'bg-[#e52521] text-white shadow-sm' : 'text-slate-500'}`}>
+                    <Moon size={12} />
+                  </div>
+                </button>
+              </div>
+
+              {/* Live Edit Toggle (if admin/localhost) */}
+              {(isAdmin || (typeof window !== 'undefined' && window.location.hostname === 'localhost')) && (
+                <button
+                  onClick={toggleLiveEdit}
+                  className={`flex items-center justify-between w-full border p-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    liveEditActive 
+                      ? 'bg-amber-500/20 border-amber-500/40 text-amber-300' 
+                      : 'bg-[var(--social-bg)] border-[var(--connect-border)] text-[var(--nav-text)]'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <Edit2 size={14} className={liveEditActive ? 'text-amber-400 animate-pulse' : ''} />
+                    Live Visual Edit Mode
+                  </span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${liveEditActive ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-400'}`}>
+                    {liveEditActive ? 'ACTIVE' : 'OFF'}
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="border-t border-[var(--connect-border)] pt-4">
+            <p className="opacity-60 font-semibold text-[10px] uppercase tracking-wider mb-3">Connect</p>
             <div className="flex gap-2">
               {socialLinks.map((social, i) => (
                 <a 
