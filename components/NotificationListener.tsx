@@ -43,17 +43,25 @@ export default function NotificationListener() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Helper to register Web Push Subscription with server
-    const registerPushSubscription = async (reg: ServiceWorkerRegistration) => {
+    // Robust Web Push Subscription helper using navigator.serviceWorker.ready
+    const syncPushSubscription = async () => {
       try {
-        if (!('pushManager' in reg)) return;
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+        const reg = await navigator.serviceWorker.ready;
+        if (!reg || !reg.pushManager) return;
 
         let sub = await reg.pushManager.getSubscription();
+
         if (!sub && Notification.permission === 'granted') {
-          sub = await reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-          });
+          try {
+            sub = await reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+            });
+          } catch (subErr) {
+            console.warn('⚠️ [Push System] Subscription creation notice:', subErr);
+          }
         }
 
         if (sub) {
@@ -65,32 +73,38 @@ export default function NotificationListener() {
               userAgent: navigator.userAgent
             })
           });
-          console.log('✅ [Push System] Registered Web Push endpoint with APNs/FCM background service.');
+          console.log('✅ [Push System] Active Web Push endpoint synced with APNs/FCM server:', sub.endpoint);
         }
       } catch (err) {
-        console.warn('⚠️ [Push System] Web Push subscription notice:', err);
+        console.warn('⚠️ [Push System] Push sync error:', err);
       }
     };
 
-    // 1. Register Service Worker and initialize Web Push Subscription
+    // 1. Register Service Worker and sync Push Subscription when ready
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js').then((reg) => {
-        console.log('✅ [Push System] Service Worker registered:', reg.scope);
+      navigator.serviceWorker.register('/service-worker.js').then(() => {
+        console.log('✅ [Push System] Service Worker registered.');
         if (Notification.permission === 'granted') {
-          registerPushSubscription(reg);
+          syncPushSubscription();
         }
       }).catch((err) => {
         console.warn('⚠️ [Push System] Service Worker registration failed:', err);
       });
+
+      navigator.serviceWorker.ready.then(() => {
+        if (Notification.permission === 'granted') {
+          syncPushSubscription();
+        }
+      });
     }
 
-    // 2. Request Notification Permission automatically on app startup
+    // 2. Request Notification Permission automatically on app startup if default
     if ('Notification' in window && Notification.permission === 'default') {
       const permTimer = setTimeout(() => {
         Notification.requestPermission().then((permission) => {
           console.log('📢 [Push System] Notification permission:', permission);
-          if (permission === 'granted' && 'serviceWorker' in navigator) {
-            navigator.serviceWorker.ready.then(registerPushSubscription);
+          if (permission === 'granted') {
+            syncPushSubscription();
           }
         }).catch(() => {});
       }, 2000);

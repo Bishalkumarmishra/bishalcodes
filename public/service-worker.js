@@ -210,7 +210,7 @@ self.addEventListener('fetch', (event) => {
 
 // ── PUSH & NOTIFICATIONS: System OS Push Notification Handlers ──
 self.addEventListener('push', (event) => {
-  let data = { title: 'Bishal Codes Alert', body: 'New system notification received!', url: '/' };
+  let data = { title: 'Bishal Codes Broadcast', body: 'New alert received!', url: '/' };
   if (event.data) {
     try {
       data = event.data.json();
@@ -219,23 +219,28 @@ self.addEventListener('push', (event) => {
     }
   }
 
+  const title = data.title || 'Bishal Codes Broadcast';
   const options = {
-    body: data.body || data.message || 'New push broadcast from Bishal Codes',
-    icon: data.icon || '/apple-touch-icon.png',
+    body: data.body || data.message || 'New notification received',
+    icon: '/apple-touch-icon.png',
     badge: '/favicon.svg',
-    image: data.image || data.fileUrl || undefined,
     data: {
       url: data.url || data.actionUrl || '/',
       timestamp: data.timestamp || Date.now()
     },
-    vibrate: [200, 100, 200, 100, 200],
-    tag: data.tag || 'bishalcodes-push-' + Date.now(),
-    renotify: true,
-    requireInteraction: true
+    vibrate: [200, 100, 200],
+    tag: data.id || 'push-' + Date.now(),
+    renotify: true
   };
 
+  if (data.image || data.fileUrl) {
+    options.image = data.image || data.fileUrl;
+  }
+
   event.waitUntil(
-    self.registration.showNotification(data.title || 'Bishal Codes Broadcast', options)
+    self.registration.showNotification(title, options).catch((err) => {
+      console.warn('[SW Push] Error rendering notification banner:', err);
+    })
   );
 });
 
