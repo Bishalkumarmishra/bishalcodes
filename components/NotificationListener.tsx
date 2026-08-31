@@ -154,7 +154,38 @@ export default function NotificationListener() {
         const data = await res.json();
         if (!data.success || !Array.isArray(data.notifications) || data.notifications.length === 0) return;
 
-        const latest = data.notifications[0];
+        // Sync fetched notifications into Notification Center history & update unread badge
+        try {
+          const STORAGE_KEY = 'bishalcodes_notification_center_history';
+          const UNREAD_KEY = 'bishalcodes_notification_unread_count';
+          const storedRaw = localStorage.getItem(STORAGE_KEY);
+          let localItems: any[] = storedRaw ? JSON.parse(storedRaw) : [];
+          const localMap = new Map(localItems.map(item => [item.id, item]));
+
+          data.notifications.forEach((n: any) => {
+            const id = n.id || 'notif-' + n.timestamp;
+            if (!localMap.has(id)) {
+              localMap.set(id, {
+                id,
+                title: n.title || 'Bishal Codes Broadcast',
+                message: n.message || n.body || '',
+                actionUrl: n.actionUrl || 'https://bishalcodes.com/',
+                fileUrl: n.fileUrl || undefined,
+                timestamp: n.timestamp || Date.now(),
+                read: false
+              });
+            }
+          });
+
+          const updatedList = Array.from(localMap.values()).sort((a, b) => b.timestamp - a.timestamp);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+
+          const unread = updatedList.filter(n => !n.read).length;
+          localStorage.setItem(UNREAD_KEY, unread.toString());
+          window.dispatchEvent(new CustomEvent('notification_count_updated', { detail: unread }));
+        } catch (syncErr) {
+          console.warn('Error syncing notification center state:', syncErr);
+        }
 
         if (isInitialFetch) {
           isInitialFetch = false;

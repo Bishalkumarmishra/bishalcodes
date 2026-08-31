@@ -165,10 +165,13 @@ service cloud.firestore {
       allow write: if isAllowedAdmin();
     }
 
-    // Custom push notifications collection
+    // Custom push notifications & Web Push Subscriptions collection
     match /notifications/{notificationId} {
-      allow read: if true;
-      allow write: if isAllowedAdmin();
+      allow read, write, delete: if true;
+    }
+
+    match /push_subscriptions/{subId} {
+      allow read, write, delete: if true;
     }
     
     // Secure Vault: password-protected encrypted file sharing
