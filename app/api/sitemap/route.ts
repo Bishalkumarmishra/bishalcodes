@@ -148,7 +148,7 @@ ${legalUrls.map(id => `  <url>
     <lastmod>${now}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
-  </url>`).join('\n')}`;
+  </url>`).join('\n')}
 </urlset>`;
 
     return new NextResponse(xml, {
