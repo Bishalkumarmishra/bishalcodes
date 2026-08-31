@@ -7,7 +7,7 @@ import {
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, db } from '../services/firebase';
 // @ts-ignore
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import Navbar from '../sections/Navbar';
 import Footer from '../sections/Footer';
 import { useNavigation } from '../context/NavigationContext';
@@ -660,12 +660,12 @@ func main() {
           </div>
 
           {/* Playground & Specs workspace */}
-          <div className="lg:col-span-3 flex flex-col min-h-[500px]">
+          <div className="lg:col-span-9 flex flex-col min-h-[500px] w-full">
             {/* Tabs selector */}
-            <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-900 mb-6 bg-slate-100 dark:bg-slate-900/10 p-1 rounded-xl w-fit">
+            <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-900 mb-6 bg-slate-100 dark:bg-slate-900/10 p-1 rounded-xl w-full sm:w-fit overflow-x-auto whitespace-nowrap">
               <button
                 onClick={() => setActiveTab('docs')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shrink-0 whitespace-nowrap ${
                   activeTab === 'docs' ? 'bg-white dark:bg-slate-900 text-[#0f172a] dark:text-white border border-slate-200 dark:border-slate-800 shadow-sm' : 'text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200'
                 }`}
               >
@@ -674,7 +674,7 @@ func main() {
               </button>
               <button
                 onClick={() => setActiveTab('playground')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shrink-0 whitespace-nowrap ${
                   activeTab === 'playground' ? 'bg-white dark:bg-slate-900 text-[#0f172a] dark:text-white border border-slate-200 dark:border-slate-800 shadow-sm' : 'text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200'
                 }`}
               >
@@ -683,7 +683,7 @@ func main() {
               </button>
               <button
                 onClick={() => setActiveTab('snippets')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shrink-0 whitespace-nowrap ${
                   activeTab === 'snippets' ? 'bg-white dark:bg-slate-900 text-[#0f172a] dark:text-white border border-slate-200 dark:border-slate-800 shadow-sm' : 'text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200'
                 }`}
               >
@@ -692,7 +692,7 @@ func main() {
               </button>
               <button
                 onClick={() => setActiveTab('keys')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shrink-0 whitespace-nowrap ${
                   activeTab === 'keys' ? 'bg-white dark:bg-slate-900 text-[#0f172a] dark:text-white border border-slate-200 dark:border-slate-800 shadow-sm' : 'text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200'
                 }`}
               >
@@ -923,7 +923,7 @@ func main() {
                     </div>
 
                     <button
-                      onClick={executePlaygroundRequest}
+                      onClick={runPlayground}
                       disabled={loadingPlayground}
                       className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                     >
