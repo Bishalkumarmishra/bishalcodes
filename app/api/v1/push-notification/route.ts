@@ -1,6 +1,21 @@
 import { NextResponse } from 'next/server';
+import webpush from 'web-push';
+import { VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT } from '@/services/pushConfig';
+import { supabase } from '@/services/supabase';
+import { getActiveSubscriptions, removeSubscription } from '@/services/pushSubscriptionStore';
 
 export const dynamic = 'force-dynamic';
+
+// Configure Web Push with VAPID credentials
+try {
+  webpush.setVapidDetails(
+    VAPID_SUBJECT,
+    VAPID_PUBLIC_KEY,
+    VAPID_PRIVATE_KEY
+  );
+} catch (e) {
+  console.warn('Web Push VAPID setup notice:', e);
+}
 
 let pushNotificationsStore: Array<{
   id: string;
@@ -11,17 +26,7 @@ let pushNotificationsStore: Array<{
   targetAudience: string;
   timestamp: number;
   status: string;
-}> = [
-  {
-    id: 'init-1',
-    title: 'File Transfer 1.0 Live!',
-    message: 'Welcome to BishalCodes native P2P file sharing platform.',
-    actionUrl: 'https://bishalcodes.com/tools/file_transfer',
-    targetAudience: 'all',
-    timestamp: Date.now() - 3600000,
-    status: 'sent'
-  }
-];
+}> = []; // Clean initial state - NO old dummy/stale notifications on app startup!
 
 export async function GET() {
   return NextResponse.json({
@@ -60,16 +65,93 @@ export async function POST(req: Request) {
       pushNotificationsStore.pop();
     }
 
-    console.log('📡 Push Notification Broadcast Sent & Stored:', notificationPayload);
+    console.log('📡 Push Notification Broadcast Triggered:', notificationPayload);
+
+    // ── 1. Gather all target Web Push subscriptions worldwide ──
+    const allSubsMap = new Map<string, any>();
+
+    // A) In-memory subscriptions
+    const memorySubs = getActiveSubscriptions();
+    for (const sub of memorySubs) {
+      if (sub.endpoint) allSubsMap.set(sub.endpoint, sub);
+    }
+
+    // B) Supabase subscriptions
+    try {
+      const { data: dbSubs } = await supabase.from('push_subscriptions').select('*');
+      if (Array.isArray(dbSubs)) {
+        for (const row of dbSubs) {
+          if (row.endpoint && !allSubsMap.has(row.endpoint)) {
+            allSubsMap.set(row.endpoint, {
+              endpoint: row.endpoint,
+              keys: {
+                p256dh: row.p256dh,
+                auth: row.auth
+              }
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Supabase subscription fetch notice:', e);
+    }
+
+    const targetSubscriptions = Array.from(allSubsMap.values());
+    console.log(`🚀 Sending Web Push notification to ${targetSubscriptions.length} registered global endpoints...`);
+
+    // ── 2. Broadcast via Web Push Protocol (APNs for iPhone / FCM for Android & Desktop) ──
+    const pushPayloadString = JSON.stringify({
+      title: notificationPayload.title,
+      body: notificationPayload.message,
+      message: notificationPayload.message,
+      actionUrl: notificationPayload.actionUrl,
+      fileUrl: notificationPayload.fileUrl,
+      url: notificationPayload.actionUrl,
+      image: notificationPayload.fileUrl,
+      icon: '/apple-touch-icon.png',
+      badge: '/favicon.svg',
+      id: notificationPayload.id,
+      timestamp: notificationPayload.timestamp
+    });
+
+    let successCount = 0;
+    let failCount = 0;
+
+    const sendPromises = targetSubscriptions.map(async (sub) => {
+      try {
+        const pushSubscriptionObj = {
+          endpoint: sub.endpoint,
+          keys: sub.keys
+        };
+        await webpush.sendNotification(pushSubscriptionObj, pushPayloadString, {
+          TTL: 86400, // 24 hour time to live
+          urgency: 'high'
+        });
+        successCount++;
+      } catch (err: any) {
+        failCount++;
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          console.log(`Removing expired subscription: ${sub.endpoint}`);
+          await removeSubscription(sub.endpoint);
+        }
+      }
+    });
+
+    await Promise.allSettled(sendPromises);
 
     return NextResponse.json({
       success: true,
-      message: 'Push notification broadcast delivered successfully to Android devices and Web clients',
+      message: `Push broadcast sent! Delivered to ${successCount} devices worldwide (${failCount} unreachable).`,
       payload: notificationPayload,
-      notifications: pushNotificationsStore
+      notifications: pushNotificationsStore,
+      deliveryStats: {
+        totalTargeted: targetSubscriptions.length,
+        successCount,
+        failCount
+      }
     });
   } catch (error: any) {
-    console.error('Error sending push notification:', error);
+    console.error('Error broadcasting push notification:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }

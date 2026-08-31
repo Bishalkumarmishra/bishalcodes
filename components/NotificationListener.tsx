@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from 'react';
+import { VAPID_PUBLIC_KEY, urlBase64ToUint8Array } from '@/services/pushConfig';
 
 // Web Audio API pleasant notification sound generator (zero asset dependency)
 const playNotificationChime = () => {
@@ -42,10 +43,42 @@ export default function NotificationListener() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // 1. Auto-register Service Worker across all environments (including localhost)
+    // Helper to register Web Push Subscription with server
+    const registerPushSubscription = async (reg: ServiceWorkerRegistration) => {
+      try {
+        if (!('pushManager' in reg)) return;
+
+        let sub = await reg.pushManager.getSubscription();
+        if (!sub && Notification.permission === 'granted') {
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+          });
+        }
+
+        if (sub) {
+          await fetch('/api/v1/push-subscription', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              subscription: sub.toJSON(),
+              userAgent: navigator.userAgent
+            })
+          });
+          console.log('✅ [Push System] Registered Web Push endpoint with APNs/FCM background service.');
+        }
+      } catch (err) {
+        console.warn('⚠️ [Push System] Web Push subscription notice:', err);
+      }
+    };
+
+    // 1. Register Service Worker and initialize Web Push Subscription
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/service-worker.js').then((reg) => {
-        console.log('✅ [Push System] Service Worker registered with scope:', reg.scope);
+        console.log('✅ [Push System] Service Worker registered:', reg.scope);
+        if (Notification.permission === 'granted') {
+          registerPushSubscription(reg);
+        }
       }).catch((err) => {
         console.warn('⚠️ [Push System] Service Worker registration failed:', err);
       });
@@ -55,23 +88,31 @@ export default function NotificationListener() {
     if ('Notification' in window && Notification.permission === 'default') {
       const permTimer = setTimeout(() => {
         Notification.requestPermission().then((permission) => {
-          console.log('📢 [Push System] Notification permission status:', permission);
+          console.log('📢 [Push System] Notification permission:', permission);
+          if (permission === 'granted' && 'serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(registerPushSubscription);
+          }
         }).catch(() => {});
       }, 2000);
       return () => clearTimeout(permTimer);
     }
   }, []);
 
-  // 3. Real-time background poller for instant broadcast delivery
+  // 3. Foreground Real-time Poller for active browser tab (prevents showing old past notifications)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const LAST_SEEN_KEY = 'bishalcodes_last_seen_notification_time';
-    let lastSeenTime = parseInt(localStorage.getItem(LAST_SEEN_KEY) || '0', 10);
-    if (!lastSeenTime) {
-      lastSeenTime = Date.now();
-      localStorage.setItem(LAST_SEEN_KEY, lastSeenTime.toString());
+    let storedTime = parseInt(localStorage.getItem(LAST_SEEN_KEY) || '0', 10);
+    
+    // ANCHOR SESSION: If no timestamp existed or if it was unset, set it to Date.now()
+    // so old historical notifications NEVER pop up automatically on site visit!
+    let sessionStartTime = storedTime > 0 ? storedTime : Date.now();
+    if (!storedTime) {
+      localStorage.setItem(LAST_SEEN_KEY, sessionStartTime.toString());
     }
+
+    let isInitialFetch = true;
 
     const checkNewNotifications = async () => {
       try {
@@ -81,16 +122,29 @@ export default function NotificationListener() {
         if (!data.success || !Array.isArray(data.notifications) || data.notifications.length === 0) return;
 
         const latest = data.notifications[0];
-        if (latest.timestamp > lastSeenTime) {
-          lastSeenTime = latest.timestamp;
-          localStorage.setItem(LAST_SEEN_KEY, lastSeenTime.toString());
+
+        if (isInitialFetch) {
+          isInitialFetch = false;
+          // On initial page load, anchor lastSeenTime to the latest existing notification timestamp or current time
+          // WITHOUT showing a pop-up banner for old messages!
+          if (latest.timestamp > sessionStartTime) {
+            sessionStartTime = latest.timestamp;
+            localStorage.setItem(LAST_SEEN_KEY, sessionStartTime.toString());
+          }
+          return;
+        }
+
+        // Only trigger pop-up if a NEW notification arrives LIVE while session is active
+        if (latest.timestamp > sessionStartTime) {
+          sessionStartTime = latest.timestamp;
+          localStorage.setItem(LAST_SEEN_KEY, sessionStartTime.toString());
 
           // Play Sound Chime
           playNotificationChime();
 
           // Trigger System OS Push Notification
           if ('Notification' in window && Notification.permission === 'granted') {
-            const title = latest.title || 'Bishal Codes Push Notification';
+            const title = latest.title || 'Bishal Codes Notification';
             const options = {
               body: latest.message || latest.body || '',
               icon: '/apple-touch-icon.png',
@@ -103,7 +157,6 @@ export default function NotificationListener() {
               requireInteraction: true
             };
 
-            // Trigger via Service Worker if available for native OS background tray banner
             if ('serviceWorker' in navigator) {
               navigator.serviceWorker.ready.then((reg) => {
                 reg.showNotification(title, options);
@@ -120,7 +173,6 @@ export default function NotificationListener() {
       }
     };
 
-    // Initial check + poll every 3 seconds for instant response
     checkNewNotifications();
     const interval = setInterval(checkNewNotifications, 3000);
     return () => clearInterval(interval);
@@ -139,4 +191,5 @@ export default function NotificationListener() {
 
   return null;
 }
+
 

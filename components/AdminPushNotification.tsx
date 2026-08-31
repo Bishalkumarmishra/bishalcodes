@@ -163,7 +163,27 @@ export default function AdminPushNotification() {
         const perm = await Notification.requestPermission();
         setPermissionStatus(perm);
         if (perm === 'granted') {
-          alert('System notifications granted! You will now receive instant push banners.');
+          if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.ready;
+            if ('pushManager' in reg) {
+              const { VAPID_PUBLIC_KEY, urlBase64ToUint8Array } = await import('@/services/pushConfig');
+              let sub = await reg.pushManager.getSubscription();
+              if (!sub) {
+                sub = await reg.pushManager.subscribe({
+                  userVisibleOnly: true,
+                  applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                });
+              }
+              if (sub) {
+                await fetch('/api/v1/push-subscription', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ subscription: sub.toJSON(), userAgent: navigator.userAgent })
+                });
+              }
+            }
+          }
+          alert('System notifications & Web Push registered! You will now receive instant push banners worldwide even when app is closed.');
         }
       } catch (err) {
         console.error(err);
@@ -199,31 +219,8 @@ export default function AdminPushNotification() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setSuccessMsg('Broadcast sent successfully to all connected Android, iOS PWA & Web clients!');
-        
-        if ('Notification' in window && Notification.permission === 'granted') {
-          const options = {
-            body: message,
-            icon: '/apple-touch-icon.png',
-            badge: '/favicon.svg',
-            image: fileUrl || undefined,
-            data: { url: actionUrl || '/' },
-            vibrate: [200, 100, 200],
-            tag: 'broadcast-' + Date.now(),
-            renotify: true,
-            requireInteraction: true
-          };
-
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.ready.then((reg) => {
-              reg.showNotification(title, options);
-            }).catch(() => {
-              new Notification(title, options);
-            });
-          } else {
-            new Notification(title, options);
-          }
-        }
+        const stats = data.deliveryStats ? ` (${data.deliveryStats.successCount} Web Push endpoints delivered via APNs/FCM)` : '';
+        setSuccessMsg(`Broadcast sent successfully to all connected Android, iOS PWA & Web clients!${stats}`);
 
         const newPayload: PushNotificationPayload = {
           id: Date.now().toString(),
