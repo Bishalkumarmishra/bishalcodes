@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { UploadCloud, Image as ImageIcon, Video, FileText, Trash2, Copy, Check, ExternalLink, Search, RefreshCw, Loader2, Filter, HardDrive, Plus, X } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, Video, FileText, Trash2, Copy, Check, ExternalLink, Search, RefreshCw, Loader2, Filter, HardDrive, Plus, X, Layers, Sparkles } from 'lucide-react';
 import { db } from '../services/firebase';
-import { collection, query, orderBy, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, addDoc, deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore';
 import { uploadToCloudinary, CloudinaryUploadResult } from '../services/cloudinary';
 
 export interface MediaAsset {
@@ -14,12 +14,14 @@ export interface MediaAsset {
   publicId?: string;
   sizeBytes?: number;
   createdAt: number;
+  source?: string;
 }
 
 // Media Assets Management Section for Admin Panel
 export default function AdminMediaAssets() {
   const [assets, setAssets] = useState<MediaAsset[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<'all' | 'image' | 'video' | 'pdf'>('all');
@@ -27,23 +29,133 @@ export default function AdminMediaAssets() {
   const [previewAsset, setPreviewAsset] = useState<MediaAsset | null>(null);
 
   useEffect(() => {
-    fetchMediaAssets();
+    fetchAndMigrateMedia();
   }, []);
 
-  const fetchMediaAssets = async () => {
+  // Scan all site collections (Projects, Blog, Services, Hero, Notifications, Testimonials) and aggregate all media
+  const fetchAndMigrateMedia = async () => {
     try {
       setLoading(true);
+      
+      // 1. Fetch existing saved media assets
       const q = query(collection(db, 'media_assets'), orderBy('createdAt', 'desc'));
       const snapshot = await getDocs(q);
-      const items: MediaAsset[] = snapshot.docs.map(d => ({
+      const existingAssets: MediaAsset[] = snapshot.docs.map(d => ({
         id: d.id,
         ...d.data()
       } as MediaAsset));
-      setAssets(items);
+
+      const existingUrls = new Set(existingAssets.map(a => a.url));
+      const newlyDiscoveredAssets: MediaAsset[] = [];
+
+      // Helper to classify URL type
+      const getMediaType = (url: string): 'image' | 'video' | 'pdf' | 'raw' => {
+        const lowercase = url.toLowerCase();
+        if (lowercase.includes('.mp4') || lowercase.includes('.webm') || lowercase.includes('.mov') || lowercase.includes('video')) return 'video';
+        if (lowercase.includes('.pdf')) return 'pdf';
+        return 'image';
+      };
+
+      // Helper to safely add discovered URL
+      const trackMediaUrl = (url: string | undefined | null, name: string, source: string) => {
+        if (!url || typeof url !== 'string' || !url.startsWith('http') || existingUrls.has(url)) return;
+        existingUrls.add(url);
+        newlyDiscoveredAssets.push({
+          name: name || 'Site Media Asset',
+          url: url,
+          type: getMediaType(url),
+          createdAt: Date.now(),
+          source: source
+        });
+      };
+
+      // 2. Scan Projects collection
+      try {
+        const projSnap = await getDocs(collection(db, 'projects'));
+        projSnap.docs.forEach(docSnap => {
+          const d = docSnap.data();
+          if (Array.isArray(d.images)) {
+            d.images.forEach((img: any, idx: number) => {
+              const url = typeof img === 'string' ? img : img?.url;
+              trackMediaUrl(url, `Project: ${d.title || 'Untitled'} (#${idx + 1})`, 'Projects');
+            });
+          }
+        });
+      } catch (e) { console.warn('Projects scan error:', e); }
+
+      // 3. Scan Blog collection
+      try {
+        const blogSnap = await getDocs(collection(db, 'blog'));
+        blogSnap.docs.forEach(docSnap => {
+          const d = docSnap.data();
+          trackMediaUrl(d.imageUrl, `Blog Cover: ${d.title || 'Article'}`, 'Blog');
+        });
+      } catch (e) { console.warn('Blog scan error:', e); }
+
+      // 4. Scan Services collection
+      try {
+        const serviceSnap = await getDocs(collection(db, 'services'));
+        serviceSnap.docs.forEach(docSnap => {
+          const d = docSnap.data();
+          trackMediaUrl(d.iconUrl, `Service Icon: ${d.title || 'Tool'}`, 'Services');
+          trackMediaUrl(d.bgImageUrl, `Service Background: ${d.title || 'Tool'}`, 'Services');
+        });
+      } catch (e) { console.warn('Services scan error:', e); }
+
+      // 5. Scan Notifications collection
+      try {
+        const notifSnap = await getDocs(collection(db, 'notifications'));
+        notifSnap.docs.forEach(docSnap => {
+          const d = docSnap.data();
+          trackMediaUrl(d.fileUrl, `Push Notification: ${d.title || 'Broadcast'}`, 'Notifications');
+        });
+      } catch (e) { console.warn('Notifications scan error:', e); }
+
+      // 6. Scan Testimonials & Settings/Hero
+      try {
+        const testSnap = await getDocs(collection(db, 'testimonials'));
+        testSnap.docs.forEach(docSnap => {
+          const d = docSnap.data();
+          trackMediaUrl(d.avatarUrl || d.imageUrl, `Testimonial: ${d.name || 'Client'}`, 'Testimonials');
+        });
+
+        const heroSnap = await getDoc(doc(db, 'settings', 'hero'));
+        if (heroSnap.exists()) {
+          const h = heroSnap.data();
+          if (Array.isArray(h.slides)) {
+            h.slides.forEach((s: any, idx: number) => {
+              const url = typeof s === 'string' ? s : s?.imageUrl;
+              trackMediaUrl(url, `Hero Slide #${idx + 1}`, 'Hero Settings');
+            });
+          }
+          if (h.aboutData) {
+            trackMediaUrl(h.aboutData.imageUrl, 'About Profile Image', 'About');
+            if (Array.isArray(h.aboutData.images)) {
+              h.aboutData.images.forEach((u: string, idx: number) => trackMediaUrl(u, `About Photo #${idx + 1}`, 'About'));
+            }
+          }
+        }
+      } catch (e) { console.warn('Settings/Testimonials scan error:', e); }
+
+      // 7. Auto-save newly discovered site media assets to Firestore
+      if (newlyDiscoveredAssets.length > 0) {
+        for (const item of newlyDiscoveredAssets) {
+          try {
+            const docRef = await addDoc(collection(db, 'media_assets'), item);
+            item.id = docRef.id;
+            existingAssets.unshift(item);
+          } catch (err) {
+            console.warn('Failed saving auto-migrated asset:', err);
+          }
+        }
+      }
+
+      setAssets(existingAssets);
     } catch (e) {
-      console.warn('Error fetching media assets:', e);
+      console.warn('Error fetching and migrating media assets:', e);
     } finally {
       setLoading(false);
+      setSyncing(false);
     }
   };
 
@@ -64,7 +176,8 @@ export default function AdminMediaAssets() {
           type: result.type,
           publicId: result.publicId,
           sizeBytes: file.size,
-          createdAt: Date.now()
+          createdAt: Date.now(),
+          source: 'Cloudinary Direct Upload'
         };
 
         const docRef = await addDoc(collection(db, 'media_assets'), newAsset);
@@ -87,7 +200,7 @@ export default function AdminMediaAssets() {
   };
 
   const handleDelete = async (asset: MediaAsset) => {
-    if (!confirm(`Are you sure you want to delete "${asset.name}" from your media library?`)) return;
+    if (!confirm(`Are you sure you want to remove "${asset.name}" from your media library?`)) return;
     try {
       if (asset.id) {
         await deleteDoc(doc(db, 'media_assets', asset.id));
@@ -101,51 +214,64 @@ export default function AdminMediaAssets() {
 
   const filteredAssets = assets.filter(asset => {
     const matchesSearch = asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          asset.url.toLowerCase().includes(searchQuery.toLowerCase());
+                          asset.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (asset.source || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = selectedTypeFilter === 'all' || asset.type === selectedTypeFilter;
     return matchesSearch && matchesType;
   });
 
   const formatFileSize = (bytes?: number) => {
-    if (!bytes) return 'Unknown size';
+    if (!bytes) return 'Cloud Link';
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   return (
     <div className="space-y-6 text-left">
-      {/* Top Header Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      {/* Light Theme Top Header Card */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#e52521]/10 border border-[#e52521]/20 text-[#e52521] rounded-lg text-xs font-semibold uppercase tracking-wider mb-2">
-            <HardDrive size={14} /> Cloudinary Media Library
+            <HardDrive size={14} /> Cloudinary & Site Media Library
           </div>
-          <h2 className="text-xl font-bold text-white tracking-tight">Cloudinary Media Assets Manager</h2>
-          <p className="text-slate-400 text-xs mt-1">
-            Upload, manage, and reuse full-quality images, videos, PDFs & banners across BishalCodes.
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Media Assets & Cloudinary Manager</h2>
+          <p className="text-slate-500 text-xs mt-1">
+            All images, videos, banners, and PDFs used across BishalCodes auto-aggregated and saved in full resolution.
           </p>
         </div>
 
-        {/* Upload Button */}
-        <label className="px-4 py-2.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold text-xs rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95 shrink-0">
-          {uploading ? (
-            <>
-              <Loader2 size={16} className="animate-spin" /> Uploading to Cloudinary...
-            </>
-          ) : (
-            <>
-              <UploadCloud size={16} /> Upload New Files (Up to 100MB)
-            </>
-          )}
-          <input
-            type="file"
-            multiple
-            accept="image/*,video/*,application/pdf,.doc,.docx"
-            onChange={handleFileUpload}
-            disabled={uploading}
-            className="hidden"
-          />
-        </label>
+        {/* Header Action Buttons */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => { setSyncing(true); fetchAndMigrateMedia(); }}
+            disabled={loading || syncing}
+            className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition-all border border-slate-300 flex items-center gap-1.5 cursor-pointer active:scale-95"
+            title="Scan site and auto-import all missing images/videos"
+          >
+            <RefreshCw size={14} className={syncing || loading ? 'animate-spin text-[#e52521]' : 'text-slate-600'} />
+            {syncing ? 'Scanning Site Media...' : 'Sync All Site Media'}
+          </button>
+
+          <label className="px-4 py-2.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer active:scale-95 shrink-0">
+            {uploading ? (
+              <>
+                <Loader2 size={16} className="animate-spin" /> Uploading to Cloudinary...
+              </>
+            ) : (
+              <>
+                <UploadCloud size={16} /> Upload New Files (100MB)
+              </>
+            )}
+            <input
+              type="file"
+              multiple
+              accept="image/*,video/*,application/pdf,.doc,.docx"
+              onChange={handleFileUpload}
+              disabled={uploading}
+              className="hidden"
+            />
+          </label>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -157,7 +283,7 @@ export default function AdminMediaAssets() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search media files by name or URL..."
+            placeholder="Search media files by title, category, or URL..."
             className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-slate-900 text-xs focus:outline-none focus:border-[#e52521] transition-colors"
           />
         </div>
@@ -167,7 +293,7 @@ export default function AdminMediaAssets() {
           <button
             onClick={() => setSelectedTypeFilter('all')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer shrink-0 ${
-              selectedTypeFilter === 'all' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              selectedTypeFilter === 'all' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
             All ({assets.length})
@@ -175,7 +301,7 @@ export default function AdminMediaAssets() {
           <button
             onClick={() => setSelectedTypeFilter('image')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
-              selectedTypeFilter === 'image' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              selectedTypeFilter === 'image' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
             <ImageIcon size={13} /> Images ({assets.filter(a => a.type === 'image').length})
@@ -183,7 +309,7 @@ export default function AdminMediaAssets() {
           <button
             onClick={() => setSelectedTypeFilter('video')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
-              selectedTypeFilter === 'video' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              selectedTypeFilter === 'video' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
             <Video size={13} /> Videos ({assets.filter(a => a.type === 'video').length})
@@ -191,37 +317,28 @@ export default function AdminMediaAssets() {
           <button
             onClick={() => setSelectedTypeFilter('pdf')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
-              selectedTypeFilter === 'pdf' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              selectedTypeFilter === 'pdf' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
             <FileText size={13} /> PDFs/Docs ({assets.filter(a => a.type === 'pdf' || a.type === 'raw').length})
-          </button>
-
-          <button
-            onClick={fetchMediaAssets}
-            disabled={loading}
-            className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer shrink-0"
-            title="Refresh assets"
-          >
-            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
           </button>
         </div>
       </div>
 
       {/* Media Assets Grid */}
       {loading ? (
-        <div className="py-20 text-center space-y-3 bg-white rounded-2xl border border-slate-200">
+        <div className="py-20 text-center space-y-3 bg-white rounded-2xl border border-slate-200 shadow-sm">
           <Loader2 className="animate-spin text-[#e52521] mx-auto" size={32} />
-          <p className="text-xs font-semibold text-slate-600">Loading Cloudinary media assets...</p>
+          <p className="text-xs font-semibold text-slate-600">Scanning site database and Cloudinary assets...</p>
         </div>
       ) : filteredAssets.length === 0 ? (
-        <div className="py-16 text-center space-y-3 bg-white rounded-2xl border border-slate-200 p-6">
+        <div className="py-16 text-center space-y-3 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
           <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto text-slate-400">
             <UploadCloud size={24} />
           </div>
           <h3 className="text-sm font-bold text-slate-800">No media assets found</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Upload images, banners, videos, or PDFs above to build your permanent Cloudinary media library.
+            Click "Sync All Site Media" above or upload images, banners, or videos to populate your library.
           </p>
         </div>
       ) : (
@@ -247,15 +364,21 @@ export default function AdminMediaAssets() {
                   </div>
                 )}
 
-                <span className="absolute top-2 left-2 px-2 py-0.5 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-extrabold uppercase rounded-md border border-slate-700">
+                <span className="absolute top-2 left-2 px-2 py-0.5 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-extrabold uppercase rounded-md border border-slate-700 shadow-sm">
                   {asset.type}
                 </span>
+
+                {asset.source && (
+                  <span className="absolute top-2 right-2 px-2 py-0.5 bg-[#e52521]/90 backdrop-blur-md text-white text-[9px] font-bold rounded-md shadow-sm">
+                    {asset.source}
+                  </span>
+                )}
               </div>
 
               {/* Card Footer Details */}
               <div className="p-3 bg-slate-50 border-t border-slate-100 flex-1 flex flex-col justify-between space-y-2">
                 <div>
-                  <h4 className="text-xs font-bold text-slate-800 truncate" title={asset.name}>
+                  <h4 className="text-xs font-bold text-slate-900 truncate" title={asset.name}>
                     {asset.name}
                   </h4>
                   <div className="text-[10px] text-slate-500 font-mono mt-0.5 flex items-center justify-between">
@@ -311,15 +434,15 @@ export default function AdminMediaAssets() {
 
       {/* Preview Modal */}
       {previewAsset && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full p-4 space-y-4 text-white overflow-hidden">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold truncate">{previewAsset.name}</h3>
-              <button onClick={() => setPreviewAsset(null)} className="p-1 text-slate-400 hover:text-white rounded-lg">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-3xl w-full p-4 space-y-4 text-slate-900 shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h3 className="text-sm font-bold truncate text-slate-900">{previewAsset.name}</h3>
+              <button onClick={() => setPreviewAsset(null)} className="p-1 text-slate-400 hover:text-slate-900 rounded-lg">
                 <X size={18} />
               </button>
             </div>
-            <div className="max-h-[70vh] bg-black rounded-xl overflow-hidden flex items-center justify-center p-2">
+            <div className="max-h-[70vh] bg-slate-950 rounded-xl overflow-hidden flex items-center justify-center p-2">
               {previewAsset.type === 'image' ? (
                 <img src={previewAsset.url} alt={previewAsset.name} className="max-h-[65vh] w-auto object-contain rounded-lg" />
               ) : previewAsset.type === 'video' ? (
@@ -328,13 +451,13 @@ export default function AdminMediaAssets() {
                 <iframe src={previewAsset.url} className="w-full h-96 rounded-lg" title="PDF Viewer" />
               )}
             </div>
-            <div className="flex items-center justify-between text-xs text-slate-400">
+            <div className="flex items-center justify-between text-xs text-slate-600">
               <span className="font-mono text-[11px] truncate max-w-md">{previewAsset.url}</span>
               <button
                 onClick={() => handleCopyUrl(previewAsset)}
-                className="px-3 py-1.5 bg-[#e52521] text-white font-bold rounded-lg text-xs flex items-center gap-1"
+                className="px-3.5 py-2 bg-[#e52521] text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-sm active:scale-95"
               >
-                <Copy size={12} /> Copy URL
+                <Copy size={13} /> Copy URL
               </button>
             </div>
           </div>
@@ -403,7 +526,7 @@ export function MediaPickerModal({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search files..."
+            placeholder="Search media files by name..."
             className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs focus:outline-none focus:border-[#e52521]"
           />
         </div>
@@ -415,14 +538,14 @@ export function MediaPickerModal({
             </div>
           ) : filtered.length === 0 ? (
             <div className="col-span-full py-12 text-center text-xs text-slate-500">
-              No media files found. Upload files in Media Assets tab.
+              No media files found in library.
             </div>
           ) : (
             filtered.map(asset => (
               <div
                 key={asset.id || asset.url}
                 onClick={() => { onSelectMedia(asset.url); onClose(); }}
-                className="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden cursor-pointer group hover:border-[#e52521] transition-all flex flex-col relative h-32 p-1"
+                className="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden cursor-pointer group hover:border-[#e52521] transition-all flex flex-col relative h-32 p-1 shadow-sm"
               >
                 {asset.type === 'image' ? (
                   <img src={asset.url} alt={asset.name} className="w-full h-full object-contain rounded-lg group-hover:scale-105 transition-transform" />
