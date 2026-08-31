@@ -246,8 +246,8 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
               >
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   {item.fileUrl ? (
-                    <div className="w-9 h-9 rounded-lg overflow-hidden border border-[#e52521]/30 shrink-0 mt-0.5 bg-slate-950">
-                      <img src={item.fileUrl} alt="Thumbnail" className="w-full h-full object-cover" />
+                    <div className="w-9 h-9 rounded-lg overflow-hidden border border-[#e52521]/30 shrink-0 mt-0.5 bg-slate-950 flex items-center justify-center p-0.5 shadow-sm">
+                      <img src={item.fileUrl} alt="Thumbnail" className="w-full h-full object-contain rounded" />
                     </div>
                   ) : (
                     <div className="w-8 h-8 rounded-lg bg-[#e52521]/10 border border-[#e52521]/20 flex items-center justify-center text-[#e52521] shrink-0 mt-0.5">
@@ -268,8 +268,8 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
                     </p>
 
                     {item.fileUrl && (
-                      <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 max-h-36 w-full shadow-sm bg-slate-950">
-                        <img src={item.fileUrl} alt="Attachment Banner" className="w-full h-auto object-cover max-h-36" />
+                      <div className="mt-2.5 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700/80 w-full shadow-sm bg-slate-950/90 dark:bg-slate-950 flex items-center justify-center p-1">
+                        <img src={item.fileUrl} alt="Attachment Banner" className="w-full h-auto max-h-72 object-contain rounded-lg" />
                       </div>
                     )}
 
