@@ -206,9 +206,23 @@ export default function NotificationListener() {
       }
     };
 
+    // 0ms instant BroadcastChannel listener across tabs
+    let channel: BroadcastChannel | null = null;
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      channel = new BroadcastChannel('bishalcodes_push_channel');
+      channel.onmessage = (event) => {
+        if (event.data && event.data.type === 'NEW_PUSH_BROADCAST') {
+          checkNewNotifications();
+        }
+      };
+    }
+
     checkNewNotifications();
-    const interval = setInterval(checkNewNotifications, 3000);
-    return () => clearInterval(interval);
+    const interval = setInterval(checkNewNotifications, 1000);
+    return () => {
+      clearInterval(interval);
+      if (channel) channel.close();
+    };
   }, []);
 
   // 4. Background Supabase Keep-Alive Auto-Pinger (prevents auto-pause)
