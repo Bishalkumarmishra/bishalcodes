@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import webpush from 'web-push';
 import { VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT } from '@/services/pushConfig';
 import { db } from '@/services/firebase';
+import { collection, getDocs, doc, setDoc, deleteDoc, query, orderBy, limit } from 'firebase/firestore';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,10 +20,11 @@ try {
 export async function GET() {
   let notifications: any[] = [];
   try {
-    const snapshot = await db.collection('notifications').orderBy('timestamp', 'desc').limit(50).get();
-    notifications = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+    const q = query(collection(db, 'notifications'), orderBy('timestamp', 'desc'), limit(50));
+    const snapshot = await getDocs(q);
+    notifications = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
   } catch (err) {
-    // If Admin SDK collection method unavailable in client db instance, fallback to raw REST / empty array
+    console.warn('Firestore fetch notifications notice:', err);
   }
 
   return NextResponse.json({
@@ -58,7 +60,7 @@ export async function POST(req: Request) {
 
     // Save to Firestore permanently so all devices fetch this broadcast
     try {
-      await db.collection('notifications').doc(notificationPayload.id).set(notificationPayload);
+      await setDoc(doc(db, 'notifications', notificationPayload.id), notificationPayload);
     } catch (e) {
       console.warn('Firestore write warning:', e);
     }
@@ -66,9 +68,9 @@ export async function POST(req: Request) {
     // ── 1. Fetch all Web Push subscriptions from Firestore ──
     const targetSubscriptions: any[] = [];
     try {
-      const subSnapshot = await db.collection('push_subscriptions').get();
-      subSnapshot.forEach((doc: any) => {
-        const data = doc.data();
+      const subSnapshot = await getDocs(collection(db, 'push_subscriptions'));
+      subSnapshot.forEach((d) => {
+        const data = d.data();
         if (data.endpoint && data.keys) {
           targetSubscriptions.push(data);
         }
@@ -110,7 +112,7 @@ export async function POST(req: Request) {
         failCount++;
         if (err.statusCode === 410 || err.statusCode === 404) {
           try {
-            await db.collection('push_subscriptions').doc(docIdFromEndpoint(sub.endpoint)).delete();
+            await deleteDoc(doc(db, 'push_subscriptions', docIdFromEndpoint(sub.endpoint)));
           } catch (e) {}
         }
       }
@@ -137,4 +139,5 @@ export async function POST(req: Request) {
 function docIdFromEndpoint(endpoint: string): string {
   return Buffer.from(endpoint).toString('base64').replace(/=/g, '').slice(-40);
 }
+
 
