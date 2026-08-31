@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, LogOut, Home, FileText, Settings, User, Briefcase, Mail, Facebook, Instagram, Linkedin, Github, BookOpen, Sun, Moon, Calendar, Terminal, Edit2, Code } from 'lucide-react';
+import { Menu, X, LogOut, Home, FileText, Settings, User, Briefcase, Mail, Facebook, Instagram, Linkedin, Github, BookOpen, Sun, Moon, Calendar, Terminal, Edit2, Code, Bell, Search } from 'lucide-react';
 import { auth } from '../services/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigation } from '../context/NavigationContext';
 import { PathPage } from '../types';
+import NotificationCenterModal from '../components/NotificationCenterModal';
+import GlobalSearchModal from '../components/GlobalSearchModal';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,11 +13,41 @@ const Navbar: React.FC = () => {
   const [user] = useAuthState(auth);
   const { navigate, currentPage } = useNavigation();
 
+  // Modals state
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
   // Live visual editor state in navbar
   const [liveEditActive, setLiveEditActive] = useState(false);
 
   // Add light/dark theme toggle logic
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
+  // Load unread count & listen for count update events
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const countRaw = localStorage.getItem('bishalcodes_notification_unread_count');
+    if (countRaw) {
+      setUnreadCount(parseInt(countRaw, 10) || 0);
+    }
+
+    const handleCountUpdate = (e: any) => {
+      setUnreadCount(e.detail || 0);
+    };
+
+    const handleOpenSearch = () => {
+      setIsSearchOpen(true);
+    };
+
+    window.addEventListener('notification_count_updated', handleCountUpdate);
+    window.addEventListener('open_global_search', handleOpenSearch);
+    return () => {
+      window.removeEventListener('notification_count_updated', handleCountUpdate);
+      window.removeEventListener('open_global_search', handleOpenSearch);
+    };
+  }, []);
 
   const updateMetaThemeColors = (currentTheme: 'light' | 'dark') => {
     const color = currentTheme === 'dark' ? '#000000' : '#FFFFFF';
@@ -302,16 +334,41 @@ const Navbar: React.FC = () => {
           </ul>
 
           {/* Header Actions */}
-          <div className="flex items-center gap-1.5 relative z-[210]">
+          <div className="flex items-center gap-2 relative z-[210]">
+            {/* Global Instant Search Button */}
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-900/90 hover:bg-slate-900 border border-slate-700/80 hover:border-[#e52521]/50 text-white rounded-xl text-xs font-medium transition-all active:scale-95 cursor-pointer shadow-sm"
+              title="Search tools, docs, blogs... (Ctrl+K)"
+            >
+              <Search size={14} className="text-[#e52521]" />
+              <span className="hidden sm:inline text-[11px] text-slate-300 font-semibold">Search</span>
+              <kbd className="hidden sm:inline bg-slate-800 text-slate-400 px-1 py-0.2 rounded text-[10px] font-mono border border-slate-700 ml-1">⌘K</kbd>
+            </button>
+
+            {/* Notification Bell Button */}
+            <button
+              onClick={() => setIsNotificationOpen(true)}
+              className="relative w-8 h-8 rounded-xl flex items-center justify-center bg-slate-900/90 border border-slate-700/80 hover:border-[#e52521]/50 text-white transition-all active:scale-95 cursor-pointer shadow-sm"
+              title="Notification Center"
+            >
+              <Bell size={15} className={unreadCount > 0 ? 'text-[#e52521]' : 'text-slate-300'} />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-[#e52521] text-white text-[9px] font-extrabold rounded-full flex items-center justify-center border-2 border-slate-950 shadow-sm animate-pulse">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+
             {/* Live Visual Edit toggle in navbar */}
             {(isAdmin || (typeof window !== 'undefined' && window.location.hostname === 'localhost')) && (
               <button
                 onClick={toggleLiveEdit}
                 title={liveEditActive ? 'Exit Live Edit' : 'Live Visual Edit'}
-                className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all active:scale-95 cursor-pointer ${
+                className={`w-8 h-8 rounded-xl flex items-center justify-center border transition-all active:scale-95 cursor-pointer ${
                   liveEditActive 
                     ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-sm' 
-                    : 'bg-slate-900 border-slate-700 text-white dark:bg-white dark:border-slate-350 dark:text-black'
+                    : 'bg-slate-900 border-slate-700 text-white'
                 }`}
               >
                 <Edit2 size={13} className={liveEditActive ? 'animate-pulse' : ''} />
@@ -502,6 +559,18 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Global Search Command Palette Modal */}
+      <GlobalSearchModal 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
+      />
+
+      {/* Persistent Notification Center Dropdown Modal */}
+      <NotificationCenterModal 
+        isOpen={isNotificationOpen} 
+        onClose={() => setIsNotificationOpen(false)} 
+      />
     </>
   );
 };
