@@ -3,6 +3,7 @@ import webpush from 'web-push';
 import { VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT } from '@/services/pushConfig';
 import { db } from '@/services/firebase';
 import { collection, getDocs, doc, setDoc, deleteDoc, query, orderBy, limit } from 'firebase/firestore';
+import { getActiveSubscriptions, removeSubscription } from '@/services/pushSubscriptionStore';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +18,9 @@ try {
   console.warn('Web Push VAPID setup notice:', e);
 }
 
+// In-memory broadcast fallback cache
+let memoryNotifications: any[] = [];
+
 export async function GET() {
   let notifications: any[] = [];
   try {
@@ -25,6 +29,10 @@ export async function GET() {
     notifications = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
   } catch (err) {
     console.warn('Firestore fetch notifications notice:', err);
+  }
+
+  if (notifications.length === 0 && memoryNotifications.length > 0) {
+    notifications = memoryNotifications;
   }
 
   return NextResponse.json({
@@ -58,6 +66,10 @@ export async function POST(req: Request) {
       status: 'sent'
     };
 
+    // Store in memory cache
+    memoryNotifications.unshift(notificationPayload);
+    if (memoryNotifications.length > 50) memoryNotifications.pop();
+
     // Save to Firestore permanently so all devices fetch this broadcast
     try {
       await setDoc(doc(db, 'notifications', notificationPayload.id), notificationPayload);
@@ -65,20 +77,29 @@ export async function POST(req: Request) {
       console.warn('Firestore write warning:', e);
     }
 
-    // ── 1. Fetch all Web Push subscriptions from Firestore ──
-    const targetSubscriptions: any[] = [];
+    // ── 1. Gather all Web Push subscriptions from both Memory & Firestore ──
+    const allSubsMap = new Map<string, any>();
+
+    // A) Add Memory Subscriptions
+    const memSubs = getActiveSubscriptions();
+    for (const sub of memSubs) {
+      if (sub.endpoint) allSubsMap.set(sub.endpoint, sub);
+    }
+
+    // B) Add Firestore Subscriptions
     try {
       const subSnapshot = await getDocs(collection(db, 'push_subscriptions'));
       subSnapshot.forEach((d) => {
         const data = d.data();
         if (data.endpoint && data.keys) {
-          targetSubscriptions.push(data);
+          allSubsMap.set(data.endpoint, data);
         }
       });
     } catch (e) {
       console.warn('Firestore push_subscriptions fetch warning:', e);
     }
 
+    const targetSubscriptions = Array.from(allSubsMap.values());
     console.log(`🚀 Sending Web Push to ${targetSubscriptions.length} global endpoints...`);
 
     const pushPayloadString = JSON.stringify({
@@ -111,6 +132,7 @@ export async function POST(req: Request) {
       } catch (err: any) {
         failCount++;
         if (err.statusCode === 410 || err.statusCode === 404) {
+          await removeSubscription(sub.endpoint);
           try {
             await deleteDoc(doc(db, 'push_subscriptions', docIdFromEndpoint(sub.endpoint)));
           } catch (e) {}
@@ -124,6 +146,7 @@ export async function POST(req: Request) {
       success: true,
       message: `Push broadcast delivered successfully! (${successCount} Web Push endpoints delivered).`,
       payload: notificationPayload,
+      notifications: memoryNotifications,
       deliveryStats: {
         totalTargeted: targetSubscriptions.length,
         successCount,
@@ -139,5 +162,6 @@ export async function POST(req: Request) {
 function docIdFromEndpoint(endpoint: string): string {
   return Buffer.from(endpoint).toString('base64').replace(/=/g, '').slice(-40);
 }
+
 
 
