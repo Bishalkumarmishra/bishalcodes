@@ -352,56 +352,56 @@ export default function AdminMediaAssets() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 pb-12">
           {filteredAssets.map(asset => (
             <div
               key={asset.id || asset.url}
-              className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col group"
+              className="bg-white border border-slate-200 rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col group"
             >
               {/* Media Preview Container */}
               <div 
                 onClick={() => setPreviewAsset(asset)}
-                className="h-44 bg-slate-950 flex items-center justify-center relative overflow-hidden cursor-pointer p-1"
+                className="h-28 sm:h-44 bg-slate-950 flex items-center justify-center relative overflow-hidden cursor-pointer p-1"
               >
                 {asset.type === 'image' ? (
                   <img src={asset.url} alt={asset.name} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" />
                 ) : asset.type === 'video' ? (
                   <video src={asset.url} className="w-full h-full object-contain" muted />
                 ) : (
-                  <div className="text-center p-4 space-y-2">
-                    <FileText size={36} className="text-[#e52521] mx-auto" />
-                    <span className="text-[10px] text-slate-400 font-mono block truncate max-w-[180px]">{asset.name}</span>
+                  <div className="text-center p-2 space-y-1">
+                    <FileText size={28} className="text-[#e52521] mx-auto" />
+                    <span className="text-[9px] text-slate-400 font-mono block truncate max-w-[120px]">{asset.name}</span>
                   </div>
                 )}
 
-                <span className="absolute top-2 left-2 px-2 py-0.5 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-extrabold uppercase rounded-md border border-slate-700 shadow-sm">
+                <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-slate-900/80 backdrop-blur-md text-white text-[8px] sm:text-[9px] font-extrabold uppercase rounded-md border border-slate-700 shadow-sm truncate max-w-[45%]">
                   {asset.type}
                 </span>
 
                 {asset.source && (
-                  <span className="absolute top-2 right-2 px-2 py-0.5 bg-[#e52521]/90 backdrop-blur-md text-white text-[9px] font-bold rounded-md shadow-sm">
+                  <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 bg-[#e52521]/90 backdrop-blur-md text-white text-[8px] sm:text-[9px] font-bold rounded-md shadow-sm truncate max-w-[45%]">
                     {asset.source}
                   </span>
                 )}
               </div>
 
               {/* Card Footer Details */}
-              <div className="p-3 bg-slate-50 border-t border-slate-100 flex-1 flex flex-col justify-between space-y-2">
+              <div className="p-2 sm:p-3 bg-slate-50 border-t border-slate-100 flex-1 flex flex-col justify-between space-y-1.5 sm:space-y-2">
                 <div>
-                  <h4 className="text-xs font-bold text-slate-900 truncate" title={asset.name}>
+                  <h4 className="text-[11px] sm:text-xs font-bold text-slate-900 truncate" title={asset.name}>
                     {asset.name}
                   </h4>
-                  <div className="text-[10px] text-slate-500 font-mono mt-0.5 flex items-center justify-between">
+                  <div className="text-[9px] sm:text-[10px] text-slate-500 font-mono mt-0.5 flex items-center justify-between gap-1 truncate">
                     <span>{formatFileSize(asset.sizeBytes)}</span>
-                    <span>{new Date(asset.createdAt).toLocaleDateString()}</span>
+                    <span className="hidden sm:inline">{new Date(asset.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
 
                 {/* Quick Action Buttons */}
-                <div className="flex items-center gap-1.5 pt-2 border-t border-slate-200/60">
+                <div className="flex items-center gap-1 sm:gap-1.5 pt-1.5 sm:pt-2 border-t border-slate-200/60">
                   <button
                     onClick={() => handleCopyUrl(asset)}
-                    className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                    className={`flex-1 py-1 sm:py-1.5 px-1.5 sm:px-2 rounded-lg text-[9px] sm:text-[11px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
                       copiedId === (asset.id || asset.url)
                         ? 'bg-emerald-600 text-white'
                         : 'bg-slate-900 hover:bg-slate-800 text-white'
@@ -409,11 +409,11 @@ export default function AdminMediaAssets() {
                   >
                     {copiedId === (asset.id || asset.url) ? (
                       <>
-                        <Check size={12} /> Copied!
+                        <Check size={11} /> Copied!
                       </>
                     ) : (
                       <>
-                        <Copy size={12} /> Copy Link
+                        <Copy size={11} /> <span className="hidden sm:inline">Copy Link</span><span className="sm:hidden">Copy</span>
                       </>
                     )}
                   </button>
@@ -422,18 +422,18 @@ export default function AdminMediaAssets() {
                     href={asset.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors"
+                    className="p-1 sm:p-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors"
                     title="Open full resolution"
                   >
-                    <ExternalLink size={13} />
+                    <ExternalLink size={12} />
                   </a>
 
                   <button
                     onClick={() => handleDelete(asset)}
-                    className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors cursor-pointer"
+                    className="p-1 sm:p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors cursor-pointer"
                     title="Delete from view"
                   >
-                    <Trash2 size={13} />
+                    <Trash2 size={12} />
                   </button>
                 </div>
               </div>
