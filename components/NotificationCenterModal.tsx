@@ -163,17 +163,17 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
   return (
     <div className="fixed inset-0 z-[9999] flex items-start justify-end p-4 pt-16 md:pt-20 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-150">
       <div 
-        className="w-full max-w-sm sm:max-w-md bg-slate-900 border border-slate-800 text-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-top-4 duration-200"
+        className="w-full max-w-sm sm:max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-top-4 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header */}
-        <div className="p-4 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-4 bg-slate-50 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-[#e52521]/10 border border-[#e52521]/20 flex items-center justify-center text-[#e52521]">
               <Bell size={18} />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 Notifications
                 {unreadCount > 0 && (
                   <span className="px-2 py-0.5 bg-[#e52521] text-white text-[10px] font-extrabold rounded-full">
@@ -181,7 +181,7 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
                   </span>
                 )}
               </h3>
-              <p className="text-[11px] text-slate-400">Live broadcast updates & tools activity</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Live broadcast updates & tools activity</p>
             </div>
           </div>
 
@@ -189,14 +189,14 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
             <button
               onClick={fetchRemoteNotifications}
               disabled={loading}
-              className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
               title="Refresh notifications"
             >
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
             >
               <X size={16} />
             </button>
@@ -205,16 +205,16 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
 
         {/* Action Controls Bar */}
         {notifications.length > 0 && (
-          <div className="px-4 py-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs">
+          <div className="px-4 py-2 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
             <button
               onClick={handleMarkAllRead}
-              className="text-slate-400 hover:text-emerald-400 font-semibold flex items-center gap-1 transition-colors cursor-pointer text-[11px]"
+              className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 font-semibold flex items-center gap-1 transition-colors cursor-pointer text-[11px]"
             >
               <CheckCheck size={13} /> Mark all read
             </button>
             <button
               onClick={handleClearAll}
-              className="text-slate-400 hover:text-rose-400 font-semibold flex items-center gap-1 transition-colors cursor-pointer text-[11px]"
+              className="text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 font-semibold flex items-center gap-1 transition-colors cursor-pointer text-[11px]"
             >
               <Trash2 size={13} /> Clear all
             </button>
@@ -222,13 +222,13 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
         )}
 
         {/* Notifications List */}
-        <div className="overflow-y-auto divide-y divide-slate-800/60 flex-1 p-2 space-y-1">
+        <div className="overflow-y-auto divide-y divide-slate-200 dark:divide-slate-800/60 flex-1 p-2 space-y-1">
           {notifications.length === 0 ? (
             <div className="py-12 px-4 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center mx-auto text-slate-500">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500">
                 <Inbox size={24} />
               </div>
-              <div className="text-slate-300 font-semibold text-xs">No notifications right now</div>
+              <div className="text-slate-700 dark:text-slate-300 font-semibold text-xs">No notifications right now</div>
               <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
                 System broadcasts, tool updates, and announcements will appear here.
               </p>
@@ -239,7 +239,9 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
                 key={item.id}
                 onClick={() => handleNotificationClick(item)}
                 className={`p-3 rounded-xl transition-all flex items-start justify-between gap-3 cursor-pointer group ${
-                  item.read ? 'bg-slate-900/40 hover:bg-slate-800/50' : 'bg-slate-800/60 hover:bg-slate-800 border-l-2 border-[#e52521]'
+                  item.read 
+                    ? 'bg-slate-50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-800/50' 
+                    : 'bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 border-l-2 border-[#e52521]'
                 }`}
               >
                 <div className="flex items-start gap-3 flex-1 min-w-0">
@@ -248,19 +250,19 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
                   </div>
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <h4 className={`text-xs font-bold truncate ${item.read ? 'text-slate-300' : 'text-white'}`}>
+                      <h4 className={`text-xs font-bold truncate ${item.read ? 'text-slate-600 dark:text-slate-300' : 'text-slate-900 dark:text-white'}`}>
                         {item.title}
                       </h4>
-                      <span className="text-[10px] text-slate-500 shrink-0 font-mono">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 shrink-0 font-mono">
                         {formatTime(item.timestamp)}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-400 leading-snug line-clamp-2">
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug line-clamp-2">
                       {item.message}
                     </p>
 
                     {item.fileUrl && (
-                      <div className="mt-2 rounded-lg overflow-hidden border border-slate-700 max-h-24 max-w-xs">
+                      <div className="mt-2 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 max-h-24 max-w-xs">
                         <img src={item.fileUrl} alt="Attachment" className="w-full h-auto object-cover" />
                       </div>
                     )}
@@ -277,7 +279,7 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
                 {/* Individual Delete Button */}
                 <button
                   onClick={(e) => handleDeleteItem(item.id, e)}
-                  className="opacity-60 group-hover:opacity-100 p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer shrink-0"
+                  className="opacity-60 group-hover:opacity-100 p-1.5 text-slate-400 dark:text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer shrink-0"
                   title="Delete from device"
                 >
                   <Trash2 size={13} />
@@ -288,7 +290,7 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
         </div>
 
         {/* Footer */}
-        <div className="p-3 bg-slate-950 border-t border-slate-800 text-center text-[10px] text-slate-500 font-mono">
+        <div className="p-3 bg-slate-100 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 text-center text-[10px] text-slate-500 font-mono">
           BishalCodes Notification Center • Saved Locally
         </div>
       </div>
