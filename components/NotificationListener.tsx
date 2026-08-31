@@ -222,7 +222,80 @@ export default function NotificationListener() {
     return () => clearInterval(interval);
   }, []);
 
-  return null;
+  const [showPrompt, setShowPrompt] = React.useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    if ('Notification' in window && Notification.permission === 'default') {
+      setShowPrompt(true);
+    }
+  }, []);
+
+  const handleRequestPermission = async () => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+    try {
+      const permission = await Notification.requestPermission();
+      console.log('📢 [Push System] User gesture permission result:', permission);
+      setShowPrompt(false);
+      if (permission === 'granted' && 'serviceWorker' in navigator) {
+        const reg = await navigator.serviceWorker.ready;
+        if (reg && reg.pushManager) {
+          let sub = await reg.pushManager.getSubscription();
+          if (!sub) {
+            sub = await reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as unknown as BufferSource
+            });
+          }
+          if (sub) {
+            await fetch('/api/v1/push-subscription', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                subscription: sub.toJSON(),
+                userAgent: navigator.userAgent
+              })
+            });
+            console.log('✅ [Push System] iOS/Android device registered with APNs/FCM server:', sub.endpoint);
+            alert('Notifications enabled successfully! You will now receive instant push alerts.');
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('⚠️ [Push System] User gesture permission error:', err);
+    }
+  };
+
+  if (!showPrompt) return null;
+
+  return (
+    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 max-w-md bg-slate-900/95 backdrop-blur-md border border-slate-700 text-white p-4 rounded-2xl shadow-2xl z-[9999] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-[#e52521]/20 border border-[#e52521]/30 flex items-center justify-center shrink-0">
+          <span className="text-xl">🔔</span>
+        </div>
+        <div>
+          <div className="text-xs font-bold text-white">Enable Instant Push Notifications</div>
+          <div className="text-[11px] text-slate-300 mt-0.5">Get real-time updates and file transfer alerts directly on your device.</div>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
+        <button
+          onClick={() => setShowPrompt(false)}
+          className="px-2.5 py-1.5 text-slate-400 hover:text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+        >
+          Later
+        </button>
+        <button
+          onClick={handleRequestPermission}
+          className="px-3.5 py-2 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold text-xs rounded-xl transition-all shadow-md active:scale-95 cursor-pointer shrink-0"
+        >
+          Enable Now
+        </button>
+      </div>
+    </div>
+  );
 }
 
 
