@@ -190,7 +190,7 @@ interface StaticTool {
   category: string;
 }
 
-export const CATEGORIES = ['All', 'PDF Tools', 'Converters', 'Utilities', 'Security & Transfer', 'Design & Media'];
+export const CATEGORIES = ['All', 'Games & Arcade', 'PDF Tools', 'Converters', 'Utilities', 'Security & Transfer', 'Design & Media'];
 
 // Map dynamic tool IDs to categories
 const DYNAMIC_TOOL_CATEGORIES: Record<string, string> = {
@@ -226,7 +226,17 @@ const DYNAMIC_TOOL_CATEGORIES: Record<string, string> = {
   'cyber-defender': 'Games & Arcade'
 };
 
-const STATIC_TOOLS: StaticTool[] = [];
+const STATIC_TOOLS: StaticTool[] = [
+  {
+    id: 'cyber-defender',
+    name: 'CyberPulse Defender 2026',
+    emoji: '🎮',
+    description: 'Handcrafted HTML5 Canvas arcade shooter with sound synthesis, global leaderboards & 1-click embed code generator.',
+    badge: 'ARCADE GAME',
+    accentColor: 'indigo',
+    category: 'Games & Arcade'
+  }
+];
 
 // ─── Accent color map ────────────────────────────────────────────────────────
 const ACCENT: Record<string, { border: string; hoverBorder: string; glow: string; bg: string; iconBg: string; iconBorder: string; text: string; badgeBg: string; badgeText: string }> = {
