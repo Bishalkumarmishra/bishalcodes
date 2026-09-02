@@ -490,7 +490,7 @@ export default function AdminPushNotification() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="text-slate-700 text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                  <ImageIcon size={13} className="text-[#e52521]" /> Custom Banner / Image (Direct Link or Cloudinary Upload up to 100MB)
+                  <ImageIcon size={13} className="text-[#e52521]" /> Custom Banner / Image
                 </label>
                 {fileUrl && (
                   <button
@@ -503,41 +503,43 @@ export default function AdminPushNotification() {
                 )}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
                 <input
                   type="text"
                   value={fileUrl}
                   onChange={(e) => setFileUrl(e.target.value)}
                   placeholder="Paste direct URL, pick from Media Library, or upload..."
-                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-[#e52521] transition-colors"
+                  className="w-full sm:flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-[#e52521] transition-colors"
                 />
 
-                <button
-                  type="button"
-                  onClick={() => setIsMediaPickerOpen(true)}
-                  className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition-all border border-slate-300 flex items-center gap-1.5 cursor-pointer shrink-0"
-                >
-                  <FolderPlus size={14} className="text-[#e52521]" /> Media Library
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsMediaPickerOpen(true)}
+                    className="flex-1 sm:flex-none px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition-all border border-slate-300 flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+                  >
+                    <FolderPlus size={14} className="text-[#e52521]" /> Media Library
+                  </button>
 
-                <label className="px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer shrink-0 border border-slate-800">
-                  {uploadingBanner ? (
-                    <>
-                      <Loader2 className="animate-spin text-[#e52521]" size={14} /> Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <FileUp size={14} className="text-[#e52521]" /> Upload Banner (100MB)
-                    </>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*,video/*,.gif"
-                    onChange={handleBannerFileUpload}
-                    disabled={uploadingBanner}
-                    className="hidden"
-                  />
-                </label>
+                  <label className="flex-1 sm:flex-none px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer shrink-0 border border-slate-800 whitespace-nowrap">
+                    {uploadingBanner ? (
+                      <>
+                        <Loader2 className="animate-spin text-[#e52521]" size={14} /> Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <FileUp size={14} className="text-[#e52521]" /> Upload
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*,video/*,.gif"
+                      onChange={handleBannerFileUpload}
+                      disabled={uploadingBanner}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
               </div>
 
               {/* Media Picker Modal */}
@@ -551,7 +553,7 @@ export default function AdminPushNotification() {
                 <div className="mt-2 p-2 bg-slate-100 rounded-xl border border-slate-200 flex items-center gap-3">
                   <img src={fileUrl} alt="Banner Preview" className="w-16 h-12 object-cover rounded-lg border border-slate-300 shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <div className="text-[11px] font-bold text-slate-800 truncate">Cloudinary Full Quality Banner Active</div>
+                    <div className="text-[11px] font-bold text-slate-800 truncate">Cloudinary Banner Active</div>
                     <div className="text-[10px] text-slate-500 truncate font-mono">{fileUrl}</div>
                   </div>
                 </div>
@@ -563,7 +565,7 @@ export default function AdminPushNotification() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
+            className="w-full py-3.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
           >
             {loading ? (
               <>
@@ -578,8 +580,8 @@ export default function AdminPushNotification() {
         </form>
       </div>
 
-      {/* Broadcast History Table */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+      {/* Broadcast History Section */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <Bell className="text-slate-600" size={16} /> Sent Broadcast History ({broadcastHistory.length})
@@ -593,7 +595,65 @@ export default function AdminPushNotification() {
           </button>
         </div>
 
-        <div className="overflow-x-auto border border-slate-100 rounded-xl">
+        {/* Mobile View: Cards */}
+        <div className="block sm:hidden space-y-3">
+          {broadcastHistory.length === 0 ? (
+            <div className="p-6 text-center text-slate-400 text-xs font-medium border border-slate-100 rounded-xl">
+              No sent notifications found in database history.
+            </div>
+          ) : (
+            broadcastHistory.map((item) => (
+              <div key={item.id} className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    {item.fileUrl && (
+                      <img src={item.fileUrl} alt="Banner" className="w-10 h-10 object-cover rounded-lg border border-slate-200 shrink-0" />
+                    )}
+                    <div className="min-w-0">
+                      <div className="font-bold text-slate-900 text-xs truncate">{item.title}</div>
+                      <div className="text-slate-500 text-[11px] line-clamp-2 mt-0.5">{item.message}</div>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-slate-200 text-slate-700 rounded text-[9px] font-bold shrink-0">
+                    {item.targetAudience === 'android' ? <Smartphone size={9} /> : <Globe size={9} />}
+                    {(item.targetAudience || 'all').toUpperCase()}
+                  </span>
+                </div>
+
+                {item.actionUrl && (
+                  <div className="text-[11px] font-mono text-blue-600 truncate border-t border-slate-200/60 pt-1.5">
+                    <a href={item.actionUrl} target="_blank" rel="noreferrer" className="hover:underline">
+                      {item.actionUrl}
+                    </a>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[10px] text-slate-400">
+                  <span suppressHydrationWarning>{new Date(item.timestamp).toLocaleString()}</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleReuseHistoryItem(item)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#e52521]/10 text-[#e52521] border border-[#e52521]/30 rounded-lg text-[10px] font-bold"
+                    >
+                      <RotateCcw size={10} /> Reuse
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAdminDeleteNotification(item.id)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-[10px] font-bold"
+                    >
+                      <Trash2 size={10} /> Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop View: Table */}
+        <div className="hidden sm:block overflow-x-auto border border-slate-100 rounded-xl">
           <table className="w-full text-left text-xs text-slate-700">
             <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b border-slate-150">
               <tr>
