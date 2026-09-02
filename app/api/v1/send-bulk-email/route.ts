@@ -8,9 +8,17 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const q = query(collection(db, 'email_broadcasts'), orderBy('timestamp', 'desc'), limit(50));
-    const snapshot = await getDocs(q);
-    const history = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    let history: any[] = [];
+    try {
+      const q = query(collection(db, 'email_broadcasts'), orderBy('timestamp', 'desc'), limit(50));
+      const snapshot = await getDocs(q);
+      history = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (queryErr) {
+      console.warn('OrderBy query notice in email_broadcasts, using standard fetch:', queryErr);
+      const snapshot = await getDocs(collection(db, 'email_broadcasts'));
+      history = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      history.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    }
 
     return NextResponse.json({
       success: true,

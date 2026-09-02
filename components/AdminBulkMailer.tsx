@@ -92,7 +92,18 @@ export default function AdminBulkMailer() {
     }
   ];
 
+  const LOCAL_STORAGE_KEY = 'bishalcodes_email_broadcast_history';
+
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) setHistory(parsed);
+        } catch (e) {}
+      }
+    }
     fetchBroadcastHistory();
   }, []);
 
@@ -102,7 +113,25 @@ export default function AdminBulkMailer() {
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.broadcasts)) {
-          setHistory(data.broadcasts);
+          let merged = [...data.broadcasts];
+          if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (saved) {
+              try {
+                const localList = JSON.parse(saved);
+                if (Array.isArray(localList)) {
+                  const map = new Map<string, EmailBroadcastPayload>();
+                  data.broadcasts.forEach((b: EmailBroadcastPayload) => map.set(b.id, b));
+                  localList.forEach((b: EmailBroadcastPayload) => {
+                    if (!map.has(b.id)) map.set(b.id, b);
+                  });
+                  merged = Array.from(map.values()).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                }
+              } catch (e) {}
+            }
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(merged));
+          }
+          setHistory(merged);
         }
       }
     } catch (err) {
@@ -195,7 +224,17 @@ export default function AdminBulkMailer() {
 
       if (res.ok && data.success) {
         setSuccessMsg(`Bulk Email Broadcast Sent Successfully! ${data.count} recipient(s) reached.`);
-        fetchBroadcastHistory();
+        if (data.broadcast) {
+          setHistory(prev => {
+            const updated = [data.broadcast, ...prev.filter(h => h.id !== data.broadcast.id)];
+            if (typeof window !== 'undefined') {
+              localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+            }
+            return updated;
+          });
+        } else {
+          fetchBroadcastHistory();
+        }
         setSubject('');
         setTitle('');
         setPreheader('');
@@ -220,7 +259,13 @@ export default function AdminBulkMailer() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setHistory(prev => prev.filter(h => h.id !== id));
+        setHistory(prev => {
+          const updated = prev.filter(h => h.id !== id);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+          }
+          return updated;
+        });
         setSuccessMsg('Email campaign log deleted successfully.');
       } else {
         setErrorMsg(data.error || 'Failed deleting email campaign.');
