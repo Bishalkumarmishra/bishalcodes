@@ -412,6 +412,7 @@ const Admin: React.FC = () => {
     { id: 'tools-screenshot-studio', name: 'Tool: Screenshot Studio' },
     { id: 'tools-file-transfer', name: 'Tool: File Transfer' },
     { id: 'tools-secure-vault', name: 'Tool: Secure Vault' },
+    { id: 'tools-cyber-defender', name: 'Tool: CyberPulse Defender Game' },
   ];
 
   const [selectedSeoPage, setSelectedSeoPage] = useState<string>('home');

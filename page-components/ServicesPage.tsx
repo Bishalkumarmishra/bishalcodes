@@ -29,6 +29,7 @@ import AiOcrConverter from '../components/AiOcrConverter';
 import BgRemover from '../components/BgRemover';
 import DocScanner from '../components/DocScanner';
 import TypingPractice from '../components/TypingPractice';
+import CyberPulseGame from '../components/CyberPulseGame';
 import Footer from '../sections/Footer';
 import { useNavigation } from '../context/NavigationContext';
 import { ArrowRight, Loader2, Star, Pin, Code } from 'lucide-react';
@@ -40,6 +41,11 @@ import EmbedToolModal from '../components/EmbedToolModal';
 const FAVOURITES_KEY = 'bishal_pinned_tools';
 
 const toolSeoData: Record<string, { title: string; desc: string; keywords: string[] }> = {
+  'cyber-defender': {
+    title: 'CyberPulse Defender 2026 - Embeddable Arcade Shooter Game',
+    desc: 'Play CyberPulse Defender directly in your browser or embed it into your website, blog, or mobile app. Handcrafted HTML5 Canvas arcade shooter with audio synthesis & live global leaderboard.',
+    keywords: ['arcade game', 'html5 game embed', 'embeddable game widget', 'browser arcade game', 'cyberpulse defender']
+  },
   'dev-card-studio': {
     title: 'Developer Card & OG Image Banner Studio',
     desc: 'Design customized developer profile cards and OpenGraph preview banners. Export as PNG images or copyable SVG/React vector markups.',
@@ -216,7 +222,8 @@ const DYNAMIC_TOOL_CATEGORIES: Record<string, string> = {
   'ocr-converter': 'Converters',
   'bg-remover': 'Design & Media',
   'scan-pdf': 'Utilities',
-  'typing-practice': 'Utilities'
+  'typing-practice': 'Utilities',
+  'cyber-defender': 'Games & Arcade'
 };
 
 const STATIC_TOOLS: StaticTool[] = [];
@@ -583,6 +590,7 @@ const ServicesPage: React.FC = () => {
       case 'bg-remover': return <BgRemover />;
       case 'scan-pdf': return <DocScanner />;
       case 'typing-practice': return <TypingPractice />;
+      case 'cyber-defender': return <CyberPulseGame />;
       default: return renderDashboard();
     }
   };
