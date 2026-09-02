@@ -304,14 +304,14 @@ export default function AdminPushNotification() {
 
   return (
     <div className="space-y-6 text-left">
-      {/* Sleek Top Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      {/* Sleek Top Banner (Light Theme) */}
+      <div className="bg-slate-100 border border-slate-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-xs font-semibold uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 rounded-lg text-xs font-semibold uppercase tracking-wider mb-2">
             <Radio size={14} /> Live Instant Push Notification Channel
           </div>
-          <h2 className="text-xl font-bold text-white tracking-tight">Push Notification Broadcast Center</h2>
-          <p className="text-slate-400 text-xs mt-1">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Push Notification Broadcast Center</h2>
+          <p className="text-slate-600 text-xs mt-1">
             Broadcast real-time system alerts, updates, and file links directly to Android devices, iOS PWAs, & Web browsers.
           </p>
         </div>
@@ -320,17 +320,17 @@ export default function AdminPushNotification() {
           {permissionStatus !== 'granted' && (
             <button
               onClick={handleEnableNotifications}
-              className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer shrink-0"
             >
               <ShieldCheck size={16} /> Enable Device Notifications
             </button>
           )}
 
-          <div className="flex items-center gap-3 bg-slate-955 px-4 py-2.5 rounded-xl border border-slate-800 shrink-0">
-            <Bell className="text-emerald-400" size={20} />
+          <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm shrink-0">
+            <Bell className="text-emerald-600" size={20} />
             <div>
-              <div className="text-white font-semibold text-xs">API Key Active</div>
-              <div className="text-slate-400 font-mono text-[10px]">BISHALCODES_API_KEY_LIVE_99812</div>
+              <div className="text-slate-900 font-bold text-xs">API Key Active</div>
+              <div className="text-slate-500 font-mono text-[10px]">BISHALCODES_API_KEY_LIVE_99812</div>
             </div>
           </div>
         </div>

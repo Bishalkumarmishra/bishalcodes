@@ -242,23 +242,23 @@ export default function AdminBulkMailer() {
 
   return (
     <div className="space-y-6 text-left">
-      {/* Sleek Top Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      {/* Sleek Top Banner (Light Theme) */}
+      <div className="bg-slate-100 border border-slate-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-xs font-semibold uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 rounded-lg text-xs font-semibold uppercase tracking-wider mb-2">
             <Mail size={14} /> Global Email Broadcast Engine
           </div>
-          <h2 className="text-xl font-bold text-white tracking-tight">Bulk Mailer & Newsletter Center</h2>
-          <p className="text-slate-400 text-xs mt-1">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Bulk Mailer & Newsletter Center</h2>
+          <p className="text-slate-600 text-xs mt-1">
             Send rich HTML emails, product announcements, & newsletters to all registered subscribers worldwide or targeted individuals.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 bg-slate-955 px-4 py-2.5 rounded-xl border border-slate-800 shrink-0">
+        <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm shrink-0">
           <Send className="text-[#e52521]" size={20} />
           <div>
-            <div className="text-white font-semibold text-xs">SMTP Dispatch Ready</div>
-            <div className="text-slate-400 font-mono text-[10px]">HTML Responsive Templates Active</div>
+            <div className="text-slate-900 font-bold text-xs">SMTP Dispatch Ready</div>
+            <div className="text-slate-500 font-mono text-[10px]">HTML Responsive Templates Active</div>
           </div>
         </div>
       </div>
@@ -532,20 +532,20 @@ export default function AdminBulkMailer() {
         </div>
 
         {/* Right Column: Live Interactive Email Preview (lg:col-span-6) */}
-        <div className="lg:col-span-6 flex flex-col bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm text-white">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+        <div className="lg:col-span-6 flex flex-col bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm text-slate-900">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-200 mb-4">
             <div className="flex items-center gap-2">
-              <Eye size={16} className="text-emerald-400" />
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">Live HTML Email Template Preview</h3>
+              <Eye size={16} className="text-emerald-600" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">Live HTML Email Template Preview</h3>
             </div>
 
             {/* View Mode Controls */}
-            <div className="flex items-center gap-1 bg-slate-955 p-1 rounded-xl border border-slate-800">
+            <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
               <button
                 type="button"
                 onClick={() => setPreviewMode('desktop')}
                 className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 ${
-                  previewMode === 'desktop' ? 'bg-[#e52521] text-white' : 'text-slate-400 hover:text-white'
+                  previewMode === 'desktop' ? 'bg-[#e52521] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <Monitor size={12} /> Desktop
@@ -554,7 +554,7 @@ export default function AdminBulkMailer() {
                 type="button"
                 onClick={() => setPreviewMode('mobile')}
                 className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 ${
-                  previewMode === 'mobile' ? 'bg-[#e52521] text-white' : 'text-slate-400 hover:text-white'
+                  previewMode === 'mobile' ? 'bg-[#e52521] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <Smartphone size={12} /> Mobile
@@ -563,7 +563,7 @@ export default function AdminBulkMailer() {
                 type="button"
                 onClick={() => setPreviewMode('code')}
                 className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 ${
-                  previewMode === 'code' ? 'bg-[#e52521] text-white' : 'text-slate-400 hover:text-white'
+                  previewMode === 'code' ? 'bg-[#e52521] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <Code size={12} /> HTML
@@ -577,10 +577,10 @@ export default function AdminBulkMailer() {
               <textarea
                 readOnly
                 value={liveHtml}
-                className="w-full h-full min-h-[460px] bg-slate-955 border border-slate-800 rounded-xl p-4 font-mono text-[10px] text-emerald-400 leading-relaxed outline-none resize-none"
+                className="w-full h-full min-h-[460px] bg-white border border-slate-200 rounded-xl p-4 font-mono text-[10px] text-slate-800 leading-relaxed outline-none resize-none shadow-inner"
               />
             ) : (
-              <div className={`transition-all duration-300 overflow-hidden rounded-xl border border-slate-700 shadow-2xl bg-white text-slate-900 ${
+              <div className={`transition-all duration-300 overflow-hidden rounded-xl border border-slate-300 shadow-xl bg-white text-slate-900 ${
                 previewMode === 'mobile' ? 'w-[360px] max-w-full' : 'w-full'
               }`}>
                 <iframe
