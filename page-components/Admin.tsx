@@ -13,7 +13,7 @@ import {
   MessageSquare, Zap, Database, Edit3, Search, Image as ImageIcon, Link as LinkIcon,
   CheckCircle2, Eye, Clock, List, ArrowRight, UploadCloud, Video, Image, File,
   AlertTriangle, Share2, Activity, Globe, Cpu, BarChart3, Wifi, Package, Code, Book, Terminal,
-  Coins, Star, GalleryVertical, Send, Server // Added Coins, Star, GalleryVertical, Send, Server icons
+  Coins, Star, GalleryVertical, Send, Server, ChevronDown, ChevronUp
 } from 'lucide-react'; 
 import { useNavigation } from '../context/NavigationContext';
 import { LegalPage as LegalPageType, Project, SocialLink, Report, PaymentRequest, PathPage, Testimonial, Experience } from '../types'; // Import SocialLink, Report, PaymentRequest, Testimonial, and Experience types
@@ -378,6 +378,7 @@ const Admin: React.FC = () => {
   // Desktop App states
   const [desktopDownloads, setDesktopDownloads] = useState<number>(0);
   const [desktopFeedback, setDesktopFeedback] = useState<any[]>([]);
+  const [showAllFeedback, setShowAllFeedback] = useState<boolean>(false);
 
   // SEO Pages list & state variables
   const SEO_PAGES = [
@@ -5011,23 +5012,55 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                   <AdminBulkMailer />
                 </div>
 
-                <div className="mt-8">
-                  <h3 className="font-semibold text-slate-800 mb-4">Recent Feedback</h3>
+                <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        <MessageSquare className="text-[#e52521]" size={16} /> Recent User Feedback ({desktopFeedback.length})
+                      </h3>
+                      <p className="text-slate-500 text-xs mt-0.5">Ratings and feedback submitted by desktop application users.</p>
+                    </div>
+
+                    {desktopFeedback.length > 3 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAllFeedback(!showAllFeedback)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer border border-slate-200"
+                      >
+                        {showAllFeedback ? (
+                          <>
+                            Show Less <ChevronUp size={14} className="text-[#e52521]" />
+                          </>
+                        ) : (
+                          <>
+                            Show All ({desktopFeedback.length}) <ChevronDown size={14} className="text-[#e52521]" />
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+
                   {desktopFeedback.length === 0 ? (
-                    <div className="text-sm text-slate-500 italic">No feedback received yet.</div>
+                    <div className="p-6 text-center text-slate-400 text-xs font-medium bg-slate-50 border border-slate-200 rounded-2xl">
+                      No desktop app feedback received yet.
+                    </div>
                   ) : (
-                    <div className="space-y-4">
-                      {desktopFeedback.map((f: any) => (
-                        <div key={f.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex text-yellow-400">
-                              {Array.from({ length: 5 }).map((_, i) => (
-                                <Star key={i} size={14} className={i < f.rating ? 'fill-current' : 'text-slate-200'} />
-                              ))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-2">
+                      {(showAllFeedback ? desktopFeedback : desktopFeedback.slice(0, 3)).map((f: any) => (
+                        <div key={f.id} className="p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-white hover:shadow-md transition-all space-y-2 flex flex-col justify-between">
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex text-amber-400 gap-0.5">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <Star key={i} size={13} className={i < f.rating ? 'fill-current' : 'text-slate-200'} />
+                                ))}
+                              </div>
+                              <span className="text-[10px] text-slate-400 font-mono" suppressHydrationWarning>
+                                {new Date(f.timestamp).toLocaleDateString()}
+                              </span>
                             </div>
-                            <span className="text-xs text-slate-400">{new Date(f.timestamp).toLocaleDateString()}</span>
+                            <p className="text-xs text-slate-800 font-medium leading-relaxed italic">"{f.feedback}"</p>
                           </div>
-                          <p className="text-sm text-slate-700">{f.feedback}</p>
                         </div>
                       ))}
                     </div>
