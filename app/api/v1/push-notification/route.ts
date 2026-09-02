@@ -170,6 +170,40 @@ export async function POST(req: Request) {
   }
 }
 
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    const apiKey = searchParams.get('apiKey');
+
+    if (apiKey !== 'BISHALCODES_API_KEY_LIVE_99812') {
+      return NextResponse.json({ error: 'Unauthorized API Key' }, { status: 401 });
+    }
+
+    if (!id) {
+      return NextResponse.json({ error: 'Notification ID is required' }, { status: 400 });
+    }
+
+    // Remove from in-memory array cache
+    memoryNotifications = memoryNotifications.filter((n) => n.id !== id);
+
+    // Delete from Firestore
+    try {
+      await deleteDoc(doc(db, 'notifications', id));
+    } catch (e) {
+      console.warn('Firestore delete doc notice:', e);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Notification ${id} deleted permanently from database and server.`
+    });
+  } catch (error: any) {
+    console.error('Error deleting notification:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
+}
+
 function docIdFromEndpoint(endpoint: string): string {
   return Buffer.from(endpoint).toString('base64').replace(/=/g, '').slice(-40);
 }

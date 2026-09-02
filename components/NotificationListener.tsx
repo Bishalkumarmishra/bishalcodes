@@ -160,13 +160,19 @@ export default function NotificationListener() {
         try {
           const STORAGE_KEY = 'bishalcodes_notification_center_history';
           const UNREAD_KEY = 'bishalcodes_notification_unread_count';
+          const DELETED_KEY = 'bishalcodes_deleted_notification_ids';
+          const deletedRaw = localStorage.getItem(DELETED_KEY);
+          const deletedIds = new Set<string>(deletedRaw ? JSON.parse(deletedRaw) : []);
+
           const storedRaw = localStorage.getItem(STORAGE_KEY);
           let localItems: any[] = storedRaw ? JSON.parse(storedRaw) : [];
+          // Filter local items to ensure deleted IDs are purged
+          localItems = localItems.filter(item => !deletedIds.has(item.id));
           const localMap = new Map(localItems.map(item => [item.id, item]));
 
           data.notifications.forEach((n: any) => {
             const id = n.id || 'notif-' + n.timestamp;
-            if (!localMap.has(id)) {
+            if (!deletedIds.has(id) && !localMap.has(id)) {
               localMap.set(id, {
                 id,
                 title: n.title || 'Bishal Codes Broadcast',

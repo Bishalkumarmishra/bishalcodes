@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Send, Link, FileUp, CheckCircle, AlertCircle, Loader2, Smartphone, Globe, Radio, ShieldCheck, RotateCcw, Sparkles, CornerDownLeft, Zap, Image as ImageIcon, X, FolderPlus } from 'lucide-react';
+import { Bell, Send, Link, FileUp, CheckCircle, AlertCircle, Loader2, Smartphone, Globe, Radio, ShieldCheck, RotateCcw, Sparkles, CornerDownLeft, Zap, Image as ImageIcon, X, FolderPlus, Trash2 } from 'lucide-react';
 import { PushNotificationPayload } from '../types';
 import { uploadToCloudinary } from '@/services/cloudinary';
 import { MediaPickerModal } from './AdminMediaAssets';
@@ -86,7 +86,40 @@ export default function AdminPushNotification() {
     }
   ]);
 
+  const fetchBroadcastHistory = async () => {
+    try {
+      const res = await fetch('/api/v1/push-notification', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.notifications)) {
+          setBroadcastHistory(data.notifications);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load history:', e);
+    }
+  };
+
+  const handleAdminDeleteNotification = async (id: string) => {
+    if (!confirm('Are you sure you want to PERMANENTLY delete this notification broadcast from the database and all user feeds?')) return;
+    try {
+      const res = await fetch(`/api/v1/push-notification?id=${id}&apiKey=BISHALCODES_API_KEY_LIVE_99812`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setBroadcastHistory(prev => prev.filter(item => item.id !== id));
+        setSuccessMsg(`Notification deleted permanently from server database.`);
+      } else {
+        setErrorMsg(data.error || 'Failed to delete notification.');
+      }
+    } catch (err: any) {
+      setErrorMsg('Error deleting notification from server.');
+    }
+  };
+
   useEffect(() => {
+    fetchBroadcastHistory();
     if (typeof window !== 'undefined' && 'Notification' in window) {
       setPermissionStatus(Notification.permission);
     } else {
@@ -254,7 +287,7 @@ export default function AdminPushNotification() {
           timestamp: Date.now(),
           status: 'sent'
         };
-        setBroadcastHistory([newPayload, ...broadcastHistory]);
+        fetchBroadcastHistory();
         setTitle('');
         setMessage('');
         setFileUrl('');
@@ -293,7 +326,7 @@ export default function AdminPushNotification() {
             </button>
           )}
 
-          <div className="flex items-center gap-3 bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-800 shrink-0">
+          <div className="flex items-center gap-3 bg-slate-955 px-4 py-2.5 rounded-xl border border-slate-800 shrink-0">
             <Bell className="text-emerald-400" size={20} />
             <div>
               <div className="text-white font-semibold text-xs">API Key Active</div>
@@ -547,9 +580,18 @@ export default function AdminPushNotification() {
 
       {/* Broadcast History Table */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-        <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-          <Bell className="text-slate-600" size={16} /> Sent Broadcast History
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <Bell className="text-slate-600" size={16} /> Sent Broadcast History ({broadcastHistory.length})
+          </h3>
+          <button
+            type="button"
+            onClick={fetchBroadcastHistory}
+            className="text-[11px] font-bold text-[#e52521] hover:underline cursor-pointer"
+          >
+            Refresh List
+          </button>
+        </div>
 
         <div className="overflow-x-auto border border-slate-100 rounded-xl">
           <table className="w-full text-left text-xs text-slate-700">
@@ -559,42 +601,69 @@ export default function AdminPushNotification() {
                 <th className="p-3">Audience</th>
                 <th className="p-3">Action Link</th>
                 <th className="p-3">Timestamp</th>
-                <th className="p-3 text-right">Actions / Resend</th>
+                <th className="p-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {broadcastHistory.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="p-3 font-medium text-slate-900">
-                    <div className="font-semibold">{item.title}</div>
-                    <div className="text-slate-500 text-[11px] font-normal mt-0.5">{item.message}</div>
-                  </td>
-                  <td className="p-3">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-semibold">
-                      {item.targetAudience === 'android' ? <Smartphone size={10} /> : <Globe size={10} />}
-                      {item.targetAudience.toUpperCase()}
-                    </span>
-                  </td>
-                  <td className="p-3 font-mono text-[11px] text-slate-500 truncate max-w-xs">
-                    <a href={item.actionUrl} target="_blank" rel="noreferrer" className="hover:underline text-blue-600">
-                      {item.actionUrl}
-                    </a>
-                  </td>
-                  <td className="p-3 text-[11px] text-slate-400" suppressHydrationWarning>
-                    {new Date(item.timestamp).toLocaleString()}
-                  </td>
-                  <td className="p-3 text-right font-semibold">
-                    <button
-                      type="button"
-                      onClick={() => handleReuseHistoryItem(item)}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#e52521]/10 hover:bg-[#e52521]/20 text-[#e52521] border border-[#e52521]/30 rounded-lg text-[11px] font-bold transition-all active:scale-95 cursor-pointer shadow-sm"
-                      title="Load this past message into editor to resend"
-                    >
-                      <RotateCcw size={11} /> Reuse & Resend
-                    </button>
+              {broadcastHistory.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-6 text-center text-slate-400 font-medium">
+                    No sent notifications found in database history.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                broadcastHistory.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="p-3 font-medium text-slate-900">
+                      <div className="flex items-center gap-2">
+                        {item.fileUrl && (
+                          <img src={item.fileUrl} alt="Banner" className="w-8 h-8 object-cover rounded-lg border border-slate-200 shrink-0" />
+                        )}
+                        <div>
+                          <div className="font-semibold text-slate-900">{item.title}</div>
+                          <div className="text-slate-500 text-[11px] font-normal mt-0.5 line-clamp-1">{item.message}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-semibold">
+                        {item.targetAudience === 'android' ? <Smartphone size={10} /> : <Globe size={10} />}
+                        {(item.targetAudience || 'all').toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="p-3 font-mono text-[11px] text-slate-500 truncate max-w-xs">
+                      {item.actionUrl ? (
+                        <a href={item.actionUrl} target="_blank" rel="noreferrer" className="hover:underline text-blue-600">
+                          {item.actionUrl}
+                        </a>
+                      ) : '-'}
+                    </td>
+                    <td className="p-3 text-[11px] text-slate-400" suppressHydrationWarning>
+                      {new Date(item.timestamp).toLocaleString()}
+                    </td>
+                    <td className="p-3 text-right font-semibold">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleReuseHistoryItem(item)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#e52521]/10 hover:bg-[#e52521]/20 text-[#e52521] border border-[#e52521]/30 rounded-lg text-[11px] font-bold transition-all active:scale-95 cursor-pointer shadow-sm"
+                          title="Load this past message into editor to resend"
+                        >
+                          <RotateCcw size={11} /> Reuse
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAdminDeleteNotification(item.id)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-[11px] font-bold transition-all active:scale-95 cursor-pointer shadow-sm"
+                          title="Delete from database and all device feeds"
+                        >
+                          <Trash2 size={11} /> Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -16,12 +16,35 @@ export interface StoredNotification {
 
 const STORAGE_KEY = 'bishalcodes_notification_center_history';
 const UNREAD_COUNT_KEY = 'bishalcodes_notification_unread_count';
+const DELETED_IDS_KEY = 'bishalcodes_deleted_notification_ids';
 
 export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [notifications, setNotifications] = useState<StoredNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const { navigate } = useNavigation();
+
+  // Helper to get set of permanently deleted notification IDs
+  const getDeletedNotificationIds = (): Set<string> => {
+    if (typeof window === 'undefined') return new Set();
+    try {
+      const raw = localStorage.getItem(DELETED_IDS_KEY);
+      return raw ? new Set(JSON.parse(raw)) : new Set();
+    } catch (e) {
+      return new Set();
+    }
+  };
+
+  const addDeletedNotificationIds = (ids: string[]) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const current = getDeletedNotificationIds();
+      ids.forEach(id => current.add(id));
+      localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(Array.from(current)));
+    } catch (e) {
+      console.warn('Failed saving deleted notification IDs:', e);
+    }
+  };
 
   // Load from localStorage on mount & sync from API
   useEffect(() => {
@@ -40,10 +63,12 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
     if (typeof window === 'undefined') return;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
+      const deletedIds = getDeletedNotificationIds();
       if (raw) {
         const parsed: StoredNotification[] = JSON.parse(raw);
-        setNotifications(parsed);
-        const unread = parsed.filter(n => !n.read).length;
+        const filtered = parsed.filter(n => !deletedIds.has(n.id));
+        setNotifications(filtered);
+        const unread = filtered.filter(n => !n.read).length;
         setUnreadCount(unread);
         updateNavbarBadge(unread);
       }
@@ -55,9 +80,11 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
   const saveNotificationsToStorage = (items: StoredNotification[]) => {
     if (typeof window === 'undefined') return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-      setNotifications(items);
-      const unread = items.filter(n => !n.read).length;
+      const deletedIds = getDeletedNotificationIds();
+      const filtered = items.filter(n => !deletedIds.has(n.id));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      setNotifications(filtered);
+      const unread = filtered.filter(n => !n.read).length;
       setUnreadCount(unread);
       updateNavbarBadge(unread);
     } catch (e) {
@@ -79,18 +106,25 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
       const data = await res.json();
       if (!data.success || !Array.isArray(data.notifications)) return;
 
-      const remoteItems: StoredNotification[] = data.notifications.map((n: any) => ({
-        id: n.id || 'notif-' + n.timestamp,
-        title: n.title || 'Bishal Codes Broadcast',
-        message: n.message || n.body || '',
-        actionUrl: n.actionUrl || 'https://bishalcodes.com/',
-        fileUrl: n.fileUrl || undefined,
-        timestamp: n.timestamp || Date.now(),
-        read: false
-      }));
+      const deletedIds = getDeletedNotificationIds();
+
+      const remoteItems: StoredNotification[] = data.notifications
+        .filter((n: any) => {
+          const id = n.id || 'notif-' + n.timestamp;
+          return !deletedIds.has(id);
+        })
+        .map((n: any) => ({
+          id: n.id || 'notif-' + n.timestamp,
+          title: n.title || 'Bishal Codes Broadcast',
+          message: n.message || n.body || '',
+          actionUrl: n.actionUrl || 'https://bishalcodes.com/',
+          fileUrl: n.fileUrl || undefined,
+          timestamp: n.timestamp || Date.now(),
+          read: false
+        }));
 
       // Merge remote notifications with local storage items, preserving read status and user deletes
-      const existingMap = new Map(notifications.map(n => [n.id, n]));
+      const existingMap = new Map(notifications.filter(n => !deletedIds.has(n.id)).map(n => [n.id, n]));
       const merged: StoredNotification[] = [];
 
       for (const item of remoteItems) {
@@ -103,7 +137,7 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
 
       // Append any existing local items that were custom or loaded before
       for (const item of notifications) {
-        if (!merged.some(m => m.id === item.id)) {
+        if (!deletedIds.has(item.id) && !merged.some(m => m.id === item.id)) {
           merged.push(item);
         }
       }
@@ -124,13 +158,16 @@ export default function NotificationCenterModal({ isOpen, onClose }: { isOpen: b
 
   const handleClearAll = () => {
     if (notifications.length === 0) return;
-    if (confirm('Are you sure you want to delete all notifications from this device?')) {
+    if (confirm('Are you sure you want to permanently delete all notifications from this device?')) {
+      const allIds = notifications.map(n => n.id);
+      addDeletedNotificationIds(allIds);
       saveNotificationsToStorage([]);
     }
   };
 
   const handleDeleteItem = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    addDeletedNotificationIds([id]);
     const updated = notifications.filter(n => n.id !== id);
     saveNotificationsToStorage(updated);
   };
