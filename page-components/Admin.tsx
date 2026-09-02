@@ -27,8 +27,9 @@ import VercelAdminControl from '../components/VercelAdminControl';
 import AdminPushNotification from '../components/AdminPushNotification';
 import GscAdminControl from '../components/GscAdminControl';
 import AdminMediaAssets, { MediaPickerModal } from '../components/AdminMediaAssets';
+import AdminBulkMailer from '../components/AdminBulkMailer';
 
-type AdminTab = 'dashboard' | 'hero' | 'about' | 'projects' | 'blog' | 'pricing' | 'faq' | 'leads' | 'system' | 'legal' | 'socials' | 'reports' | 'payments' | 'testimonials' | 'experience' | 'services' | 'seo' | 'users' | 'desktop' | 'live-chat' | 'vercel' | 'gsc' | 'media';
+type AdminTab = 'dashboard' | 'hero' | 'about' | 'projects' | 'blog' | 'pricing' | 'faq' | 'leads' | 'system' | 'legal' | 'socials' | 'reports' | 'payments' | 'testimonials' | 'experience' | 'services' | 'seo' | 'users' | 'desktop' | 'live-chat' | 'vercel' | 'gsc' | 'media' | 'mailer';
 
 // FIX: Define an interface for sidebar tab items to ensure correct type inference.
 interface SidebarTab {
@@ -5005,6 +5006,11 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                   <AdminPushNotification />
                 </div>
 
+                {/* Send Bulk Email Broadcast */}
+                <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                  <AdminBulkMailer />
+                </div>
+
                 <div className="mt-8">
                   <h3 className="font-semibold text-slate-800 mb-4">Recent Feedback</h3>
                   {desktopFeedback.length === 0 ? (
@@ -5114,6 +5120,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
               )}
 
               {activeTab === 'gsc' && <GscAdminControl />}
+              {activeTab === 'mailer' && <AdminBulkMailer />}
 
           </div>
         </div>
