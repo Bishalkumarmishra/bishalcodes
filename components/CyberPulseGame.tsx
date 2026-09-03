@@ -646,14 +646,14 @@ webView.loadUrl("${embedUrl}");`;
   };
 
   return (
-    <div className="w-full bg-[#050507] text-white font-sans min-h-screen">
+    <div className="w-full font-sans">
       <div className="w-full max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-10 py-6 sm:py-8 space-y-6 text-left">
       
         {/* Top Header & Embed Action */}
-        <div className="bg-[#121215] border border-neutral-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">CyberPulse Defender 2026</h1>
-            <p className="text-neutral-400 text-xs sm:text-sm mt-1">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">CyberPulse Defender 2026</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1">
               Defend the cyber grid from rogue malware waves. Built natively with HTML5 Canvas, Web Audio API & Zero Dependencies.
             </p>
           </div>
@@ -661,15 +661,15 @@ webView.loadUrl("${embedUrl}");`;
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2.5 bg-[#18181d] hover:bg-neutral-800 text-neutral-200 rounded-xl text-xs font-bold transition-all border border-neutral-700 cursor-pointer"
+              className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all border border-slate-200 dark:border-slate-700 cursor-pointer"
               title="Toggle Sound Effects"
             >
-              {soundEnabled ? <Volume2 size={16} className="text-[#e52521]" /> : <VolumeX size={16} className="text-neutral-400" />}
+              {soundEnabled ? <Volume2 size={16} className="text-[#e52521]" /> : <VolumeX size={16} className="text-slate-400" />}
             </button>
 
             <button
               onClick={() => setIsEmbedOpen(true)}
-              className="px-4 py-2.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-red-950/60 flex items-center gap-2 cursor-pointer"
+              className="px-4 py-2.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold text-xs rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer"
             >
               <Code size={15} /> Embed Game
             </button>
@@ -680,25 +680,25 @@ webView.loadUrl("${embedUrl}");`;
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
           {/* Canvas Display Column (lg:col-span-8) */}
-          <div className="lg:col-span-8 bg-[#121215] border border-neutral-800 rounded-2xl p-3 sm:p-5 shadow-2xl flex flex-col items-center justify-center relative overflow-hidden">
+          <div className="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center relative overflow-hidden">
             
             {/* HUD Top Bar */}
-            <div className="w-full flex items-center justify-between px-3 py-2.5 bg-neutral-900/90 backdrop-blur border border-neutral-800 rounded-xl text-white text-xs font-mono mb-3 z-10">
+            <div className="w-full flex items-center justify-between px-3 py-2.5 bg-slate-950/90 backdrop-blur border border-slate-800 rounded-xl text-white text-xs font-mono mb-3 z-10">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
                   <Shield size={14} className="text-emerald-400" />
                   <span className="font-bold text-emerald-400">{health}%</span>
                 </div>
-                <div className="text-neutral-400">
+                <div className="text-slate-400">
                   LEVEL: <span className="text-white font-bold">{level}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-5">
-                <div className="text-neutral-400">
+                <div className="text-slate-400">
                   SCORE: <span className="text-[#e52521] font-bold text-sm">{score}</span>
                 </div>
-                <div className="text-neutral-400 hidden sm:block">
+                <div className="text-slate-400 hidden sm:block">
                   HIGH: <span className="text-amber-400 font-bold">{highScore}</span>
                 </div>
               </div>
@@ -706,7 +706,7 @@ webView.loadUrl("${embedUrl}");`;
 
             {/* HTML5 Canvas Area */}
             <div 
-              className="relative w-full aspect-[4/3] max-h-[560px] bg-slate-950 rounded-xl overflow-hidden border border-neutral-800 flex items-center justify-center touch-none select-none"
+              className="relative w-full aspect-[4/3] max-h-[560px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center touch-none select-none"
               onTouchStart={handleTouchStartOrMove}
               onTouchMove={handleTouchStartOrMove}
               onTouchEnd={handleTouchEnd}
@@ -729,13 +729,13 @@ webView.loadUrl("${embedUrl}");`;
                   </div>
                   <div>
                     <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">CYBERPULSE DEFENDER</h2>
-                    <p className="text-neutral-300 text-xs sm:text-sm mt-2 max-w-sm leading-relaxed">
-                      Control ship using <kbd className="px-1.5 py-0.5 bg-neutral-800 rounded border border-neutral-700 text-white font-mono">A / D</kbd> or <kbd className="px-1.5 py-0.5 bg-neutral-800 rounded border border-neutral-700 text-white font-mono">Arrow Keys</kbd> (or touch/drag on mobile). Shoot rogue malware & catch power-ups!
+                    <p className="text-slate-300 text-xs sm:text-sm mt-2 max-w-sm leading-relaxed">
+                      Control ship using <kbd className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-white font-mono">A / D</kbd> or <kbd className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-white font-mono">Arrow Keys</kbd> (or touch/drag on mobile). Shoot rogue malware & catch power-ups!
                     </p>
                   </div>
                   <button
                     onClick={startGame}
-                    className="px-8 py-3.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-red-950/60 flex items-center gap-2 cursor-pointer active:scale-95"
+                    className="px-8 py-3.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center gap-2 cursor-pointer active:scale-95"
                   >
                     <Play size={16} /> Start Game
                   </button>
@@ -746,7 +746,7 @@ webView.loadUrl("${embedUrl}");`;
                 <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center text-white space-y-5 animate-in fade-in">
                   <div className="text-rose-500 font-black text-3xl tracking-tighter uppercase">SYSTEM COMPROMISED</div>
                   <div>
-                    <div className="text-neutral-400 text-xs uppercase tracking-wider">Final Score</div>
+                    <div className="text-slate-400 text-xs uppercase tracking-wider">Final Score</div>
                     <div className="text-4xl font-black text-white mt-1">{score}</div>
                     {score >= highScore && score > 0 && (
                       <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-full text-xs font-bold mt-2">
@@ -763,7 +763,7 @@ webView.loadUrl("${embedUrl}");`;
                       onChange={(e) => setPlayerName(e.target.value)}
                       placeholder="Enter your name..."
                       maxLength={15}
-                      className="flex-1 bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-[#e52521]"
+                      className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-[#e52521]"
                     />
                     <button
                       type="submit"
@@ -776,7 +776,7 @@ webView.loadUrl("${embedUrl}");`;
 
                   <button
                     onClick={startGame}
-                    className="px-6 py-3 bg-white text-slate-950 font-extrabold text-xs uppercase tracking-wider rounded-xl hover:bg-neutral-200 transition-all flex items-center gap-2 cursor-pointer"
+                    className="px-6 py-3 bg-white text-slate-950 font-extrabold text-xs uppercase tracking-wider rounded-xl hover:bg-slate-200 transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <RotateCcw size={14} /> Play Again
                   </button>
@@ -793,7 +793,7 @@ webView.loadUrl("${embedUrl}");`;
                 onMouseDown={() => { engineRef.current.keys['ArrowLeft'] = true; }}
                 onMouseUp={() => { engineRef.current.keys['ArrowLeft'] = false; }}
                 onMouseLeave={() => { engineRef.current.keys['ArrowLeft'] = false; }}
-                className="bg-[#18181d] active:bg-[#e52521] border border-neutral-700 active:border-[#e52521] text-white py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg cursor-pointer select-none"
+                className="bg-slate-800 active:bg-[#e52521] border border-slate-700 active:border-[#e52521] text-white py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg cursor-pointer select-none"
               >
                 <span>◀ SLIDE LEFT</span>
               </button>
@@ -803,14 +803,14 @@ webView.loadUrl("${embedUrl}");`;
                 onMouseDown={() => { engineRef.current.keys['ArrowRight'] = true; }}
                 onMouseUp={() => { engineRef.current.keys['ArrowRight'] = false; }}
                 onMouseLeave={() => { engineRef.current.keys['ArrowRight'] = false; }}
-                className="bg-[#18181d] active:bg-[#e52521] border border-neutral-700 active:border-[#e52521] text-white py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg cursor-pointer select-none"
+                className="bg-slate-800 active:bg-[#e52521] border border-slate-700 active:border-[#e52521] text-white py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg cursor-pointer select-none"
               >
                 <span>SLIDE RIGHT ▶</span>
               </button>
             </div>
 
             {/* Controls Footer */}
-            <div className="w-full flex items-center justify-between text-[11px] text-neutral-400 pt-3 font-mono">
+            <div className="w-full flex items-center justify-between text-[11px] text-slate-400 pt-3 font-mono">
               <span className="hidden sm:inline">Desktop Controls: Arrow Keys / A-D to Move | Auto Laser Active</span>
               <span className="sm:hidden">Touch & Drag or Tap Buttons to Move</span>
               <span className="text-[#e52521] font-bold">100% Handcrafted HTML5 Canvas</span>
@@ -819,17 +819,17 @@ webView.loadUrl("${embedUrl}");`;
           </div>
 
           {/* Global Leaderboard Column (lg:col-span-4) */}
-          <div className="lg:col-span-4 bg-[#121215] border border-neutral-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Trophy className="text-amber-400" size={16} /> Global Leaderboard
+          <div className="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Trophy className="text-amber-500" size={16} /> Global Leaderboard
               </h3>
-              <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Top 10</span>
+              <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Top 10</span>
             </div>
 
             <div className="space-y-2">
               {leaderboard.length === 0 ? (
-                <div className="p-6 text-center text-neutral-400 text-xs italic">
+                <div className="p-6 text-center text-slate-400 text-xs italic">
                   No high scores posted yet. Be the first to claim the #1 spot!
                 </div>
               ) : (
@@ -838,17 +838,17 @@ webView.loadUrl("${embedUrl}");`;
                     key={idx}
                     className={`p-3 rounded-xl border flex items-center justify-between transition-colors ${
                       idx === 0
-                        ? 'bg-amber-500/10 border-amber-500/30 text-amber-300 font-bold'
+                        ? 'bg-amber-500/10 border-amber-500/30 text-amber-900 dark:text-amber-300 font-bold'
                         : idx === 1
-                        ? 'bg-neutral-800/80 border-neutral-700 text-white font-semibold'
+                        ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-semibold'
                         : idx === 2
-                        ? 'bg-neutral-900 border-neutral-800 text-neutral-200'
-                        : 'bg-[#18181d] border-neutral-800/80 text-neutral-300'
+                        ? 'bg-amber-900/5 border-amber-900/20 text-slate-800 dark:text-slate-200'
+                        : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
                       <span className={`w-5 h-5 rounded-full text-[10px] font-extrabold flex items-center justify-center ${
-                        idx === 0 ? 'bg-amber-500 text-black' : 'bg-neutral-700 text-neutral-200'
+                        idx === 0 ? 'bg-amber-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
                       }`}>
                         {idx + 1}
                       </span>
@@ -862,10 +862,9 @@ webView.loadUrl("${embedUrl}");`;
           </div>
 
         </div>
-      </div>
 
-      {/* Embed Game Modal */}
-      {isEmbedOpen && (
+        {/* Embed Game Modal */}
+        {isEmbedOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in">
           <div className="max-w-2xl w-full bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl space-y-5 text-left">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -933,6 +932,7 @@ webView.loadUrl("${embedUrl}");`;
         </div>
       )}
 
+      </div>
     </div>
   );
 }
