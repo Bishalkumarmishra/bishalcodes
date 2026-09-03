@@ -68,6 +68,42 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // iOS Configuration Profile MIME type header requirement for Apple Safari
+        source: '/:path*.mobileconfig',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/x-apple-aspen-config',
+          },
+          {
+            key: 'Content-Disposition',
+            value: 'attachment; filename="profile.mobileconfig"',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
+      {
+        // Android APK package MIME type header requirement
+        source: '/:path*.apk',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/vnd.android.package-archive',
+          },
+          {
+            key: 'Content-Disposition',
+            value: 'attachment; filename="app.apk"',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600',
+          },
+        ],
+      },
+      {
         // Apply cache headers to blog post pages so Google can crawl them
         source: '/blog/:path*',
         headers: [

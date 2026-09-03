@@ -89,7 +89,7 @@ export async function GET() {
       'image-compressor', 'emi-calculator', 'qr-studio', 'json-formatter',
       'diff-checker', 'code-runner', 'screenshot-studio', 'secure-vault',
       'dev-card-studio', 'font-downloader', 'ocr-converter', 'bg-remover',
-      'scan-pdf', 'typing-practice', 'file-transfer'
+      'scan-pdf', 'typing-practice', 'file-transfer', 'ios-profile'
     ];
     
     // Deduplicate any overlapping tools

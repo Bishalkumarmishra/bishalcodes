@@ -158,8 +158,9 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
       const isFileTransfer = currentPage === 'transfer' || (currentPage === 'services' && selectedId === 'file-transfer');
       const isCalendarTool = currentPage === 'widget-calendar' || currentPage === 'widget-date-converter' || (currentPage === 'services' && selectedId === 'date-converter');
       const isJpgToPdf = currentPage === 'services' && selectedId === 'jpg-to-pdf';
+      const isIosProfile = currentPage === 'services' && selectedId === 'ios-profile';
       
-      if (isFileTransfer || isCalendarTool || isJpgToPdf) {
+      if (isFileTransfer || isCalendarTool || isJpgToPdf || isIosProfile) {
         document.documentElement.classList.add('hide-bg-svg');
       } else {
         document.documentElement.classList.remove('hide-bg-svg');

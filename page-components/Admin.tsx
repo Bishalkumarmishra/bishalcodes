@@ -929,8 +929,14 @@ const Admin: React.FC = () => {
         }
       }
       if (activeTab === 'users' || activeTab === 'dashboard') {
-        const usersSnap = await getDocs(query(collection(db, 'users'), orderBy('lastActive', 'desc')));
-        setDashboardUsers(usersSnap.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) })));
+        const usersSnap = await getDocs(collection(db, 'users'));
+        const mappedUsers = usersSnap.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
+        mappedUsers.sort((a, b) => {
+          const timeA = a.lastActive ? new Date(a.lastActive).getTime() : 0;
+          const timeB = b.lastActive ? new Date(b.lastActive).getTime() : 0;
+          return timeB - timeA;
+        });
+        setDashboardUsers(mappedUsers);
         
         const actSnap = await getDocs(query(collection(db, 'user_activity'), orderBy('timestamp', 'desc')));
         setActivities(actSnap.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) })));
@@ -5072,9 +5078,16 @@ If you have any questions about this Data Deletion Policy or your data deletion 
 
             {activeTab === 'users' && (
               <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm w-full space-y-6 text-left">
-                <div>
-                  <h2 className="text-lg font-bold text-slate-900 mb-1">Users & Activity Log</h2>
-                  <p className="text-slate-500 text-xs font-normal">View registered dashboard users and their recent profile update logs.</p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg font-bold text-slate-900 mb-1">Users & Activity Log</h2>
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-600 border border-red-200">
+                        {dashboardUsers.length} Firestore Records
+                      </span>
+                    </div>
+                    <p className="text-slate-500 text-xs font-normal">View registered dashboard user profiles synced in Firestore database.</p>
+                  </div>
                 </div>
                 {/* Users Table */}
                   <div className="border border-slate-100 rounded-xl overflow-hidden bg-white">
