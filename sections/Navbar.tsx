@@ -182,35 +182,19 @@ const Navbar: React.FC = () => {
     <>
       <nav className={navBaseClass}>
         <div className="w-full flex justify-between items-center px-4 md:px-8">
-          {/* Brand Logo */}
+          {/* Brand Logo - Instant Vector SVG with 100% Light/Dark Visibility */}
           <button 
             onClick={() => handleLinkClick('home')} 
-            className="flex items-center group relative z-[210] outline-none"
+            className="flex items-center gap-2 group relative z-[210] outline-none cursor-pointer"
+            aria-label="Bishal Codes Home"
           >
-            <img 
-              src={
-                (theme === 'dark' || 
-                 currentPage === 'services' || 
-                 currentPage === 'widgets' || 
-                 currentPage === 'developers' || 
-                 currentPage === 'ai-studio' || 
-                 currentPage === 'docs' ||
-                 (typeof window !== 'undefined' && (
-                   document.documentElement.classList.contains('dark') ||
-                   window.location.pathname.toLowerCase().includes('/tools') ||
-                   window.location.pathname.toLowerCase().includes('/ai-studio') ||
-                   window.location.pathname.toLowerCase().includes('/developers') ||
-                   window.location.pathname.toLowerCase().includes('/docs') ||
-                   window.location.pathname.toLowerCase().includes('transfer') ||
-                   window.location.pathname.toLowerCase().includes('file-transfer') ||
-                   window.location.pathname.toLowerCase().includes('vault')
-                 )))
-                  ? "/logo-dark.svg" 
-                  : "/logo.svg"
-              }
-              alt="BishalCodes Logo" 
-              className="brand-logo-img h-10 sm:h-12 w-auto object-contain shrink-0 transition-transform duration-300 group-hover:scale-[1.02]"
-            />
+            <svg width="34" height="34" viewBox="0 0 50 80" fill="none" className="shrink-0 transition-transform duration-300 group-hover:scale-105">
+              <path d="M15 10 L30 10 L45 35 L30 60 L15 60 L30 35 Z" className="fill-[#1a1a1a] dark:fill-white" />
+              <path d="M5 25 L20 25 L35 50 L20 75 L5 75 L20 50 Z" fill="#e52521" />
+            </svg>
+            <span className="font-black text-xl sm:text-2xl tracking-tight text-[#1a1a1a] dark:text-white font-sans transition-colors">
+              Bishal<span className="text-[#e52521]">Codes</span>
+            </span>
           </button>
 
           <ul className="list-none hidden lg:flex flex-row items-center gap-8">

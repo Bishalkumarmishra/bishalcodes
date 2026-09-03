@@ -194,13 +194,16 @@ const Footer: React.FC = () => {
           <div className="col-span-2 md:col-span-1">
             <button
               onClick={() => navigate('home')}
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', marginBottom: '20px', display: 'block' }}
+              className="flex items-center gap-2 group outline-none cursor-pointer mb-5"
+              aria-label="Bishal Codes Home"
             >
-              <img
-                src="/logo-dark.svg"
-                alt="BishalCodes"
-                style={{ height: '40px', width: 'auto', opacity: 0.95 }}
-              />
+              <svg width="34" height="34" viewBox="0 0 50 80" fill="none" className="shrink-0 transition-transform duration-300 group-hover:scale-105">
+                <path d="M15 10 L30 10 L45 35 L30 60 L15 60 L30 35 Z" fill="#ffffff" />
+                <path d="M5 25 L20 25 L35 50 L20 75 L5 75 L20 50 Z" fill="#e52521" />
+              </svg>
+              <span className="font-black text-2xl tracking-tight text-white font-sans">
+                Bishal<span className="text-[#e52521]">Codes</span>
+              </span>
             </button>
 
             <p style={{ fontSize: '14px', lineHeight: '1.75', color: '#5a6478', maxWidth: '300px', marginBottom: '28px', fontWeight: 400 }}>
