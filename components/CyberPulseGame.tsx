@@ -680,33 +680,33 @@ webView.loadUrl("${embedUrl}");`;
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
           {/* Canvas Display Column (lg:col-span-8) */}
-          <div className="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-5 shadow-xl flex flex-col items-center justify-center relative overflow-hidden">
+          <div className="lg:col-span-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:p-5 shadow-sm flex flex-col items-center justify-center relative overflow-hidden">
             
             {/* HUD Top Bar */}
-            <div className="w-full flex items-center justify-between px-3 py-2.5 bg-slate-950/90 backdrop-blur border border-slate-800 rounded-xl text-white text-xs font-mono mb-3 z-10">
+            <div className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-100 dark:bg-slate-950/90 backdrop-blur border border-slate-200 dark:border-slate-800 rounded-xl text-slate-800 dark:text-white text-xs font-mono mb-3 z-10">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
-                  <Shield size={14} className="text-emerald-400" />
-                  <span className="font-bold text-emerald-400">{health}%</span>
+                  <Shield size={14} className="text-emerald-600 dark:text-emerald-400" />
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">{health}%</span>
                 </div>
-                <div className="text-slate-400">
-                  LEVEL: <span className="text-white font-bold">{level}</span>
+                <div className="text-slate-500 dark:text-slate-400">
+                  LEVEL: <span className="text-slate-900 dark:text-white font-bold">{level}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-5">
-                <div className="text-slate-400">
+                <div className="text-slate-500 dark:text-slate-400">
                   SCORE: <span className="text-[#e52521] font-bold text-sm">{score}</span>
                 </div>
-                <div className="text-slate-400 hidden sm:block">
-                  HIGH: <span className="text-amber-400 font-bold">{highScore}</span>
+                <div className="text-slate-500 dark:text-slate-400 hidden sm:block">
+                  HIGH: <span className="text-amber-600 dark:text-amber-400 font-bold">{highScore}</span>
                 </div>
               </div>
             </div>
 
             {/* HTML5 Canvas Area */}
             <div 
-              className="relative w-full aspect-[4/3] max-h-[560px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center touch-none select-none"
+              className="relative w-full aspect-[4/3] max-h-[560px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center touch-none select-none shadow-inner"
               onTouchStart={handleTouchStartOrMove}
               onTouchMove={handleTouchStartOrMove}
               onTouchEnd={handleTouchEnd}
@@ -793,7 +793,7 @@ webView.loadUrl("${embedUrl}");`;
                 onMouseDown={() => { engineRef.current.keys['ArrowLeft'] = true; }}
                 onMouseUp={() => { engineRef.current.keys['ArrowLeft'] = false; }}
                 onMouseLeave={() => { engineRef.current.keys['ArrowLeft'] = false; }}
-                className="bg-slate-800 active:bg-[#e52521] border border-slate-700 active:border-[#e52521] text-white py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg cursor-pointer select-none"
+                className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 active:bg-[#e52521] border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm cursor-pointer select-none"
               >
                 <span>◀ SLIDE LEFT</span>
               </button>
@@ -803,14 +803,14 @@ webView.loadUrl("${embedUrl}");`;
                 onMouseDown={() => { engineRef.current.keys['ArrowRight'] = true; }}
                 onMouseUp={() => { engineRef.current.keys['ArrowRight'] = false; }}
                 onMouseLeave={() => { engineRef.current.keys['ArrowRight'] = false; }}
-                className="bg-slate-800 active:bg-[#e52521] border border-slate-700 active:border-[#e52521] text-white py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg cursor-pointer select-none"
+                className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 active:bg-[#e52521] border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm cursor-pointer select-none"
               >
                 <span>SLIDE RIGHT ▶</span>
               </button>
             </div>
 
             {/* Controls Footer */}
-            <div className="w-full flex items-center justify-between text-[11px] text-slate-400 pt-3 font-mono">
+            <div className="w-full flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-3 font-mono">
               <span className="hidden sm:inline">Desktop Controls: Arrow Keys / A-D to Move | Auto Laser Active</span>
               <span className="sm:hidden">Touch & Drag or Tap Buttons to Move</span>
               <span className="text-[#e52521] font-bold">100% Handcrafted HTML5 Canvas</span>
