@@ -61,14 +61,20 @@ export default function IOSProfileGenerator() {
   const [downloading, setDownloading] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
 
-  // Force dark background on document body while this page is open
+  // Force pitch dark background on document html & body while this tool is open
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      document.documentElement.style.backgroundColor = '#050507';
-      document.body.style.backgroundColor = '#050507';
+      const body = document.body;
+      const html = document.documentElement;
+      body.classList.remove('bg-[#FFFFFF]');
+      body.classList.add('bg-[#050507]');
+      body.style.backgroundColor = '#050507';
+      html.style.backgroundColor = '#050507';
       return () => {
-        document.documentElement.style.backgroundColor = '';
-        document.body.style.backgroundColor = '';
+        body.classList.remove('bg-[#050507]');
+        body.classList.add('bg-[#FFFFFF]');
+        body.style.backgroundColor = '';
+        html.style.backgroundColor = '';
       };
     }
   }, []);
