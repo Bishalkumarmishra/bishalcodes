@@ -149,11 +149,12 @@ const Footer: React.FC = () => {
     fetchData();
   }, []);
 
-  const quickLinks: { label: string; id: PathPage }[] = [
+  const quickLinks: { label: string; id: PathPage; toolId?: string }[] = [
     { label: 'About me',    id: 'about' },
     { label: 'My work',     id: 'projects' },
     { label: 'Experience',  id: 'experience' },
     { label: 'Services',    id: 'services' },
+    { label: 'Mobile Studio', id: 'services', toolId: 'ios-profile' },
     { label: 'Widgets',     id: 'widgets' },
     { label: 'Blog',        id: 'blog' },
     { label: 'Docs',        id: 'docs' },
@@ -252,9 +253,9 @@ const Footer: React.FC = () => {
             </p>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {quickLinks.map(link => (
-                <li key={link.id}>
+                <li key={link.label}>
                   <button
-                    onClick={() => navigate(link.id)}
+                    onClick={() => navigate(link.id, link.toolId)}
                     style={{
                       background: 'none', border: 'none', padding: 0, cursor: 'pointer',
                       fontSize: '14px', color: '#5a6478', fontWeight: 400,
