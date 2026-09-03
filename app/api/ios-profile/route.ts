@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +16,19 @@ function escapeXml(str: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
+}
+
+function getDefaultIconBase64(): string {
+  try {
+    const iconPath = path.join(process.cwd(), 'public', 'apple-touch-icon.png');
+    if (fs.existsSync(iconPath)) {
+      const buffer = fs.readFileSync(iconPath);
+      return buffer.toString('base64');
+    }
+  } catch (e) {
+    console.warn('Could not read default apple-touch-icon.png:', e);
+  }
+  return '';
 }
 
 function buildWebClipPayload(data: {
@@ -32,9 +47,14 @@ function buildWebClipPayload(data: {
   const fullScreen = data.fullScreen !== false;
   const isRemovable = data.isRemovable !== false;
 
+  let base64Icon = data.iconBase64;
+  if (!base64Icon) {
+    base64Icon = getDefaultIconBase64();
+  }
+
   let iconXml = '';
-  if (data.iconBase64) {
-    const cleanBase64 = data.iconBase64.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
+  if (base64Icon) {
+    const cleanBase64 = base64Icon.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
     iconXml = `
             <key>Icon</key>
             <data>${cleanBase64}</data>`;

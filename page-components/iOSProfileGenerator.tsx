@@ -535,6 +535,17 @@ export default function IOSProfileGenerator() {
                     <span>Install Guide</span>
                   </button>
                 </div>
+
+                {/* iOS Unsigned Profile Notice Banner */}
+                <div className="bg-amber-950/40 border border-amber-500/40 rounded-xl p-3.5 flex items-start gap-2.5 text-amber-200 text-xs shadow-lg">
+                  <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <strong className="font-extrabold text-amber-300 block">Why does iOS show "Not Signed" / "Unsigned Profile"?</strong>
+                    <p className="text-[11px] text-amber-200/90 leading-relaxed">
+                      Apple iOS displays <span className="text-red-400 font-bold bg-red-950/80 px-1 py-0.5 rounded border border-red-800">"Signed by: Not Signed"</span> for all custom unencrypted profiles. This is 100% safe & normal. Tap <strong className="text-sky-400">Install</strong> (blue button in top right) & enter your iPhone passcode to finish.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Right Side Preview Box */}
@@ -943,11 +954,11 @@ export default function IOSProfileGenerator() {
                 </code>
               </p>
 
-              <ol className="list-decimal list-inside space-y-2 text-xs text-neutral-300 leading-relaxed bg-[#16161a] p-3.5 rounded-xl border border-neutral-700 font-medium">
-                <li>Tap <strong className="text-white">Allow</strong>.</li>
-                <li>Go to iPhone <strong className="text-white">Settings</strong> home screen.</li>
-                <li>Tap <strong className="text-white">Profile Downloaded</strong> near the top.</li>
-                <li>Tap <strong className="text-white">Install</strong> in top right corner.</li>
+              <ol className="list-decimal list-inside space-y-2.5 text-xs text-neutral-300 leading-relaxed bg-[#16161a] p-4 rounded-xl border border-neutral-700 font-medium">
+                <li>Tap <strong className="text-white">Allow</strong> when Safari prompts to download profile.</li>
+                <li>Open iPhone <strong className="text-white">Settings</strong> & tap <strong className="text-white">Profile Downloaded</strong> near top.</li>
+                <li>When iOS shows <span className="text-red-400 font-bold">"Not Signed"</span> / <span className="text-red-400 font-bold">"Unsigned Profile"</span>, tap <strong className="text-sky-400 font-bold">Install</strong> (blue button top-right).</li>
+                <li>Enter your iPhone <strong className="text-white">Passcode</strong> & tap <strong className="text-sky-400 font-bold">Install</strong> to finish!</li>
               </ol>
             </div>
 
