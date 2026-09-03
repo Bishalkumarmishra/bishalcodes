@@ -251,7 +251,7 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
 
   return (
     <NavigationContext.Provider value={{ currentPage, selectedId, navigate }}>
-      <div className={`antialiased font-sans min-h-screen ${selectedId === 'ios-profile' ? 'bg-black text-white' : 'bg-slate-50 text-slate-800'}`}>
+      <div className={`antialiased font-sans min-h-screen ${selectedId === 'ios-profile' || selectedId === 'cyber-defender' ? 'bg-[#050507] text-white' : 'bg-slate-50 text-slate-800'}`}>
         {renderContent()}
         {!isEmbedded && <LiveEditWidget />}
         {!isEmbedded && <FloatingEditorToolbar />}

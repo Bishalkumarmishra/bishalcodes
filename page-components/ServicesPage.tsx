@@ -742,12 +742,12 @@ const ServicesPage: React.FC = () => {
     ? (toolSeoData[selectedId]?.title.split('-')[0].split('|')[0].trim() || selectedId.replace(/-/g, ' ').toUpperCase())
     : 'Developer Utility Tool';
 
-  const isFullBleed = selectedId === 'file-transfer' || selectedId === 'font-downloader' || selectedId === 'ocr-converter' || selectedId === 'bg-remover' || selectedId === 'scan-pdf' || selectedId === 'ios-profile';
+  const isFullBleed = selectedId === 'file-transfer' || selectedId === 'font-downloader' || selectedId === 'ocr-converter' || selectedId === 'bg-remover' || selectedId === 'scan-pdf' || selectedId === 'ios-profile' || selectedId === 'cyber-defender';
 
   return (
-    <div className={`min-h-screen font-sans transition-colors duration-300 selection:bg-[#e52521]/30 flex flex-col justify-between ${selectedId === 'ios-profile' ? 'bg-black text-white' : 'bg-[#FDF9F3] dark:bg-slate-950'}`}>
+    <div className={`min-h-screen font-sans transition-colors duration-300 selection:bg-[#e52521]/30 flex flex-col justify-between ${selectedId === 'ios-profile' || selectedId === 'cyber-defender' ? 'bg-[#050507] text-white' : 'bg-[#FDF9F3] dark:bg-slate-950'}`}>
       {!isEmbed && <Navbar />}
-      <main className={`w-full flex-grow flex flex-col ${selectedId === 'ios-profile' ? 'bg-black text-white' : ''} ${isEmbed ? 'pt-0 pb-0 mt-0' : isFullBleed ? 'pt-0 pb-0' : selectedId ? 'pt-20 sm:pt-24 pb-12' : 'pb-12 pt-16 sm:pt-20'}`}>
+      <main className={`w-full flex-grow flex flex-col ${selectedId === 'ios-profile' || selectedId === 'cyber-defender' ? 'bg-[#050507] text-white' : ''} ${isEmbed ? 'pt-0 pb-0 mt-0' : isFullBleed ? 'pt-0 pb-0' : selectedId ? 'pt-20 sm:pt-24 pb-12' : 'pb-12 pt-16 sm:pt-20'}`}>
         {renderActiveService()}
       </main>
 
