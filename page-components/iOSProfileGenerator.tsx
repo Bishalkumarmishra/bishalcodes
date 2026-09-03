@@ -284,8 +284,9 @@ export default function IOSProfileGenerator() {
         </div>
       </div>
 
-      {/* Main Workspace Body - 100% Dark Background */}
-      <div className="w-full max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-10 py-6 sm:py-10 space-y-8 bg-[#050507]">
+      {/* Main Workspace Body - 100% Pitch Dark Background */}
+      <div className="w-full bg-[#050507]">
+        <div className="w-full max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-10 py-6 sm:py-10 space-y-8 bg-[#050507]">
 
         {/* Safari Browser Warning Banner for iOS */}
         {platform === 'ios' && !isSafari && (
@@ -911,6 +912,7 @@ export default function IOSProfileGenerator() {
           </div>
         )}
 
+      </div>
       </div>
 
       {/* iOS Installation Guide Modal */}
