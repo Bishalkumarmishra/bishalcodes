@@ -220,26 +220,15 @@ export default function CyberPulseGame() {
     const W = canvas.width;
     const H = canvas.height;
 
-    // 1. Clear Screen with Cyber Grid Gradient
-    ctx.fillStyle = '#090d16';
+    // 1. Clear Screen - Clean Crisp Light Canvas (#f8fafc or #0b0f19 in dark mode)
+    const isDarkTheme = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+    ctx.fillStyle = isDarkTheme ? '#0b0f19' : '#f8fafc';
     ctx.fillRect(0, 0, W, H);
 
-    // Draw animated grid background
-    ctx.strokeStyle = '#1e293b';
-    ctx.lineWidth = 1;
-    const gridOffset = (now / 20) % 30;
-    for (let x = 0; x < W; x += 30) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, H);
-      ctx.stroke();
-    }
-    for (let y = gridOffset; y < H; y += 30) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(W, y);
-      ctx.stroke();
-    }
+    // Clean subtle border
+    ctx.strokeStyle = isDarkTheme ? '#1e293b' : '#e2e8f0';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, W, H);
 
     // EMP Flash Effect
     if (engine.empFlashTimer > 0) {
@@ -607,6 +596,17 @@ export default function CyberPulseGame() {
     }
   };
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width > 0) {
+      const scaleX = canvas.width / rect.width;
+      const mouseX = (e.clientX - rect.left) * scaleX;
+      engineRef.current.touchX = Math.max(20, Math.min(canvas.width - 20, mouseX));
+    }
+  };
+
   const handleTouchEnd = () => {
     engineRef.current.touchX = null;
   };
@@ -706,7 +706,7 @@ webView.loadUrl("${embedUrl}");`;
 
             {/* HTML5 Canvas Area */}
             <div 
-              className="relative w-full aspect-[4/3] max-h-[560px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center touch-none select-none shadow-inner"
+              className="relative w-full aspect-[4/3] max-h-[560px] bg-slate-100 dark:bg-slate-950 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 flex items-center justify-center touch-none select-none shadow-sm"
               onTouchStart={handleTouchStartOrMove}
               onTouchMove={handleTouchStartOrMove}
               onTouchEnd={handleTouchEnd}
@@ -718,24 +718,23 @@ webView.loadUrl("${embedUrl}");`;
                 onTouchStart={handleTouchStartOrMove}
                 onTouchMove={handleTouchStartOrMove}
                 onTouchEnd={handleTouchEnd}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleTouchEnd}
                 className="w-full h-full object-contain cursor-crosshair touch-none select-none"
               />
 
               {/* Overlay Screens */}
               {gameState === 'start' && (
-                <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center text-white space-y-5 animate-in fade-in">
-                  <div className="w-16 h-16 rounded-2xl bg-[#e52521]/10 border border-[#e52521]/40 flex items-center justify-center text-[#e52521] shadow-lg shadow-[#e52521]/20">
-                    <Zap size={36} />
-                  </div>
+                <div className="absolute inset-0 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center text-slate-900 dark:text-white space-y-4 animate-in fade-in">
                   <div>
-                    <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">CYBERPULSE DEFENDER</h2>
-                    <p className="text-slate-300 text-xs sm:text-sm mt-2 max-w-sm leading-relaxed">
-                      Control ship using <kbd className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-white font-mono">A / D</kbd> or <kbd className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-white font-mono">Arrow Keys</kbd> (or touch/drag on mobile). Shoot rogue malware & catch power-ups!
+                    <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">CYBERPULSE DEFENDER</h2>
+                    <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm mt-2 max-w-sm leading-relaxed">
+                      Control ship using mouse/touch drag, <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-mono">A / D</kbd> or <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-mono">Arrow Keys</kbd>. Shoot rogue malware & catch power-ups!
                     </p>
                   </div>
                   <button
                     onClick={startGame}
-                    className="px-8 py-3.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center gap-2 cursor-pointer active:scale-95"
+                    className="px-8 py-3.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
                   >
                     <Play size={16} /> Start Game
                   </button>
@@ -743,13 +742,13 @@ webView.loadUrl("${embedUrl}");`;
               )}
 
               {gameState === 'gameover' && (
-                <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center text-white space-y-5 animate-in fade-in">
-                  <div className="text-rose-500 font-black text-3xl tracking-tighter uppercase">SYSTEM COMPROMISED</div>
+                <div className="absolute inset-0 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center text-slate-900 dark:text-white space-y-4 animate-in fade-in">
+                  <div className="text-rose-600 dark:text-rose-500 font-black text-3xl tracking-tighter uppercase">SYSTEM COMPROMISED</div>
                   <div>
-                    <div className="text-slate-400 text-xs uppercase tracking-wider">Final Score</div>
-                    <div className="text-4xl font-black text-white mt-1">{score}</div>
+                    <div className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Final Score</div>
+                    <div className="text-4xl font-black text-slate-900 dark:text-white mt-1">{score}</div>
                     {score >= highScore && score > 0 && (
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-full text-xs font-bold mt-2">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 rounded-full text-xs font-bold mt-2">
                         <Trophy size={13} /> New Personal Best!
                       </div>
                     )}
@@ -763,7 +762,7 @@ webView.loadUrl("${embedUrl}");`;
                       onChange={(e) => setPlayerName(e.target.value)}
                       placeholder="Enter your name..."
                       maxLength={15}
-                      className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-[#e52521]"
+                      className="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white text-xs outline-none focus:border-[#e52521]"
                     />
                     <button
                       type="submit"
@@ -776,7 +775,7 @@ webView.loadUrl("${embedUrl}");`;
 
                   <button
                     onClick={startGame}
-                    className="px-6 py-3 bg-white text-slate-950 font-extrabold text-xs uppercase tracking-wider rounded-xl hover:bg-slate-200 transition-all flex items-center gap-2 cursor-pointer"
+                    className="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-extrabold text-xs uppercase tracking-wider rounded-xl hover:bg-slate-800 dark:hover:bg-slate-200 transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <RotateCcw size={14} /> Play Again
                   </button>
