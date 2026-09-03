@@ -652,9 +652,6 @@ webView.loadUrl("${embedUrl}");`;
         {/* Top Header & Embed Action */}
         <div className="bg-[#121215] border border-neutral-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#e52521]/10 border border-[#e52521]/20 text-[#e52521] rounded-lg text-xs font-bold uppercase tracking-wider mb-2">
-              <Zap size={14} /> Handcrafted Arcade Engine
-            </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">CyberPulse Defender 2026</h1>
             <p className="text-neutral-400 text-xs sm:text-sm mt-1">
               Defend the cyber grid from rogue malware waves. Built natively with HTML5 Canvas, Web Audio API & Zero Dependencies.
