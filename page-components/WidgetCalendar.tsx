@@ -186,19 +186,7 @@ export default function WidgetCalendar() {
           
           {/* Logo Badge */}
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-md bg-[#e52521] flex items-center justify-center shadow-sm">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white">
-                <circle cx="12" cy="12" r="5" />
-                <line x1="12" y1="1" x2="12" y2="3" />
-                <line x1="12" y1="21" x2="12" y2="23" />
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                <line x1="1" y1="12" x2="3" y2="12" />
-                <line x1="21" y1="12" x2="23" y2="12" />
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-              </svg>
-            </div>
+            <img src="/logo-icon.png" alt="Nepali Calendar" className="w-7 h-7 rounded-md object-contain shadow-sm bg-[#e52521] p-0.5" />
             <h1 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-1.5 font-sans">
               HAMRO PATRO <span className="text-[10px] text-[#e52521] font-bold px-1.5 py-0.2 bg-[#e52521]/10 rounded border border-[#e52521]/20">BISHAL</span>
             </h1>
