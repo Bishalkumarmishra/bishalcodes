@@ -5,6 +5,7 @@ import { Copy, Check, Calendar, ArrowRightLeft, Code, Eye, ShieldCheck, Sparkles
 import { doc, updateDoc, increment, setDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import DesktopDownloadModal from '../components/DesktopDownloadModal';
+import MobileAppDownloadModal from '../components/MobileAppDownloadModal';
 
 const EMBEDDABLE_TOOLS = [
   { id: 'date-converter', name: 'Date Converter (BS ↔ AD)', path: '/widgets/date-converter' },
@@ -35,6 +36,7 @@ const EMBEDDABLE_TOOLS = [
 
 export default function Widgets() {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
   const [selectedToolId, setSelectedToolId] = useState<string>('date-converter');
   const [sizePreset, setSizePreset] = useState<'small' | 'medium' | 'full' | 'custom'>('medium');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -261,9 +263,11 @@ export default function Widgets() {
               </button>
             </div>
 
-            {/* Standalone Desktop App Section */}
+            {/* Standalone Desktop & Mobile App Section */}
             <div className="border-t border-slate-100 dark:border-slate-800/80 pt-5 space-y-3">
-              <h4 className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold">Desktop Integration</h4>
+              <h4 className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold">App Integrations</h4>
+              
+              {/* Desktop App Box */}
               <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2">
                 <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                   <span className="text-base">💻</span> Standalone Windows App
@@ -289,6 +293,27 @@ export default function Widgets() {
                     💾 Direct ZIP Installer
                   </a>
                 </div>
+              </div>
+
+              {/* Mobile Apps Box (iOS & Android) */}
+              <div className="p-4 bg-gradient-to-br from-[#120505] to-slate-900 border border-[#e52521]/30 rounded-xl space-y-2 text-white">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span className="text-base">📱</span> iOS & Android Mobile Apps
+                  </span>
+                  <span className="text-[9px] px-2 py-0.5 rounded-full bg-[#e52521]/20 text-[#e52521] font-semibold border border-[#e52521]/30">
+                    Standalone
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-300 leading-normal">
+                  Install the Nepali Calendar directly on your iPhone/iPad via iOS Profile (.mobileconfig) or on Android via direct APK / PWA installer!
+                </p>
+                <button
+                  onClick={() => setIsMobileModalOpen(true)}
+                  className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold py-2.5 px-4 rounded-lg text-[10px] uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  📲 Download Mobile Apps (iOS & Android)
+                </button>
               </div>
             </div>
           </div>
@@ -368,6 +393,14 @@ export default function Widgets() {
       <DesktopDownloadModal
         isOpen={isDownloadModalOpen}
         onClose={() => setIsDownloadModalOpen(false)}
+      />
+
+      {/* Mobile Apps Download Modal (iOS & Android) */}
+      <MobileAppDownloadModal
+        isOpen={isMobileModalOpen}
+        onClose={() => setIsMobileModalOpen(false)}
+        appName="Nepali Calendar"
+        appUrl="https://bishalcodes.com/widgets/calendar"
       />
 
       <Footer />

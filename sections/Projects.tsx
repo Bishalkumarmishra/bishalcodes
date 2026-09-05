@@ -6,7 +6,7 @@ import { db } from '../services/firebase';
 import { Project } from '../types';
 import { useNavigation } from '../context/NavigationContext';
 
-const FALLBACK_IMAGE_URL = 'https://via.placeholder.com/600x250?text=Project+Image';
+const FALLBACK_IMAGE_URL = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="250" viewBox="0 0 600 250"><rect width="100%" height="100%" fill="%230f172a"/><text x="50%" y="50%" font-family="sans-serif" font-size="18" font-weight="bold" fill="%23e52521" text-anchor="middle" dominant-baseline="middle">Bishal Codes Project</text></svg>';
 
 const Projects: React.FC = () => {
   const { navigate } = useNavigation();

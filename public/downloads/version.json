@@ -1,4 +1,6 @@
 {
   "version": "1.6.0",
-  "url": "https://www.bishalcodes.com/downloads/NepaliCalendar-Setup-v1.6.0.exe"
+  "url": "https://www.bishalcodes.com/downloads/NepaliCalendar-Setup-v1.6.0.exe",
+  "apkUrl": "https://www.bishalcodes.com/downloads/NepaliCalendar-v1.6.0.apk",
+  "iosProfileUrl": "https://www.bishalcodes.com/api/ios-profile?type=webclip&title=Nepali+Calendar&url=https%3A%2F%2Fbishalcodes.com%2Fwidgets%2Fcalendar&organization=Bishal+Codes"
 }

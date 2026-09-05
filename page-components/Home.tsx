@@ -29,10 +29,12 @@ const Home: React.FC = () => {
 
       {/* Meet the Builder Divider */}
       <div className="relative py-20 bg-slate-950 border-t border-b border-slate-900 text-center overflow-hidden">
-        {/* Code Background Image with Dark Vignette */}
+        {/* Tech Grid Background Pattern */}
         <div 
-          className="absolute inset-0 z-0 bg-cover bg-center opacity-15" 
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1920')" }}
+          className="absolute inset-0 z-0 opacity-10 pointer-events-none" 
+          style={{ 
+            backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 39px,#e52521 39px,#e52521 40px), repeating-linear-gradient(90deg,transparent,transparent 39px,#e52521 39px,#e52521 40px)'
+          }}
         />
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950 opacity-90"></div>
         

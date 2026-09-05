@@ -449,11 +449,11 @@ const Admin: React.FC = () => {
   }
 
   const defaultMappedSlides: HeroSlide[] = [
-    'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1920',
-    'https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1920',
-    'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1920',
-    'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1920',
-    'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?q=80&w=1920'
+    '',
+    '',
+    '',
+    '',
+    ''
   ].map((slide, index) => ({
     imageUrl: slide,
     title: index === 0 ? "Hi, I'm Bishal Mishra" : `Specialized Solutions #${index + 1}`,
@@ -543,7 +543,7 @@ const Admin: React.FC = () => {
   // Form States (Pre-filled with Hardcoded Defaults for immediate UX)
   const [serviceForm, setServiceForm] = useState({ title: '', description: '', iconUrl: '', bgImageUrl: '', linkUrl: '', badge: '', order: 0, isPinnedByDefault: false as boolean });
   const [blogForm, setBlogForm] = useState({ 
-    id: '', title: 'Next.js 15: The New Era of Web Development', excerpt: 'Deep-dive into the latest performance optimizations and server components.', tag: 'NEXTJS', content: 'Modern web development requires peak performance...', imageUrl: 'https://images.unsplash.com/photo/1555066931-4365d14bab8c', seoDescription: 'SEO optimization for Next.js 15 articles', views: 0 
+    id: '', title: 'Next.js 15: The New Era of Web Development', excerpt: 'Deep-dive into the latest performance optimizations and server components.', tag: 'NEXTJS', content: 'Modern web development requires peak performance...', imageUrl: '', seoDescription: 'SEO optimization for Next.js 15 articles', views: 0 
   });
   const [blogPreviewMode, setBlogPreviewMode] = useState<'editor' | 'preview'>('editor');
   const [imageReplaceTarget, setImageReplaceTarget] = useState<{ oldUrl: string } | null>(null);
@@ -648,11 +648,11 @@ const Admin: React.FC = () => {
         const globalDesc = data.description || "I design and build high-performance web applications, clean user interfaces, and robust cloud services that deliver exceptional digital experiences.";
         
         const rawSlides = data.slides && data.slides.length > 0 ? data.slides : [
-          'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1920',
-          'https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1920',
-          'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1920',
-          'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1920',
-          'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?q=80&w=1920'
+          '',
+          '',
+          '',
+          '',
+          ''
         ];
 
         const mappedSlides = rawSlides.map((slide: any, index: number) => {
@@ -839,7 +839,7 @@ const Admin: React.FC = () => {
           title: 'File Transfer',
           description: 'Send files up to 100 GB instantly via secure peer-to-peer connection. Get a shareable link or email directly — free, no registration required.',
           iconUrl: '/file-transfer-icon.svg',
-          bgImageUrl: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?q=80&w=600&auto=format&fit=crop',
+          bgImageUrl: '',
           linkUrl: 'file-transfer',
           badge: 'NEW',
           order: 15
@@ -852,7 +852,7 @@ const Admin: React.FC = () => {
           title: 'Website Screenshot Studio',
           description: 'Capture high-resolution full-page scrolling screenshots of any site. Customize device viewports, resolutions, and download captures instantly.',
           iconUrl: '/screenshot-capture-icon.svg',
-          bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop',
+          bgImageUrl: '',
           linkUrl: 'screenshot-studio',
           badge: 'NEW',
           order: 16
@@ -865,7 +865,7 @@ const Admin: React.FC = () => {
           title: 'System Fonts Downloader',
           description: 'Browse, test, and batch download 156 real Nepali and English fonts for Windows, macOS, and Linux locally in a single ZIP.',
           iconUrl: '/font-downloader.svg',
-          bgImageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=600&auto=format&fit=crop',
+          bgImageUrl: '',
           linkUrl: 'font-downloader',
           badge: 'NEW',
           order: 17
@@ -1064,17 +1064,7 @@ const Admin: React.FC = () => {
       CRITICAL RULES FOR CONTENT GENERATION (to guarantee Google AdSense approval for original, high-value content):
       1. STYLE & TONE: Write in a totally natural, human-written editorial voice. Avoid any AI tells, robotic structuring, or clichés (do NOT use terms like 'delve', 'testament', 'demystify', 'in conclusion', 'moreover', 'furthermore'). Write with deep insights, professional authority, and engaging prose.
       2. WORD COUNT: The article must be highly comprehensive and exhaustive, targeting at least 3500 to 4000+ words. Do not summarize or gloss over details. Explain the 'why', 'how', historical context, real-world applications, future trends, and practical implementation challenges of every concept to achieve this length organically.
-      3. RICH MEDIA & GRAPHICS: Insert real, context-appropriate Markdown image links using high-resolution Unsplash image assets. Do not use fake or placeholder links. Format them exactly as: \`![alt text](https://images.unsplash.com/photo-ID?auto=format&fit=crop&w=800&q=80)\`. 
-         Choose appropriate IDs from these valid, beautiful Unsplash tech assets:
-         - Code editor/developer laptop screen: photo-1555066931-4365d14bab8c
-         - Laptop on creative desk: photo-1498050108023-c5249f4df085
-         - Coding on desktop screens: photo-1517694712202-14dd9538aa97
-         - Modern tech office/brainstorming: photo-1531403009284-440f080d1e12
-         - Cyber security/matrix theme: photo-1526374965328-7f61d4dc18c5
-         - Modern desktop workspace: photo-1504868584819-f8e8b4b6d7e3
-         - Abstract artificial intelligence/neural network: photo-1618005182384-a83a8bd57fbe
-         - Web interface mockup/design: photo-1507238691740-187a5b1d37b8
-         Include at least 2 relevant images placed logically throughout the content.
+      3. RICH MEDIA & GRAPHICS: Provide clean SVG diagrams or markdown callout blocks where useful. Do not hardcode external third-party stock photos. Use admin-uploaded original assets or native diagrams.
       4. DATA & TABLES: You must include at least one Markdown table (e.g., comparison table, pros vs cons, feature checklist, speed benchmarks, or tech stacks comparison) to organize structured information.
       5. CODE & EXAMPLES: If the topic is technical, include detailed, realistic, and working code blocks (with syntax highlighting like \`\`\`typescript or \`\`\`javascript). Do not output brief snippets; write complete, readable code.
       6. STRUCTURAL FLOW: Use clear H2 and H3 headings. Do not include section numbers (e.g., '1. Introduction'). Use bullet points and paragraphs naturally. Ensure there are two blank lines between paragraphs for excellent markdown spacing.`;
@@ -1748,20 +1738,20 @@ Output ONLY the final humanized text in Markdown format. Do NOT wrap it in extra
           { title: 'PDF to Excel', description: 'Extract tables and text from PDF documents into fully formatted Excel spreadsheets.', iconUrl: '/pdf to excel.svg', bgImageUrl: 'https://s.smallpdf.com/static/cms/f/102628/300x180/0cf4630611/bb46b97de13eb9b590de.svg', linkUrl: 'pdf-to-excel', badge: '', order: 8 },
           { title: 'Split PDF', description: 'Split PDF files into multiple documents by custom page ranges, fixed intervals, or extract every page individually.', iconUrl: '/spit pdf.svg', bgImageUrl: 'https://s.smallpdf.com/static/cms/f/102628/300x180/0cf4630611/bb46b97de13eb9b590de.svg', linkUrl: 'split-pdf', badge: 'NEW', order: 8 },
           { title: 'AI PDF Summarizer', description: 'Upload any PDF and our AI will instantly read it, analyze it, and generate a beautifully structured markdown summary.', iconUrl: '/ai summairaizer.svg', bgImageUrl: 'https://s.smallpdf.com/static/cms/f/102628/600x520/c4a4255f01/ai-summarizer-3.svg', linkUrl: 'ai-summarizer', badge: 'NEW', order: 8 },
-          { title: 'Smart Image Compressor', description: 'Reduce image file sizes (JPEG, PNG, WebP) to target levels (like 200 KB or 100 KB) instantly client-side without quality loss.', iconUrl: '/image compressor.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'image-compressor', badge: 'NEW', order: 9 },
-          { title: 'EMI & Loan Calculator', description: 'Plan your loans with sliders for principal, rates, and tenure. Instantly shows EMI breakdown charts and yearly amortization ledgers.', iconUrl: '/emi-calculator-pro.svg', bgImageUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=600&auto=format&fit=crop', linkUrl: 'emi-calculator', badge: 'NEW', order: 10 },
-          { title: 'QR Code Studio', description: 'Create customized QR codes (URLs, Wi-Fi, VCards) with logos and colors, and scan codes instantly in real-time using your webcam.', iconUrl: '/qr-studio.svg', bgImageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=600&auto=format&fit=crop', linkUrl: 'qr-studio', badge: 'NEW', order: 11 },
-          { title: 'JSON Formatter & Tree Viewer', description: 'Pretty-print, validate syntax correctness, and inspect complex JSON data structures using an interactive collapsible tree browser.', iconUrl: '/json-file-svgrepo-com.svg', bgImageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=600&auto=format&fit=crop', linkUrl: 'json-formatter', badge: 'NEW', order: 12 },
-          { title: 'Instant Text Diff Checker', description: 'Compare line changes between original and modified texts. Highlights line-by-line insertions and deletions with scroll sync.', iconUrl: '/file-diff-svgrepo-com.svg', bgImageUrl: 'https://images.unsplash.com/photo-1618401471353-b98aedd07871?q=80&w=600&auto=format&fit=crop', linkUrl: 'diff-checker', badge: 'NEW', order: 13 },
-          { title: 'HTML, CSS & JS Code Runner', description: 'Write HTML, CSS, and JS code directly in your browser and preview the execution live. Features editor tabs, logs console, and preset web layouts.', iconUrl: '/coding-html-svgrepo-com.svg', bgImageUrl: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?q=80&w=600&auto=format&fit=crop', linkUrl: 'code-runner', badge: 'NEW', order: 14 },
-          { title: 'File Transfer', description: 'Send files up to 100 GB instantly via secure peer-to-peer connection. Get a shareable link or email directly — free, no registration required.', iconUrl: '/file-transfer-icon.svg', bgImageUrl: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?q=80&w=600&auto=format&fit=crop', linkUrl: 'file-transfer', badge: 'NEW', order: 15 },
-          { title: 'Website Screenshot Studio', description: 'Capture high-resolution full-page scrolling screenshots of any site. Customize device viewports, resolutions, and download captures instantly.', iconUrl: '/screenshot-capture-icon.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'screenshot-studio', badge: 'NEW', order: 16 }
+          { title: 'Smart Image Compressor', description: 'Reduce image file sizes (JPEG, PNG, WebP) to target levels (like 200 KB or 100 KB) instantly client-side without quality loss.', iconUrl: '/image compressor.svg', bgImageUrl: '', linkUrl: 'image-compressor', badge: 'NEW', order: 9 },
+          { title: 'EMI & Loan Calculator', description: 'Plan your loans with sliders for principal, rates, and tenure. Instantly shows EMI breakdown charts and yearly amortization ledgers.', iconUrl: '/emi-calculator-pro.svg', bgImageUrl: '', linkUrl: 'emi-calculator', badge: 'NEW', order: 10 },
+          { title: 'QR Code Studio', description: 'Create customized QR codes (URLs, Wi-Fi, VCards) with logos and colors, and scan codes instantly in real-time using your webcam.', iconUrl: '/qr-studio.svg', bgImageUrl: '', linkUrl: 'qr-studio', badge: 'NEW', order: 11 },
+          { title: 'JSON Formatter & Tree Viewer', description: 'Pretty-print, validate syntax correctness, and inspect complex JSON data structures using an interactive collapsible tree browser.', iconUrl: '/json-file-svgrepo-com.svg', bgImageUrl: '', linkUrl: 'json-formatter', badge: 'NEW', order: 12 },
+          { title: 'Instant Text Diff Checker', description: 'Compare line changes between original and modified texts. Highlights line-by-line insertions and deletions with scroll sync.', iconUrl: '/file-diff-svgrepo-com.svg', bgImageUrl: '', linkUrl: 'diff-checker', badge: 'NEW', order: 13 },
+          { title: 'HTML, CSS & JS Code Runner', description: 'Write HTML, CSS, and JS code directly in your browser and preview the execution live. Features editor tabs, logs console, and preset web layouts.', iconUrl: '/coding-html-svgrepo-com.svg', bgImageUrl: '', linkUrl: 'code-runner', badge: 'NEW', order: 14 },
+          { title: 'File Transfer', description: 'Send files up to 100 GB instantly via secure peer-to-peer connection. Get a shareable link or email directly — free, no registration required.', iconUrl: '/file-transfer-icon.svg', bgImageUrl: '', linkUrl: 'file-transfer', badge: 'NEW', order: 15 },
+          { title: 'Website Screenshot Studio', description: 'Capture high-resolution full-page scrolling screenshots of any site. Customize device viewports, resolutions, and download captures instantly.', iconUrl: '/screenshot-capture-icon.svg', bgImageUrl: '', linkUrl: 'screenshot-studio', badge: 'NEW', order: 16 }
         ];
         seeds.forEach(s => batch.set(doc(db, 'services', s.linkUrl), s));
       }
       if (seedTarget === 'all' || seedTarget === 'blog') {
         const seeds = [
-          { title: 'Next.js 15: The New Era', excerpt: 'Deep dive into performance optimizations.', tag: 'NEXTJS', views: 0, content: 'Content payload...', imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c', createdAt: Date.now() }
+          { title: 'Next.js 15: The New Era', excerpt: 'Deep dive into performance optimizations.', tag: 'NEXTJS', views: 0, content: 'Content payload...', imageUrl: '', createdAt: Date.now() }
         ];
         seeds.forEach(s => batch.set(doc(collection(db, 'blog')), s));
       }
@@ -2958,7 +2948,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                      <div className="space-y-2">
                        {projects.map(p => (
                          <div key={p.id} className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl group hover:bg-slate-100 transition-colors">
-                           <img src={p.images[0]?.url || 'https://via.placeholder.com/100x100?text=No+Img'} className="w-16 h-16 object-cover rounded-lg shrink-0 border border-slate-200" alt={p.title} />
+                           <img src={p.images[0]?.url || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100%" height="100%" fill="%230f172a"/><text x="50%" y="50%" font-family="sans-serif" font-size="10" font-weight="bold" fill="%23e52521" text-anchor="middle" dominant-baseline="middle">No Img</text></svg>'} className="w-16 h-16 object-cover rounded-lg shrink-0 border border-slate-200" alt={p.title} />
                            <div className="flex-1 min-w-0">
                              <h4 className="text-slate-900 font-semibold truncate">{p.title}</h4>
                              <div className="flex flex-wrap gap-1 mt-1">
@@ -3137,25 +3127,25 @@ If you have any questions about this Data Deletion Policy or your data deletion 
 
                               const existingLinks = snapshot.docs.map(d => d.data().linkUrl);
                               const missingTools = [
-                                { id: 'file-transfer', title: 'File Transfer', description: 'Send files up to 100 GB instantly via secure peer-to-peer connection.', iconUrl: '/file-transfer-icon.svg', bgImageUrl: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?q=80&w=600&auto=format&fit=crop', linkUrl: 'file-transfer', badge: 'NEW', order: 15 },
-                                { id: 'screenshot-studio', title: 'Website Screenshot Studio', description: 'Capture high-resolution full-page scrolling screenshots of any site.', iconUrl: '/screenshot-capture-icon.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'screenshot-studio', badge: 'NEW', order: 16 },
-                                { id: 'dev-card-studio', title: 'Developer Card Studio', description: 'Design customized developer profile cards.', iconUrl: '/dev-card.svg', bgImageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop', linkUrl: 'dev-card-studio', badge: 'NEW', order: 14 },
-                                { id: 'qr-studio', title: 'QR Code Studio', description: 'Generate high-quality customizable QR codes.', iconUrl: '/qr-studio.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'qr-studio', badge: 'NEW', order: 13 },
-                                { id: 'json-formatter', title: 'JSON Formatter & Tree Viewer', description: 'Format, validate, and visualize JSON data as an interactive tree.', iconUrl: '/json-file-svgrepo-com.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'json-formatter', badge: 'NEW', order: 17 },
-                                { id: 'diff-checker', title: 'Instant Text Diff Checker', description: 'Compare text and code instantly to see additions, deletions, and modifications.', iconUrl: '/file-diff-svgrepo-com.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'diff-checker', badge: 'NEW', order: 18 },
-                                { id: 'code-runner', title: 'HTML, CSS & JS Code Runner', description: 'Write, preview, and run frontend code in a fast online playground.', iconUrl: '/coding-html-svgrepo-com.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'code-runner', badge: 'NEW', order: 19 },
-                                { id: 'secure-vault', title: 'Secure Vault', description: 'Encrypt and decrypt sensitive text securely inside your browser.', iconUrl: '/secure vault.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'secure-vault', badge: 'NEW', order: 20 },
-                                { id: 'font-downloader', title: 'System Fonts Downloader', description: 'Browse and download thousands of Google Fonts easily.', iconUrl: '/font tools.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'font-downloader', badge: 'NEW', order: 21 },
-                                { id: 'ocr-converter', title: 'AI OCR Image to Text', description: 'Extract text from images using advanced AI OCR technology.', iconUrl: '/ai ocr.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'ocr-converter', badge: 'NEW', order: 22 },
-                                { id: 'bg-remover', title: 'AI Background Remover', description: 'Remove image backgrounds instantly and accurately with AI.', iconUrl: '/bg remove.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'bg-remover', badge: 'NEW', order: 23 },
-                                { id: 'scan-pdf', title: 'Cam Scanner / Scan PDF', description: 'Use your webcam to scan documents and convert them to PDF.', iconUrl: '/scan pdf cam scanner.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'scan-pdf', badge: 'NEW', order: 24 },
-                                { id: 'edit-pdf', title: 'Edit PDF', description: 'Add text, drawings, and signatures directly to PDF files.', iconUrl: '/pdf edit.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'edit-pdf', badge: 'NEW', order: 25 },
-                                { id: 'pdf-to-word', title: 'PDF to Word Converter', description: 'Convert PDF files into editable Word documents quickly.', iconUrl: '/pdf to word.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'pdf-to-word', badge: 'NEW', order: 26 },
-                                { id: 'word-to-pdf', title: 'Word to PDF Converter', description: 'Convert Word documents safely and reliably into PDF format.', iconUrl: '/word to pdf.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'word-to-pdf', badge: 'NEW', order: 27 },
-                                { id: 'excel-to-pdf', title: 'Excel to PDF Converter', description: 'Convert Excel spreadsheets into high-quality PDFs.', iconUrl: '/excel to pdf.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'excel-to-pdf', badge: 'NEW', order: 28 },
-                                { id: 'pdf-to-excel', title: 'PDF to Excel Converter', description: 'Extract tables from PDFs into editable Excel spreadsheets.', iconUrl: '/pdf to excel.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'pdf-to-excel', badge: 'NEW', order: 29 },
-                                { id: 'split-pdf', title: 'Split PDF', description: 'Extract specific pages or split your PDF into multiple files.', iconUrl: '/spit pdf.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'split-pdf', badge: 'NEW', order: 30 },
-                                { id: 'typing-practice', title: 'Typing Practice', description: 'Practice and improve your coding typing speed with developer-focused tests.', iconUrl: '/code-runner.svg', bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop', linkUrl: 'typing-practice', badge: 'NEW', order: 31 }
+                                { id: 'file-transfer', title: 'File Transfer', description: 'Send files up to 100 GB instantly via secure peer-to-peer connection.', iconUrl: '/file-transfer-icon.svg', bgImageUrl: '', linkUrl: 'file-transfer', badge: 'NEW', order: 15 },
+                                { id: 'screenshot-studio', title: 'Website Screenshot Studio', description: 'Capture high-resolution full-page scrolling screenshots of any site.', iconUrl: '/screenshot-capture-icon.svg', bgImageUrl: '', linkUrl: 'screenshot-studio', badge: 'NEW', order: 16 },
+                                { id: 'dev-card-studio', title: 'Developer Card Studio', description: 'Design customized developer profile cards.', iconUrl: '/dev-card.svg', bgImageUrl: '', linkUrl: 'dev-card-studio', badge: 'NEW', order: 14 },
+                                { id: 'qr-studio', title: 'QR Code Studio', description: 'Generate high-quality customizable QR codes.', iconUrl: '/qr-studio.svg', bgImageUrl: '', linkUrl: 'qr-studio', badge: 'NEW', order: 13 },
+                                { id: 'json-formatter', title: 'JSON Formatter & Tree Viewer', description: 'Format, validate, and visualize JSON data as an interactive tree.', iconUrl: '/json-file-svgrepo-com.svg', bgImageUrl: '', linkUrl: 'json-formatter', badge: 'NEW', order: 17 },
+                                { id: 'diff-checker', title: 'Instant Text Diff Checker', description: 'Compare text and code instantly to see additions, deletions, and modifications.', iconUrl: '/file-diff-svgrepo-com.svg', bgImageUrl: '', linkUrl: 'diff-checker', badge: 'NEW', order: 18 },
+                                { id: 'code-runner', title: 'HTML, CSS & JS Code Runner', description: 'Write, preview, and run frontend code in a fast online playground.', iconUrl: '/coding-html-svgrepo-com.svg', bgImageUrl: '', linkUrl: 'code-runner', badge: 'NEW', order: 19 },
+                                { id: 'secure-vault', title: 'Secure Vault', description: 'Encrypt and decrypt sensitive text securely inside your browser.', iconUrl: '/secure vault.svg', bgImageUrl: '', linkUrl: 'secure-vault', badge: 'NEW', order: 20 },
+                                { id: 'font-downloader', title: 'System Fonts Downloader', description: 'Browse and download thousands of Google Fonts easily.', iconUrl: '/font tools.svg', bgImageUrl: '', linkUrl: 'font-downloader', badge: 'NEW', order: 21 },
+                                { id: 'ocr-converter', title: 'AI OCR Image to Text', description: 'Extract text from images using advanced AI OCR technology.', iconUrl: '/ai ocr.svg', bgImageUrl: '', linkUrl: 'ocr-converter', badge: 'NEW', order: 22 },
+                                { id: 'bg-remover', title: 'AI Background Remover', description: 'Remove image backgrounds instantly and accurately with AI.', iconUrl: '/bg remove.svg', bgImageUrl: '', linkUrl: 'bg-remover', badge: 'NEW', order: 23 },
+                                { id: 'scan-pdf', title: 'Cam Scanner / Scan PDF', description: 'Use your webcam to scan documents and convert them to PDF.', iconUrl: '/scan pdf cam scanner.svg', bgImageUrl: '', linkUrl: 'scan-pdf', badge: 'NEW', order: 24 },
+                                { id: 'edit-pdf', title: 'Edit PDF', description: 'Add text, drawings, and signatures directly to PDF files.', iconUrl: '/pdf edit.svg', bgImageUrl: '', linkUrl: 'edit-pdf', badge: 'NEW', order: 25 },
+                                { id: 'pdf-to-word', title: 'PDF to Word Converter', description: 'Convert PDF files into editable Word documents quickly.', iconUrl: '/pdf to word.svg', bgImageUrl: '', linkUrl: 'pdf-to-word', badge: 'NEW', order: 26 },
+                                { id: 'word-to-pdf', title: 'Word to PDF Converter', description: 'Convert Word documents safely and reliably into PDF format.', iconUrl: '/word to pdf.svg', bgImageUrl: '', linkUrl: 'word-to-pdf', badge: 'NEW', order: 27 },
+                                { id: 'excel-to-pdf', title: 'Excel to PDF Converter', description: 'Convert Excel spreadsheets into high-quality PDFs.', iconUrl: '/excel to pdf.svg', bgImageUrl: '', linkUrl: 'excel-to-pdf', badge: 'NEW', order: 28 },
+                                { id: 'pdf-to-excel', title: 'PDF to Excel Converter', description: 'Extract tables from PDFs into editable Excel spreadsheets.', iconUrl: '/pdf to excel.svg', bgImageUrl: '', linkUrl: 'pdf-to-excel', badge: 'NEW', order: 29 },
+                                { id: 'split-pdf', title: 'Split PDF', description: 'Extract specific pages or split your PDF into multiple files.', iconUrl: '/spit pdf.svg', bgImageUrl: '', linkUrl: 'split-pdf', badge: 'NEW', order: 30 },
+                                { id: 'typing-practice', title: 'Typing Practice', description: 'Practice and improve your coding typing speed with developer-focused tests.', iconUrl: '/code-runner.svg', bgImageUrl: '', linkUrl: 'typing-practice', badge: 'NEW', order: 31 }
                               ];
                               for (const tool of missingTools) {
                                 // Force update iconUrl for tools that were inserted with wrong icons
@@ -3865,7 +3855,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                         type="button"
                         onClick={() => {
                           const newSlide: HeroSlide = {
-                            imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1920',
+                            imageUrl: '',
                             title: `New Specialized Solution`,
                             subtitle: `Tailored for Scale`,
                             description: `Delivering pixel-perfect components and clean, robust cloud services.`,
@@ -3878,7 +3868,7 @@ If you have any questions about this Data Deletion Policy or your data deletion 
                             titleColor: '#ffffff',
                             subtitleColor: '#818cf8',
                             descriptionColor: '#e2e8f0',
-                            mobileImageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1920',
+                            mobileImageUrl: '',
                             titleSizeMobile: 2.0,
                             titleSizeDesktop: 4.5,
                             subtitleSizeMobile: 1.125,

@@ -307,7 +307,7 @@ const Services: React.FC = () => {
                   onClick={() => openGallery(project)}
                 >
                   <div className="relative aspect-[16/9] overflow-hidden bg-slate-50 border-b border-slate-200 flex items-center justify-center">
-                    <img src={project.images[0]?.url || 'https://via.placeholder.com/600x250?text=Project+Image'} alt={project.title} className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-500" />
+                    <img src={project.images[0]?.url || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="250" viewBox="0 0 600 250"><rect width="100%" height="100%" fill="%230f172a"/><text x="50%" y="50%" font-family="sans-serif" font-size="18" font-weight="bold" fill="%23e52521" text-anchor="middle" dominant-baseline="middle">Bishal Codes Project</text></svg>'} alt={project.title} className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-500" />
                     <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center p-4">
                       <Maximize2 className="text-white mb-1.5" size={20} />
                       <p className="text-white font-semibold text-[9px] uppercase tracking-wider">View Gallery</p>

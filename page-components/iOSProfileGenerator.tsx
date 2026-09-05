@@ -288,6 +288,93 @@ export default function IOSProfileGenerator() {
       <div className="w-full bg-[#050507]">
         <div className="w-full max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-10 py-6 sm:py-10 space-y-8 bg-[#050507]">
 
+        {/* Featured Quick Mobile App Presets */}
+        <div className="bg-[#121215] border border-red-900/40 rounded-2xl p-4 sm:p-5 space-y-3 shadow-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 className="text-sm font-black text-white flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#e52521]" />
+                Featured 1-Click Mobile App Presets
+              </h3>
+              <p className="text-xs text-neutral-400">Instantly generate and download standalone mobile app profiles for Nepali Calendar & tools</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+            {/* Nepali Calendar Mobile Preset */}
+            <div 
+              onClick={() => {
+                setAppTitle('Nepali Calendar');
+                setSiteUrl('https://bishalcodes.com/widgets/calendar');
+                setOrganization('Bishal Codes');
+                setFullScreen(true);
+                setActiveIosTab('webclip');
+              }}
+              className="p-3.5 bg-[#18181c] hover:bg-[#202026] border border-red-800/40 hover:border-[#e52521] rounded-xl transition-all cursor-pointer group space-y-2"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold text-white group-hover:text-[#e52521] flex items-center gap-1.5 transition-colors">
+                  🇳🇵 Nepali Calendar App
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-950 text-red-400 font-bold border border-red-800/60">
+                  POPULAR
+                </span>
+              </div>
+              <p className="text-[11px] text-neutral-400 leading-snug">
+                Full Bikram Sambat (BS) calendar grid, festivals & events. Instantly downloads iOS <code className="text-red-300">.mobileconfig</code> & Android APK.
+              </p>
+            </div>
+
+            {/* Developer Suite Mobile Preset */}
+            <div 
+              onClick={() => {
+                setAppTitle('Bishal Codes Suite');
+                setSiteUrl('https://bishalcodes.com');
+                setOrganization('Bishal Codes');
+                setFullScreen(true);
+                setActiveIosTab('webclip');
+              }}
+              className="p-3.5 bg-[#18181c] hover:bg-[#202026] border border-neutral-800 hover:border-neutral-600 rounded-xl transition-all cursor-pointer group space-y-2"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold text-white group-hover:text-[#e52521] flex items-center gap-1.5 transition-colors">
+                  🛠️ Developer Tools Suite
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-neutral-900 text-neutral-300 font-bold border border-neutral-800">
+                  SUITE
+                </span>
+              </div>
+              <p className="text-[11px] text-neutral-400 leading-snug">
+                Access all 24+ edge compute developer tools offline directly from your home screen.
+              </p>
+            </div>
+
+            {/* Date Converter Mobile Preset */}
+            <div 
+              onClick={() => {
+                setAppTitle('BS Date Converter');
+                setSiteUrl('https://bishalcodes.com/widgets/date-converter');
+                setOrganization('Bishal Codes');
+                setFullScreen(true);
+                setActiveIosTab('webclip');
+              }}
+              className="p-3.5 bg-[#18181c] hover:bg-[#202026] border border-neutral-800 hover:border-neutral-600 rounded-xl transition-all cursor-pointer group space-y-2"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold text-white group-hover:text-[#e52521] flex items-center gap-1.5 transition-colors">
+                  📅 BS ↔ AD Converter
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-neutral-900 text-neutral-300 font-bold border border-neutral-800">
+                  TOOL
+                </span>
+              </div>
+              <p className="text-[11px] text-neutral-400 leading-snug">
+                Convert Bikram Sambat to Gregorian dates offline at millisecond speeds.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Safari Browser Warning Banner for iOS */}
         {platform === 'ios' && !isSafari && (
           <div className="bg-amber-950/60 border border-amber-500/60 rounded-xl p-3.5 flex items-start gap-2.5 text-amber-200 text-xs sm:text-sm shadow-xl">

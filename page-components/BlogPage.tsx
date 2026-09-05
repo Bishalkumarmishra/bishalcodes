@@ -108,8 +108,16 @@ const BlogPage: React.FC = () => {
                 className="group bg-white rounded-lg border border-slate-200 overflow-hidden hover:border-slate-300 transition-colors cursor-pointer flex flex-col shadow-sm"
                 onClick={() => navigate('blog-post', post.id)}
               >
-                <div className="relative aspect-[16/10] overflow-hidden bg-slate-50 border-b border-slate-200 flex items-center justify-center">
-                  <img src={post.imageUrl || 'https://images.unsplash.com/photo/1555066931-4365d14bab8c'} alt="" className="w-full h-full object-contain" />
+                <div className="relative aspect-[16/10] overflow-hidden bg-slate-900 border-b border-slate-200 flex items-center justify-center">
+                  {post.imageUrl ? (
+                    <img src={post.imageUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-slate-950 to-[#1a0505] flex items-center justify-center p-4 text-center">
+                      <span className="text-[#e52521] text-xs font-bold tracking-widest uppercase px-3 py-1 bg-[#e52521]/10 rounded-full border border-[#e52521]/20">
+                        {post.tag || 'Bishal Codes'}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="p-6 flex-1 flex flex-col">

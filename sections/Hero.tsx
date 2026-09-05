@@ -6,13 +6,7 @@ import { db } from '../services/firebase';
 import { useNavigation } from '../context/NavigationContext';
 import { uploadToCloudinary } from '../services/cloudinary';
 
-const defaultSlides = [
-  'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1920',
-  'https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1920',
-  'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1920',
-  'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1920',
-  'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?q=80&w=1920',
-];
+const defaultSlides = [''];
 
 interface HeroSlide {
   imageUrl: string;

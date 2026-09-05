@@ -656,6 +656,41 @@ The iframe wrapper automatically adapts to light and dark theme modes based on t
 `
   },
   {
+    id: 'mobile-calendar',
+    title: 'Nepali Calendar Mobile Apps for iOS & Android',
+    category: 'Mobile Applications',
+    keywords: ['mobile', 'calendar', 'nepali', 'ios', 'android', 'app', 'mobileconfig', 'apk', 'pwa', 'offline'],
+    content: `
+The **Nepali Calendar Native Mobile App** brings full Bikram Sambat (BS) date conversion, Nepalese holiday lists, and festival schedules directly to iPhone, iPad, and Android mobile devices.
+
+---
+
+### Key Mobile App Features
+
+- **iOS Native WebClip Profile (.mobileconfig)**: Install a standalone full-screen iOS app without Safari bars or URL inputs directly on your iPhone or iPad Home Screen.
+- **Android APK Direct Installer (.apk)**: Full offline-first Android application package with native notification support.
+- **1-Tap Add to Home Screen (PWA)**: Immediate 1-tap browser app installation for Android phones and tablets.
+- **BS ↔ AD Offline Date Conversion**: Millisecond date conversion between Bikram Sambat and Gregorian calendars with zero network required.
+- **Nepalese Festivals & National Holidays**: Pre-loaded with official festival schedules, tithi details, and holiday alerts.
+
+---
+
+### Installation Guide for iOS & Android
+
+#### iOS (iPhone & iPad)
+1. Navigate to the **[Mobile App & Profile Studio](/tools/ios-profile)** or **[Nepali Calendar Widget](/widgets/calendar)** page.
+2. Select **Download iOS Profile (.mobileconfig)**.
+3. Tap **Allow** when Safari requests permission to download the configuration profile.
+4. Open iPhone **Settings** ➔ Tap **Profile Downloaded** banner at the top ➔ Tap **Install** in top-right corner.
+5. Launch the **Nepali Calendar** icon directly from your iPhone Home Screen!
+
+#### Android (Phones & Tablets)
+1. Select **Download Android APK (.apk)** or tap **Add to Home Screen**.
+2. Open the downloaded \`NepaliCalendar-Mobile.apk\` file and select **Install** (allow "Install from Unknown Sources" if prompted).
+3. Launch **Nepali Calendar** anytime from your Android app drawer or home screen!
+    `
+  },
+  {
     id: 'desktop-calendar',
     title: 'Nepali Calendar Desktop App for Windows',
     category: 'Desktop Applications',

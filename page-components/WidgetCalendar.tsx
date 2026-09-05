@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import NepaliDate from 'nepali-date-converter';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Smartphone } from 'lucide-react';
+import MobileAppDownloadModal from '../components/MobileAppDownloadModal';
 
 const NEPALI_MONTHS_EN = [
   "Baisakh", "Jestha", "Ashadh", "Shrawan", "Bhadra", "Ashwin",
@@ -115,6 +116,7 @@ export default function WidgetCalendar() {
   const [calYear, setCalYear] = useState<number>(2083);
   const [calMonth, setCalMonth] = useState<number>(2); // 0-indexed (Ashadh)
   const [isSmall, setIsSmall] = useState<boolean>(false);
+  const [isMobileModalOpen, setIsMobileModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -324,19 +326,32 @@ export default function WidgetCalendar() {
           </div>
         </div>
 
-        {/* Footer info branding */}
-        <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-2 px-3 text-center">
+        {/* Footer info branding & Mobile Download */}
+        <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-2 px-3 flex items-center justify-between">
+          <button
+            onClick={() => setIsMobileModalOpen(true)}
+            className="text-[9px] font-bold text-[#e52521] hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            <Smartphone size={11} /> Get Mobile App (iOS & Android)
+          </button>
           <a 
             href="https://bishalcodes.com" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="text-[9px] font-bold text-slate-400 hover:text-slate-650 dark:text-slate-500 dark:hover:text-slate-350 transition-colors"
+            className="text-[9px] font-bold text-slate-400 hover:text-slate-600 dark:text-slate-500 transition-colors"
           >
             bishalcodes.com
           </a>
         </div>
 
       </div>
+
+      <MobileAppDownloadModal
+        isOpen={isMobileModalOpen}
+        onClose={() => setIsMobileModalOpen(false)}
+        appName="Nepali Calendar"
+        appUrl="https://bishalcodes.com/widgets/calendar"
+      />
     </div>
   );
 }

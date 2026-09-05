@@ -422,8 +422,15 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ id }) => {
                 )}
               </div>
               
-              <figure className="mb-6 mx-4 sm:mx-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center h-[260px] sm:h-[400px] relative group/figure select-none">
-                <img src={post.imageUrl || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c'} className="w-full h-full object-cover" alt={post.title} />
+              <figure className="mb-6 mx-4 sm:mx-0 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-900 flex items-center justify-center h-[260px] sm:h-[400px] relative group/figure select-none">
+                {post.imageUrl ? (
+                  <img src={post.imageUrl} className="w-full h-full object-cover" alt={post.title} />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-slate-950 via-slate-900 to-[#1a0505] flex flex-col items-center justify-center p-8 text-center border-b border-[#e52521]/20">
+                    <span className="text-[#e52521] text-xs font-bold tracking-widest uppercase mb-2 px-3 py-1 bg-[#e52521]/10 rounded-full border border-[#e52521]/20">{post.tag || 'Bishal Codes'}</span>
+                    <h2 className="text-xl sm:text-2xl font-bold text-white max-w-lg leading-tight">{post.title}</h2>
+                  </div>
+                )}
                 {isEditMode && (
                   <label className="absolute inset-0 bg-black/60 z-20 flex flex-col items-center justify-center cursor-pointer text-white font-bold text-[11px] uppercase tracking-wider gap-1.5 transition-all">
                     <Edit2 size={18} className="animate-pulse" />

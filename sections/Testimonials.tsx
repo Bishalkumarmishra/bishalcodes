@@ -14,7 +14,7 @@ const staticTestimonials = [
     role: 'Full-Stack Developer',
     rating: 5,
     text: "I built this platform myself, so I know every line of code inside out. What I'm genuinely proud of is how it performs — fast loads, clean UI, and it actually works the way I imagined. Building your own portfolio teaches you more than any tutorial ever will. Shipping real projects is the only way to grow.",
-    avatarUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=250&auto=format&fit=crop',
+    avatarUrl: 'https://www.bishalcodes.com/bishal.png',
     circleBg: '#e2e8f0', // Cool gray circle behind
     offsetClass: '-translate-x-3 -translate-y-2',
   },
@@ -25,18 +25,18 @@ const staticTestimonials = [
     role: 'Business Owner',
     rating: 5,
     text: "Honestly didn't expect this level of quality from a freelancer. Bishal understood exactly what I needed without me explaining too much — the website looked great, loaded fast, and he made edits without any fuss. Will definitely hire again for my next project.",
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=250&auto=format&fit=crop',
+    avatarUrl: '',
     circleBg: '#fef3c7', // Soft warm amber circle behind
     offsetClass: 'translate-x-3 -translate-y-2',
   },
   {
     id: 'static-3',
-    name: 'Ritik Chaudhary',
+    name: 'Summit maharzan',
     company: 'Client · Landing Page',
     role: 'Entrepreneur',
     rating: 5,
     text: "Bhai ne kaam bahut accha kiya — seriously impressed. The landing page he made for my business got way more attention than I expected. Mobile look was especially clean. He replies fast and doesn't ghost you. Good guy to work with.",
-    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=250&auto=format&fit=crop',
+    avatarUrl: '',
     circleBg: '#e9d5ff', // Soft purple circle behind
     offsetClass: 'translate-x-2 -translate-y-3',
   },
@@ -108,7 +108,7 @@ const Testimonials: React.FC = () => {
         };
         await setDoc(docRef, newDoc);
       }
-      
+
       // Refresh list
       await fetchAllFromFirestore();
       window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saved' }));
@@ -139,7 +139,7 @@ const Testimonials: React.FC = () => {
         const containerWidth = container.clientWidth;
         const cardOffsetLeft = card.offsetLeft;
         const targetScrollLeft = cardOffsetLeft - (containerWidth - cardWidth) / 2;
-        
+
         if (Math.abs(container.scrollLeft - targetScrollLeft) > 5) {
           container.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
         }
@@ -158,10 +158,10 @@ const Testimonials: React.FC = () => {
       isScrolling = setTimeout(() => {
         const containerWidth = container.clientWidth;
         const containerCenter = container.scrollLeft + containerWidth / 2;
-        
+
         let closestIdx = 0;
         let minDistance = Infinity;
-        
+
         Array.from(container.children).forEach((child, idx) => {
           const card = child as HTMLElement;
           const cardCenter = card.offsetLeft + card.clientWidth / 2;
@@ -171,7 +171,7 @@ const Testimonials: React.FC = () => {
             closestIdx = idx;
           }
         });
-        
+
         setActiveIdx(closestIdx);
       }, 100);
     };
@@ -238,8 +238,9 @@ const Testimonials: React.FC = () => {
             const role = (t as any).role || 'Client';
             const text = (t as any).text || '';
             const rating = t.rating ?? 5;
-            const avatarUrl = t.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=250&auto=format&fit=crop';
-            
+            const avatarUrl = t.avatarUrl || '';
+            const initials = name ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'C';
+
             const circleBg = isStatic ? (t as any).circleBg : '#f1f5f9';
             const offsetClass = isStatic ? (t as any).offsetClass : (idx % 2 === 0 ? '-translate-x-2 -translate-y-2' : 'translate-x-2 -translate-y-2');
 
@@ -261,12 +262,19 @@ const Testimonials: React.FC = () => {
                     style={{ backgroundColor: circleBg }}
                   />
                   {/* Portrait Avatar */}
-                  <div className="w-20 h-20 rounded-full overflow-hidden border-[4px] border-white dark:border-slate-900 shadow-md z-10 group-hover:scale-105 transition-transform duration-300 relative flex items-center justify-center">
-                    <img
-                      src={avatarUrl}
-                      alt={name}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-[4px] border-white dark:border-slate-900 shadow-md z-10 group-hover:scale-105 transition-transform duration-300 relative flex items-center justify-center bg-slate-900 text-white font-bold text-xl">
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt={name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <span className="text-[#e52521] font-black tracking-wider">{initials}</span>
+                    )}
                     {isEditMode && (
                       <label className="absolute inset-0 bg-black/60 z-20 flex items-center justify-center cursor-pointer text-white">
                         <Edit2 size={12} className="animate-pulse" />
@@ -280,7 +288,7 @@ const Testimonials: React.FC = () => {
                             try {
                               const res = await uploadToCloudinary(e.target.files[0]);
                               const docId = t.id.startsWith('static-') ? t.id.replace('static-', 'testimonial-') : t.id;
-                              
+
                               const docRef = doc(db, 'testimonials', docId);
                               const snap = await getDoc(docRef);
 
@@ -300,7 +308,7 @@ const Testimonials: React.FC = () => {
                                 };
                                 await setDoc(docRef, newDoc);
                               }
-                              
+
                               await fetchAllFromFirestore();
                               window.dispatchEvent(new CustomEvent('liveEditSaveStatus', { detail: 'saved' }));
                             } catch (err) {

@@ -53,7 +53,7 @@ async function migrate() {
         title: 'File Transfer',
         description: 'Send files up to 100 GB instantly via secure peer-to-peer connection. Get a shareable link or email directly — free, no registration required.',
         iconUrl: '/file-transfer-icon.svg',
-        bgImageUrl: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?q=80&w=600&auto=format&fit=crop',
+        bgImageUrl: '',
         linkUrl: 'file-transfer',
         badge: 'NEW',
         order: 15
@@ -63,7 +63,7 @@ async function migrate() {
         title: 'Website Screenshot Studio',
         description: 'Capture high-resolution full-page scrolling screenshots of any site. Customize device viewports, resolutions, and download captures instantly.',
         iconUrl: '/screenshot-capture-icon.svg',
-        bgImageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&auto=format&fit=crop',
+        bgImageUrl: '',
         linkUrl: 'screenshot-studio',
         badge: 'NEW',
         order: 16
@@ -73,7 +73,7 @@ async function migrate() {
         title: 'Developer Card Studio',
         description: 'Design customized developer profile cards and OpenGraph preview banners. Export as PNG images or copy copyable SVG/React vector markups.',
         iconUrl: '/dev-card.svg',
-        bgImageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop',
+        bgImageUrl: '',
         linkUrl: 'dev-card-studio',
         badge: 'NEW',
         order: 14

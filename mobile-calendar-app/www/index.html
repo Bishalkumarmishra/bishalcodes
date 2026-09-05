@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <title>Nepali Calendar Mobile</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Lucide Icons CDN fallback & Local script -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="app" class="mobile-container">
+    <!-- Native Header Bar -->
+    <header class="app-header">
+      <div class="header-left">
+        <span class="flag-icon">🇳🇵</span>
+        <div>
+          <h1 id="monthTitle" class="header-title">वैशाख २०८३</h1>
+          <p id="subTitle" class="header-sub">Baisakh 2083 (Apr/May 2026)</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="todayBtn" class="today-badge">आज (Today)</button>
+      </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="month-nav">
+      <button id="prevBtn" class="nav-arrow">&larr; अघिल्लो</button>
+      <div class="month-selector">
+        <select id="monthSelect" class="month-dropdown"></select>
+        <select id="yearSelect" class="year-dropdown"></select>
+      </div>
+      <button id="nextBtn" class="nav-arrow">पछिल्लो &rarr;</button>
+    </nav>
+
+    <!-- Main Content Tab Views -->
+    <main class="main-content">
+      <!-- CALENDAR GRID VIEW -->
+      <section id="calendarView" class="tab-view active">
+        <!-- Weekdays Header -->
+        <div class="weekdays-grid">
+          <span>आइत</span>
+          <span>सोम</span>
+          <span>मङ्गल</span>
+          <span>बुध</span>
+          <span>बिही</span>
+          <span>शुक्र</span>
+          <span class="saturday">शनि</span>
+        </div>
+
+        <!-- Days Grid -->
+        <div id="daysGrid" class="days-grid"></div>
+
+        <!-- Holidays & Events Box -->
+        <div class="events-card">
+          <h3 class="events-title">यो महिनाका पर्व तथा बिदाहरू (Holidays)</h3>
+          <ul id="eventsList" class="events-list"></ul>
+        </div>
+      </section>
+
+      <!-- DATE CONVERTER VIEW -->
+      <section id="converterView" class="tab-view">
+        <div class="card-box">
+          <h2 class="card-title">BS ↔ AD date converter</h2>
+          
+          <div class="converter-toggle">
+            <button id="bsToAdBtn" class="toggle-btn active">BS to AD</button>
+            <button id="adToBsBtn" class="toggle-btn">AD to BS</button>
+          </div>
+
+          <div id="converterInputs" class="converter-form">
+            <!-- Inputs dynamically populated -->
+          </div>
+
+          <button id="convertExecBtn" class="primary-btn">Convert Date</button>
+
+          <div id="convertResult" class="result-box">
+            <span class="result-label">Result:</span>
+            <strong id="resultText">Select date to convert</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- MOBILE DOWNLOADS & PROFILES VIEW -->
+      <section id="downloadView" class="tab-view">
+        <div class="card-box">
+          <h2 class="card-title">Native App Downloads</h2>
+          <p class="card-desc">Install Nepali Calendar directly on iOS & Android</p>
+
+          <div class="download-cards">
+            <!-- iOS WebClip Profile -->
+            <div class="app-download-item">
+              <div class="item-header">
+                <span class="icon">🍎</span>
+                <div>
+                  <h4>iOS Profile (.mobileconfig)</h4>
+                  <p>iPhone & iPad Standalone App</p>
+                </div>
+              </div>
+              <a href="/api/ios-profile?type=webclip&title=Nepali+Calendar&url=https%3A%2F%2Fbishalcodes.com%2Fwidgets%2Fcalendar&organization=Bishal+Codes" download class="action-btn ios-btn">
+                Download iOS Profile
+              </a>
+              <p class="help-text">Tap Download → Open iPhone Settings → Install Profile</p>
+            </div>
+
+            <!-- Android APK -->
+            <div class="app-download-item">
+              <div class="item-header">
+                <span class="icon">🤖</span>
+                <div>
+                  <h4>Android APK (.apk)</h4>
+                  <p>Android Phones & Tablets</p>
+                </div>
+              </div>
+              <a href="/downloads/NepaliCalendar-Mobile.apk" download class="action-btn android-btn">
+                Download Android APK
+              </a>
+              <p class="help-text">Direct APK installer for all Android devices</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <footer class="bottom-bar">
+      <button class="bar-tab active" data-tab="calendarView">
+        <span class="tab-icon">📅</span>
+        <span class="tab-label">क्यालेन्डर</span>
+      </button>
+      <button class="bar-tab" data-tab="converterView">
+        <span class="tab-icon">🔄</span>
+        <span class="tab-label">मिति रूपान्तरण</span>
+      </button>
+      <button class="bar-tab" data-tab="downloadView">
+        <span class="tab-icon">📲</span>
+        <span class="tab-label">मोबाइल एप्स</span>
+      </button>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

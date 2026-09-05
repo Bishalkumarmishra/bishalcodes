@@ -1,0 +1,20 @@
+{
+  "appId": "com.bishalcodes.nepalicalendar",
+  "appName": "Nepali Calendar",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "backgroundColor": "#050507",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#050507"
+    }
+  }
+}
