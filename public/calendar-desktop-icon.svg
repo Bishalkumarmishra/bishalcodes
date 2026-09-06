@@ -1,242 +1,240 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
-    <!-- ▸ BACKGROUND SQUIRCLE 3-Stop Gradient (deep red top → dark crimson bottom) -->
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+    <!-- Squircle background gradient -->
+    <linearGradient id="sqBg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%"   stop-color="#e8191f"/>
-      <stop offset="50%"  stop-color="#c9101b"/>
-      <stop offset="100%" stop-color="#900a0d"/>
+      <stop offset="55%"  stop-color="#cc1218"/>
+      <stop offset="100%" stop-color="#8c0b0f"/>
     </linearGradient>
 
-    <!-- ▸ Subtle gloss overlay on squircle top -->
-    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.28"/>
-      <stop offset="60%"  stop-color="#ffffff" stop-opacity="0"/>
-    </linearGradient>
-
-    <!-- ▸ Red calendar header gradient -->
+    <!-- Calendar red header gradient -->
     <linearGradient id="calHdr" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%"   stop-color="#e8191f"/>
-      <stop offset="100%" stop-color="#ba1017"/>
+      <stop offset="100%" stop-color="#b80f14"/>
     </linearGradient>
 
-    <!-- ▸ Calendar white page subtle paper gradient -->
-    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+    <!-- Ring gradient (glossy white pill) -->
+    <linearGradient id="ringG" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%"   stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#f4f5f7"/>
+      <stop offset="20%"  stop-color="#ffffff"/>
+      <stop offset="65%"  stop-color="#dde3ef"/>
+      <stop offset="100%" stop-color="#aab2c4"/>
+    </linearGradient>
+    <linearGradient id="ringTop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#c8cfdc" stop-opacity="0"/>
     </linearGradient>
 
-    <!-- ▸ Mountain blue gradient -->
-    <linearGradient id="mtn" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stop-color="#2c6db5"/>
-      <stop offset="100%" stop-color="#0f2d5e"/>
+    <!-- Mountain blue -->
+    <linearGradient id="mtnBlue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#2466b0"/>
+      <stop offset="100%" stop-color="#0d2f68"/>
     </linearGradient>
 
-    <!-- ▸ Mountain front (slightly lighter) -->
-    <linearGradient id="mtnFront" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stop-color="#3278c8"/>
-      <stop offset="100%" stop-color="#143668"/>
+    <!-- Page curl gradient -->
+    <linearGradient id="curlG" x1="1" y1="1" x2="0" y2="0">
+      <stop offset="0%"   stop-color="#b8bfce"/>
+      <stop offset="50%"  stop-color="#d8dde8"/>
+      <stop offset="100%" stop-color="#f5f6f8"/>
     </linearGradient>
 
-    <!-- ▸ Pagoda roof gradient (bright red → dark) -->
-    <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stop-color="#e82c2c"/>
-      <stop offset="100%" stop-color="#9c0c0e"/>
+    <!-- Pagoda red gradient -->
+    <linearGradient id="pagRed" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#e82020"/>
+      <stop offset="100%" stop-color="#a80e12"/>
     </linearGradient>
 
-    <!-- ▸ Metal ring binder gradient (white gloss) -->
-    <linearGradient id="ring" x1="0" y1="0.5" x2="1" y2="0.5">
-      <stop offset="0%"   stop-color="#ffffff"/>
-      <stop offset="30%"  stop-color="#e8ecf4"/>
-      <stop offset="70%"  stop-color="#c4cad8"/>
-      <stop offset="100%" stop-color="#9aa2b4"/>
-    </linearGradient>
-
-    <!-- ▸ Page curl gradient (paper fold) -->
-    <linearGradient id="curl" x1="1" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stop-color="#c8cfdc"/>
-      <stop offset="50%"  stop-color="#dde2ea"/>
-      <stop offset="100%" stop-color="#f0f2f5"/>
-    </linearGradient>
-
-    <!-- ▸ Drop shadows -->
-    <filter id="calShadow" x="-15%" y="-15%" width="130%" height="145%">
-      <feDropShadow dx="0" dy="24" stdDeviation="20" flood-color="#1a0000" flood-opacity="0.55"/>
+    <!-- Shadows/filters -->
+    <filter id="calDrop" x="-20%" y="-15%" width="145%" height="155%">
+      <feDropShadow dx="0" dy="30" stdDeviation="24" flood-color="#1a0000" flood-opacity="0.5"/>
     </filter>
-    <filter id="ringShadow" x="-50%" y="-30%" width="200%" height="180%">
-      <feDropShadow dx="0" dy="10" stdDeviation="7" flood-color="#000000" flood-opacity="0.4"/>
+    <filter id="ringDrop" x="-60%" y="-40%" width="220%" height="200%">
+      <feDropShadow dx="0" dy="14" stdDeviation="10" flood-color="#000" flood-opacity="0.38"/>
     </filter>
-    <filter id="txtShadow" x="-10%" y="-30%" width="120%" height="160%">
-      <feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="#250000" flood-opacity="0.7"/>
+    <filter id="txtDrop" x="-15%" y="-30%" width="130%" height="160%">
+      <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#1a0000" flood-opacity="0.7"/>
     </filter>
-    <filter id="curlShadow" x="-60%" y="-60%" width="220%" height="220%">
-      <feDropShadow dx="-8" dy="-8" stdDeviation="10" flood-color="#000000" flood-opacity="0.28"/>
+    <filter id="curlDrop" x="-80%" y="-80%" width="260%" height="260%">
+      <feDropShadow dx="-6" dy="-6" stdDeviation="9" flood-color="#000" flood-opacity="0.22"/>
     </filter>
 
-    <!-- ▸ Clip: white calendar page area only -->
-    <clipPath id="pageClip">
-      <rect x="196" y="256" width="632" height="460"/>
+    <!-- Clip: inner calendar page -->
+    <clipPath id="pgClip">
+      <rect x="205" y="270" width="614" height="460" rx="0"/>
     </clipPath>
 
-    <!-- ▸ Pagoda roof underside shadow -->
-    <linearGradient id="eaveShad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#7a0a0a" stop-opacity="0.5"/>
-      <stop offset="100%" stop-color="#7a0a0a" stop-opacity="0"/>
-    </linearGradient>
+    <!-- Calendar header + body clip (rounded top) -->
+    <clipPath id="calFullClip">
+      <rect x="205" y="158" width="614" height="572" rx="50" ry="50"/>
+    </clipPath>
   </defs>
 
-  <!-- ══════════════════════════════════════
-       1. BACKGROUND RED SQUIRCLE
-       ══════════════════════════════════════ -->
-  <rect x="32" y="32" width="960" height="960" rx="218" ry="218" fill="url(#bg)"/>
-  <!-- gloss layer -->
-  <rect x="38" y="38" width="948" height="480" rx="212" ry="212" fill="url(#gloss)"/>
+  <!-- ═══════════════════════════════════════════
+       1. RED SQUIRCLE BACKGROUND
+       ═══════════════════════════════════════════ -->
+  <rect x="24" y="24" width="976" height="976" rx="228" ry="228" fill="url(#sqBg)"/>
 
-  <!-- ══════════════════════════════════════
-       2. WHITE CALENDAR PAD (with shadow)
-       ══════════════════════════════════════ -->
-  <g filter="url(#calShadow)">
+  <!-- ═══════════════════════════════════════════
+       2. CALENDAR (with full drop-shadow)
+       ═══════════════════════════════════════════ -->
+  <g filter="url(#calDrop)">
 
-    <!-- Main white calendar body -->
-    <rect x="196" y="148" width="632" height="580" rx="52" ry="52" fill="url(#paper)"/>
+    <!-- White calendar body base -->
+    <rect x="205" y="158" width="614" height="572" rx="50" ry="50" fill="#ffffff"/>
 
-    <!-- Red calendar top header strip -->
-    <path d="M196,200 Q196,148 248,148 L776,148 Q828,148 828,200 L828,292 L196,292 Z"
-          fill="url(#calHdr)"/>
+    <!-- ─── Red top header ─── -->
+    <g clip-path="url(#calFullClip)">
+      <rect x="205" y="158" width="614" height="112" fill="url(#calHdr)"/>
+    </g>
 
-    <!-- Punch-hole ring sockets (dark recesses) -->
-    <!-- Left socket -->
-    <rect x="316" y="178" width="72" height="72" rx="36" ry="36" fill="#750000" opacity="0.9"/>
-    <rect x="322" y="184" width="60" height="60" rx="30" ry="30" fill="#3e0002"/>
-    <!-- Right socket -->
-    <rect x="636" y="178" width="72" height="72" rx="36" ry="36" fill="#750000" opacity="0.9"/>
-    <rect x="642" y="184" width="60" height="60" rx="30" ry="30" fill="#3e0002"/>
+    <!-- ─── Ring punch holes (dark circular recesses) ─── -->
+    <!-- Left hole -->
+    <circle cx="358" cy="200" r="35" fill="#7a0608"/>
+    <circle cx="358" cy="200" r="28" fill="#3e0103"/>
+    <!-- Right hole -->
+    <circle cx="666" cy="200" r="35" fill="#7a0608"/>
+    <circle cx="666" cy="200" r="28" fill="#3e0103"/>
 
-    <!-- ─── CALENDAR PAGE CONTENT (clipped) ─── -->
-    <g clip-path="url(#pageClip)">
+    <!-- ─── INNER PAGE CONTENT ─── -->
+    <g clip-path="url(#pgClip)">
 
-      <!-- ─── Blue Himalayan Mountains (back layer) ─── -->
-      <!-- Far left mountain -->
-      <polygon points="196,716 196,550 308,370 420,530 196,716" fill="url(#mtn)"/>
-      <!-- Snow on far left peak -->
-      <polygon points="308,370 275,430 295,440 268,470 308,452 340,476 325,436 358,448" fill="#ffffff"/>
-      <polygon points="308,370 295,440 308,452 325,436" fill="#dce8f8"/>
+      <!-- White page background (extends to bottom of clip) -->
+      <rect x="205" y="270" width="614" height="460" fill="#ffffff"/>
 
-      <!-- Main center-left mountain -->
-      <polygon points="196,716 370,716 535,395 700,716 620,716" fill="url(#mtn)"/>
-      <!-- Snow on center peak -->
-      <polygon points="535,395 498,460 520,468 490,510 535,488 572,518 558,468 594,480" fill="#ffffff"/>
-      <polygon points="535,395 520,468 535,488 558,468" fill="#dce8f8"/>
+      <!-- ─── NEPAL FLAG EMBLEM (top-right of white page) ─── -->
+      <!-- Crescent moon (red) -->
+      <path d="M700,295 C728,295 752,315 756,344
+               C760,370 748,393 728,406
+               C750,392 762,368 758,342
+               C754,316 734,298 710,295 Z"
+            fill="#cc1218"/>
+      <!-- Starburst / sun (12-pointed, red) -->
+      <g transform="translate(700,360)">
+        <circle cx="0" cy="0" r="14" fill="#cc1218"/>
+        <!-- 12 spikes -->
+        <line x1="0" y1="-26" x2="0" y2="-16" stroke="#cc1218" stroke-width="5"/>
+        <line x1="13" y1="-22" x2="8" y2="-14" stroke="#cc1218" stroke-width="5"/>
+        <line x1="22" y1="-13" x2="14" y2="-8" stroke="#cc1218" stroke-width="5"/>
+        <line x1="26" y1="0" x2="16" y2="0" stroke="#cc1218" stroke-width="5"/>
+        <line x1="22" y1="13" x2="14" y2="8" stroke="#cc1218" stroke-width="5"/>
+        <line x1="13" y1="22" x2="8" y2="14" stroke="#cc1218" stroke-width="5"/>
+        <line x1="0" y1="26" x2="0" y2="16" stroke="#cc1218" stroke-width="5"/>
+        <line x1="-13" y1="22" x2="-8" y2="14" stroke="#cc1218" stroke-width="5"/>
+        <line x1="-22" y1="13" x2="-14" y2="8" stroke="#cc1218" stroke-width="5"/>
+        <line x1="-26" y1="0" x2="-16" y2="0" stroke="#cc1218" stroke-width="5"/>
+        <line x1="-22" y1="-13" x2="-14" y2="-8" stroke="#cc1218" stroke-width="5"/>
+        <line x1="-13" y1="-22" x2="-8" y2="-14" stroke="#cc1218" stroke-width="5"/>
+      </g>
 
-      <!-- Right mountain -->
-      <polygon points="560,716 828,716 828,560 700,420 560,596" fill="url(#mtnFront)"/>
-      <!-- Snow on right peak -->
-      <polygon points="700,420 668,482 690,490 660,528 700,506 732,534 720,486 758,498" fill="#ffffff"/>
-      <polygon points="700,420 690,490 700,506 720,486" fill="#dce8f8"/>
+      <!-- ─── RED PAGODA TEMPLE ─── -->
+      <g transform="translate(436,272)">
 
-      <!-- Mountain base fill (ground line) -->
-      <rect x="196" y="700" width="632" height="16" fill="#0f2d5e"/>
+        <!-- SPIRE / FINIAL at top -->
+        <line x1="75" y1="0" x2="75" y2="18" stroke="#cc1218" stroke-width="6"/>
+        <circle cx="75" cy="0" r="7" fill="#cc1218"/>
 
-      <!-- ─── Red Pagoda Temple (center) ─── -->
-      <g transform="translate(512,262)">
-        <!-- Gajur pinnacle tip -->
-        <ellipse cx="0" cy="-28" rx="5" ry="7" fill="#e51c22"/>
-        <polygon points="0,-22  5,-10  3,-10  6,0  -6,0  -3,-10  -5,-10" fill="#c8101a"/>
+        <!-- TIER 1 – topmost tiny roof -->
+        <polygon points="75,18  40,38  110,38" fill="url(#pagRed)"/>
+        <!-- small underside shading -->
+        <line x1="40" y1="38" x2="110" y2="38" stroke="#8c0c10" stroke-width="3"/>
+        <!-- tier 1 body -->
+        <rect x="52" y="38" width="46" height="22" fill="#cc1218"/>
+        <!-- tier 1 mini-eave (wider) -->
+        <polygon points="75,60  28,74  122,74" fill="url(#pagRed)"/>
+        <line x1="28" y1="74" x2="122" y2="74" stroke="#8c0c10" stroke-width="3"/>
 
-        <!-- Level 1 (topmost tiny roof) -->
-        <polygon points="0,-8  44,14  -44,14" fill="url(#roof)"/>
-        <rect x="-44" y="14" width="88" height="7" rx="2" fill="#7a0c0e"/>
-        <!-- eave underside -->
-        <rect x="-44" y="14" width="88" height="4" fill="url(#eaveShad)"/>
+        <!-- TIER 2 – mid roof (wider) -->
+        <rect x="46" y="74" width="58" height="30" fill="#cc1218"/>
+        <!-- windows tier 2 -->
+        <rect x="54" y="82" width="14" height="18" rx="2" fill="#ffffff" opacity="0.9"/>
+        <rect x="82" y="82" width="14" height="18" rx="2" fill="#ffffff" opacity="0.9"/>
+        <!-- tier 2 eave -->
+        <polygon points="75,104  8,126  142,126" fill="url(#pagRed)"/>
+        <line x1="8" y1="126" x2="142" y2="126" stroke="#8c0c10" stroke-width="3"/>
 
-        <!-- Level 1 body -->
-        <rect x="-22" y="21" width="44" height="20" fill="#c8101a"/>
-
-        <!-- Level 2 roof -->
-        <polygon points="0,40  80,68  -80,68" fill="url(#roof)"/>
-        <rect x="-80" y="68" width="160" height="9" rx="2" fill="#7a0c0e"/>
-        <rect x="-80" y="68" width="160" height="5" fill="url(#eaveShad)"/>
-
-        <!-- Level 2 body -->
-        <rect x="-42" y="77" width="84" height="26" fill="#c8101a"/>
-        <!-- small windows level 2 -->
-        <rect x="-30" y="82" width="14" height="16" rx="2" fill="#ffffff" opacity="0.9"/>
-        <rect x="-7" y="82" width="14" height="16" rx="2" fill="#ffffff" opacity="0.9"/>
-        <rect x="16" y="82" width="14" height="16" rx="2" fill="#ffffff" opacity="0.9"/>
-
-        <!-- Level 3 (wide main) roof -->
-        <polygon points="0,103  155,142  -155,142" fill="url(#roof)"/>
-        <rect x="-155" y="142" width="310" height="11" rx="2" fill="#7a0c0e"/>
-        <rect x="-155" y="142" width="310" height="6" fill="url(#eaveShad)"/>
-
-        <!-- Level 3 body / main facade -->
-        <rect x="-80" y="153" width="160" height="68" fill="#c8101a"/>
+        <!-- TIER 3 – wide main body -->
+        <rect x="22" y="126" width="106" height="50" fill="#cc1218"/>
         <!-- pillars -->
-        <rect x="-72" y="153" width="10" height="68" fill="#9e0c10"/>
-        <rect x="-35" y="153" width="10" height="68" fill="#9e0c10"/>
-        <rect x="25"  y="153" width="10" height="68" fill="#9e0c10"/>
-        <rect x="62"  y="153" width="10" height="68" fill="#9e0c10"/>
-        <!-- center main door -->
-        <rect x="-22" y="180" width="44" height="41" rx="4" fill="#ffffff" opacity="0.95"/>
-        <!-- side windows -->
-        <rect x="-65" y="165" width="20" height="28" rx="3" fill="#ffffff" opacity="0.9"/>
-        <rect x="45"  y="165" width="20" height="28" rx="3" fill="#ffffff" opacity="0.9"/>
+        <rect x="26" y="126" width="8" height="50" fill="#9e0c10"/>
+        <rect x="48" y="126" width="8" height="50" fill="#9e0c10"/>
+        <rect x="94" y="126" width="8" height="50" fill="#9e0c10"/>
+        <rect x="116" y="126" width="8" height="50" fill="#9e0c10"/>
+        <!-- center door arch -->
+        <rect x="64" y="142" width="22" height="34" rx="4" fill="#ffffff" opacity="0.95"/>
+        <!-- tier 3 wide eave -->
+        <polygon points="75,176  -30,204  180,204" fill="url(#pagRed)"/>
+        <line x1="-30" y1="204" x2="180" y2="204" stroke="#8c0c10" stroke-width="3"/>
 
-        <!-- Plinth steps -->
-        <rect x="-100" y="221" width="200" height="12" rx="2" fill="#9e0c10"/>
-        <rect x="-115" y="233" width="230" height="13" rx="2" fill="#7a0c0e"/>
-        <rect x="-130" y="246" width="260" height="14" rx="2" fill="#600a0d"/>
+        <!-- BASE STEPS / PLINTH -->
+        <rect x="-12" y="204" width="174" height="16" fill="#9e0c10"/>
+        <rect x="-26" y="220" width="202" height="14" fill="#8c0c10"/>
+        <rect x="-42" y="234" width="234" height="14" fill="#780a0d"/>
       </g>
+      <!-- end pagoda -->
 
-      <!-- ─── Nepal Sun & Moon emblems (top-right of white page) ─── -->
-      <!-- Crescent Moon -->
-      <path d="M694,278 C720,278 744,298 748,328
-               C752,352 742,376 724,390
-               C745,375 756,352 752,326
-               C748,302 730,284 708,280
-               C703,279 698,278 694,278 Z"
-            fill="#e51c22"/>
-      <!-- 12-pointed starburst / sun -->
-      <g transform="translate(672,345) scale(0.9)">
-        <polygon points="0,-28 3,-10 10,-18 5,-2 20,-8 8,4 22,12 6,10 14,26 2,16 2,32 -2,16 -14,26 -6,10 -22,12 -8,4 -20,-8 -5,-2 -10,-18 -3,-10" fill="#e51c22"/>
-      </g>
+      <!-- ─── BLUE HIMALAYAN MOUNTAINS (below pagoda, flat style) ─── -->
+      <!-- Left peak -->
+      <polygon points="205,730  205,560  340,390  460,530  380,730"
+               fill="url(#mtnBlue)"/>
+      <!-- Left peak snow highlight (white sharp ridge) -->
+      <polygon points="340,390  318,430  340,424  362,430" fill="#ffffff" opacity="0.9"/>
+      <polygon points="340,390  308,450  328,456  340,424" fill="#e0e8f8"/>
+
+      <!-- Center-main peak -->
+      <polygon points="300,730  490,380  680,730" fill="url(#mtnBlue)"/>
+      <!-- Center snow -->
+      <polygon points="490,380  465,432  490,426  515,432" fill="#ffffff" opacity="0.9"/>
+      <polygon points="490,380  455,450  475,455  490,426" fill="#e0e8f8"/>
+
+      <!-- Right slope -->
+      <polygon points="580,730  680,470  819,600  819,730" fill="url(#mtnBlue)"/>
+      <!-- Right peak snow -->
+      <polygon points="680,470  660,516  680,510  700,516" fill="#ffffff" opacity="0.9"/>
+
+      <!-- Mountain base solid (ground level fill) -->
+      <rect x="205" y="720" width="614" height="10" fill="#0d2f68"/>
 
     </g>
-    <!-- end pageClip -->
+    <!-- end page clip -->
 
-    <!-- ─── Page curl bottom-right corner ─── -->
-    <g filter="url(#curlShadow)">
-      <path d="M 700,728 C740,710 780,668 828,572 L828,640 Q828,728 740,728 Z"
-            fill="url(#curl)"/>
-    </g>
-
-    <!-- ─── Binder Rings (front, with 3D metallic gloss) ─── -->
-    <!-- Left ring -->
-    <g filter="url(#ringShadow)">
-      <rect x="328" y="114" width="48" height="140" rx="24" ry="24" fill="url(#ring)"/>
-      <!-- gloss highlight stripe on ring -->
-      <rect x="333" y="119" width="11" height="130" rx="5" fill="#ffffff" opacity="0.75"/>
-    </g>
-    <!-- Right ring -->
-    <g filter="url(#ringShadow)">
-      <rect x="648" y="114" width="48" height="140" rx="24" ry="24" fill="url(#ring)"/>
-      <rect x="653" y="119" width="11" height="130" rx="5" fill="#ffffff" opacity="0.75"/>
+    <!-- ─── PAGE CURL (bottom-right corner) ─── -->
+    <g filter="url(#curlDrop)">
+      <path d="M 698,730 C 738,710 778,665 819,568 L 819,648 Q 819,730 736,730 Z"
+            fill="url(#curlG)"/>
     </g>
 
   </g>
-  <!-- end calShadow group -->
+  <!-- end calendar shadow group -->
 
-  <!-- ══════════════════════════════════════
-       3. "Mero Patro" BOLD TEXT AT BOTTOM
-       ══════════════════════════════════════ -->
+  <!-- ═══════════════════════════════════════════
+       3. BINDER RINGS (above calendar, prominent 3D white pills)
+       ═══════════════════════════════════════════ -->
+  <!-- Left ring -->
+  <g filter="url(#ringDrop)">
+    <rect x="336" y="120" width="44" height="152" rx="22" ry="22" fill="url(#ringG)"/>
+    <!-- inner highlight -->
+    <rect x="341" y="125" width="13" height="142" rx="6" fill="#ffffff" opacity="0.7"/>
+    <rect x="336" y="120" width="44" height="40" rx="22" fill="url(#ringTop)"/>
+  </g>
+  <!-- Right ring -->
+  <g filter="url(#ringDrop)">
+    <rect x="644" y="120" width="44" height="152" rx="22" ry="22" fill="url(#ringG)"/>
+    <rect x="649" y="125" width="13" height="142" rx="6" fill="#ffffff" opacity="0.7"/>
+    <rect x="644" y="120" width="44" height="40" rx="22" fill="url(#ringTop)"/>
+  </g>
+
+  <!-- ═══════════════════════════════════════════
+       4. "Mero Patro" TEXT  (on red background, below calendar)
+       ═══════════════════════════════════════════ -->
   <text
-    x="512" y="860"
+    x="512" y="872"
     font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif"
     font-weight="900"
-    font-size="88"
+    font-size="96"
     fill="#ffffff"
     text-anchor="middle"
-    letter-spacing="1"
-    filter="url(#txtShadow)"
+    letter-spacing="0"
+    filter="url(#txtDrop)"
   >Mero Patro</text>
 
 </svg>
