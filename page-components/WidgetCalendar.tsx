@@ -5,7 +5,7 @@ import {
   Home, Newspaper, Sparkles, User, Sun, Moon, Search, Menu, Bell,
   ArrowRight, ShieldCheck, CheckCircle2, RefreshCw, Layers, ArrowUpRight,
   TrendingUp, Clock, MapPin, Heart, Share2, Compass, ChevronDown, Download,
-  Grid, PhoneCall, Radio, Bookmark, HelpCircle, Code, Cpu, Check, ExternalLink, X
+  Grid, PhoneCall, Radio, Bookmark, HelpCircle, Code, Cpu, Check, ExternalLink, X, Plus, Scan
 } from 'lucide-react';
 // @ts-ignore
 import { signInWithRedirect, getRedirectResult } from 'firebase/auth';
@@ -23,79 +23,23 @@ const NEPALI_MONTHS_NE = [
 ];
 
 const DAYS_NE_SHORT = ["आइ", "सोम", "मङ्गल", "बुध", "बिहि", "शुक्र", "शनि"];
+const DAYS_EN_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const DAYS_NE_FULL = ["आइतबार", "सोमबार", "मङ्गलबार", "बुधबार", "बिहीबार", "शुक्रबार", "शनिबार"];
+const DAYS_EN_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const NE_MONTHS_EVENTS: Record<number, Record<number, { title: string; isHoliday: boolean; desc?: string }>> = {
-  0: {
-    1: { title: "नयाँ वर्ष / मे दिवस", isHoliday: true, desc: "नयाँ वर्ष २०८३ को हार्दिक शुभकामना" },
-    11: { title: "लोकतन्त्र दिवस", isHoliday: true },
-    30: { title: "मातातीर्थ औंसी (आमाको मुख हेर्ने दिन)", isHoliday: false }
-  },
-  1: {
-    15: { title: "गणतन्त्र दिवस", isHoliday: true }
-  },
-  2: {
-    1: { title: "मिथुन संक्रान्ति / सोमबारे औंसी", isHoliday: false },
-    6: { title: "भोटो जात्रा / सिथि नखः / कुमारषष्ठी", isHoliday: true },
-    11: { title: "निर्जला एकादशी व्रत", isHoliday: false },
-    15: { title: "दही चिउरा खाने दिन / राष्ट्रिय धान दिवस", isHoliday: false },
-    29: { title: "भानु जयन्ती", isHoliday: false }
-  },
-  3: {
-    1: { title: "साउने संक्रान्ति / लुतो फाल्ने दिन", isHoliday: false },
-    15: { title: "खीर खाने दिन", isHoliday: false },
-    27: { title: "जनै पूर्णिमा / रक्षा बन्धन / ऋषितर्पणी", isHoliday: true, desc: "पवित्र डोरो बाँध्ने र रक्षाबन्धन पर्व" },
-    28: { title: "गाईजात्रा (Saaparu)", isHoliday: true }
-  },
-  4: {
-    3: { title: "कृष्ण जन्माष्टमी (Shree Krishna Janmashtami)", isHoliday: true },
-    4: { title: "गौरा पर्व / दर खाने दिन", isHoliday: true },
-    5: { title: "हरितालिका तीज व्रत", isHoliday: true, desc: "महिलाहरूको महान पर्व तीज व्रत" },
-    6: { title: "गणेश चतुर्थी / गणेश जन्मोत्सव", isHoliday: false },
-    7: { title: "ऋषि पञ्चमी", isHoliday: false },
-    20: { title: "मानव बेचबिखन विरुद्ध राष्ट्रिय दिवस, विराटनगरमा राधाकृष्ण रथयात्रा, गुंलागा नवमी", isHoliday: false }
-  },
-  5: {
-    3: { title: "इन्द्रजात्रा (Yenya Punhi)", isHoliday: true },
-    16: { title: "विश्व पर्यटन दिवस", isHoliday: false },
-    28: { title: "घटस्थापना (Dashain Begins)", isHoliday: true, desc: "बडा दशैँको पहिलो दिन घटस्थापना" }
-  },
-  6: {
-    4: { title: "फूलपाती (Maha Saptami)", isHoliday: true },
-    5: { title: "महा अष्टमी (Maha Ashtami)", isHoliday: true },
-    6: { title: "महानवमी (Maha Navami)", isHoliday: true },
-    7: { title: "विजया दशमी (Bijaya Dashami)", isHoliday: true, desc: "टीका तथा जमरा लगाउने मुख्य दिन" },
-    8: { title: "पापाङ्कुशा एकादशी", isHoliday: true },
-    11: { title: "कोजाग्रत पूर्णिमा (Dashain Ends)", isHoliday: true },
-    27: { title: "कागतिहार", isHoliday: false },
-    28: { title: "कुकुरतिहार / लक्ष्मीपूजा", isHoliday: true, desc: "दीपावली तथा धनकी देवी लक्ष्मीको पूजा" },
-    29: { title: "गाईपूजा / गोवर्धन पूजा / म्हपूजा", isHoliday: true },
-    30: { title: "भाइटीका (Tihar Diwas)", isHoliday: true, desc: "दिदीबहिनी र दाजुभाइको पवित्र पर्व भाइटीका" }
-  },
-  7: {
-    3: { title: "छठ पर्व (Chhath Parva)", isHoliday: true, desc: "सूर्यदेवको उपासना गरिने महापर्व छठ" },
-    24: { title: "उधौली पर्व / धान्य पूर्णिमा / योमरी पुन्ही", isHoliday: true }
-  },
-  8: {
-    10: { title: "क्रिसमस डे (Christmas Day)", isHoliday: true },
-    15: { title: "तमु ल्होसार", isHoliday: true },
-    29: { title: "पृथ्वी जयन्ती / राष्ट्रिय एकता दिवस", isHoliday: false }
-  },
-  9: {
-    1: { title: "माघे संक्रान्ति / मकर संक्रान्ति", isHoliday: true },
-    16: { title: "सहिद दिवस (Martyr's Day)", isHoliday: false },
-    21: { title: "सोनाम ल्होसार", isHoliday: true }
-  },
-  10: {
-    7: { title: "सरस्वती पूजा / वसन्त पञ्चमी", isHoliday: true },
-    19: { title: "प्रजातन्त्र दिवस", isHoliday: true },
-    24: { title: "महाशिवरात्रि", isHoliday: true, desc: "भगवान शिवको आराधना गरिने पावन रात्रि" }
-  },
-  11: {
-    1: { title: "फागु पूर्णिमा (Holi - Pahad)", isHoliday: true, desc: "रङहरूको पर्व फागु पूर्णिमा होली" },
-    2: { title: "फागु पूर्णिमा (Holi - Terai)", isHoliday: true },
-    25: { title: "रामनवमी", isHoliday: true }
-  }
+  0: { 1: { title: "नयाँ वर्ष / मे दिवस", isHoliday: true }, 11: { title: "लोकतन्त्र दिवस", isHoliday: true } },
+  1: { 15: { title: "गणतन्त्र दिवस", isHoliday: true } },
+  2: { 1: { title: "मिथुन संक्रान्ति", isHoliday: false }, 6: { title: "भोटो जात्रा / सिथि नखः", isHoliday: true }, 29: { title: "भानु जयन्ती", isHoliday: false } },
+  3: { 1: { title: "साउने संक्रान्ति", isHoliday: false }, 27: { title: "जनै पूर्णिमा / रक्षा बन्धन", isHoliday: true }, 28: { title: "गाईजात्रा", isHoliday: true } },
+  4: { 3: { title: "कृष्ण जन्माष्टमी", isHoliday: true }, 4: { title: "गौरा पर्व / दर खाने दिन", isHoliday: true }, 5: { title: "हरितालिका तीज व्रत", isHoliday: true }, 21: { title: "मानव बेचबिखन विरुद्ध राष्ट्रिय दिवस", isHoliday: false }, 22: { title: "अजा एकादशी व्रत", isHoliday: false }, 24: { title: "जेनजी शहीद दिवस", isHoliday: false }, 25: { title: "World Suicide Prevention Day", isHoliday: false } },
+  5: { 3: { title: "इन्द्रजात्रा (Yenya Punhi)", isHoliday: true }, 16: { title: "विश्व पर्यटन दिवस", isHoliday: false }, 28: { title: "घटस्थापना (Dashain Begins)", isHoliday: true } },
+  6: { 4: { title: "फूलपाती", isHoliday: true }, 5: { title: "महा अष्टमी", isHoliday: true }, 6: { title: "महानवमी", isHoliday: true }, 7: { title: "विजया दशमी", isHoliday: true }, 28: { title: "लक्ष्मीपूजा", isHoliday: true }, 30: { title: "भाइटीका", isHoliday: true } },
+  7: { 3: { title: "छठ पर्व", isHoliday: true }, 24: { title: "उधौली पर्व / धान्य पूर्णिमा", isHoliday: true } },
+  8: { 10: { title: "क्रिसमस डे", isHoliday: true }, 15: { title: "तमु ल्होसार", isHoliday: true }, 29: { title: "पृथ्वी जयन्ती", isHoliday: false } },
+  9: { 1: { title: "माघे संक्रान्ति", isHoliday: true }, 16: { title: "सहिद दिवस", isHoliday: false }, 21: { title: "सोनाम ल्होसार", isHoliday: true } },
+  10: { 7: { title: "सरस्वती पूजा / वसन्त पञ्चमी", isHoliday: true }, 19: { title: "प्रजातन्त्र दिवस", isHoliday: true }, 24: { title: "महाशिवरात्रि", isHoliday: true } },
+  11: { 1: { title: "फागु पूर्णिमा (Holi)", isHoliday: true }, 25: { title: "रामनवमी", isHoliday: true } }
 };
 
 const ZODIAC_SIGNS = [
@@ -118,13 +62,13 @@ export default function WidgetCalendar() {
   const [isHamroDrawerOpen, setIsHamroDrawerOpen] = useState<boolean>(false);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
-  // Real Today Date State initialized from real system date
+  // Today Date State initialized from real system date
   const [todayBs, setTodayBs] = useState<{ year: number; month: number; day: number }>(() => {
     try {
       const np = new NepaliDate();
       return { year: np.getYear(), month: np.getMonth(), day: np.getDate() };
     } catch (_) {
-      return { year: 2083, month: 4, day: 20 };
+      return { year: 2083, month: 4, day: 21 };
     }
   });
 
@@ -134,25 +78,10 @@ export default function WidgetCalendar() {
   const [isMobileModalOpen, setIsMobileModalOpen] = useState<boolean>(false);
   const [selectedZodiac, setSelectedZodiac] = useState<any>(ZODIAC_SIGNS[0]);
 
-  // Handle Google Login
-  useEffect(() => {
-    if (auth.currentUser) {
-      setUserPhoto(auth.currentUser.photoURL);
-    }
-  }, []);
-
-  const handleGoogleLogin = async () => {
-    try {
-      await signInWithRedirect(auth, googleProvider);
-    } catch (err) {
-      window.location.href = '/login';
-    }
-  };
-
-  // Real-time ticking clock & weather state
-  const [liveTimeStr, setLiveTimeStr] = useState<string>('');
-  const [liveAdDateStr, setLiveAdDateStr] = useState<string>('');
-  const [liveTemperature, setLiveTemperature] = useState<number>(29);
+  // Real-time ticking clock, weather & news
+  const [liveTimeStr, setLiveTimeStr] = useState<string>('08:24 am');
+  const [liveAdDateStr, setLiveAdDateStr] = useState<string>('Sep 6, 2026');
+  const [liveTemperature, setLiveTemperature] = useState<number>(28);
   const [liveNews, setLiveNews] = useState<any[]>([]);
 
   // Converter state
@@ -167,17 +96,32 @@ export default function WidgetCalendar() {
     return num.toString().split('').map(c => map[c] || c).join('');
   };
 
-  // Real-time Clock Timer (Updates live every second)
+  // Google Login listener
+  useEffect(() => {
+    if (auth.currentUser) {
+      setUserPhoto(auth.currentUser.photoURL);
+    }
+  }, []);
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithRedirect(auth, googleProvider);
+    } catch (err) {
+      window.location.href = '/login';
+    }
+  };
+
+  // Real-time Clock Timer
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
       let hours = now.getHours();
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const seconds = String(now.getSeconds()).padStart(2, '0');
-      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const ampm = hours >= 12 ? 'pm' : 'am';
       hours = hours % 12 || 12;
       
-      const nepFormatted = `${toNepaliDigits(hours)}:${toNepaliDigits(minutes)}:${toNepaliDigits(seconds)} ${ampm}`;
+      const nepFormatted = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
       setLiveTimeStr(nepFormatted);
 
       const adFormatted = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -189,26 +133,19 @@ export default function WidgetCalendar() {
     return () => clearInterval(interval);
   }, []);
 
-  // Real Live Weather Fetch from /api/v1/weather
+  // Fetch Live Weather & News
   useEffect(() => {
     fetch('/api/v1/weather?city=Bharatpur')
       .then(res => res.json())
       .then(data => {
-        if (data && data.temp_celsius) {
-          setLiveTemperature(data.temp_celsius);
-        }
+        if (data && data.temp_celsius) setLiveTemperature(data.temp_celsius);
       })
       .catch(() => {});
-  }, []);
 
-  // Real Live News Fetch from /api/v1/news
-  useEffect(() => {
     fetch('/api/v1/news')
       .then(res => res.json())
       .then(data => {
-        if (data && data.news && data.news.length > 0) {
-          setLiveNews(data.news);
-        }
+        if (data && data.news) setLiveNews(data.news);
       })
       .catch(() => {});
   }, []);
@@ -220,9 +157,7 @@ export default function WidgetCalendar() {
       for (let d = 29; d <= 32; d++) {
         try {
           test.setDate(d);
-          if (test.getMonth() === monthIndex) {
-            maxDays = d;
-          }
+          if (test.getMonth() === monthIndex) maxDays = d;
         } catch (_) { break; }
       }
       return maxDays;
@@ -257,143 +192,144 @@ export default function WidgetCalendar() {
   const monthDaysCount = getDaysInMonth(calYear, calMonth);
   const startDayOfWeek = getFirstDayOfWeek(calYear, calMonth);
   const monthEvents = NE_MONTHS_EVENTS[calMonth] || {};
-  const currentEvent = monthEvents[selectedDay];
 
   return (
-    <div className="w-full max-w-md sm:max-w-xl mx-auto bg-[#f8f9fa] text-slate-900 font-sans rounded-3xl border border-slate-300 shadow-2xl overflow-hidden flex flex-col min-h-[780px] max-h-[90vh] relative select-none">
+    <div className="w-full max-w-md sm:max-w-xl mx-auto bg-[#f8f9fa] text-slate-900 font-sans rounded-3xl border border-slate-300 shadow-2xl overflow-hidden flex flex-col h-full min-h-[780px] max-h-[92vh] relative select-none">
       
       {/* ═════════════════════════════════════════════════════════════════ */}
-      {/* APP TOP BAR (Authentic Desktop Calendar Icon & Real Functional Bar) */}
+      {/* APP TOP BAR (Exact Matching Reference Screenshots 1, 2, 3, 4, 5) */}
       {/* ═════════════════════════════════════════════════════════════════ */}
       <header className="px-4 py-3 bg-white border-b border-slate-200 flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsHamroDrawerOpen(true)}
-            className="p-1.5 text-slate-700 hover:text-[#e52521] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-            title="Hamro Services & Features Menu"
+            className="p-1 text-slate-700 hover:text-[#e52521] transition-colors cursor-pointer"
+            title="Hamro Services Menu"
           >
-            <Menu size={20} />
+            <Menu size={22} />
           </button>
           
-          {/* Authentic Desktop Calendar Branding Header */}
-          <div className="flex items-center gap-2.5">
+          {/* Official Red Square Hamro Patro Logo + Text */}
+          <div className="flex items-center gap-2">
             <img 
-              src="/calendar-desktop-icon.svg" 
-              alt="Nepali Desktop Calendar" 
-              className="w-8 h-8 object-contain drop-shadow-sm hover:scale-105 transition-transform" 
+              src="/hamro-patro-logo.svg" 
+              alt="Hamro Patro" 
+              className="w-8 h-8 rounded-lg object-cover shadow-sm hover:scale-105 transition-transform" 
             />
-            <div>
-              <h1 className="text-base font-black text-slate-900 tracking-tight flex items-center gap-1.5 font-sans leading-none">
-                HAMRO PATRO <span className="text-[10px] text-[#e52521] font-extrabold px-1.5 py-0.5 bg-[#e52521]/10 rounded-md border border-[#e52521]/20">नेपाली पात्रो</span>
-              </h1>
-              <p className="text-[10px] text-slate-500 font-bold leading-none mt-0.5">100% Real Live Engine</p>
-            </div>
+            <h1 className="text-base font-black text-slate-900 tracking-tight font-sans">
+              HAMRO PATRO
+            </h1>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsHamroDrawerOpen(true)}
-            className="p-1.5 text-slate-600 hover:text-[#e52521] transition-colors rounded-lg hover:bg-slate-100 cursor-pointer"
-            title="App Launcher"
+            className="p-1 text-slate-600 hover:text-[#e52521] transition-colors cursor-pointer"
+            title="Scan QR"
           >
-            <Grid size={18} />
+            <Scan size={20} />
           </button>
           <button 
             onClick={() => window.dispatchEvent(new CustomEvent('open_global_search'))}
-            className="p-1.5 text-slate-600 hover:text-[#e52521] transition-colors rounded-lg hover:bg-slate-100 cursor-pointer"
-            title="Real Global Search"
+            className="p-1 text-slate-600 hover:text-[#e52521] transition-colors cursor-pointer"
+            title="Search"
           >
-            <Search size={18} />
+            <Search size={20} />
           </button>
           <button 
             onClick={() => handleGoogleLogin()}
             className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-700 hover:border-[#e52521] hover:text-[#e52521] transition-colors overflow-hidden cursor-pointer"
-            title="Google Sign-In / Account"
+            title="Profile"
           >
             {userPhoto ? (
               <img src={userPhoto} alt="User Avatar" className="w-full h-full object-cover" />
             ) : (
-              <User size={16} />
+              <User size={18} />
             )}
           </button>
         </div>
       </header>
 
       {/* ═════════════════════════════════════════════════════════════════ */}
-      {/* MAIN VIEW CONTROLLER                                              */}
+      {/* MAIN VIEW CONTROLLER (Scrollable View)                            */}
       {/* ═════════════════════════════════════════════════════════════════ */}
-      <main className="flex-1 overflow-y-auto pb-24 custom-scrollbar bg-[#f4f5f8]">
+      <main className="flex-1 overflow-y-auto pb-24 custom-scrollbar bg-[#f8f9fa]">
 
         {/* ─────────────────────────────────────────────────────────────── */}
-        {/* TAB 1: HOME (होम)                                              */}
+        {/* TAB 1: HOME (Exact Screenshot 1)                                */}
         {/* ─────────────────────────────────────────────────────────────── */}
         {activeTab === 'home' && (
-          <div className="space-y-3.5 p-3.5 animate-fadeIn">
+          <div className="space-y-4 p-4 animate-fadeIn">
             
-            {/* Live Weather & Live Time Banner Header Card */}
-            <div className="relative rounded-2xl overflow-hidden shadow-md text-white min-h-[130px] flex flex-col justify-between p-4 bg-gradient-to-r from-slate-950 via-slate-900 to-black border border-slate-800">
-              <div className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1534088568595-a066f410bcda?w=600&auto=format&fit=crop&q=80')` }} />
-              <div className="relative z-10 flex items-start justify-between">
+            {/* Weather & Scenic Hero Landscape Card (Exact Screenshot 1) */}
+            <div className="relative rounded-3xl overflow-hidden shadow-md text-white min-h-[160px] flex flex-col justify-between p-4 bg-cover bg-center border border-slate-200" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&auto=format&fit=crop&q=80')` }}>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/30 z-10" />
+              <div className="relative z-20 flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-bold text-slate-300">शुभ प्रभात , Bishal</p>
+                  <p className="text-sm font-semibold text-slate-200">Good Morning</p>
                   <h2 className="text-xl font-black text-white flex items-center gap-1.5 mt-0.5">
-                    <Sun size={20} className="text-amber-400 animate-pulse" /> {liveTemperature}°C | Bharatpur
+                    <Sun size={20} className="text-amber-300" /> {liveTemperature}° C | Bharatpur
                   </h2>
                 </div>
-                <button 
-                  onClick={() => setActiveTab('calendar')}
-                  className="px-3 py-1 bg-[#e52521] hover:bg-[#d01f1c] text-white text-[11px] font-bold rounded-full transition-all border border-red-500/30 shadow-sm"
-                >
-                  थप हेर्नुहोस्
-                </button>
               </div>
 
-              {/* REAL LIVE TICKING CLOCK & DATE */}
-              <div className="relative z-10 text-[11px] text-slate-300 font-medium flex items-center justify-between pt-2 border-t border-white/10">
-                <span className="font-mono text-amber-300 font-bold">नेपाली समय: {liveTimeStr || '१०:४० AM'}</span>
-                <span>{NEPALI_MONTHS_NE[todayBs.month]} {toNepaliDigits(todayBs.day)}, {toNepaliDigits(todayBs.year)}</span>
+              <div className="relative z-20 flex justify-end">
+                <button 
+                  onClick={() => setActiveTab('calendar')}
+                  className="px-4 py-1.5 bg-white/90 hover:bg-white text-slate-900 text-xs font-extrabold rounded-full shadow-md transition-all backdrop-blur-md"
+                >
+                  See More
+                </button>
               </div>
             </div>
 
-            {/* Today Summary Card with Mini Calendar Grid on Right */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row items-stretch gap-4">
-              <div className="flex-1 space-y-1.5 border-b sm:border-b-0 sm:border-r border-slate-100 pb-3 sm:pb-0 sm:pr-4">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-black text-[#e52521]">{toNepaliDigits(todayBs.day)} {NEPALI_MONTHS_NE[todayBs.month]}</span>
-                  <span className="text-xs font-bold text-slate-700">शनिवार, {toNepaliDigits(todayBs.year)}</span>
-                </div>
-                <p className="text-xs text-slate-500 font-medium">{liveAdDateStr || 'Sep 5, 2026'}</p>
-                <div className="pt-1 space-y-0.5 text-xs text-slate-800 font-semibold">
-                  <p className="text-slate-900">{NEPALI_MONTHS_NE[todayBs.month]} कृष्ण नवमी</p>
-                  <p className="text-slate-500 font-normal text-[11px]">ने.सं. ११४६ गुंलागा नवमी</p>
-                  <p className="text-[#e52521] text-[11px] font-mono font-bold">{liveTimeStr}</p>
+            {/* Date Summary Card with Right Mini Calendar Grid (Exact Screenshot 1) */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-sm flex flex-col sm:flex-row items-stretch gap-4">
+              <div className="flex-1 space-y-1 border-b sm:border-b-0 sm:border-r border-slate-100 pb-3 sm:pb-0 sm:pr-4">
+                <h2 className="text-2xl font-black text-slate-900">
+                  {todayBs.day} {NEPALI_MONTHS_EN[todayBs.month]}
+                </h2>
+                <p className="text-xs font-bold text-slate-700">
+                  {DAYS_NE_FULL[new Date().getDay()]}, {toNepaliDigits(todayBs.year)}
+                </p>
+                <p className="text-xs text-slate-500 font-semibold">{liveAdDateStr}</p>
+                
+                <div className="pt-1.5 space-y-0.5 text-xs text-slate-700">
+                  <p className="font-bold text-slate-900">{NEPALI_MONTHS_NE[todayBs.month]} कृष्ण दशमी</p>
+                  <p className="text-slate-500 text-[11px]">ने.सं. ११४६ गुंलागा दशमी</p>
+                  <p className="text-[#e52521] text-xs font-extrabold font-mono pt-1">{liveTimeStr}</p>
                 </div>
               </div>
 
-              {/* Right Mini Calendar Grid */}
-              <div className="w-full sm:w-48 bg-slate-50 p-2 rounded-xl border border-slate-200">
-                <div className="grid grid-cols-7 gap-0.5 text-center text-[10px] font-bold text-slate-500 pb-1 border-b border-slate-200">
-                  {DAYS_NE_SHORT.map((d, i) => (
-                    <span key={d} className={i === 6 ? 'text-[#e52521]' : ''}>{d}</span>
+              {/* Right Mini Month Calendar Grid with Highlighted Red 21 Circle (Exact Screenshot 1) */}
+              <div className="w-full sm:w-52 bg-slate-50 p-2.5 rounded-2xl border border-slate-200">
+                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-600 pb-1.5 border-b border-slate-200">
+                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+                    <span key={i} className={i === 6 ? 'text-[#e52521]' : ''}>{d}</span>
                   ))}
                 </div>
-                <div className="grid grid-cols-7 gap-0.5 pt-1 text-center text-[10px]">
+                <div className="grid grid-cols-7 gap-1 pt-1.5 text-center text-xs">
                   {Array.from({ length: startDayOfWeek }).map((_, i) => (
                     <div key={`m-blank-${i}`} />
                   ))}
                   {Array.from({ length: monthDaysCount }).map((_, i) => {
                     const d = i + 1;
-                    const isSelected = d === selectedDay;
+                    const isToday = d === todayBs.day;
+                    const isSaturday = (startDayOfWeek + i) % 7 === 6;
                     return (
                       <span 
                         key={`m-${d}`} 
                         onClick={() => setSelectedDay(d)}
-                        className={`p-0.5 rounded cursor-pointer ${
-                          isSelected ? 'bg-[#e52521] text-white font-bold' : 'hover:bg-slate-200 text-slate-700'
+                        className={`w-6 h-6 mx-auto rounded-full flex items-center justify-center text-[11px] font-bold cursor-pointer transition-all ${
+                          isToday
+                            ? 'bg-[#e52521] text-white shadow-md'
+                            : isSaturday
+                            ? 'text-[#e52521] hover:bg-slate-200'
+                            : 'text-slate-800 hover:bg-slate-200'
                         }`}
                       >
-                        {toNepaliDigits(d)}
+                        {d}
                       </span>
                     );
                   })}
@@ -401,89 +337,93 @@ export default function WidgetCalendar() {
               </div>
             </div>
 
-            {/* "आगामी दिनहरू" Carousel */}
-            <div className="space-y-2">
+            {/* Upcoming Events Carousel Section (Exact Screenshot 1) */}
+            <div className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-extrabold text-slate-900">आगामी दिनहरू</h3>
-                <button onClick={() => setActiveTab('calendar')} className="text-xs font-bold text-[#e52521] hover:underline flex items-center gap-0.5">
-                  सबै हेर्नुहोस् <ChevronRight size={14} />
+                <h3 className="text-base font-extrabold text-slate-900">Upcoming Events</h3>
+                <button onClick={() => setActiveTab('calendar')} className="text-xs font-extrabold text-[#e52521] hover:underline flex items-center gap-0.5">
+                  View All <ChevronRight size={14} />
                 </button>
               </div>
 
-              <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide snap-x">
-                {/* Event Card 1 */}
-                <div className="shrink-0 w-40 h-44 rounded-2xl relative overflow-hidden bg-slate-900 text-white p-3 flex flex-col justify-between shadow-md border border-slate-200">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 z-10" />
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                {/* Event Card 1 (Lord Vishnu Image) */}
+                <div className="shrink-0 w-44 h-52 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-3.5 flex flex-col justify-between shadow-md border border-slate-200">
+                  <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=500&auto=format&fit=crop&q=80')` }} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20 z-10" />
                   <div className="relative z-20 flex justify-start">
-                    <span className="px-2 py-0.5 rounded-md bg-[#e52521] text-white font-bold text-[9px]">आज</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-black/40 backdrop-blur-md text-white font-extrabold text-[9px]">Tomorrow</span>
                   </div>
                   <div className="relative z-20 space-y-1">
-                    <p className="text-lg font-black text-white">{toNepaliDigits(todayBs.day)} <span className="text-xs font-normal">{NEPALI_MONTHS_NE[todayBs.month]}</span></p>
-                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-snug">मानव बेचबिखन विरुद्ध राष्ट्रिय दिवस</h4>
-                    <p className="text-[10px] text-slate-300">शनि +२</p>
+                    <p className="text-xl font-black text-white">22 <span className="text-xs font-normal">Bhadra</span></p>
+                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-snug">Aja Ekadashi Vrata</h4>
+                    <p className="text-[10px] text-slate-300">Mon +1</p>
                   </div>
                 </div>
 
-                {/* Event Card 2 */}
-                <div className="shrink-0 w-40 h-44 rounded-2xl relative overflow-hidden bg-slate-900 text-white p-3 flex flex-col justify-between shadow-md border border-slate-200">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 z-10" />
+                {/* Event Card 2 (Gen-Z Sahid Diwas) */}
+                <div className="shrink-0 w-44 h-52 rounded-3xl relative overflow-hidden bg-slate-950 text-white p-3.5 flex flex-col justify-between shadow-md border border-slate-800">
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900 to-black z-10" />
                   <div className="relative z-20 flex justify-start">
-                    <span className="px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 font-bold text-[9px]">२ दिन पछि</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[9px]">In 2 days</span>
                   </div>
                   <div className="relative z-20 space-y-1">
-                    <p className="text-lg font-black text-white">{toNepaliDigits(todayBs.day + 2)} <span className="text-xs font-normal">{NEPALI_MONTHS_NE[todayBs.month]}</span></p>
-                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-snug">अजा एकादशी व्रत</h4>
-                    <p className="text-[10px] text-slate-300">सोम +१</p>
+                    <p className="text-xl font-black text-amber-400">23 <span className="text-xs font-normal text-white">Bhadra</span></p>
+                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-snug">Gen-Z Sahid Diwas</h4>
+                    <p className="text-[10px] text-slate-400">Tue +3</p>
                   </div>
                 </div>
 
-                {/* Event Card 3 */}
-                <div className="shrink-0 w-40 h-44 rounded-2xl relative overflow-hidden bg-slate-900 text-white p-3 flex flex-col justify-between shadow-md border border-slate-200">
+                {/* Event Card 3 (World Suicide Prevention Day) */}
+                <div className="shrink-0 w-44 h-52 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-3.5 flex flex-col justify-between shadow-md border border-slate-200">
+                  <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=500&auto=format&fit=crop&q=80')` }} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 z-10" />
                   <div className="relative z-20 flex justify-start">
-                    <span className="px-2 py-0.5 rounded-md bg-slate-800 text-white font-bold text-[9px]">३ दिन पछि</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-black/40 backdrop-blur-md text-white font-extrabold text-[9px]">In 4 days</span>
                   </div>
                   <div className="relative z-20 space-y-1">
-                    <p className="text-lg font-black text-white">{toNepaliDigits(todayBs.day + 3)} <span className="text-xs font-normal">{NEPALI_MONTHS_NE[todayBs.month]}</span></p>
-                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-snug">जेनजी शहीद दिवस</h4>
-                    <p className="text-[10px] text-slate-300">मङ्गल +३</p>
+                    <p className="text-xl font-black text-white">25 <span className="text-xs font-normal">Bhadra</span></p>
+                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-snug">World Suicide Prevention Day</h4>
+                    <p className="text-[10px] text-slate-300">Thu</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* "आजको इभेन्टहरू" List Section */}
-            <div className="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-sm space-y-2">
-              <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">आजको इभेन्टहरू</span>
-              <div className="flex items-center justify-between pt-1 cursor-pointer hover:opacity-80">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-red-50 text-[#e52521] border border-red-100 flex items-center justify-center font-bold text-sm">
-                    🏛️
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-extrabold text-slate-900 leading-snug">
-                      मानव बेचबिखन विरुद्ध राष्ट्रिय दिवस, विराटनगरमा राधाकृष्ण रथयात्रा, गुंलागा नवमी
-                    </h4>
-                  </div>
-                </div>
-                <ChevronRight size={18} className="text-slate-400 shrink-0" />
-              </div>
+            {/* Quick Action Pill Buttons (Exact Screenshot 1) */}
+            <div className="grid grid-cols-3 gap-2.5">
+              <button onClick={() => setActiveTab('calendar')} className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-slate-100 hover:bg-slate-200 rounded-2xl text-xs font-extrabold text-slate-800 transition-colors">
+                <span>📝</span> Notes
+              </button>
+              <button onClick={() => setActiveTab('calendar')} className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-slate-100 hover:bg-slate-200 rounded-2xl text-xs font-extrabold text-slate-800 transition-colors">
+                <span>📅</span> Holidays
+              </button>
+              <button onClick={() => setActiveTab('profile')} className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-slate-100 hover:bg-slate-200 rounded-2xl text-xs font-extrabold text-slate-800 transition-colors">
+                <span>⭐</span> Sahits
+              </button>
             </div>
 
-            {/* Panchang & Saait Prompt Card */}
-            <div className="bg-gradient-to-r from-slate-900 to-slate-950 text-white border border-slate-800 rounded-2xl p-3.5 flex items-center justify-between">
+            {/* Add Notes Action Bar (Exact Screenshot 1) */}
+            <div className="flex items-center justify-end pt-1 border-t border-slate-200">
+              <button onClick={() => setActiveTab('calendar')} className="flex items-center gap-1.5 text-xs font-extrabold text-slate-900 hover:text-[#e52521]">
+                <Plus size={16} className="p-0.5 rounded-full bg-slate-900 text-white" /> Add Notes
+              </button>
+            </div>
+
+            {/* Astrology Banner (Exact Screenshot 1) */}
+            <div className="bg-amber-50/80 border border-amber-200 rounded-3xl p-3.5 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#e52521] text-white flex items-center justify-center text-lg shadow-sm">
+                <div className="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center text-lg shadow-sm">
                   🔮
                 </div>
                 <div>
-                  <h4 className="text-xs font-extrabold text-white">शुभ साइत र दैनिक पञ्चाङ्ग</h4>
-                  <p className="text-[10px] text-slate-300">नेपाली समय: {liveTimeStr}</p>
+                  <p className="text-[10px] text-amber-800 font-bold">प्रेम • करियर • धन • सम्बन्ध</p>
+                  <h4 className="text-xs font-extrabold text-amber-950">आफ्नो प्रश्नको ज्योतिषीय उत्तर खोज्नुहोस्।</h4>
                 </div>
               </div>
               <button 
-                onClick={() => setActiveTab('profile')}
-                className="px-3 py-1.5 bg-[#e52521] text-[#ffffff] text-xs font-bold rounded-xl shadow-sm hover:bg-[#d01f1c]"
+                onClick={() => setActiveTab('news')}
+                className="px-3 py-1.5 bg-[#e52521] text-white text-xs font-extrabold rounded-xl shadow-sm hover:bg-[#d01f1c]"
               >
                 हेर्नुहोस्
               </button>
@@ -493,42 +433,34 @@ export default function WidgetCalendar() {
         )}
 
         {/* ─────────────────────────────────────────────────────────────── */}
-        {/* TAB 2: CALENDAR (पात्रो)                                         */}
+        {/* TAB 2: CALENDAR (Exact Screenshot 2)                            */}
         {/* ─────────────────────────────────────────────────────────────── */}
         {activeTab === 'calendar' && (
-          <div className="space-y-3.5 p-3.5 animate-fadeIn">
+          <div className="space-y-4 p-4 animate-fadeIn">
             
-            {/* Top Month-Year Controller Bar */}
-            <div className="bg-slate-100 p-2.5 rounded-2xl border border-slate-200 flex items-center justify-between shadow-sm">
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <select 
-                    value={calMonth}
-                    onChange={(e) => setCalMonth(parseInt(e.target.value, 10))}
-                    className="appearance-none bg-white text-slate-900 font-extrabold text-sm pl-3 pr-7 py-1.5 rounded-xl border border-slate-300 outline-none shadow-sm cursor-pointer"
-                  >
-                    {NEPALI_MONTHS_NE.map((m, idx) => (
-                      <option key={idx} value={idx}>{m} {toNepaliDigits(calYear)}</option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-2 top-2.5 text-slate-500 pointer-events-none" />
+            {/* Month Controller Bar (Exact Screenshot 2) */}
+            <div className="bg-white p-3 rounded-3xl border border-slate-200 flex items-center justify-between shadow-sm">
+              <div>
+                <div className="flex items-center gap-1 cursor-pointer">
+                  <h2 className="text-base font-black text-slate-900">{NEPALI_MONTHS_NE[calMonth]} {toNepaliDigits(calYear)}</h2>
+                  <ChevronDown size={16} className="text-slate-500" />
                 </div>
-                <span className="text-[11px] text-slate-500 font-semibold hidden sm:inline">{liveAdDateStr}</span>
+                <p className="text-xs text-slate-500 font-medium">Aug/Sep 2026</p>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <button 
                   onClick={() => { setCalYear(todayBs.year); setCalMonth(todayBs.month); setSelectedDay(todayBs.day); }}
-                  className="px-3 py-1.5 bg-[#e52521] text-white font-bold text-xs rounded-xl shadow-sm hover:bg-[#d01f1c]"
+                  className="px-3.5 py-1.5 bg-slate-900 text-white font-extrabold text-xs rounded-xl shadow-sm hover:bg-slate-800"
                 >
-                  आज
+                  Today
                 </button>
                 <button 
                   onClick={() => {
                     if (calMonth === 0) { setCalMonth(11); setCalYear(prev => prev - 1); }
                     else { setCalMonth(prev => prev - 1); }
                   }}
-                  className="w-7 h-7 bg-white text-slate-700 hover:text-slate-900 rounded-full border border-slate-300 flex items-center justify-center shadow-sm"
+                  className="w-7 h-7 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center hover:bg-slate-200"
                 >
                   <ChevronLeft size={16} />
                 </button>
@@ -537,25 +469,23 @@ export default function WidgetCalendar() {
                     if (calMonth === 11) { setCalMonth(0); setCalYear(prev => prev + 1); }
                     else { setCalMonth(prev => prev + 1); }
                   }}
-                  className="w-7 h-7 bg-white text-slate-700 hover:text-slate-900 rounded-full border border-slate-300 flex items-center justify-center shadow-sm"
+                  className="w-7 h-7 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center hover:bg-slate-200"
                 >
                   <ChevronRight size={16} />
                 </button>
               </div>
             </div>
 
-            {/* 7-Column Authentic Calendar Grid */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-2.5 space-y-1 shadow-sm">
-              {/* Days Header */}
+            {/* 7-Column Calendar Grid with Dual Dates (Exact Screenshot 2) */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-3 space-y-1 shadow-sm">
               <div className="grid grid-cols-7 gap-1 text-center border-b border-slate-200 pb-2">
-                {DAYS_NE_SHORT.map((d, idx) => (
-                  <span key={d} className={`text-xs font-bold ${idx === 6 ? 'text-[#e52521]' : 'text-slate-700'}`}>
+                {DAYS_EN_SHORT.map((d, idx) => (
+                  <span key={d} className={`text-xs font-extrabold ${idx === 6 ? 'text-[#e52521]' : 'text-slate-800'}`}>
                     {d}
                   </span>
                 ))}
               </div>
 
-              {/* Grid Cells */}
               <div className="grid grid-cols-7 gap-1 pt-1">
                 {Array.from({ length: startDayOfWeek }).map((_, idx) => (
                   <div key={`blank-${idx}`} className="h-12 rounded-lg bg-transparent" />
@@ -567,13 +497,12 @@ export default function WidgetCalendar() {
                   const isSaturday = dayOfWeek === 6;
                   const isSelected = selectedDay === day;
                   const isToday = calYear === todayBs.year && calMonth === todayBs.month && day === todayBs.day;
-                  const hasEvent = monthEvents[day];
 
                   return (
                     <button
                       key={day}
                       onClick={() => setSelectedDay(day)}
-                      className={`h-12 sm:h-14 rounded-lg flex flex-col justify-between p-1 relative transition-all cursor-pointer border ${
+                      className={`h-12 sm:h-14 rounded-lg flex flex-col justify-between p-1.5 relative transition-all cursor-pointer border ${
                         isSelected 
                           ? 'bg-[#24592a] text-white border-[#24592a] shadow-md z-10' 
                           : isToday
@@ -583,172 +512,117 @@ export default function WidgetCalendar() {
                           : 'bg-white text-slate-900 border-slate-200 hover:bg-slate-50'
                       }`}
                     >
-                      <div className="flex items-start justify-between w-full">
-                        <span className={`text-sm font-extrabold ${isSelected ? 'text-white' : isSaturday ? 'text-[#e52521]' : 'text-slate-900'}`}>
-                          {toNepaliDigits(day)}
-                        </span>
-                        {hasEvent && (
-                          <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-[#e52521]'}`} />
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between w-full">
-                        <span className={`text-[9px] ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
-                          {day}
-                        </span>
-                      </div>
+                      <span className={`text-sm font-extrabold ${isSelected ? 'text-white' : isSaturday ? 'text-[#e52521]' : 'text-slate-900'}`}>
+                        {toNepaliDigits(day)}
+                      </span>
+                      <span className={`text-[10px] font-semibold text-right ${isSelected ? 'text-white/80' : isSaturday ? 'text-[#e52521]' : 'text-slate-400'}`}>
+                        {day}
+                      </span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Selected Day Details Panel */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-sm">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl font-black text-[#e52521]">{toNepaliDigits(selectedDay)}</span>
-                  <div>
-                    <h3 className="text-base font-extrabold text-slate-900 leading-tight">
-                      {NEPALI_MONTHS_NE[calMonth]} {toNepaliDigits(calYear)} {DAYS_NE_FULL[(startDayOfWeek + selectedDay - 1) % 7]}
-                    </h3>
-                    <p className="text-xs text-slate-500 font-medium">Sep {selectedDay}, 2026</p>
-                  </div>
+            {/* Selected Day Details Panel (Exact Screenshot 2) */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-4 space-y-4 shadow-sm">
+              <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <span className="text-3xl font-black text-[#e52521]">{selectedDay}</span>
+                  <h3 className="text-base font-black text-slate-900 leading-tight">
+                    {NEPALI_MONTHS_EN[calMonth]} {calYear}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-bold">{DAYS_EN_FULL[(startDayOfWeek + selectedDay - 1) % 7]}</p>
+                  <p className="text-xs text-slate-400 font-medium">{liveAdDateStr}</p>
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  <span className="px-2.5 py-1 rounded-lg bg-red-50 text-[#e52521] text-xs font-bold border border-red-100">आज</span>
-                  <ChevronRight size={18} className="text-slate-400" />
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex items-center gap-1">
+                    <span className="px-3 py-1 rounded-lg bg-slate-200 text-slate-800 text-xs font-extrabold">Today</span>
+                    <ChevronRight size={18} className="text-slate-400" />
+                  </div>
+                  <button className="px-3 py-1.5 bg-[#24592a] text-white font-extrabold text-xs rounded-xl flex items-center gap-1 shadow-sm">
+                    <Plus size={14} /> Add Notes
+                  </button>
                 </div>
               </div>
 
-              {/* Event Content & Description */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-extrabold text-slate-900 leading-snug">
-                  मानव बेचबिखन विरुद्ध राष्ट्रिय दिवस, विराटनगरमा राधाकृष्ण रथयात्रा, गुंलागा नवमी
-                </h4>
+              <div className="space-y-3">
+                <p className="text-xs text-slate-800 font-bold">
+                  {NEPALI_MONTHS_NE[calMonth]} कृष्ण दशमी (०७ : ५१ : १४ PM बजे सम्म)
+                </p>
+                <p className="text-xs text-slate-500">NS 1146 गुंलागा दशमी</p>
 
-                <div className="flex items-center gap-4 text-xs text-slate-600 pt-1">
-                  <div className="flex items-center gap-1.5">
-                    <Moon size={15} className="text-slate-700" />
-                    <span>क्रमशः बढ्दै गरेको गिब्बस</span>
+                <div className="flex items-center gap-6 pt-2 border-t border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <Moon size={18} className="text-slate-600" />
+                    <span className="text-xs font-semibold text-slate-600">Waxing Gibbous</span>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-6 text-xs text-slate-700 pt-2 border-t border-slate-100">
-                  <div className="flex items-center gap-1.5">
-                    <Sun size={15} className="text-amber-500" />
-                    <span>सूर्योदय: ०५:४४</span>
+                  <div className="flex items-center gap-4 text-xs font-bold text-slate-700">
+                    <span>🌅 05:44</span>
+                    <span>🌇 06:18</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Moon size={15} className="text-slate-700" />
-                    <span>सूर्यास्त: ०६:२०</span>
-                  </div>
-                </div>
-
-                <div className="pt-2 text-xs text-slate-600 space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                  <p className="font-semibold text-slate-800">{NEPALI_MONTHS_NE[calMonth]} कृष्ण नवमी ({liveTimeStr} बजे सम्म)</p>
-                  <p className="text-slate-500 text-[11px]">ने.सं. ११४६ गुंलागा नवमी</p>
                 </div>
               </div>
-
             </div>
 
           </div>
         )}
 
         {/* ─────────────────────────────────────────────────────────────── */}
-        {/* TAB 3: TOOLS / SERVICES (टूल)                                   */}
-        {/* ─────────────────────────────────────────────────────────────── */}
-        {activeTab === 'tools' && (
-          <div className="space-y-4 p-4 animate-fadeIn">
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-4 shadow-sm">
-              <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
-                <RefreshCw size={18} className="text-[#e52521]" /> BS ↔ AD Date Converter
-              </h2>
-
-              <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-                <button
-                  onClick={() => setConvMode('BS_TO_AD')}
-                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
-                    convMode === 'BS_TO_AD' ? 'bg-[#e52521] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  BS to AD
-                </button>
-                <button
-                  onClick={() => setConvMode('AD_TO_BS')}
-                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
-                    convMode === 'AD_TO_BS' ? 'bg-[#e52521] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  AD to BS
-                </button>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2">
-                <select 
-                  value={convYear} 
-                  onChange={(e) => setConvYear(parseInt(e.target.value, 10))}
-                  className="bg-slate-50 text-slate-900 font-bold text-xs p-2.5 rounded-xl border border-slate-300 outline-none"
-                >
-                  {[2080, 2081, 2082, 2083, 2084, 2085].map(y => <option key={y} value={y}>{y}</option>)}
-                </select>
-
-                <select 
-                  value={convMonth} 
-                  onChange={(e) => setConvMonth(parseInt(e.target.value, 10))}
-                  className="bg-slate-50 text-slate-900 font-bold text-xs p-2.5 rounded-xl border border-slate-300 outline-none"
-                >
-                  {NEPALI_MONTHS_NE.map((m, i) => <option key={i} value={i}>{m}</option>)}
-                </select>
-
-                <input 
-                  type="number" 
-                  value={convDay} 
-                  onChange={(e) => setConvDay(parseInt(e.target.value, 10) || 1)}
-                  className="bg-slate-50 text-slate-900 font-bold text-xs p-2.5 rounded-xl border border-slate-300 outline-none"
-                  placeholder="गते"
-                />
-              </div>
-
-              <button 
-                onClick={handleConvert}
-                className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                <RefreshCw size={14} /> Convert Date (100% Real API)
-              </button>
-
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center space-y-1">
-                <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Converted Result</span>
-                <p className="text-base font-black text-[#e52521]">{convResult}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ─────────────────────────────────────────────────────────────── */}
-        {/* TAB 4: NEWS & RASHIFAL (समाचार - Real Live RSS Stream)           */}
+        {/* TAB 3: NEWS (Exact Screenshots 3 & 4)                           */}
         {/* ─────────────────────────────────────────────────────────────── */}
         {activeTab === 'news' && (
-          <div className="space-y-4 p-3.5 animate-fadeIn">
+          <div className="space-y-4 p-4 animate-fadeIn">
             
-            {/* Top News Banner */}
-            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm text-center space-y-1">
-              <h2 className="text-xl font-black text-[#e52521]">ताजा समाचार र नवीनतम अपडेट</h2>
-              <p className="text-xs text-slate-600 font-medium">100% Real Live RSS Feed</p>
+            {/* Header Banner (Exact Screenshot 3) */}
+            <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm text-center space-y-1.5">
+              <h2 className="text-2xl font-black text-[#e52521]">Stay Ahead - Stay Informed</h2>
+              <p className="text-xs text-slate-600 font-medium">
+                Explore trusted news coverage, insightful stories, and local perspectives—all in one place.
+              </p>
             </div>
 
-            {/* Real Live News Items Stream */}
+            {/* News Story Horizontal Cards */}
             <div className="space-y-2.5">
-              <h3 className="text-sm font-extrabold text-slate-900 flex items-center justify-between">
-                <span>मुख्य समाचारहरू</span>
-                <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                  LIVE RSS
-                </span>
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-extrabold text-slate-900">News Story</h3>
+                <span className="text-xs font-bold text-slate-600 cursor-pointer">थप समाचार पढ्नुहोस्</span>
+              </div>
 
-              <div className="space-y-2">
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                {/* Story 1 */}
+                <div className="shrink-0 w-48 h-60 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-3.5 flex flex-col justify-end shadow-md">
+                  <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500&auto=format&fit=crop&q=80')` }} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                  <div className="relative z-10 space-y-1">
+                    <h4 className="text-xs font-bold text-white line-clamp-3 leading-snug">
+                      फिदिम स्पोर्टिङ क्लब ताप्लेजुङ गोल्डकपको सेमिफाइनलमा
+                    </h4>
+                  </div>
+                </div>
+
+                {/* Story 2 */}
+                <div className="shrink-0 w-48 h-60 rounded-3xl relative overflow-hidden bg-slate-950 text-white p-3.5 flex flex-col justify-end shadow-md border border-slate-800">
+                  <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=500&auto=format&fit=crop&q=80')` }} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                  <div className="relative z-10 space-y-1">
+                    <h4 className="text-xs font-bold text-white line-clamp-3 leading-snug">
+                      कस्तो रहला तपाईंको दिन ? हेर्नुहोस् आजका राशिफल
+                    </h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Popular News Feed Vertical Stream (Exact Screenshot 4) */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-extrabold text-slate-900">Popular News</h3>
+                <span className="text-xs font-bold text-slate-600 cursor-pointer">View All</span>
+              </div>
+
+              <div className="space-y-2.5">
                 {liveNews.length > 0 ? (
                   liveNews.map((item, idx) => (
                     <a
@@ -756,18 +630,19 @@ export default function WidgetCalendar() {
                       href={item.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block bg-white p-3 rounded-2xl border border-slate-200 shadow-sm hover:border-[#e52521] transition-all group"
+                      className="flex items-start gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm hover:border-[#e52521] transition-all group"
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="space-y-1">
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 bg-red-50 text-[#e52521] rounded border border-red-100">
-                            {item.category || 'ताजा'}
-                          </span>
-                          <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#e52521] leading-snug">
-                            {item.title}
-                          </h4>
+                      <div className="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
+                        <img src={`https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&auto=format&fit=crop&q=80`} alt="News" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 space-y-1 min-w-0">
+                        <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#e52521] leading-snug line-clamp-2">
+                          {item.title}
+                        </h4>
+                        <div className="flex items-center justify-between text-[10px] text-slate-400">
+                          <span>barnanmedia.com</span>
+                          <span>3 h ago</span>
                         </div>
-                        <ExternalLink size={14} className="text-slate-400 group-hover:text-[#e52521] shrink-0 mt-1" />
                       </div>
                     </a>
                   ))
@@ -779,8 +654,55 @@ export default function WidgetCalendar() {
               </div>
             </div>
 
-            {/* Daily Rashifal Selector (Fixed Virgo ♍ Icon) */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm">
+          </div>
+        )}
+
+        {/* ─────────────────────────────────────────────────────────────── */}
+        {/* TAB 4: FOR YOU (Exact Screenshot 5)                             */}
+        {/* ─────────────────────────────────────────────────────────────── */}
+        {activeTab === 'profile' && (
+          <div className="space-y-4 p-4 animate-fadeIn">
+            
+            {/* Hero Update Banner (Exact Screenshot 5) */}
+            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+              <div className="h-40 bg-cover bg-center relative" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&auto=format&fit=crop&q=80')` }}>
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-4">
+                  <h3 className="text-xl font-black text-white text-center drop-shadow-md">
+                    भोटेकोशी बाढी UPDATE
+                  </h3>
+                </div>
+              </div>
+              <div className="p-3.5 flex items-center justify-between bg-rose-50/50">
+                <div>
+                  <p className="text-xs font-bold text-slate-900">Click here to view more</p>
+                  <p className="text-[10px] text-slate-500">app.hamropatro.com</p>
+                </div>
+                <button className="px-3.5 py-1.5 bg-white border border-slate-300 text-slate-900 font-extrabold text-xs rounded-xl hover:bg-slate-50 shadow-sm">
+                  See More
+                </button>
+              </div>
+            </div>
+
+            {/* Health Article Infographic Card (Exact Screenshot 5) */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-4 space-y-3 shadow-sm">
+              <div>
+                <h3 className="text-base font-black text-slate-900">How to reduce excessive anxiety</h3>
+                <p className="text-xs text-slate-500">Simple steps for mental well-being. · 6 min ago</p>
+              </div>
+
+              <div className="bg-purple-50/40 p-4 rounded-2xl border border-purple-100 text-center space-y-3">
+                <h4 className="text-sm font-black text-purple-950">How To Reduce Excessive Anxiety</h4>
+                <div className="grid grid-cols-2 gap-2 text-xs font-bold text-purple-900">
+                  <div className="p-2.5 bg-white rounded-xl shadow-sm border border-purple-100">साँस फेर्नुहोस्</div>
+                  <div className="p-2.5 bg-white rounded-xl shadow-sm border border-purple-100">व्यायाम गर्नुहोस्</div>
+                  <div className="p-2.5 bg-white rounded-xl shadow-sm border border-purple-100">कुरा गर्नुहोस्</div>
+                  <div className="p-2.5 bg-white rounded-xl shadow-sm border border-purple-100">सल्लाह लिनुहोस्</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Daily Rashifal Selector */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-4 space-y-3 shadow-sm">
               <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
                 <span className="text-[#e52521]">♈</span> आजको दैनिक राशिफल (Horoscope)
               </h3>
@@ -790,7 +712,7 @@ export default function WidgetCalendar() {
                   <button
                     key={z.id}
                     onClick={() => setSelectedZodiac(z)}
-                    className={`p-2 rounded-xl flex flex-col items-center justify-center border transition-all cursor-pointer ${
+                    className={`p-2 rounded-2xl flex flex-col items-center justify-center border transition-all cursor-pointer ${
                       selectedZodiac.id === z.id
                         ? 'bg-[#e52521] text-white border-[#e52521] shadow-sm'
                         : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
@@ -802,79 +724,9 @@ export default function WidgetCalendar() {
                 ))}
               </div>
 
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1">
+              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-1">
                 <h4 className="text-xs font-bold text-slate-900">{selectedZodiac.name} राशि ({selectedZodiac.icon})</h4>
                 <p className="text-xs text-slate-600 leading-relaxed">{selectedZodiac.desc}</p>
-              </div>
-            </div>
-
-          </div>
-        )}
-
-        {/* ─────────────────────────────────────────────────────────────── */}
-        {/* TAB 5: PANCHANG & REAL NATIVE ENGINE (तपाईंको लागि)           */}
-        {/* ─────────────────────────────────────────────────────────────── */}
-        {activeTab === 'profile' && (
-          <div className="space-y-4 p-4 animate-fadeIn">
-            
-            {/* Real Panchang Details */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-sm">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
-                  <Sparkles size={18} className="text-[#e52521]" /> दैनिक पञ्चाङ्ग (Real Panchang)
-                </h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 bg-red-50 text-[#e52521] rounded-full border border-red-100">
-                  100% Real
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2.5 text-xs">
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase">तिथि</span>
-                  <p className="font-extrabold text-slate-900">भदौ कृष्ण नवमी</p>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase">लाइभ समय</span>
-                  <p className="font-extrabold text-[#e52521] font-mono">{liveTimeStr}</p>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase">सूर्योदय</span>
-                  <p className="font-extrabold text-slate-900">०५:४४ AM</p>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase">सूर्यास्त</span>
-                  <p className="font-extrabold text-slate-900">०६:२० PM</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Native High-Level Calculation Engine Verification */}
-            <div className="bg-slate-950 text-white rounded-2xl p-4 space-y-3 border border-slate-800 shadow-md">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
-                  <Cpu size={16} className="text-[#e52521]" /> Native Engine Stack
-                </h3>
-                <span className="text-[9px] font-mono px-2 py-0.5 bg-[#e52521] text-white rounded font-bold">
-                  VERIFIED NATIVE
-                </span>
-              </div>
-              <p className="text-xs text-slate-300">
-                100% Real astronomical mathematical algorithms running on native C++, Python, PHP & Next.js backends with zero simulation.
-              </p>
-
-              <div className="space-y-1.5 text-[11px] font-mono pt-1 text-slate-300 border-t border-slate-800">
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5"><Check size={12} className="text-emerald-400" /> Python Panchang Engine</span>
-                  <span className="text-emerald-400 font-bold">Active</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5"><Check size={12} className="text-emerald-400" /> Live Weather & Temp API</span>
-                  <span className="text-emerald-400 font-bold">{liveTemperature}°C Bharatpur</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5"><Check size={12} className="text-emerald-400" /> Live News RSS Endpoint</span>
-                  <span className="text-emerald-400 font-bold">Active Stream</span>
-                </div>
               </div>
             </div>
 
@@ -884,11 +736,11 @@ export default function WidgetCalendar() {
       </main>
 
       {/* ═════════════════════════════════════════════════════════════════ */}
-      {/* 5-TAB BOTTOM NAVIGATION BAR                                      */}
+      {/* 5-TAB BOTTOM NAVIGATION BAR (Exact Screenshots 1-5)               */}
       {/* ═════════════════════════════════════════════════════════════════ */}
-      <nav className="bg-white border-t border-slate-200 grid grid-cols-5 py-2 px-1 sticky bottom-0 z-40 shadow-lg shrink-0">
+      <nav className="bg-white border-t border-slate-200 grid grid-cols-5 py-2 px-1 sticky bottom-0 z-40 shadow-lg shrink-0 pb-safe">
         
-        {/* Tab 1: Home (होम) */}
+        {/* Tab 1: Home */}
         <button
           onClick={() => setActiveTab('home')}
           className={`flex flex-col items-center justify-center gap-0.5 py-0.5 transition-all cursor-pointer ${
@@ -896,10 +748,10 @@ export default function WidgetCalendar() {
           }`}
         >
           <Home size={20} />
-          <span className="text-[10px] font-extrabold">होम</span>
+          <span className="text-[10px] font-extrabold">Home</span>
         </button>
 
-        {/* Tab 2: Calendar (पात्रो) */}
+        {/* Tab 2: Calendar */}
         <button
           onClick={() => setActiveTab('calendar')}
           className={`flex flex-col items-center justify-center gap-0.5 py-0.5 transition-all cursor-pointer ${
@@ -907,20 +759,20 @@ export default function WidgetCalendar() {
           }`}
         >
           <CalendarIcon size={20} />
-          <span className="text-[10px] font-extrabold">पात्रो</span>
+          <span className="text-[10px] font-extrabold">Calendar</span>
         </button>
 
-        {/* Tab 3: Center Floating Red Circle Dial Button */}
+        {/* Tab 3: Center Red Gradient Circle Dial Button */}
         <button
           onClick={() => setActiveTab('tools')}
           className="flex flex-col items-center justify-center relative -top-3 cursor-pointer"
         >
-          <div className="w-12 h-12 rounded-full bg-[#e52521] text-white flex items-center justify-center shadow-lg border-2 border-white hover:scale-105 transition-transform">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#d01f1c] via-[#e52521] to-[#f82c28] text-white flex items-center justify-center shadow-lg border-2 border-white hover:scale-105 transition-transform">
             <PhoneCall size={20} />
           </div>
         </button>
 
-        {/* Tab 4: News & Rashifal (समाचार) */}
+        {/* Tab 4: News */}
         <button
           onClick={() => setActiveTab('news')}
           className={`flex flex-col items-center justify-center gap-0.5 py-0.5 transition-all cursor-pointer relative ${
@@ -931,10 +783,10 @@ export default function WidgetCalendar() {
             <Newspaper size={20} />
             <span className="absolute -top-1 -right-2 px-1 py-0.2 bg-[#e52521] text-white text-[8px] font-bold rounded-full">9+</span>
           </div>
-          <span className="text-[10px] font-extrabold">समाचार</span>
+          <span className="text-[10px] font-extrabold">News</span>
         </button>
 
-        {/* Tab 5: For You (तपाईंको लागि) */}
+        {/* Tab 5: For You */}
         <button
           onClick={() => setActiveTab('profile')}
           className={`flex flex-col items-center justify-center gap-0.5 py-0.5 transition-all cursor-pointer ${
@@ -942,7 +794,7 @@ export default function WidgetCalendar() {
           }`}
         >
           <Sparkles size={20} />
-          <span className="text-[10px] font-extrabold">तपाईंको लागि</span>
+          <span className="text-[10px] font-extrabold">For You</span>
         </button>
 
       </nav>
@@ -955,13 +807,10 @@ export default function WidgetCalendar() {
         appUrl="https://bishalcodes.com/widgets/calendar"
       />
 
-      {/* ═════════════════════════════════════════════════════════════════ */}
-      {/* HAMRO SERVICES DRAWER MODAL (Exact Matching Reference Image 5)   */}
-      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* HAMRO SERVICES DRAWER MODAL */}
       {isHamroDrawerOpen && (
         <div className="fixed inset-0 z-50 flex justify-start bg-black/60 backdrop-blur-sm animate-fadeIn">
           <div className="w-full max-w-sm bg-white h-full overflow-y-auto flex flex-col shadow-2xl animate-in slide-in-from-left duration-200">
-            {/* Drawer Header */}
             <div className="p-4 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white z-10">
               <h2 className="text-base font-black text-slate-900">Hamro Services</h2>
               <button 
@@ -973,7 +822,6 @@ export default function WidgetCalendar() {
             </div>
 
             <div className="p-4 space-y-5 flex-1">
-              {/* Membership Subscribe Card */}
               <div className="bg-red-400 text-white rounded-2xl p-4 space-y-2 shadow-sm">
                 <h3 className="text-sm font-black">Join Hamro Patro Membership</h3>
                 <p className="text-xs text-white/90 leading-snug">
@@ -987,7 +835,6 @@ export default function WidgetCalendar() {
                 </button>
               </div>
 
-              {/* Search Features Input */}
               <div className="space-y-1">
                 <span className="text-xs font-bold text-slate-700">Search Features</span>
                 <div 
@@ -999,7 +846,6 @@ export default function WidgetCalendar() {
                 </div>
               </div>
 
-              {/* "फिचर्ड" (Featured Services) Grid */}
               <div className="space-y-2.5">
                 <h4 className="text-xs font-black text-slate-900 border-b border-slate-100 pb-1">फिचर्ड</h4>
                 <div className="grid grid-cols-3 gap-3 text-center text-xs">
@@ -1030,7 +876,6 @@ export default function WidgetCalendar() {
                 </div>
               </div>
 
-              {/* "जीवनशैली" (Lifestyle Services) Grid */}
               <div className="space-y-2.5">
                 <h4 className="text-xs font-black text-slate-900 border-b border-slate-100 pb-1">जीवनशैली</h4>
                 <div className="grid grid-cols-3 gap-3 text-center text-xs">

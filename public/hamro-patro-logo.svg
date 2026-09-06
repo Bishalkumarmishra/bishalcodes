@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="36" fill="#e52521"/>
+  <!-- Sun and Moon Emblem -->
+  <path d="M 60,70 C 60,45 85,45 85,70 C 85,95 60,95 60,70 Z" fill="#ffffff"/>
+  <path d="M 120,55 A 25,25 0 1,1 145,95 A 30,30 0 1,0 120,55 Z" fill="#ffffff"/>
+  <!-- Text -->
+  <text x="100" y="145" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="900" font-size="34" fill="#ffffff" text-anchor="middle">हाम्रो</text>
+  <text x="100" y="180" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="900" font-size="34" fill="#ffffff" text-anchor="middle">पात्रो</text>
+</svg>
