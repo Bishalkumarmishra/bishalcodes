@@ -6,11 +6,13 @@ import {
   ArrowRight, ShieldCheck, CheckCircle2, RefreshCw, Layers, ArrowUpRight,
   TrendingUp, Clock, MapPin, Heart, Share2, Compass, ChevronDown, Download,
   Grid, Radio, Bookmark, HelpCircle, Code, Cpu, Check, ExternalLink, X, Plus, Scan,
-  ArrowLeftRight, Pencil, Trash2, MapPinIcon, BellRing
+  ArrowLeftRight, Pencil, Trash2, MapPinIcon, BellRing, CloudOff, Cloud
 } from 'lucide-react';
 // @ts-ignore
 import { signInWithPopup, onAuthStateChanged } from 'firebase/auth';
-import { auth, googleProvider } from '../services/firebase';
+// @ts-ignore
+import { collection, doc, addDoc, deleteDoc, getDocs, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { auth, googleProvider, db } from '../services/firebase';
 import MobileAppDownloadModal from '../components/MobileAppDownloadModal';
 
 const NEPALI_MONTHS_EN = [
@@ -69,10 +71,11 @@ export default function WidgetCalendar() {
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [isNotesOpen, setIsNotesOpen] = useState<boolean>(false);
   const [noteText, setNoteText] = useState<string>('');
-  const [notes, setNotes] = useState<{id:number;text:string;date:string}[]>([]);
+  const [notes, setNotes] = useState<{id:any;text:string;date:string}[]>([]);
   const [openedNewsItem, setOpenedNewsItem] = useState<any>(null);
   const [hasPromptedPerms, setHasPromptedPerms] = useState<boolean>(false);
   const [showPermPrompt, setShowPermPrompt] = useState<boolean>(false);
+  const [notesSource, setNotesSource] = useState<'local'|'firestore'>('local');
 
   // Today Date State initialized from real system date
   const [todayBs, setTodayBs] = useState<{ year: number; month: number; day: number }>(() => {
@@ -118,15 +121,39 @@ export default function WidgetCalendar() {
     return num.toString().split('').map(c => map[c] || c).join('');
   };
 
-  // Auth state listener
+  // Auth state listener — also loads Firestore notes on login
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserPhoto(user.photoURL);
         setUserName(user.displayName);
+        // Load notes from Firestore for this user
+        try {
+          const q = query(
+            collection(db, `users/${user.uid}/notes`),
+            orderBy('createdAt', 'desc')
+          );
+          const snap = await getDocs(q);
+          const firestoreNotes = snap.docs.map((d: any) => ({
+            id: d.id,
+            text: d.data().text,
+            date: d.data().date,
+          }));
+          setNotes(firestoreNotes);
+          setNotesSource('firestore');
+        } catch (e) {
+          // fallback to localStorage
+          const saved = localStorage.getItem('mp_notes');
+          if (saved) setNotes(JSON.parse(saved));
+          setNotesSource('local');
+        }
       } else {
         setUserPhoto(null);
         setUserName(null);
+        // Load from localStorage for guests
+        const saved = localStorage.getItem('mp_notes');
+        if (saved) setNotes(JSON.parse(saved));
+        setNotesSource('local');
       }
     });
     return () => unsub();
@@ -175,15 +202,46 @@ export default function WidgetCalendar() {
     }
   };
 
-  const handleAddNote = () => {
+  const handleAddNote = async () => {
     if (!noteText.trim()) return;
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    setNotes(prev => [{ id: Date.now(), text: noteText.trim(), date: dateStr }, ...prev]);
+    const user = auth.currentUser;
+
+    if (user) {
+      // Save to Firestore
+      try {
+        const ref = await addDoc(collection(db, `users/${user.uid}/notes`), {
+          text: noteText.trim(),
+          date: dateStr,
+          createdAt: serverTimestamp(),
+        });
+        setNotes(prev => [{ id: ref.id, text: noteText.trim(), date: dateStr }, ...prev]);
+        setNotesSource('firestore');
+      } catch (e) {
+        console.error('Firestore save failed:', e);
+      }
+    } else {
+      // Save to localStorage
+      const newNote = { id: Date.now(), text: noteText.trim(), date: dateStr };
+      const updated = [newNote, ...notes];
+      setNotes(updated);
+      localStorage.setItem('mp_notes', JSON.stringify(updated));
+      setNotesSource('local');
+    }
     setNoteText('');
   };
 
-  const handleDeleteNote = (id: number) => {
+  const handleDeleteNote = async (id: any) => {
+    const user = auth.currentUser;
+    if (user && notesSource === 'firestore') {
+      try {
+        await deleteDoc(doc(db, `users/${user.uid}/notes`, id));
+      } catch (e) { console.error(e); }
+    } else {
+      const updated = notes.filter(n => n.id !== id);
+      localStorage.setItem('mp_notes', JSON.stringify(updated));
+    }
     setNotes(prev => prev.filter(n => n.id !== id));
   };
 
