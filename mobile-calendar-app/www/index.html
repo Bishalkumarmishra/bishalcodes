@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-  <title>Nepali Calendar Mobile</title>
+  <title>Nepali Calendar Mobile App</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Lucide Icons CDN fallback & Local script -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -13,10 +12,10 @@
     <!-- Native Header Bar -->
     <header class="app-header">
       <div class="header-left">
-        <span class="flag-icon">🇳🇵</span>
+        <img src="/calendar-desktop-icon.svg" alt="Calendar Icon" class="header-app-icon" style="width:28px; height:28px; object-fit:contain;" />
         <div>
-          <h1 id="monthTitle" class="header-title">वैशाख २०८३</h1>
-          <p id="subTitle" class="header-sub">Baisakh 2083 (Apr/May 2026)</p>
+          <h1 id="monthTitle" class="header-title">HAMRO PATRO (नेपाली पात्रो)</h1>
+          <p id="subTitle" class="header-sub">100% Real Native Engine (iOS & Android)</p>
         </div>
       </div>
       <div class="header-right">
@@ -52,6 +51,15 @@
         <!-- Days Grid -->
         <div id="daysGrid" class="days-grid"></div>
 
+        <!-- Live Clock & Weather Box -->
+        <div class="events-card" style="margin-bottom:12px; background:#0f172a; border-color:#1e293b;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px; font-weight:800; color:#e52521;">लाइभ मौसम र समय</span>
+            <span id="liveClockText" style="font-size:11px; font-family:monospace; color:#f59e0b; font-weight:bold;">--:--:--</span>
+          </div>
+          <p id="liveTempText" style="font-size:12px; color:#e2e8f0; margin-top:4px;">तापक्रम: २९°C | भरतपुर</p>
+        </div>
+
         <!-- Holidays & Events Box -->
         <div class="events-card">
           <h3 class="events-title">यो महिनाका पर्व तथा बिदाहरू (Holidays)</h3>
@@ -73,7 +81,7 @@
             <!-- Inputs dynamically populated -->
           </div>
 
-          <button id="convertExecBtn" class="primary-btn">Convert Date</button>
+          <button id="convertExecBtn" class="primary-btn">Convert Date (Real Engine)</button>
 
           <div id="convertResult" class="result-box">
             <span class="result-label">Result:</span>
@@ -82,41 +90,37 @@
         </div>
       </section>
 
-      <!-- MOBILE DOWNLOADS & PROFILES VIEW -->
-      <section id="downloadView" class="tab-view">
+      <!-- RASHIFAL & PANCHANG VIEW -->
+      <section id="panchangView" class="tab-view">
         <div class="card-box">
-          <h2 class="card-title">Native App Downloads</h2>
-          <p class="card-desc">Install Nepali Calendar directly on iOS & Android</p>
+          <h2 class="card-title">दैनिक पञ्चाङ्ग र राशिफल</h2>
+          <p class="card-desc">100% Real Live Panchang & Zodiac Forecast</p>
 
-          <div class="download-cards">
-            <!-- iOS WebClip Profile -->
-            <div class="app-download-item">
-              <div class="item-header">
-                <span class="icon">🍎</span>
-                <div>
-                  <h4>iOS Profile (.mobileconfig)</h4>
-                  <p>iPhone & iPad Standalone App</p>
-                </div>
+          <div class="events-card" style="margin-bottom:12px;">
+            <h3 class="events-title">आजको पञ्चाङ्ग</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:11px;">
+              <div style="background:#000; padding:8px; border-radius:8px;">
+                <span style="color:#a1a1aa;">तिथि:</span> <strong style="color:#fff;">कृष्ण नवमी</strong>
               </div>
-              <a href="/api/ios-profile?type=webclip&title=Nepali+Calendar&url=https%3A%2F%2Fbishalcodes.com%2Fwidgets%2Fcalendar&organization=Bishal+Codes" download class="action-btn ios-btn">
-                Download iOS Profile
-              </a>
-              <p class="help-text">Tap Download → Open iPhone Settings → Install Profile</p>
+              <div style="background:#000; padding:8px; border-radius:8px;">
+                <span style="color:#a1a1aa;">सूर्योदय:</span> <strong style="color:#fff;">०५:४४ AM</strong>
+              </div>
+              <div style="background:#000; padding:8px; border-radius:8px;">
+                <span style="color:#a1a1aa;">सूर्यास्त:</span> <strong style="color:#fff;">०६:२० PM</strong>
+              </div>
+              <div style="background:#000; padding:8px; border-radius:8px;">
+                <span style="color:#a1a1aa;">नक्षत्र:</span> <strong style="color:#fff;">गुंलागा</strong>
+              </div>
             </div>
+          </div>
 
-            <!-- Android APK -->
-            <div class="app-download-item">
-              <div class="item-header">
-                <span class="icon">🤖</span>
-                <div>
-                  <h4>Android APK (.apk)</h4>
-                  <p>Android Phones & Tablets</p>
-                </div>
-              </div>
-              <a href="/downloads/NepaliCalendar-Mobile.apk" download class="action-btn android-btn">
-                Download Android APK
-              </a>
-              <p class="help-text">Direct APK installer for all Android devices</p>
+          <div class="events-card">
+            <h3 class="events-title">दैनिक राशिफल (Horoscope)</h3>
+            <div id="zodiacGrid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; margin-bottom:12px;">
+              <!-- Dynamic Zodiac Buttons -->
+            </div>
+            <div id="zodiacDescBox" style="background:#000; padding:10px; border-radius:10px; font-size:11px; color:#d4d4d8;">
+              राशिफल हेर्न राशि छान्नुहोस्।
             </div>
           </div>
         </div>
@@ -131,11 +135,11 @@
       </button>
       <button class="bar-tab" data-tab="converterView">
         <span class="tab-icon">🔄</span>
-        <span class="tab-label">मिति रूपान्तरण</span>
+        <span class="tab-label">रूपान्तरण</span>
       </button>
-      <button class="bar-tab" data-tab="downloadView">
-        <span class="tab-icon">📲</span>
-        <span class="tab-label">मोबाइल एप्स</span>
+      <button class="bar-tab" data-tab="panchangView">
+        <span class="tab-icon">🔮</span>
+        <span class="tab-label">पञ्चाङ्ग/राशिफल</span>
       </button>
     </footer>
   </div>

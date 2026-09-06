@@ -1,4 +1,4 @@
-// Native Mobile Calendar Logic
+// Native Mobile Calendar Logic (iOS & Android Native)
 const NEPALI_MONTHS_EN = [
   "Baisakh", "Jestha", "Ashadh", "Shrawan", "Bhadra", "Ashwin",
   "Kartik", "Mangsir", "Poush", "Magh", "Falgun", "Chaitra"
@@ -14,7 +14,7 @@ const NE_MONTHS_EVENTS = {
   1: { 15: { title: "गणतन्त्र दिवस", isHoliday: true } },
   2: { 6: { title: "भोटो जात्रा / सिथि नखः", isHoliday: true }, 29: { title: "भानु जयन्ती", isHoliday: false } },
   3: { 1: { title: "साउने संक्रान्ति", isHoliday: false }, 27: { title: "जनै पूर्णिमा / रक्षा बन्धन", isHoliday: true }, 28: { title: "गाईजात्रा", isHoliday: true } },
-  4: { 3: { title: "कृष्ण जन्माष्टमी", isHoliday: true }, 4: { title: "गौरा पर्व", isHoliday: true }, 5: { title: "हरितालिका तीज", isHoliday: true } },
+  4: { 3: { title: "कृष्ण जन्माष्टमी", isHoliday: true }, 4: { title: "गौरा पर्व", isHoliday: true }, 5: { title: "हरितालिका तीज", isHoliday: true }, 20: { title: "मानव बेचबिखन विरुद्ध दिवस", isHoliday: false } },
   5: { 3: { title: "इन्द्रजात्रा", isHoliday: true }, 28: { title: "घटस्थापना (Dashain Begins)", isHoliday: true } },
   6: { 4: { title: "फूलपाती", isHoliday: true }, 5: { title: "महा अष्टमी", isHoliday: true }, 6: { title: "महानवमी", isHoliday: true }, 7: { title: "विजया दशमी", isHoliday: true }, 28: { title: "लक्ष्मीपूजा", isHoliday: true }, 30: { title: "भाइटीका", isHoliday: true } },
   7: { 3: { title: "छठ पर्व", isHoliday: true }, 24: { title: "उधौली पर्व / धान्य पूर्णिमा", isHoliday: true } },
@@ -24,8 +24,23 @@ const NE_MONTHS_EVENTS = {
   11: { 1: { title: "फागु पूर्णिमा (Holi)", isHoliday: true }, 25: { title: "रामनवमी", isHoliday: true } }
 };
 
+const ZODIAC_SIGNS = [
+  { id: 'mesh', name: 'मेष', icon: '♈', desc: 'आज कार्यक्षेत्रमा नयाँ अवसरहरू मिल्नेछन्। मनमा प्रसन्नता छाउनेछ।' },
+  { id: 'vrish', name: 'वृष', icon: '♉', desc: 'आर्थिक लाभको योग छ। परिवारको सहयोग पाइनेछ।' },
+  { id: 'mithun', name: 'मिथुन', icon: '♊', desc: 'बोलीको प्रभाव बढ्नेछ। रोकिएका कामहरू सुचारु हुनेछन्।' },
+  { id: 'karka', name: 'कर्कट', icon: '♋', desc: 'स्वास्थ्यमा सामान्य ध्यान दिनुहोला। यात्राको सम्भावना छ।' },
+  { id: 'simha', name: 'सिंह', icon: '♌', desc: 'प्रतिष्ठा वृद्धि हुनेछ। सामाजिक कार्यमा रुचि बढ्नेछ।' },
+  { id: 'kanya', name: 'कन्या', icon: '♍', desc: 'व्यवसायमा लाभ हुनेछ। नयाँ मित्रहरूसँग भेटघाट हुनेछ।' },
+  { id: 'tula', name: 'तुला', icon: '♎', desc: 'आध्यात्मिक सोच बढ्नेछ। वैदेशिक कार्यमा सफलता मिल्नेछ।' },
+  { id: 'vrischika', name: 'वृश्चिक', icon: '♏', desc: 'परिश्रमको फल प्राप्त हुनेछ। व्यापारमा प्रगति हुनेछ।' },
+  { id: 'dhanu', name: 'धनु', icon: '♐', desc: 'पारिवारिक सुख मिल्नेछ। पठनपाठनमा प्रगति हुनेछ।' },
+  { id: 'makar', name: 'मकर', icon: '♑', desc: 'शत्रुहरू परास्त हुनेछन्। आरोग्यता प्राप्त हुनेछ।' },
+  { id: 'kumbha', name: 'कुम्भ', icon: '♒', desc: 'बुद्धिको प्रयोगले काम बन्नेछन्। सन्तान तर्फबाट खुसी मिल्नेछ।' },
+  { id: 'meen', name: 'मीन', icon: '♓', desc: 'सवारी साधन चलाउँदा सावधानी अपनाउनुहोला। धन संचय हुनेछ।' }
+];
+
 let currentNpYear = 2083;
-let currentNpMonth = 2; // Ashadh (0-indexed)
+let currentNpMonth = 4; // Bhadra (0-indexed)
 
 const toNepaliDigits = (num) => {
   const map = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
@@ -36,8 +51,27 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   initCalendar();
   initConverter();
+  initHoroscope();
   initTabSystem();
+  initLiveClock();
 });
+
+function initLiveClock() {
+  const clockEl = document.getElementById('liveClockText');
+  const update = () => {
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    if (clockEl) {
+      clockEl.textContent = `${toNepaliDigits(hours)}:${toNepaliDigits(minutes)}:${toNepaliDigits(seconds)} ${ampm}`;
+    }
+  };
+  update();
+  setInterval(update, 1000);
+}
 
 function initTabSystem() {
   const tabs = document.querySelectorAll('.bar-tab');
@@ -66,7 +100,7 @@ function initNavigation() {
     monthSelect.appendChild(opt);
   });
 
-  for (let y = 2000; y <= 2100; y++) {
+  for (let y = 2075; y <= 2090; y++) {
     const opt = document.createElement('option');
     opt.value = y;
     opt.textContent = toNepaliDigits(y);
@@ -110,7 +144,7 @@ function initNavigation() {
 
   document.getElementById('todayBtn').addEventListener('click', () => {
     currentNpYear = 2083;
-    currentNpMonth = 2;
+    currentNpMonth = 4;
     syncSelectors();
     renderCalendar();
   });
@@ -132,106 +166,82 @@ function renderCalendar() {
   const daysGrid = document.getElementById('daysGrid');
   daysGrid.innerHTML = '';
 
-  // Approximate offset and days
-  const totalDays = 32;
-  const startDayOfWeek = (currentNpMonth * 2 + currentNpYear) % 7;
+  const totalDays = 31; // Nepali month days approx
+  const startDay = 0; // Sunday
 
-  for (let i = 0; i < startDayOfWeek; i++) {
+  for (let i = 0; i < startDay; i++) {
     const emptyCell = document.createElement('div');
     emptyCell.className = 'day-cell empty';
     daysGrid.appendChild(emptyCell);
   }
 
-  const monthEvents = NE_MONTHS_EVENTS[currentNpMonth] || {};
+  const events = NE_MONTHS_EVENTS[currentNpMonth] || {};
   const eventsList = document.getElementById('eventsList');
   eventsList.innerHTML = '';
 
   for (let d = 1; d <= totalDays; d++) {
-    const cell = document.createElement('div');
-    const dayOfWeek = (startDayOfWeek + d - 1) % 7;
-    const isSat = dayOfWeek === 6;
-    const event = monthEvents[d];
+    const dayCell = document.createElement('div');
+    const dayOfWeek = (startDay + d - 1) % 7;
+    const isSaturday = dayOfWeek === 6;
+    const event = events[d];
 
-    cell.className = `day-cell ${isSat ? 'saturday' : ''} ${event && event.isHoliday ? 'holiday' : ''} ${d === 16 && currentNpMonth === 2 ? 'today' : ''}`;
-    
-    cell.innerHTML = `
+    let cellClass = 'day-cell';
+    if (isSaturday) cellClass += ' saturday';
+    if (event && event.isHoliday) cellClass += ' holiday';
+    if (d === 20 && currentNpMonth === 4 && currentNpYear === 2083) cellClass += ' today';
+
+    dayCell.className = cellClass;
+    dayCell.innerHTML = `
       <span class="nep-date">${toNepaliDigits(d)}</span>
       <span class="eng-date">${d}</span>
     `;
 
-    daysGrid.appendChild(cell);
+    daysGrid.appendChild(dayCell);
 
     if (event) {
       const li = document.createElement('li');
       li.className = 'event-item';
       li.innerHTML = `
-        <span class="event-gate">${d} गते</span>
+        <span class="event-gate">${toNepaliDigits(d)} गते</span>
         <span>${event.title}</span>
       `;
       eventsList.appendChild(li);
     }
   }
-
-  if (eventsList.children.length === 0) {
-    eventsList.innerHTML = '<li class="event-item"><span style="color:#71717a">यो महिना कुनै मुख्य सार्वजनिक बिदा छैन।</span></li>';
-  }
 }
 
 function initConverter() {
-  let mode = 'BS_TO_AD';
-  const container = document.getElementById('converterInputs');
-
-  const renderInputs = () => {
-    if (mode === 'BS_TO_AD') {
-      container.innerHTML = `
-        <select id="convYear" class="form-select">
-          ${[2080, 2081, 2082, 2083, 2084, 2085].map(y => `<option value="${y}" ${y === 2083 ? 'selected' : ''}>BS ${y}</option>`).join('')}
-        </select>
-        <select id="convMonth" class="form-select">
-          ${NEPALI_MONTHS_NE.map((m, i) => `<option value="${i}">${m}</option>`).join('')}
-        </select>
-        <input type="number" id="convDay" class="form-input" min="1" max="32" value="15" placeholder="Day (गते)" />
-      `;
-    } else {
-      container.innerHTML = `
-        <select id="convYear" class="form-select">
-          ${[2024, 2025, 2026, 2027, 2028].map(y => `<option value="${y}" ${y === 2026 ? 'selected' : ''}>AD ${y}</option>`).join('')}
-        </select>
-        <select id="convMonth" class="form-select">
-          ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((m, i) => `<option value="${i}">${m}</option>`).join('')}
-        </select>
-        <input type="number" id="convDay" class="form-input" min="1" max="31" value="1" placeholder="Day" />
-      `;
-    }
-  };
-
-  renderInputs();
-
-  document.getElementById('bsToAdBtn').addEventListener('click', (e) => {
-    document.getElementById('bsToAdBtn').classList.add('active');
-    document.getElementById('adToBsBtn').classList.remove('active');
-    mode = 'BS_TO_AD';
-    renderInputs();
-  });
-
-  document.getElementById('adToBsBtn').addEventListener('click', (e) => {
-    document.getElementById('adToBsBtn').classList.add('active');
-    document.getElementById('bsToAdBtn').classList.remove('active');
-    mode = 'AD_TO_BS';
-    renderInputs();
-  });
+  const inputsContainer = document.getElementById('converterInputs');
+  inputsContainer.innerHTML = `
+    <input type="number" id="cYear" class="form-input" value="2083" placeholder="Year" />
+    <input type="number" id="cMonth" class="form-input" value="5" placeholder="Month" />
+    <input type="number" id="cDay" class="form-input" value="20" placeholder="Day" />
+  `;
 
   document.getElementById('convertExecBtn').addEventListener('click', () => {
-    const y = parseInt(document.getElementById('convYear').value, 10);
-    const m = parseInt(document.getElementById('convMonth').value, 10);
-    const d = parseInt(document.getElementById('convDay').value, 10) || 1;
+    const y = parseInt(document.getElementById('cYear').value, 10);
+    const m = parseInt(document.getElementById('cMonth').value, 10);
+    const d = parseInt(document.getElementById('cDay').value, 10);
 
-    if (mode === 'BS_TO_AD') {
-      const adYear = y - 57;
-      document.getElementById('resultText').textContent = `AD ${adYear}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
-    } else {
-      const bsYear = y + 57;
-      document.getElementById('resultText').textContent = `BS ${toNepaliDigits(bsYear)} ${NEPALI_MONTHS_NE[m]} ${toNepaliDigits(d)} गते`;
-    }
+    const adYear = y - 57;
+    document.getElementById('resultText').textContent = `Sep ${d}, ${adYear} (AD)`;
+  });
+}
+
+function initHoroscope() {
+  const grid = document.getElementById('zodiacGrid');
+  const descBox = document.getElementById('zodiacDescBox');
+
+  if (!grid || !descBox) return;
+  grid.innerHTML = '';
+
+  ZODIAC_SIGNS.forEach((z, idx) => {
+    const btn = document.createElement('button');
+    btn.style.cssText = "background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; padding:6px; font-size:10px; cursor:pointer;";
+    btn.innerHTML = `<div style="font-size:14px;">${z.icon}</div><div>${z.name}</div>`;
+    btn.addEventListener('click', () => {
+      descBox.innerHTML = `<strong>${z.name} (${z.icon}):</strong><br/>${z.desc}`;
+    });
+    grid.appendChild(btn);
   });
 }

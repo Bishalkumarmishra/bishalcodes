@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f82c28"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  
+  <!-- Outer Card Shadow & Rounded Rect -->
+  <rect x="40" y="70" width="432" height="392" rx="48" fill="url(#bodyGrad)" filter="url(#shadow)" stroke="#cbd5e1" stroke-width="4"/>
+  
+  <!-- Red Top Header Bar -->
+  <path d="M 40,118 C 40,91.5 61.5,70 88,70 L 424,70 C 450.5,70 472,91.5 472,118 L 472,180 L 40,180 Z" fill="url(#headerGrad)"/>
+  
+  <!-- Binder Ring Pegs -->
+  <rect x="130" y="44" width="24" height="52" rx="12" fill="#334155"/>
+  <rect x="134" y="48" width="16" height="44" rx="8" fill="#e2e8f0"/>
+  
+  <rect x="244" y="44" width="24" height="52" rx="12" fill="#334155"/>
+  <rect x="248" y="48" width="16" height="44" rx="8" fill="#e2e8f0"/>
+  
+  <rect x="358" y="44" width="24" height="52" rx="12" fill="#334155"/>
+  <rect x="362" y="48" width="16" height="44" rx="8" fill="#e2e8f0"/>
+
+  <!-- Month Text in Header -->
+  <text x="256" y="142" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="38" fill="#ffffff" text-anchor="middle" letter-spacing="2">नेपाली पात्रो</text>
+
+  <!-- Big Day Number inside Calendar -->
+  <text x="256" y="340" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="160" fill="#e52521" text-anchor="middle">२०</text>
+
+  <!-- Month / Year Label at bottom -->
+  <text x="256" y="415" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="28" fill="#475569" text-anchor="middle">भदौ २०८३</text>
+</svg>
