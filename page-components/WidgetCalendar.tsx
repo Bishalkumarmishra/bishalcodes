@@ -209,10 +209,10 @@ export default function WidgetCalendar() {
             <Menu size={22} />
           </button>
           
-          {/* Official Red Square Mero Patro Logo + Text */}
+          {/* Official Mero Patro Logo (real PNG) */}
           <div className="flex items-center gap-2">
             <img 
-              src="/mero-patro-logo.png" 
+              src="/mero-patro-app-icon-3d.png" 
               alt="Mero Patro" 
               className="w-9 h-9 rounded-lg object-contain shadow-sm hover:scale-105 transition-transform" 
             />
