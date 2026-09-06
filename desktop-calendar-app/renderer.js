@@ -1374,10 +1374,10 @@ async function checkFirestoreNotifications() {
         const docId = doc.name.split('/').pop();
         if (!shownNotifs.includes(docId)) {
           const fields = doc.fields;
-          if (fields && fields.title && fields.body) {
-            const title = fields.title.stringValue || '';
-            const body = fields.body.stringValue || '';
-            const timestamp = fields.timestamp && fields.timestamp.integerValue ? parseInt(fields.timestamp.integerValue) : Date.now();
+          const title = fields?.title?.stringValue || '';
+          const body = fields?.body?.stringValue || fields?.message?.stringValue || '';
+          if (title && body) {
+            const timestamp = fields?.timestamp && fields?.timestamp?.integerValue ? parseInt(fields.timestamp.integerValue) : Date.now();
             
             // Show push notification!
             ipcRenderer.send('show-notification', { title, body });

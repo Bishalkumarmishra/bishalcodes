@@ -11,7 +11,7 @@ export default function AdminPushNotification() {
   const [fileUrl, setFileUrl] = useState('');
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
-  const [targetAudience, setTargetAudience] = useState<'all' | 'android' | 'web'>('all');
+  const [targetAudience, setTargetAudience] = useState<'all' | 'desktop' | 'ios' | 'android' | 'web'>('all');
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -558,6 +558,46 @@ export default function AdminPushNotification() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Target Audience Selector (Microsoft Store Desktop, iOS, Android, Web) */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-slate-700 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <Radio size={13} className="text-[#e52521]" /> Target Platform / App Audience
+              </label>
+              <span className="text-[11px] font-mono text-[#e52521] font-semibold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                Key: BISHALCODES_API_KEY_LIVE_99812
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {[
+                { id: 'all', label: 'All Platforms', icon: '🌐', desc: 'Desktop, iOS, Android, Web' },
+                { id: 'desktop', label: 'Desktop App', icon: '🖥️', desc: 'Microsoft Store Windows' },
+                { id: 'ios', label: 'iOS Calendar', icon: '🍎', desc: 'iPhone Safari & PWA' },
+                { id: 'android', label: 'Android App', icon: '🤖', desc: 'Native APK & P2P' },
+                { id: 'web', label: 'Web Browsers', icon: '💻', desc: 'Chrome, Edge, Safari' }
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setTargetAudience(item.id as any)}
+                  className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    targetAudience === item.id
+                      ? 'bg-slate-900 text-white border-slate-900 shadow-sm ring-2 ring-[#e52521]'
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 font-bold text-xs">
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </div>
+                  <span className={`text-[10px] mt-1 line-clamp-1 ${targetAudience === item.id ? 'text-slate-300' : 'text-slate-500'}`}>
+                    {item.desc}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
 

@@ -45,21 +45,23 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { title, message, actionUrl, fileUrl, targetAudience, apiKey } = body;
+    const { title, message, body: rawBody, actionUrl, fileUrl, targetAudience, apiKey } = body;
+    const finalMessage = message || rawBody;
 
     if (apiKey !== 'BISHALCODES_API_KEY_LIVE_99812') {
       return NextResponse.json({ error: 'Unauthorized API Key' }, { status: 401 });
     }
 
-    if (!title || !message) {
+    if (!title || !finalMessage) {
       return NextResponse.json({ error: 'Title and message are required' }, { status: 400 });
     }
 
     const notificationPayload: Record<string, any> = {
       id: 'notif-' + Date.now(),
       title,
-      message,
-      actionUrl: actionUrl || 'https://bishalcodes.com/tools/file_transfer',
+      message: finalMessage,
+      body: finalMessage, // Guarantees compatibility with Desktop Calendar App (Microsoft Store)
+      actionUrl: actionUrl || 'https://bishalcodes.com/widgets/calendar',
       fileUrl: fileUrl || '',
       targetAudience: targetAudience || 'all',
       timestamp: Date.now(),

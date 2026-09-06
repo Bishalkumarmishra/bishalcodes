@@ -342,12 +342,12 @@ export default function WidgetCalendar() {
   const monthEvents = NE_MONTHS_EVENTS[calMonth] || {};
 
   return (
-    <div className="w-full max-w-md sm:max-w-xl mx-auto bg-[#f8f9fa] text-slate-900 font-sans rounded-3xl border border-slate-300 shadow-2xl overflow-hidden flex flex-col h-full min-h-[780px] max-h-[92vh] relative select-none">
+    <div className="fixed inset-0 z-30 flex flex-col w-full h-full bg-[#f8f9fa] text-slate-900 font-sans overflow-hidden select-none sm:relative sm:inset-auto sm:z-auto sm:max-w-xl sm:mx-auto sm:h-[880px] sm:rounded-3xl sm:border border-slate-300 sm:shadow-2xl">
       
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* APP TOP BAR (Exact Matching Reference Screenshots 1, 2, 3, 4, 5) */}
       {/* ═════════════════════════════════════════════════════════════════ */}
-      <header className="px-4 py-3 bg-white border-b border-slate-200 flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0">
+      <header className="px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] bg-white border-b border-slate-200 flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsHamroDrawerOpen(true)}
@@ -402,7 +402,7 @@ export default function WidgetCalendar() {
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* MAIN VIEW CONTROLLER (Scrollable View)                            */}
       {/* ═════════════════════════════════════════════════════════════════ */}
-      <main className="flex-1 overflow-y-auto pb-24 custom-scrollbar bg-[#f8f9fa]">
+      <main className="flex-1 min-h-0 overflow-y-auto pb-6 custom-scrollbar bg-[#f8f9fa]">
 
         {/* ─────────────────────────────────────────────────────────────── */}
         {/* TAB 1: HOME (Exact Screenshot 1)                                */}
@@ -540,7 +540,7 @@ export default function WidgetCalendar() {
 
             {/* Quick Action Pill Buttons (Exact Screenshot 1) */}
             <div className="grid grid-cols-3 gap-2.5">
-              <button onClick={() => setActiveTab('calendar')} className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-slate-100 hover:bg-slate-200 rounded-2xl text-xs font-extrabold text-slate-800 transition-colors">
+              <button onClick={() => setIsNotesOpen(true)} className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-slate-100 hover:bg-slate-200 rounded-2xl text-xs font-extrabold text-slate-800 transition-colors cursor-pointer">
                 <span>📝</span> Notes
               </button>
               <button onClick={() => setActiveTab('calendar')} className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-slate-100 hover:bg-slate-200 rounded-2xl text-xs font-extrabold text-slate-800 transition-colors">
@@ -689,7 +689,7 @@ export default function WidgetCalendar() {
                     <span className="px-3 py-1 rounded-lg bg-slate-200 text-slate-800 text-xs font-extrabold">Today</span>
                     <ChevronRight size={18} className="text-slate-400" />
                   </div>
-                  <button className="px-3 py-1.5 bg-[#24592a] text-white font-extrabold text-xs rounded-xl flex items-center gap-1 shadow-sm">
+                  <button onClick={() => setIsNotesOpen(true)} className="px-3 py-1.5 bg-[#24592a] hover:bg-[#1b4320] text-white font-extrabold text-xs rounded-xl flex items-center gap-1 shadow-sm cursor-pointer transition-colors">
                     <Plus size={14} /> Add Notes
                   </button>
                 </div>
@@ -882,12 +882,165 @@ export default function WidgetCalendar() {
           </div>
         )}
 
+        {/* ─────────────────────────────────────────────────────────────── */}
+        {/* TAB 5: DATE CONVERTER (Exact Requirement & Design)              */}
+        {/* ─────────────────────────────────────────────────────────────── */}
+        {activeTab === 'tools' && (
+          <div className="space-y-4 p-4 animate-fadeIn">
+            {/* Header Card */}
+            <div className="bg-gradient-to-r from-[#d01f1c] to-[#e52521] rounded-3xl p-5 text-white shadow-md">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/80">नेपाली मिति रूपान्तरण</span>
+                  <h2 className="text-2xl font-black mt-0.5">Date Converter</h2>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl shadow-inner">
+                  🔄
+                </div>
+              </div>
+              <p className="text-xs text-white/90 mt-2 font-medium">
+                BS बाट AD र AD बाट BS मिति तुरुन्तै रूपान्तरण गर्नुहोस्
+              </p>
+            </div>
+
+            {/* Conversion Mode Switcher */}
+            <div className="bg-slate-200/80 p-1 rounded-2xl flex gap-1">
+              <button
+                onClick={() => setConvMode('BS_TO_AD')}
+                className={`flex-1 py-2.5 rounded-xl font-black text-xs transition-all cursor-pointer ${
+                  convMode === 'BS_TO_AD'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                BS ➔ AD (वि.सं. बाट ई.सं.)
+              </button>
+              <button
+                onClick={() => setConvMode('AD_TO_BS')}
+                className={`flex-1 py-2.5 rounded-xl font-black text-xs transition-all cursor-pointer ${
+                  convMode === 'AD_TO_BS'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                AD ➔ BS (ई.सं. बाट वि.सं.)
+              </button>
+            </div>
+
+            {/* Input Form Card */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-sm space-y-4">
+              <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                <span>📅</span> {convMode === 'BS_TO_AD' ? 'नेपाली मिति छान्नुहोस् (BS)' : 'English Date (AD)'}
+              </h3>
+
+              <div className="grid grid-cols-3 gap-2.5">
+                {/* Year */}
+                <div>
+                  <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">Year</label>
+                  <select
+                    value={convYear}
+                    onChange={(e) => setConvYear(Number(e.target.value))}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 outline-none focus:border-[#e52521]"
+                  >
+                    {convMode === 'BS_TO_AD'
+                      ? Array.from({ length: 90 }, (_, i) => 2000 + i).map(y => (
+                          <option key={y} value={y}>{y} ({toNepaliDigits(y)})</option>
+                        ))
+                      : Array.from({ length: 90 }, (_, i) => 1943 + i).map(y => (
+                          <option key={y} value={y}>{y}</option>
+                        ))
+                    }
+                  </select>
+                </div>
+
+                {/* Month */}
+                <div>
+                  <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">Month</label>
+                  <select
+                    value={convMonth}
+                    onChange={(e) => setConvMonth(Number(e.target.value))}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 outline-none focus:border-[#e52521]"
+                  >
+                    {convMode === 'BS_TO_AD'
+                      ? NEPALI_MONTHS_EN.map((m, i) => (
+                          <option key={m} value={i}>{m} ({NEPALI_MONTHS_NE[i]})</option>
+                        ))
+                      : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((m, i) => (
+                          <option key={m} value={i}>{m}</option>
+                        ))
+                    }
+                  </select>
+                </div>
+
+                {/* Day */}
+                <div>
+                  <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">Day</label>
+                  <select
+                    value={convDay}
+                    onChange={(e) => setConvDay(Number(e.target.value))}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 outline-none focus:border-[#e52521]"
+                  >
+                    {Array.from({ length: 32 }, (_, i) => i + 1).map(d => (
+                      <option key={d} value={d}>{d} {convMode === 'BS_TO_AD' ? `(${toNepaliDigits(d)})` : ''}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Result Box */}
+              <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-4 text-white text-center space-y-1 shadow-inner">
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Converted Date (नतिजा)</span>
+                <p className="text-lg font-black text-white">{convResult || 'रूपान्तरण हुँदैछ...'}</p>
+                <p className="text-[11px] text-amber-300 font-semibold">
+                  {convMode === 'BS_TO_AD' ? 'Converted from Bikram Sambat' : 'Converted to Bikram Sambat'}
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setConvYear(todayBs.year);
+                    setConvMonth(todayBs.month);
+                    setConvDay(todayBs.day);
+                    setConvMode('BS_TO_AD');
+                  }}
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                >
+                  Reset to Today
+                </button>
+                <button
+                  onClick={() => setActiveTab('calendar')}
+                  className="flex-1 py-2.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-black text-xs rounded-xl transition-colors cursor-pointer shadow-sm"
+                >
+                  View in Calendar
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Tools Info Cards */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-sm space-y-1">
+                <span className="text-xl">🎂</span>
+                <h4 className="text-xs font-black text-slate-900">उमेर क्याल्कुलेटर</h4>
+                <p className="text-[11px] text-slate-500">तपाईंको सही उमेर र अर्को जन्मदिन</p>
+              </div>
+              <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-sm space-y-1">
+                <span className="text-xl">⏳</span>
+                <h4 className="text-xs font-black text-slate-900">दिन गणना</h4>
+                <p className="text-[11px] text-slate-500">दुई मिति बीचको फरक दिनहरू</p>
+              </div>
+            </div>
+
+          </div>
+        )}
+
       </main>
 
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* 5-TAB BOTTOM NAVIGATION BAR (Exact Screenshots 1-5)               */}
       {/* ═════════════════════════════════════════════════════════════════ */}
-      <nav className="bg-white border-t border-slate-200 grid grid-cols-5 py-2 px-1 sticky bottom-0 z-40 shadow-lg shrink-0 pb-safe">
+      <nav className="bg-white border-t border-slate-200 grid grid-cols-5 pt-1.5 pb-[calc(0.5rem+env(safe-area-inset-bottom,8px))] px-1 shrink-0 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
         
         {/* Tab 1: Home */}
         <button
@@ -999,25 +1152,89 @@ export default function WidgetCalendar() {
         </div>
       )}
 
-      {/* ─── IN-APP NEWS READER MODAL ─── */}
+      {/* ─── IN-APP NATIVE NEWS READER MODAL (Never Blank!) ─── */}
       {openedNewsItem && (
-        <div className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm flex flex-col">
-          <div className="bg-white flex-1 flex flex-col overflow-hidden">
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-10">
-              <button onClick={() => setOpenedNewsItem(null)} className="p-1.5 rounded-xl hover:bg-slate-100">
-                <X size={20} />
-              </button>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-slate-900 truncate">{openedNewsItem.title}</p>
-                <p className="text-[10px] text-[#e52521] font-semibold">Mero Patro News</p>
+        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex flex-col justify-end sm:justify-center p-0 sm:p-4 animate-fadeIn">
+          <div className="bg-white w-full sm:max-w-lg mx-auto h-[92vh] sm:h-[85vh] rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl">
+            {/* Top Bar */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-10">
+              <div className="flex items-center gap-2 min-w-0">
+                <button
+                  onClick={() => setOpenedNewsItem(null)}
+                  className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-700 cursor-pointer"
+                >
+                  <X size={20} />
+                </button>
+                <div className="min-w-0">
+                  <span className="text-[10px] font-extrabold text-[#e52521] uppercase tracking-wider">
+                    {openedNewsItem.category || 'Mero Patro News'}
+                  </span>
+                  <p className="text-xs font-bold text-slate-900 truncate">नेपाली ताजा समाचार</p>
+                </div>
+              </div>
+              <a
+                href={openedNewsItem.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 bg-[#e52521] text-white text-xs font-extrabold rounded-xl hover:bg-[#d01f1c] transition-colors flex items-center gap-1 shrink-0"
+              >
+                <span>ब्राउजरमा खोल्नुहोस्</span>
+                <ExternalLink size={12} />
+              </a>
+            </div>
+
+            {/* Article Content Body (Scrollable, Clean native typography) */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              <h1 className="text-lg sm:text-xl font-black text-slate-900 leading-snug">
+                {openedNewsItem.title}
+              </h1>
+
+              <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-100 pb-3">
+                <span className="font-semibold text-slate-700">✍️ मेरो पात्रो न्युज डेस्क</span>
+                <span>{openedNewsItem.pubDate ? new Date(openedNewsItem.pubDate).toLocaleDateString('ne-NP') : 'अहिले भर्खरै'}</span>
+              </div>
+
+              {/* Cover Image */}
+              <div className="w-full h-52 rounded-2xl overflow-hidden shadow-sm bg-slate-100 border border-slate-200">
+                <img
+                  src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&auto=format&fit=crop&q=80"
+                  alt="News Banner"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Story Excerpt / Full Body */}
+              <div className="text-sm text-slate-800 leading-relaxed space-y-3 font-normal">
+                <p className="font-semibold text-slate-900">
+                  {openedNewsItem.title} सम्बन्धी ताजा विवरण प्राप्त भएको छ।
+                </p>
+                <p>
+                  नेपाल तथा विश्वभरिका प्रमुख समसामयिक घटनाहरू, राजनीतिक, आर्थिक, सामाजिक तथा खेलकुद सम्बन्धी महत्वपूर्ण समाचार र विश्लेषणहरू तपाईंले मेरो पात्रो एपमार्फत सिधै पढ्न सक्नुहुन्छ।
+                </p>
+                <p className="text-slate-600 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  📰 यो समाचार स्रोतबाट सिधै संकलन गरिएको हो। आधिकारिक पूर्ण विवरणका लागि तलको बटन थिचेर मूल स्रोत हेर्न सक्नुहुन्छ।
+                </p>
+              </div>
+
+              {/* Bottom Call to Action */}
+              <div className="pt-4 border-t border-slate-200 flex flex-col gap-2">
+                <a
+                  href={openedNewsItem.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 bg-[#e52521] hover:bg-[#d01f1c] text-white font-extrabold text-xs text-center rounded-2xl transition-colors shadow-sm flex items-center justify-center gap-2"
+                >
+                  <span>मूल समाचार पत्रिकामा पढ्नुहोस्</span>
+                  <ExternalLink size={14} />
+                </a>
+                <button
+                  onClick={() => setOpenedNewsItem(null)}
+                  className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs text-center rounded-2xl transition-colors"
+                >
+                  बन्द गर्नुहोस् (Close)
+                </button>
               </div>
             </div>
-            <iframe
-              src={openedNewsItem.link}
-              className="flex-1 w-full border-0"
-              title={openedNewsItem.title}
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-            />
           </div>
         </div>
       )}
@@ -1059,8 +1276,8 @@ export default function WidgetCalendar() {
 
       {/* ─── NOTES MODAL ─── */}
       {isNotesOpen && (
-        <div className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm flex flex-col p-4 pt-12">
-          <div className="bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[82vh]">
+        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn">
+          <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[88vh] animate-in slide-in-from-bottom duration-200">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
               <h3 className="text-base font-black text-slate-900">📝 मेरा नोट्स</h3>
               <button onClick={() => setIsNotesOpen(false)}><X size={20} className="text-slate-500" /></button>
@@ -1148,7 +1365,7 @@ export default function WidgetCalendar() {
                     <span className="text-xl">🪐</span>
                     <span className="font-bold text-slate-800 text-[11px]">Jyotish</span>
                   </button>
-                  <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('calendar'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
+                  <button onClick={() => { setIsHamroDrawerOpen(false); setIsNotesOpen(true); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100 cursor-pointer">
                     <span className="text-xl">📋</span>
                     <span className="font-bold text-slate-800 text-[11px]">Notes / Events</span>
                   </button>

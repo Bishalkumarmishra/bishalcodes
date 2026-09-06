@@ -110,7 +110,7 @@ export interface PushNotificationPayload {
   message: string;
   actionUrl?: string;
   fileUrl?: string;
-  targetAudience: 'all' | 'android' | 'web';
+  targetAudience: 'all' | 'desktop' | 'ios' | 'android' | 'web';
   timestamp: number;
   status: 'sent' | 'failed';
 }
