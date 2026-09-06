@@ -5,8 +5,11 @@ import {
   Home, Newspaper, Sparkles, User, Sun, Moon, Search, Menu, Bell,
   ArrowRight, ShieldCheck, CheckCircle2, RefreshCw, Layers, ArrowUpRight,
   TrendingUp, Clock, MapPin, Heart, Share2, Compass, ChevronDown, Download,
-  Grid, PhoneCall, Radio, Bookmark, HelpCircle, Code, Cpu, Check, ExternalLink
+  Grid, PhoneCall, Radio, Bookmark, HelpCircle, Code, Cpu, Check, ExternalLink, X
 } from 'lucide-react';
+// @ts-ignore
+import { signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { auth, googleProvider } from '../services/firebase';
 import MobileAppDownloadModal from '../components/MobileAppDownloadModal';
 
 const NEPALI_MONTHS_EN = [
@@ -112,7 +115,9 @@ const ZODIAC_SIGNS = [
 
 export default function WidgetCalendar() {
   const [activeTab, setActiveTab] = useState<'home' | 'calendar' | 'tools' | 'news' | 'profile'>('home');
-  
+  const [isHamroDrawerOpen, setIsHamroDrawerOpen] = useState<boolean>(false);
+  const [userPhoto, setUserPhoto] = useState<string | null>(null);
+
   // Real Today Date State initialized from real system date
   const [todayBs, setTodayBs] = useState<{ year: number; month: number; day: number }>(() => {
     try {
@@ -128,6 +133,21 @@ export default function WidgetCalendar() {
   const [selectedDay, setSelectedDay] = useState<number>(todayBs.day);
   const [isMobileModalOpen, setIsMobileModalOpen] = useState<boolean>(false);
   const [selectedZodiac, setSelectedZodiac] = useState<any>(ZODIAC_SIGNS[0]);
+
+  // Handle Google Login
+  useEffect(() => {
+    if (auth.currentUser) {
+      setUserPhoto(auth.currentUser.photoURL);
+    }
+  }, []);
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithRedirect(auth, googleProvider);
+    } catch (err) {
+      window.location.href = '/login';
+    }
+  };
 
   // Real-time ticking clock & weather state
   const [liveTimeStr, setLiveTimeStr] = useState<string>('');
@@ -243,11 +263,15 @@ export default function WidgetCalendar() {
     <div className="w-full max-w-md sm:max-w-xl mx-auto bg-[#f8f9fa] text-slate-900 font-sans rounded-3xl border border-slate-300 shadow-2xl overflow-hidden flex flex-col min-h-[780px] max-h-[90vh] relative select-none">
       
       {/* ═════════════════════════════════════════════════════════════════ */}
-      {/* APP TOP BAR (Authentic Desktop Calendar Icon & Clean Header)     */}
+      {/* APP TOP BAR (Authentic Desktop Calendar Icon & Real Functional Bar) */}
       {/* ═════════════════════════════════════════════════════════════════ */}
       <header className="px-4 py-3 bg-white border-b border-slate-200 flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0">
         <div className="flex items-center gap-3">
-          <button className="p-1 text-slate-700 hover:text-[#e52521] transition-colors">
+          <button 
+            onClick={() => setIsHamroDrawerOpen(true)}
+            className="p-1.5 text-slate-700 hover:text-[#e52521] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            title="Hamro Services & Features Menu"
+          >
             <Menu size={20} />
           </button>
           
@@ -269,20 +293,29 @@ export default function WidgetCalendar() {
 
         <div className="flex items-center gap-2">
           <button 
-            onClick={() => setIsMobileModalOpen(true)}
-            className="p-1.5 text-slate-600 hover:text-[#e52521] transition-colors rounded-lg hover:bg-slate-100"
+            onClick={() => setIsHamroDrawerOpen(true)}
+            className="p-1.5 text-slate-600 hover:text-[#e52521] transition-colors rounded-lg hover:bg-slate-100 cursor-pointer"
             title="App Launcher"
           >
             <Grid size={18} />
           </button>
-          <button className="p-1.5 text-slate-600 hover:text-[#e52521] transition-colors rounded-lg hover:bg-slate-100">
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent('open_global_search'))}
+            className="p-1.5 text-slate-600 hover:text-[#e52521] transition-colors rounded-lg hover:bg-slate-100 cursor-pointer"
+            title="Real Global Search"
+          >
             <Search size={18} />
           </button>
           <button 
-            onClick={() => setActiveTab('profile')}
-            className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-700 hover:border-[#e52521] hover:text-[#e52521] transition-colors"
+            onClick={() => handleGoogleLogin()}
+            className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-700 hover:border-[#e52521] hover:text-[#e52521] transition-colors overflow-hidden cursor-pointer"
+            title="Google Sign-In / Account"
           >
-            <User size={16} />
+            {userPhoto ? (
+              <img src={userPhoto} alt="User Avatar" className="w-full h-full object-cover" />
+            ) : (
+              <User size={16} />
+            )}
           </button>
         </div>
       </header>
@@ -921,6 +954,113 @@ export default function WidgetCalendar() {
         appName="Nepali Calendar"
         appUrl="https://bishalcodes.com/widgets/calendar"
       />
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* HAMRO SERVICES DRAWER MODAL (Exact Matching Reference Image 5)   */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {isHamroDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex justify-start bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-sm bg-white h-full overflow-y-auto flex flex-col shadow-2xl animate-in slide-in-from-left duration-200">
+            {/* Drawer Header */}
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white z-10">
+              <h2 className="text-base font-black text-slate-900">Hamro Services</h2>
+              <button 
+                onClick={() => setIsHamroDrawerOpen(false)}
+                className="p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-5 flex-1">
+              {/* Membership Subscribe Card */}
+              <div className="bg-red-400 text-white rounded-2xl p-4 space-y-2 shadow-sm">
+                <h3 className="text-sm font-black">Join Hamro Patro Membership</h3>
+                <p className="text-xs text-white/90 leading-snug">
+                  Get discounts on services along with an ad-free experience.
+                </p>
+                <button 
+                  onClick={() => { setIsHamroDrawerOpen(false); handleGoogleLogin(); }}
+                  className="mt-2 px-4 py-2 bg-white text-red-600 font-black text-xs rounded-xl shadow hover:bg-slate-100 transition-colors"
+                >
+                  Subscribe Now
+                </button>
+              </div>
+
+              {/* Search Features Input */}
+              <div className="space-y-1">
+                <span className="text-xs font-bold text-slate-700">Search Features</span>
+                <div 
+                  onClick={() => { setIsHamroDrawerOpen(false); window.dispatchEvent(new CustomEvent('open_global_search')); }}
+                  className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-400 cursor-pointer hover:border-[#e52521]"
+                >
+                  <Search size={16} className="text-slate-400" />
+                  <span>Search Features...</span>
+                </div>
+              </div>
+
+              {/* "फिचर्ड" (Featured Services) Grid */}
+              <div className="space-y-2.5">
+                <h4 className="text-xs font-black text-slate-900 border-b border-slate-100 pb-1">फिचर्ड</h4>
+                <div className="grid grid-cols-3 gap-3 text-center text-xs">
+                  <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('tools'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
+                    <span className="text-xl">💳</span>
+                    <span className="font-bold text-slate-800 text-[11px]">HamroPay</span>
+                  </button>
+                  <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('news'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
+                    <span className="text-xl">🪐</span>
+                    <span className="font-bold text-slate-800 text-[11px]">Jyotish</span>
+                  </button>
+                  <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('calendar'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
+                    <span className="text-xl">📋</span>
+                    <span className="font-bold text-slate-800 text-[11px]">Notes / Events</span>
+                  </button>
+                  <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('profile'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
+                    <span className="text-xl">🩺</span>
+                    <span className="font-bold text-slate-800 text-[11px]">Health</span>
+                  </button>
+                  <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('news'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
+                    <span className="text-xl">📈</span>
+                    <span className="font-bold text-slate-800 text-[11px]">Share Market</span>
+                  </button>
+                  <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('tools'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
+                    <span className="text-xl">📹</span>
+                    <span className="font-bold text-slate-800 text-[11px]">Chautari Meet</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* "जीवनशैली" (Lifestyle Services) Grid */}
+              <div className="space-y-2.5">
+                <h4 className="text-xs font-black text-slate-900 border-b border-slate-100 pb-1">जीवनशैली</h4>
+                <div className="grid grid-cols-3 gap-3 text-center text-xs">
+                  <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('calendar'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
+                    <span className="text-xl">📅</span>
+                    <span className="font-bold text-emerald-700 text-[11px]">Calendar</span>
+                  </button>
+                  <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('profile'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
+                    <span className="text-xl">⭐</span>
+                    <span className="font-bold text-slate-800 text-[11px]">Saait</span>
+                  </button>
+                  <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('news'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
+                    <span className="text-xl">💌</span>
+                    <span className="font-bold text-slate-800 text-[11px]">E-cards</span>
+                  </button>
+                  <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('tools'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
+                    <span className="text-xl">🔄</span>
+                    <span className="font-bold text-slate-800 text-[11px]">Date Converter</span>
+                  </button>
+                  <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('calendar'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
+                    <span className="text-xl">🗓️</span>
+                    <span className="font-bold text-slate-800 text-[11px]">Holidays</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
