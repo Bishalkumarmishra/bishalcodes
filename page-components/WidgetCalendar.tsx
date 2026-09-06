@@ -212,9 +212,9 @@ export default function WidgetCalendar() {
           {/* Official Red Square Mero Patro Logo + Text */}
           <div className="flex items-center gap-2">
             <img 
-              src="/mero-patro-logo.svg" 
+              src="/mero-patro-logo.png" 
               alt="Mero Patro" 
-              className="w-8 h-8 rounded-lg object-cover shadow-sm hover:scale-105 transition-transform" 
+              className="w-9 h-9 rounded-lg object-contain shadow-sm hover:scale-105 transition-transform" 
             />
             <h1 className="text-base font-black text-slate-900 tracking-tight font-sans">
               MERO PATRO
