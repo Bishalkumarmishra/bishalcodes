@@ -209,15 +209,15 @@ export default function WidgetCalendar() {
             <Menu size={22} />
           </button>
           
-          {/* Official Red Square Hamro Patro Logo + Text */}
+          {/* Official Red Square Mero Patro Logo + Text */}
           <div className="flex items-center gap-2">
             <img 
-              src="/hamro-patro-logo.svg" 
-              alt="Hamro Patro" 
+              src="/mero-patro-logo.svg" 
+              alt="Mero Patro" 
               className="w-8 h-8 rounded-lg object-cover shadow-sm hover:scale-105 transition-transform" 
             />
             <h1 className="text-base font-black text-slate-900 tracking-tight font-sans">
-              HAMRO PATRO
+              MERO PATRO
             </h1>
           </div>
         </div>
@@ -807,12 +807,12 @@ export default function WidgetCalendar() {
         appUrl="https://bishalcodes.com/widgets/calendar"
       />
 
-      {/* HAMRO SERVICES DRAWER MODAL */}
+      {/* MERO SERVICES DRAWER MODAL */}
       {isHamroDrawerOpen && (
         <div className="fixed inset-0 z-50 flex justify-start bg-black/60 backdrop-blur-sm animate-fadeIn">
           <div className="w-full max-w-sm bg-white h-full overflow-y-auto flex flex-col shadow-2xl animate-in slide-in-from-left duration-200">
             <div className="p-4 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white z-10">
-              <h2 className="text-base font-black text-slate-900">Hamro Services</h2>
+              <h2 className="text-base font-black text-slate-900">Mero Services</h2>
               <button 
                 onClick={() => setIsHamroDrawerOpen(false)}
                 className="p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
@@ -823,7 +823,7 @@ export default function WidgetCalendar() {
 
             <div className="p-4 space-y-5 flex-1">
               <div className="bg-red-400 text-white rounded-2xl p-4 space-y-2 shadow-sm">
-                <h3 className="text-sm font-black">Join Hamro Patro Membership</h3>
+                <h3 className="text-sm font-black">Join Mero Patro Membership</h3>
                 <p className="text-xs text-white/90 leading-snug">
                   Get discounts on services along with an ad-free experience.
                 </p>
@@ -851,7 +851,7 @@ export default function WidgetCalendar() {
                 <div className="grid grid-cols-3 gap-3 text-center text-xs">
                   <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('tools'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
                     <span className="text-xl">💳</span>
-                    <span className="font-bold text-slate-800 text-[11px]">HamroPay</span>
+                    <span className="font-bold text-slate-800 text-[11px]">MeroPay</span>
                   </button>
                   <button onClick={() => { setIsHamroDrawerOpen(false); setActiveTab('news'); }} className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 border border-slate-100">
                     <span className="text-xl">🪐</span>
