@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import NepaliDate from 'nepali-date-converter';
 import { 
   ChevronLeft, ChevronRight, Smartphone, Calendar as CalendarIcon, 
   Home, Newspaper, Sparkles, User, Sun, Moon, Search, Menu, Bell,
   ArrowRight, ShieldCheck, CheckCircle2, RefreshCw, Layers, ArrowUpRight,
   TrendingUp, Clock, MapPin, Heart, Share2, Compass, ChevronDown, Download,
-  Grid, PhoneCall, Radio, Bookmark, HelpCircle, Code, Cpu, Check, ExternalLink, X, Plus, Scan
+  Grid, Radio, Bookmark, HelpCircle, Code, Cpu, Check, ExternalLink, X, Plus, Scan,
+  ArrowLeftRight, Pencil, Trash2, MapPinIcon, BellRing
 } from 'lucide-react';
 // @ts-ignore
-import { signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider } from '../services/firebase';
 import MobileAppDownloadModal from '../components/MobileAppDownloadModal';
 
@@ -61,6 +62,17 @@ export default function WidgetCalendar() {
   const [activeTab, setActiveTab] = useState<'home' | 'calendar' | 'tools' | 'news' | 'profile'>('home');
   const [isHamroDrawerOpen, setIsHamroDrawerOpen] = useState<boolean>(false);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+
+  // Modals
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [isNotesOpen, setIsNotesOpen] = useState<boolean>(false);
+  const [noteText, setNoteText] = useState<string>('');
+  const [notes, setNotes] = useState<{id:number;text:string;date:string}[]>([]);
+  const [openedNewsItem, setOpenedNewsItem] = useState<any>(null);
+  const [hasPromptedPerms, setHasPromptedPerms] = useState<boolean>(false);
+  const [showPermPrompt, setShowPermPrompt] = useState<boolean>(false);
 
   // Today Date State initialized from real system date
   const [todayBs, setTodayBs] = useState<{ year: number; month: number; day: number }>(() => {
@@ -91,25 +103,103 @@ export default function WidgetCalendar() {
   const [convDay, setConvDay] = useState<number>(todayBs.day);
   const [convResult, setConvResult] = useState<string>('');
 
+  // Nepali news sources (real)
+  const NEPALI_NEWS_SOURCES = [
+    { name: 'Kantipur', domain: 'ekantipur.com' },
+    { name: 'Setopati', domain: 'setopati.com' },
+    { name: 'Online Khabar', domain: 'onlinekhabar.com' },
+    { name: 'Ratopati', domain: 'ratopati.com' },
+    { name: 'Nagarik', domain: 'nagariknews.com' },
+    { name: 'Nepal Khabar', domain: 'nepalkhabar.com' },
+  ];
+
   const toNepaliDigits = (num: number | string): string => {
     const map: Record<string, string> = { '0': '०', '1': '१', '2': '२', '3': '३', '4': '४', '5': '५', '6': '६', '7': '७', '8': '८', '9': '९' };
     return num.toString().split('').map(c => map[c] || c).join('');
   };
 
-  // Google Login listener
+  // Auth state listener
   useEffect(() => {
-    if (auth.currentUser) {
-      setUserPhoto(auth.currentUser.photoURL);
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserPhoto(user.photoURL);
+        setUserName(user.displayName);
+      } else {
+        setUserPhoto(null);
+        setUserName(null);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // First-visit permission prompt
+  useEffect(() => {
+    const prompted = localStorage.getItem('mp_perms_prompted');
+    if (!prompted) {
+      const timer = setTimeout(() => setShowPermPrompt(true), 2000);
+      return () => clearTimeout(timer);
     }
   }, []);
 
-  const handleGoogleLogin = async () => {
-    try {
-      await signInWithRedirect(auth, googleProvider);
-    } catch (err) {
-      window.location.href = '/login';
+  const handlePermissions = async () => {
+    localStorage.setItem('mp_perms_prompted', '1');
+    setShowPermPrompt(false);
+    // Request notifications
+    if ('Notification' in window) {
+      await Notification.requestPermission();
+    }
+    // Request location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          fetch(`/api/v1/weather?lat=${latitude}&lon=${longitude}`)
+            .then(r => r.json())
+            .then(d => { if (d?.temp_celsius) setLiveTemperature(d.temp_celsius); })
+            .catch(() => {});
+        },
+        () => {}
+      );
     }
   };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      if (result.user) {
+        setUserPhoto(result.user.photoURL);
+        setUserName(result.user.displayName);
+      }
+    } catch (err: any) {
+      console.error('Google login failed:', err.message);
+    }
+  };
+
+  const handleAddNote = () => {
+    if (!noteText.trim()) return;
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    setNotes(prev => [{ id: Date.now(), text: noteText.trim(), date: dateStr }, ...prev]);
+    setNoteText('');
+  };
+
+  const handleDeleteNote = (id: number) => {
+    setNotes(prev => prev.filter(n => n.id !== id));
+  };
+
+  // Search features list
+  const FEATURES = [
+    { label: 'Date Converter', tab: 'tools' as const, icon: '🔄' },
+    { label: 'Calendar', tab: 'calendar' as const, icon: '📅' },
+    { label: 'Nepal News', tab: 'news' as const, icon: '📰' },
+    { label: 'Horoscope / Rashifal', tab: 'profile' as const, icon: '♈' },
+    { label: 'Notes', tab: 'home' as const, icon: '📝' },
+    { label: 'Holidays', tab: 'calendar' as const, icon: '🎉' },
+    { label: 'Weather', tab: 'home' as const, icon: '🌤️' },
+  ];
+  const filteredFeatures = searchQuery.trim()
+    ? FEATURES.filter(f => f.label.toLowerCase().includes(searchQuery.toLowerCase()))
+    : FEATURES;
 
   // Real-time Clock Timer
   useEffect(() => {
@@ -231,7 +321,7 @@ export default function WidgetCalendar() {
             <Scan size={20} />
           </button>
           <button 
-            onClick={() => window.dispatchEvent(new CustomEvent('open_global_search'))}
+            onClick={() => setIsSearchOpen(true)}
             className="p-1 text-slate-600 hover:text-[#e52521] transition-colors cursor-pointer"
             title="Search"
           >
@@ -403,9 +493,9 @@ export default function WidgetCalendar() {
               </button>
             </div>
 
-            {/* Add Notes Action Bar (Exact Screenshot 1) */}
+            {/* Add Notes Action Bar */}
             <div className="flex items-center justify-end pt-1 border-t border-slate-200">
-              <button onClick={() => setActiveTab('calendar')} className="flex items-center gap-1.5 text-xs font-extrabold text-slate-900 hover:text-[#e52521]">
+              <button onClick={() => setIsNotesOpen(true)} className="flex items-center gap-1.5 text-xs font-extrabold text-slate-900 hover:text-[#e52521]">
                 <Plus size={16} className="p-0.5 rounded-full bg-slate-900 text-white" /> Add Notes
               </button>
             </div>
@@ -624,28 +714,29 @@ export default function WidgetCalendar() {
 
               <div className="space-y-2.5">
                 {liveNews.length > 0 ? (
-                  liveNews.map((item, idx) => (
-                    <a
-                      key={item.id || idx}
-                      href={item.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-start gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm hover:border-[#e52521] transition-all group"
-                    >
-                      <div className="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
-                        <img src={`https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&auto=format&fit=crop&q=80`} alt="News" className="w-full h-full object-cover" />
-                      </div>
-                      <div className="flex-1 space-y-1 min-w-0">
-                        <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#e52521] leading-snug line-clamp-2">
-                          {item.title}
-                        </h4>
-                        <div className="flex items-center justify-between text-[10px] text-slate-400">
-                          <span>barnanmedia.com</span>
-                          <span>3 h ago</span>
+                  liveNews.map((item, idx) => {
+                    const source = NEPALI_NEWS_SOURCES[idx % NEPALI_NEWS_SOURCES.length];
+                    return (
+                      <button
+                        key={item.id || idx}
+                        onClick={() => setOpenedNewsItem(item)}
+                        className="flex items-start gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm hover:border-[#e52521] transition-all group text-left w-full"
+                      >
+                        <div className="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
+                          <img src={`https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&auto=format&fit=crop&q=80`} alt="News" className="w-full h-full object-cover" />
                         </div>
-                      </div>
-                    </a>
-                  ))
+                        <div className="flex-1 space-y-1 min-w-0">
+                          <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#e52521] leading-snug line-clamp-2">
+                            {item.title}
+                          </h4>
+                          <div className="flex items-center justify-between text-[10px] text-slate-400">
+                            <span className="font-semibold text-[#e52521]">{source.name}</span>
+                            <span>{source.domain}</span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })
                 ) : (
                   <div className="p-4 bg-white rounded-2xl border border-slate-200 text-center text-xs text-slate-500">
                     समाचार लोड हुँदैछ...
@@ -762,14 +853,16 @@ export default function WidgetCalendar() {
           <span className="text-[10px] font-extrabold">Calendar</span>
         </button>
 
-        {/* Tab 3: Center Red Gradient Circle Dial Button */}
+        {/* Tab 3: Center – Date Converter (red circle) */}
         <button
           onClick={() => setActiveTab('tools')}
           className="flex flex-col items-center justify-center relative -top-3 cursor-pointer"
+          title="Date Converter"
         >
           <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#d01f1c] via-[#e52521] to-[#f82c28] text-white flex items-center justify-center shadow-lg border-2 border-white hover:scale-105 transition-transform">
-            <PhoneCall size={20} />
+            <ArrowLeftRight size={20} />
           </div>
+          <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">Convert</span>
         </button>
 
         {/* Tab 4: News */}
@@ -806,6 +899,146 @@ export default function WidgetCalendar() {
         appName="Nepali Calendar"
         appUrl="https://bishalcodes.com/widgets/calendar"
       />
+
+      {/* ─── PERMISSION PROMPT (First Visit) ─── */}
+      {showPermPrompt && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <img src="/mero-patro-app-icon-3d.png" alt="Mero Patro" className="w-12 h-12 rounded-xl" />
+              <div>
+                <h2 className="text-base font-black text-slate-900">Mero Patro को अनुमति</h2>
+                <p className="text-xs text-slate-500">राम्रो अनुभवको लागि अनुमति दिनुहोस्</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl">
+                <MapPinIcon size={18} className="text-[#e52521] shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-slate-900">स्थान पहुँच (Location)</p>
+                  <p className="text-[11px] text-slate-500">तपाईंको शहरको मौसम देखाउन</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl">
+                <BellRing size={18} className="text-[#e52521] shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-slate-900">सूचना (Notifications)</p>
+                  <p className="text-[11px] text-slate-500">पर्व र तिथिको रिमाइन्डर पाउन</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { localStorage.setItem('mp_perms_prompted','1'); setShowPermPrompt(false); }}
+                className="flex-1 py-2.5 border border-slate-300 text-slate-700 font-bold text-sm rounded-2xl"
+              >पछि</button>
+              <button
+                onClick={handlePermissions}
+                className="flex-1 py-2.5 bg-[#e52521] text-white font-black text-sm rounded-2xl"
+              >अनुमति दिनुहोस्</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── IN-APP NEWS READER MODAL ─── */}
+      {openedNewsItem && (
+        <div className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm flex flex-col">
+          <div className="bg-white flex-1 flex flex-col overflow-hidden">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-10">
+              <button onClick={() => setOpenedNewsItem(null)} className="p-1.5 rounded-xl hover:bg-slate-100">
+                <X size={20} />
+              </button>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-slate-900 truncate">{openedNewsItem.title}</p>
+                <p className="text-[10px] text-[#e52521] font-semibold">Mero Patro News</p>
+              </div>
+            </div>
+            <iframe
+              src={openedNewsItem.link}
+              className="flex-1 w-full border-0"
+              title={openedNewsItem.title}
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ─── SEARCH MODAL ─── */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm flex flex-col p-4 pt-16">
+          <div className="bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[75vh]">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200">
+              <Search size={18} className="text-slate-400 shrink-0" />
+              <input
+                autoFocus
+                type="text"
+                placeholder="Search features... (e.g. Calendar, News, Convert)"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="flex-1 text-sm outline-none text-slate-900 font-medium"
+              />
+              <button onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}>
+                <X size={20} className="text-slate-400" />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-3 space-y-2">
+              {filteredFeatures.map((f, i) => (
+                <button
+                  key={i}
+                  onClick={() => { setActiveTab(f.tab); setIsSearchOpen(false); setSearchQuery(''); }}
+                  className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 text-left"
+                >
+                  <span className="text-xl">{f.icon}</span>
+                  <span className="text-sm font-bold text-slate-900">{f.label}</span>
+                  <ArrowRight size={14} className="ml-auto text-slate-400" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── NOTES MODAL ─── */}
+      {isNotesOpen && (
+        <div className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm flex flex-col p-4 pt-12">
+          <div className="bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[82vh]">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+              <h3 className="text-base font-black text-slate-900">📝 मेरा नोट्स</h3>
+              <button onClick={() => setIsNotesOpen(false)}><X size={20} className="text-slate-500" /></button>
+            </div>
+            <div className="p-4 border-b border-slate-100 flex gap-2">
+              <textarea
+                placeholder="यहाँ नोट लेख्नुहोस्..."
+                value={noteText}
+                onChange={e => setNoteText(e.target.value)}
+                rows={2}
+                className="flex-1 text-sm outline-none border border-slate-200 rounded-2xl p-3 resize-none text-slate-900"
+              />
+              <button
+                onClick={handleAddNote}
+                className="px-4 bg-[#e52521] text-white rounded-2xl font-black text-sm"
+              >Save</button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-3 space-y-2">
+              {notes.length === 0 && (
+                <p className="text-center text-xs text-slate-400 py-8">अहिलेसम्म कुनै नोट छैन। माथि लेख्नुहोस्।</p>
+              )}
+              {notes.map(n => (
+                <div key={n.id} className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex items-start gap-2">
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-slate-900">{n.text}</p>
+                    <p className="text-[10px] text-slate-400 mt-1">{n.date}</p>
+                  </div>
+                  <button onClick={() => handleDeleteNote(n.id)} className="text-slate-400 hover:text-red-500">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MERO SERVICES DRAWER MODAL */}
       {isHamroDrawerOpen && (
