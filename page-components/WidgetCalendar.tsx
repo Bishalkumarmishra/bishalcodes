@@ -6,10 +6,11 @@ import {
   ArrowRight, ShieldCheck, CheckCircle2, RefreshCw, Layers, ArrowUpRight,
   TrendingUp, Clock, MapPin, Heart, Share2, Compass, ChevronDown, Download,
   Grid, Radio, Bookmark, HelpCircle, Code, Cpu, Check, ExternalLink, X, Plus, Scan,
-  ArrowLeftRight, Pencil, Trash2, MapPinIcon, BellRing, CloudOff, Cloud
+  ArrowLeftRight, Pencil, Trash2, MapPinIcon, BellRing, CloudOff, Cloud,
+  Crown, Package, Globe, Type, MessageSquare, Users, UserCheck, Phone, Star, LogOut
 } from 'lucide-react';
 // @ts-ignore
-import { signInWithPopup, onAuthStateChanged } from 'firebase/auth';
+import { signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth';
 // @ts-ignore
 import { collection, doc, addDoc, deleteDoc, getDocs, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../services/firebase';
@@ -65,6 +66,20 @@ export default function WidgetCalendar() {
   const [isHamroDrawerOpen, setIsHamroDrawerOpen] = useState<boolean>(false);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
+  const [appTheme, setAppTheme] = useState<'light' | 'dark'>('light');
+  const [appLang, setAppLang] = useState<'en' | 'ne'>('en');
+  const [textSize, setTextSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [isMembershipOpen, setIsMembershipOpen] = useState<boolean>(false);
+  const [isOrdersOpen, setIsOrdersOpen] = useState<boolean>(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState<boolean>(false);
+  const [feedbackRating, setFeedbackRating] = useState<number>(5);
+  const [feedbackText, setFeedbackText] = useState<string>('');
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState<boolean>(false);
+  const [isGCalSynced, setIsGCalSynced] = useState<boolean>(false);
+  const [profileModalView, setProfileModalView] = useState<'about' | 'account' | 'contact' | 'how-to' | 'messages' | null>(null);
+  const [serviceMessages, setServiceMessages] = useState<any[]>([]);
 
   // Modals
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -126,7 +141,8 @@ export default function WidgetCalendar() {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserPhoto(user.photoURL);
-        setUserName(user.displayName);
+        setUserName(user.displayName || user.email?.split('@')[0] || 'User');
+        setUserEmail(user.email || null);
         // Load notes from Firestore for this user
         try {
           const q = query(
@@ -150,6 +166,7 @@ export default function WidgetCalendar() {
       } else {
         setUserPhoto(null);
         setUserName(null);
+        setUserEmail(null);
         // Load from localStorage for guests
         const saved = localStorage.getItem('mp_notes');
         if (saved) setNotes(JSON.parse(saved));
@@ -157,6 +174,18 @@ export default function WidgetCalendar() {
       }
     });
     return () => unsub();
+  }, []);
+
+  // Fetch Service Messages from push-notification API
+  useEffect(() => {
+    fetch('/api/v1/push-notification')
+      .then(res => res.json())
+      .then(d => {
+        if (d && Array.isArray(d.notifications)) {
+          setServiceMessages(d.notifications);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   // First-visit permission prompt
@@ -195,10 +224,26 @@ export default function WidgetCalendar() {
       const result = await signInWithPopup(auth, googleProvider);
       if (result.user) {
         setUserPhoto(result.user.photoURL);
-        setUserName(result.user.displayName);
+        setUserName(result.user.displayName || result.user.email?.split('@')[0] || 'User');
+        setUserEmail(result.user.email || null);
+        setIsProfileOpen(true);
       }
     } catch (err: any) {
       console.error('Google login failed:', err.message);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUserPhoto(null);
+      setUserName(null);
+      setUserEmail(null);
+      setNotesSource('local');
+      const saved = localStorage.getItem('mp_notes');
+      if (saved) setNotes(JSON.parse(saved));
+    } catch (err: any) {
+      console.error('Logout failed:', err.message);
     }
   };
 
@@ -386,7 +431,7 @@ export default function WidgetCalendar() {
             <Search size={20} />
           </button>
           <button 
-            onClick={() => handleGoogleLogin()}
+            onClick={() => setIsProfileOpen(true)}
             className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-700 hover:border-[#e52521] hover:text-[#e52521] transition-colors overflow-hidden cursor-pointer"
             title="Profile"
           >
@@ -1411,6 +1456,487 @@ export default function WidgetCalendar() {
               </div>
 
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── OFFICIAL PROFILE DRAWER (Exact Matching User Screenshot) ─── */}
+      {isProfileOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-sm bg-white h-full overflow-y-auto flex flex-col shadow-2xl animate-in slide-in-from-right duration-200">
+            {/* Drawer Header */}
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white z-10">
+              <h2 className="text-lg font-black text-slate-900">Profile</h2>
+              <button 
+                onClick={() => setIsProfileOpen(false)}
+                className="p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-5 flex-1">
+              {/* User Authentication Status Box */}
+              {!userName && !userEmail ? (
+                <div className="space-y-3 pb-2">
+                  <p className="text-xs font-semibold text-slate-700 leading-snug">
+                    You are not logged in. Please login to access your profile.
+                  </p>
+                  <button
+                    onClick={handleGoogleLogin}
+                    className="w-full py-3 bg-[#e52521] hover:bg-[#d01f1c] text-white font-black text-sm rounded-2xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+                  >
+                    <span>Log In</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[#e52521] shadow-sm bg-white shrink-0 flex items-center justify-center">
+                      {userPhoto ? (
+                        <img src={userPhoto} alt={userName || 'User'} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-lg font-black text-[#e52521]">{(userName || 'U')[0]}</span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="text-sm font-black text-slate-900 truncate">{userName}</h3>
+                        <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+                      </div>
+                      <p className="text-xs text-slate-500 truncate">{userEmail || 'Signed in via Google'}</p>
+                      <span className="inline-block px-2 py-0.5 mt-1 text-[10px] font-extrabold text-emerald-700 bg-emerald-100 rounded-full">
+                        Active Account • Cloud Sync
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full py-2 border border-slate-300 hover:border-red-400 text-slate-700 hover:text-[#e52521] font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <LogOut size={13} />
+                    <span>Log Out</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Group 1: Account Features (Exact Screenshot) */}
+              <div className="space-y-1 border-t border-slate-100 pt-3">
+                {/* Membership */}
+                <button
+                  onClick={() => setIsMembershipOpen(true)}
+                  className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors text-left cursor-pointer group"
+                >
+                  <span className="text-xs font-bold text-slate-800">Membership</span>
+                  <Crown size={18} className="text-slate-800 group-hover:text-[#e52521] transition-colors" />
+                </button>
+
+                {/* Orders */}
+                <button
+                  onClick={() => setIsOrdersOpen(true)}
+                  className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors text-left cursor-pointer group"
+                >
+                  <span className="text-xs font-bold text-slate-800">Orders</span>
+                  <Package size={18} className="text-slate-800 group-hover:text-[#e52521] transition-colors" />
+                </button>
+
+                {/* Theme Change */}
+                <div className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors">
+                  <span className="text-xs font-bold text-slate-800">Theme Change</span>
+                  <button
+                    onClick={() => setAppTheme(t => t === 'light' ? 'dark' : 'light')}
+                    className="w-12 h-6 bg-slate-200 rounded-full p-0.5 flex items-center transition-colors cursor-pointer"
+                    title="Toggle Theme"
+                  >
+                    <div className={`w-5 h-5 rounded-full bg-white shadow-sm flex items-center justify-center transition-transform ${appTheme === 'dark' ? 'translate-x-6 bg-slate-900 text-white' : 'translate-x-0 text-amber-500'}`}>
+                      {appTheme === 'dark' ? <Moon size={11} /> : <Sun size={11} />}
+                    </div>
+                  </button>
+                </div>
+
+                {/* Language */}
+                <button
+                  onClick={() => setAppLang(l => l === 'en' ? 'ne' : 'en')}
+                  className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                >
+                  <span className="text-xs font-bold text-slate-800">Language</span>
+                  <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                    {appLang === 'en' ? 'English' : 'नेपाली'}
+                    <ChevronRight size={14} />
+                  </span>
+                </button>
+
+                {/* Text Size */}
+                <button
+                  onClick={() => setTextSize(s => s === 'small' ? 'medium' : s === 'medium' ? 'large' : 'small')}
+                  className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                >
+                  <span className="text-xs font-bold text-slate-800">Text Size</span>
+                  <span className="text-xs font-semibold text-slate-500 capitalize flex items-center gap-1">
+                    {textSize}
+                    <ChevronRight size={14} />
+                  </span>
+                </button>
+
+                {/* Service Messages */}
+                <button
+                  onClick={() => setProfileModalView('messages')}
+                  className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                >
+                  <span className="text-xs font-bold text-slate-800">Service Messages</span>
+                  <div className="flex items-center gap-1.5">
+                    {serviceMessages.length > 0 && (
+                      <span className="px-1.5 py-0.2 bg-[#e52521] text-white font-bold text-[9px] rounded-full">
+                        {serviceMessages.length}
+                      </span>
+                    )}
+                    <ChevronRight size={14} className="text-slate-400" />
+                  </div>
+                </button>
+
+                {/* Google Calendar Sync */}
+                <button
+                  onClick={() => {
+                    if (!userName) {
+                      handleGoogleLogin();
+                    } else {
+                      setIsGCalSynced(!isGCalSynced);
+                    }
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                >
+                  <span className="text-xs font-bold text-slate-800">Google Calendar Sync</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-[10px] font-bold ${isGCalSynced ? 'text-emerald-600' : 'text-slate-400'}`}>
+                      {isGCalSynced ? 'Connected' : 'Sync'}
+                    </span>
+                    <span className="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-[#e52521]">G</span>
+                  </div>
+                </button>
+              </div>
+
+              {/* Group 2: Support & Info (Exact Screenshot) */}
+              <div className="space-y-1 border-t border-slate-100 pt-3">
+                {/* About Us */}
+                <button
+                  onClick={() => setProfileModalView('about')}
+                  className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Users size={16} className="text-slate-500" />
+                    <span className="text-xs font-bold text-slate-800">About Us</span>
+                  </div>
+                  <ChevronRight size={14} className="text-slate-400" />
+                </button>
+
+                {/* Manage Account */}
+                <button
+                  onClick={() => setProfileModalView('account')}
+                  className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <UserCheck size={16} className="text-slate-500" />
+                    <span className="text-xs font-bold text-slate-800">Manage Account</span>
+                  </div>
+                  <ChevronRight size={14} className="text-slate-400" />
+                </button>
+
+                {/* Contact Us */}
+                <button
+                  onClick={() => setProfileModalView('contact')}
+                  className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Phone size={16} className="text-slate-500" />
+                    <span className="text-xs font-bold text-slate-800">Contact Us</span>
+                  </div>
+                  <ChevronRight size={14} className="text-slate-400" />
+                </button>
+
+                {/* Feedback */}
+                <button
+                  onClick={() => setIsFeedbackOpen(true)}
+                  className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Star size={16} className="text-slate-500" />
+                    <span className="text-xs font-bold text-slate-800">Feedback</span>
+                  </div>
+                  <ChevronRight size={14} className="text-slate-400" />
+                </button>
+
+                {/* How to use? */}
+                <button
+                  onClick={() => setProfileModalView('how-to')}
+                  className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <HelpCircle size={16} className="text-slate-500" />
+                    <span className="text-xs font-bold text-slate-800">How to use?</span>
+                  </div>
+                  <ChevronRight size={14} className="text-slate-400" />
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── MEMBERSHIP MODAL ─── */}
+      {isMembershipOpen && (
+        <div className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Crown size={22} className="text-amber-500" />
+                <h3 className="text-base font-black text-slate-900">Mero Patro Membership</h3>
+              </div>
+              <button onClick={() => setIsMembershipOpen(false)}><X size={18} className="text-slate-400" /></button>
+            </div>
+            <p className="text-xs text-slate-600">Upgrade to Mero Patro Pro for an ad-free, premium experience.</p>
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
+                <Check size={14} className="text-emerald-600" /> 100% Ad-Free Calendar & News
+              </div>
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
+                <Check size={14} className="text-emerald-600" /> Unlimited Cloud Notes & Sync
+              </div>
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
+                <Check size={14} className="text-emerald-600" /> Personalized Jyotish & Kundali Reports
+              </div>
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
+                <Check size={14} className="text-emerald-600" /> Priority Server Response
+              </div>
+            </div>
+            <button
+              onClick={() => { setIsMembershipOpen(false); if (!userName) handleGoogleLogin(); }}
+              className="w-full py-3 bg-[#e52521] hover:bg-[#d01f1c] text-white font-black text-xs rounded-2xl shadow-sm transition-colors"
+            >
+              {userName ? 'Member Active (Pro Tier)' : 'Sign In & Activate Membership'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─── ORDERS MODAL ─── */}
+      {isOrdersOpen && (
+        <div className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Package size={20} className="text-[#e52521]" />
+                <h3 className="text-base font-black text-slate-900">Orders & Services</h3>
+              </div>
+              <button onClick={() => setIsOrdersOpen(false)}><X size={18} className="text-slate-400" /></button>
+            </div>
+            <div className="space-y-2.5">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-900">
+                  <span>Mero Patro Standard Access</span>
+                  <span className="text-emerald-600 font-extrabold">Active</span>
+                </div>
+                <p className="text-[11px] text-slate-500">Live Calendar, Horoscope, Tithi & Converter</p>
+              </div>
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-900">
+                  <span>Cloud Notes Sync Engine</span>
+                  <span className="text-emerald-600 font-extrabold">Connected</span>
+                </div>
+                <p className="text-[11px] text-slate-500">Encrypted Firebase Cloud Storage</p>
+              </div>
+            </div>
+            <button onClick={() => setIsOrdersOpen(false)} className="w-full py-2.5 bg-slate-100 font-bold text-xs rounded-xl text-slate-700">
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─── FEEDBACK MODAL ─── */}
+      {isFeedbackOpen && (
+        <div className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-black text-slate-900">Mero Patro Feedback</h3>
+              <button onClick={() => setIsFeedbackOpen(false)}><X size={18} className="text-slate-400" /></button>
+            </div>
+            {feedbackSubmitted ? (
+              <div className="text-center py-6 space-y-2">
+                <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full mx-auto flex items-center justify-center">
+                  <Check size={24} />
+                </div>
+                <h4 className="text-sm font-black text-slate-900">धन्यवाद! (Thank You!)</h4>
+                <p className="text-xs text-slate-500">तपाईंको प्रतिक्रिया प्राप्त भयो।</p>
+                <button
+                  onClick={() => { setIsFeedbackOpen(false); setFeedbackSubmitted(false); setFeedbackText(''); }}
+                  className="mt-3 px-4 py-2 bg-slate-900 text-white font-bold text-xs rounded-xl"
+                >
+                  बन्द गर्नुहोस्
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-xs text-slate-600">तपाईंको अनुभव कस्तो रह्यो? कृपया मूल्याङ्कन गर्नुहोस्:</p>
+                <div className="flex justify-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setFeedbackRating(star)}
+                      className={`text-2xl transition-transform hover:scale-125 cursor-pointer ${star <= feedbackRating ? 'text-amber-400' : 'text-slate-300'}`}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                  placeholder="तपाईंको सल्लाह वा सुझाव यहाँ लेख्नुहोस्..."
+                  rows={3}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs outline-none focus:border-[#e52521] resize-none"
+                />
+                <button
+                  onClick={() => setFeedbackSubmitted(true)}
+                  className="w-full py-3 bg-[#e52521] hover:bg-[#d01f1c] text-white font-black text-xs rounded-2xl shadow-sm transition-colors cursor-pointer"
+                >
+                  Submit Feedback
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ─── INFORMATION MODAL (About / Account / Contact / How-to / Messages) ─── */}
+      {profileModalView && (
+        <div className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-base font-black text-slate-900 capitalize">
+                {profileModalView === 'about' && 'About Mero Patro'}
+                {profileModalView === 'account' && 'Manage Account'}
+                {profileModalView === 'contact' && 'Contact Support'}
+                {profileModalView === 'how-to' && 'How to use Mero Patro'}
+                {profileModalView === 'messages' && 'Service Messages'}
+              </h3>
+              <button onClick={() => setProfileModalView(null)}><X size={18} className="text-slate-400" /></button>
+            </div>
+
+            {profileModalView === 'about' && (
+              <div className="space-y-3 text-xs text-slate-600">
+                <div className="flex items-center gap-3">
+                  <img src="/mero-patro-app-icon-3d.png" alt="Mero Patro" className="w-12 h-12 rounded-xl shadow-sm" />
+                  <div>
+                    <h4 className="text-sm font-black text-slate-900">MERO PATRO</h4>
+                    <p className="text-[11px] text-slate-400">Version 2.6.0 (Latest Release)</p>
+                  </div>
+                </div>
+                <p>Mero Patro is Nepal's authentic digital calendar, date converter, and festival companion engineered by Bishal Codes.</p>
+                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                  <p className="font-bold text-slate-900">Features:</p>
+                  <p>• Bikram Sambat 2000 - 2090 Calendar</p>
+                  <p>• High precision BS ⇄ AD Date Converter</p>
+                  <p>• Daily Rashifal & Auspicious Tithi</p>
+                  <p>• Cloud Note Sync & Offline LocalStorage</p>
+                </div>
+              </div>
+            )}
+
+            {profileModalView === 'account' && (
+              <div className="space-y-3 text-xs">
+                {userName ? (
+                  <div className="space-y-2">
+                    <p className="text-slate-500">Current Login:</p>
+                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                      <p className="font-black text-slate-900 text-sm">{userName}</p>
+                      <p className="text-slate-500">{userEmail}</p>
+                      <p className="text-[10px] text-emerald-600 font-bold">Google Auth Verified</p>
+                    </div>
+                    <button
+                      onClick={() => { handleLogout(); setProfileModalView(null); }}
+                      className="w-full py-2.5 bg-red-50 text-[#e52521] border border-red-200 rounded-xl font-bold hover:bg-red-100"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center py-4 space-y-3">
+                    <p className="text-slate-600">You are currently using Mero Patro as a Guest.</p>
+                    <button
+                      onClick={() => { handleGoogleLogin(); setProfileModalView(null); }}
+                      className="w-full py-3 bg-[#e52521] text-white font-black rounded-xl"
+                    >
+                      Sign In with Google
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {profileModalView === 'contact' && (
+              <div className="space-y-3 text-xs text-slate-600">
+                <p>Have questions, business inquiries, or need support? Reach out to us:</p>
+                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Phone size={14} className="text-[#e52521]" />
+                    <span className="font-bold text-slate-900">+977-9800000000</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#e52521]">✉️</span>
+                    <span className="font-bold text-slate-900">support@bishalcodes.com</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#e52521]">🌐</span>
+                    <span className="font-bold text-slate-900">https://bishalcodes.com</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {profileModalView === 'how-to' && (
+              <div className="space-y-2.5 text-xs text-slate-600 max-h-64 overflow-y-auto">
+                <div className="p-2.5 bg-slate-50 rounded-xl">
+                  <p className="font-bold text-slate-900">1. मिति रूपान्तरण (Convert):</p>
+                  <p className="text-[11px]">तल्लो बारको रातो गोलो Convert बटन थिचेर BS र AD बीच मिति फेर्नुहोस्।</p>
+                </div>
+                <div className="p-2.5 bg-slate-50 rounded-xl">
+                  <p className="font-bold text-slate-900">2. नोट लेख्ने (Notes):</p>
+                  <p className="text-[11px]">Calendar मा गएर 'Add Notes' वा Menu बाट 'Notes' छानेर आफ्ना व्यक्तिगत नोट सुरक्षित गर्नुहोस्।</p>
+                </div>
+                <div className="p-2.5 bg-slate-50 rounded-xl">
+                  <p className="font-bold text-slate-900">3. दैनिक समाचार (News):</p>
+                  <p className="text-[11px]">News ट्याबमा गएर ताजा नेपाली समाचार सिधै एपभित्र पढ्नुहोस्।</p>
+                </div>
+              </div>
+            )}
+
+            {profileModalView === 'messages' && (
+              <div className="space-y-2.5 text-xs max-h-64 overflow-y-auto">
+                {serviceMessages.length === 0 ? (
+                  <p className="text-center text-slate-400 py-6">कुनै नयाँ सूचना छैन। (No new service messages)</p>
+                ) : (
+                  serviceMessages.map((m: any, i: number) => (
+                    <div key={m.id || i} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-black text-slate-900 text-xs">{m.title}</h4>
+                        <span className="text-[10px] text-slate-400">
+                          {m.timestamp ? new Date(m.timestamp).toLocaleDateString() : ''}
+                        </span>
+                      </div>
+                      <p className="text-slate-600 text-[11px] leading-relaxed">{m.message || m.body}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            <button
+              onClick={() => setProfileModalView(null)}
+              className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
