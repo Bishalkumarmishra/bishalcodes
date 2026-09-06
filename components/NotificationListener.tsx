@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from 'react';
+import { Bell } from 'lucide-react';
 import { VAPID_PUBLIC_KEY, urlBase64ToUint8Array } from '@/services/pushConfig';
 
 // Web Audio API pleasant notification sound generator (zero asset dependency)
@@ -279,18 +280,35 @@ export default function NotificationListener() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    // Check if dismissed across storage mechanisms
+    const isDismissed = 
+      localStorage.getItem('push_prompt_dismissed') === 'true' ||
+      sessionStorage.getItem('push_prompt_dismissed') === 'true' ||
+      document.cookie.includes('push_prompt_dismissed=true');
+
+    if (isDismissed) return;
+    if (window.location.pathname.startsWith('/widgets') || window.location.pathname.includes('calendar')) return;
 
     if ('Notification' in window && Notification.permission === 'default') {
       setShowPrompt(true);
     }
   }, []);
 
+  const dismissForever = () => {
+    try {
+      localStorage.setItem('push_prompt_dismissed', 'true');
+      sessionStorage.setItem('push_prompt_dismissed', 'true');
+      document.cookie = "push_prompt_dismissed=true; path=/; max-age=31536000";
+    } catch (_) {}
+    setShowPrompt(false);
+  };
+
   const handleRequestPermission = async () => {
+    dismissForever();
     if (typeof window === 'undefined' || !('Notification' in window)) return;
     try {
       const permission = await Notification.requestPermission();
       console.log('📢 [Push System] User gesture permission result:', permission);
-      setShowPrompt(false);
       if (permission === 'granted' && 'serviceWorker' in navigator) {
         const reg = await navigator.serviceWorker.ready;
         if (reg && reg.pushManager) {
@@ -310,8 +328,7 @@ export default function NotificationListener() {
                 userAgent: navigator.userAgent
               })
             });
-            console.log('✅ [Push System] iOS/Android device registered with APNs/FCM server:', sub.endpoint);
-            alert('Notifications enabled successfully! You will now receive instant push alerts.');
+            console.log('✅ [Push System] Active device registered:', sub.endpoint);
           }
         }
       }
@@ -326,16 +343,16 @@ export default function NotificationListener() {
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 max-w-md bg-slate-900/95 backdrop-blur-md border border-slate-700 text-white p-4 rounded-2xl shadow-2xl z-[9999] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-[#e52521]/20 border border-[#e52521]/30 flex items-center justify-center shrink-0">
-          <span className="text-xl">🔔</span>
+          <Bell size={20} className="text-[#e52521]" />
         </div>
         <div>
           <div className="text-xs font-bold text-white">Enable Instant Push Notifications</div>
-          <div className="text-[11px] text-slate-300 mt-0.5">Get real-time updates and file transfer alerts directly on your device.</div>
+          <div className="text-[11px] text-slate-300 mt-0.5">Get real-time updates directly on your device.</div>
         </div>
       </div>
       <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
         <button
-          onClick={() => setShowPrompt(false)}
+          onClick={dismissForever}
           className="px-2.5 py-1.5 text-slate-400 hover:text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
         >
           Later
