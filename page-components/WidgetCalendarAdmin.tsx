@@ -657,30 +657,6 @@ export default function WidgetCalendarAdmin({ onBackToApp }: WidgetCalendarAdmin
             </div>
           )}
 
-                  <div>
-                    <label className="text-[10px] font-extrabold text-slate-400 uppercase block mb-1">Primary Brand Accent Color</label>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="color"
-                        value={primaryColor}
-                        onChange={(e) => setPrimaryColor(e.target.value)}
-                        className="w-10 h-10 rounded-xl bg-transparent border-0 cursor-pointer"
-                      />
-                      <span className="text-xs font-mono font-bold text-slate-300">{primaryColor}</span>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleSaveSettings}
-                    className="w-full py-3 bg-[#e52521] hover:bg-[#d01f1c] text-white font-black text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
-                  >
-                    <Save size={16} /> Save App Configurations
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
         </main>
       </div>
     </div>
