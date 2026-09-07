@@ -501,6 +501,34 @@ export default function WidgetCalendar() {
     return () => unsub();
   }, []);
 
+  // Fetch Firestore Admin Settings & Custom Events Sync
+  useEffect(() => {
+    const syncFirestoreSettings = async () => {
+      try {
+        const settingsSnap = await getDoc(doc(db, 'calendar_settings', 'main'));
+        if (settingsSnap.exists()) {
+          const data = settingsSnap.data();
+          if (data.sliders && Array.isArray(data.sliders) && data.sliders.length >= 3) {
+            setHeroSliders(data.sliders);
+          }
+          if (data.radioList && Array.isArray(data.radioList) && data.radioList.length > 0) {
+            setRadioStations(data.radioList);
+          }
+          if (data.nepseIndex) {
+            setNepseData({ index: data.nepseIndex, change: data.nepseChange || '+0.00' });
+          }
+          if (data.goldFine) {
+            setGoldData({ gold: data.goldFine, silver: data.silverPrice || '1,800' });
+          }
+        }
+      } catch (e) {
+        console.warn('Firestore calendar settings sync notice:', e);
+      }
+    };
+
+    syncFirestoreSettings();
+  }, []);
+
   // Fetch Service Messages from push-notification API
   useEffect(() => {
     fetch('/api/v1/push-notification')
