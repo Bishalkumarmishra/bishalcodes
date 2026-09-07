@@ -370,6 +370,7 @@ export default function WidgetCalendar() {
   const [liveTimeStr, setLiveTimeStr] = useState<string>('08:24 am');
   const [liveAdDateStr, setLiveAdDateStr] = useState<string>('Sep 6, 2026');
   const [liveTemperature, setLiveTemperature] = useState<number>(28);
+  const [liveCity, setLiveCity] = useState<string>('Kathmandu');
   const [liveNews, setLiveNews] = useState<any[]>([]);
 
   // Converter state
@@ -469,11 +470,30 @@ export default function WidgetCalendar() {
           const { latitude, longitude } = pos.coords;
           fetch(`/api/v1/weather?lat=${latitude}&lon=${longitude}`)
             .then(r => r.json())
-            .then(d => { if (d?.temp_celsius) setLiveTemperature(d.temp_celsius); })
+            .then(d => {
+              if (d?.temp_celsius !== undefined) setLiveTemperature(Math.round(d.temp_celsius));
+              if (d?.city) setLiveCity(d.city);
+            })
             .catch(() => {});
         },
-        () => {}
+        () => {
+          fetch('/api/v1/weather')
+            .then(r => r.json())
+            .then(d => {
+              if (d?.temp_celsius !== undefined) setLiveTemperature(Math.round(d.temp_celsius));
+              if (d?.city) setLiveCity(d.city);
+            })
+            .catch(() => {});
+        }
       );
+    } else {
+      fetch('/api/v1/weather')
+        .then(r => r.json())
+        .then(d => {
+          if (d?.temp_celsius !== undefined) setLiveTemperature(Math.round(d.temp_celsius));
+          if (d?.city) setLiveCity(d.city);
+        })
+        .catch(() => {});
     }
   };
 
@@ -597,30 +617,34 @@ export default function WidgetCalendar() {
     }
   }, [appTheme]);
 
-  // Fetch Live Weather with geolocation, fallback to Kathmandu
+  // Fetch Live Weather with geolocation, fallback to auto IP location or Kathmandu
   const fetchWeather = () => {
+    const handleData = (data: any) => {
+      if (data?.temp_celsius !== undefined) setLiveTemperature(Math.round(data.temp_celsius));
+      if (data?.city) setLiveCity(data.city);
+    };
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const { latitude, longitude } = pos.coords;
           fetch(`/api/v1/weather?lat=${latitude}&lon=${longitude}`)
             .then(res => res.json())
-            .then(data => { if (data?.temp_celsius) setLiveTemperature(Math.round(data.temp_celsius)); })
+            .then(handleData)
             .catch(() => {});
         },
         () => {
-          // fallback: Kathmandu coords
-          fetch('/api/v1/weather?lat=27.7172&lon=85.3240')
+          fetch('/api/v1/weather')
             .then(res => res.json())
-            .then(data => { if (data?.temp_celsius) setLiveTemperature(Math.round(data.temp_celsius)); })
+            .then(handleData)
             .catch(() => {});
         },
         { timeout: 5000 }
       );
     } else {
-      fetch('/api/v1/weather?lat=27.7172&lon=85.3240')
+      fetch('/api/v1/weather')
         .then(res => res.json())
-        .then(data => { if (data?.temp_celsius) setLiveTemperature(Math.round(data.temp_celsius)); })
+        .then(handleData)
         .catch(() => {});
     }
   };
@@ -896,7 +920,7 @@ export default function WidgetCalendar() {
                 <div>
                   <p className="text-sm font-semibold text-slate-200">Good Morning</p>
                   <h2 className="text-xl font-black text-white flex items-center gap-1.5 mt-0.5">
-                    <Sun size={20} className="text-amber-300" /> {liveTemperature}° C | Bharatpur
+                    <Sun size={20} className="text-amber-300" /> {liveTemperature}° C | {liveCity}
                   </h2>
                 </div>
               </div>

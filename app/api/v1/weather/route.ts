@@ -2,33 +2,67 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const city = searchParams.get('city') || 'Bharatpur';
-  
-  // Latitude & Longitude map for Nepal cities
-  const coords: Record<string, { lat: number; lon: number }> = {
-    Bharatpur: { lat: 27.6775, lon: 84.4326 },
-    Kathmandu: { lat: 27.7172, lon: 85.3240 },
-    Pokhara: { lat: 28.2096, lon: 83.9856 },
-    Lalitpur: { lat: 27.6644, lon: 85.3188 },
-    Biratnagar: { lat: 26.4525, lon: 87.2718 }
-  };
-
-  const target = coords[city] || coords['Bharatpur'];
+  let lat = searchParams.get('lat');
+  let lon = searchParams.get('lon');
+  let city = searchParams.get('city');
 
   try {
-    const res = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${target.lat}&longitude=${target.lon}&current_weather=true`,
-      { next: { revalidate: 600 } } // Cache 10 mins
+    // If lat/lon not provided by browser GPS, detect location from IP
+    if (!lat || !lon) {
+      try {
+        const ipRes = await fetch('http://ip-api.com/json/', { next: { revalidate: 3600 } });
+        if (ipRes.ok) {
+          const ipData = await ipRes.json();
+          if (ipData?.lat && ipData?.lon) {
+            lat = String(ipData.lat);
+            lon = String(ipData.lon);
+            if (!city && ipData.city) {
+              city = ipData.city;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('IP location fetch failed:', err);
+      }
+    }
+
+    // Default to Kathmandu if IP geolocation failed
+    if (!lat || !lon) {
+      lat = '27.7172';
+      lon = '85.3240';
+      city = city || 'Kathmandu';
+    }
+
+    // Reverse geocode to get city name if missing
+    if (!city && lat && lon) {
+      try {
+        const geoRes = await fetch(
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`,
+          { next: { revalidate: 86400 } }
+        );
+        if (geoRes.ok) {
+          const geoData = await geoRes.json();
+          city = geoData.city || geoData.locality || geoData.principalSubdivision || 'Kathmandu';
+        }
+      } catch (_) {
+        city = 'Kathmandu';
+      }
+    }
+
+    // Fetch real-time weather from Open-Meteo
+    const weatherRes = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`,
+      { next: { revalidate: 600 } }
     );
 
-    if (res.ok) {
-      const data = await res.json();
+    if (weatherRes.ok) {
+      const data = await weatherRes.json();
       const temp = Math.round(data.current_weather?.temperature || 28);
       const isDay = data.current_weather?.is_day === 1;
 
       return NextResponse.json({
         status: 'success',
-        city: city,
+        city: city || 'Kathmandu',
         temp_celsius: temp,
         weather_code: data.current_weather?.weathercode || 0,
         is_day: isDay,
@@ -36,13 +70,13 @@ export async function GET(request: Request) {
       });
     }
   } catch (err) {
-    // Fallback live calculation
+    console.error('Weather GET error:', err);
   }
 
   return NextResponse.json({
     status: 'success',
-    city: city,
-    temp_celsius: 29,
+    city: city || 'Kathmandu',
+    temp_celsius: 28,
     weather_code: 0,
     is_day: true,
     condition_ne: 'घाम लाग्ने'
