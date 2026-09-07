@@ -395,6 +395,15 @@ export default function WidgetCalendar() {
     return num.toString().split('').map(c => map[c] || c).join('');
   };
 
+  const getAdDayForBs = (bsYear: number, bsMonth: number, bsDay: number): number => {
+    try {
+      const np = new NepaliDate(bsYear, bsMonth, bsDay);
+      return np.toJsDate().getDate();
+    } catch (_) {
+      return bsDay;
+    }
+  };
+
   // Auth state listener — also loads Firestore notes on login
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -1186,7 +1195,7 @@ export default function WidgetCalendar() {
 
               <div className="grid grid-cols-7 gap-1 pt-1">
                 {Array.from({ length: startDayOfWeek }).map((_, idx) => (
-                  <div key={`blank-${idx}`} className="h-12 rounded-lg bg-transparent" />
+                  <div key={`blank-${idx}`} className="h-14 sm:h-16 rounded-xl bg-transparent" />
                 ))}
 
                 {Array.from({ length: monthDaysCount }).map((_, idx) => {
@@ -1195,12 +1204,13 @@ export default function WidgetCalendar() {
                   const isSaturday = dayOfWeek === 6;
                   const isSelected = selectedDay === day;
                   const isToday = calYear === todayBs.year && calMonth === todayBs.month && day === todayBs.day;
+                  const adDay = getAdDayForBs(calYear, calMonth, day);
 
                   return (
                     <button
                       key={day}
                       onClick={() => setSelectedDay(day)}
-                      className={`h-12 sm:h-14 rounded-lg flex flex-col justify-between p-1.5 relative transition-all cursor-pointer border ${
+                      className={`h-14 sm:h-16 rounded-xl flex flex-col justify-between p-1.5 sm:p-2 relative transition-all cursor-pointer border ${
                         isSelected 
                           ? 'bg-[#24592a] text-white border-[#24592a] shadow-md z-10' 
                           : isToday
@@ -1210,11 +1220,11 @@ export default function WidgetCalendar() {
                           : appTheme === 'dark' ? 'bg-[#141416] text-white border-zinc-800 hover:bg-zinc-800' : 'bg-white text-slate-900 border-slate-200 hover:bg-slate-50'
                       }`}
                     >
-                      <span className={`text-sm font-extrabold ${isSelected ? 'text-white' : isSaturday ? 'text-[#e52521]' : appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                      <span className={`text-lg sm:text-2xl font-black leading-none ${isSelected ? 'text-white' : isSaturday ? 'text-[#e52521]' : appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                         {toNepaliDigits(day)}
                       </span>
-                      <span className={`text-[10px] font-semibold text-right ${isSelected ? 'text-white/80' : isSaturday ? 'text-[#e52521]' : appTheme === 'dark' ? 'text-slate-400' : 'text-slate-400'}`}>
-                        {day}
+                      <span className={`text-[9px] sm:text-[10px] font-medium leading-none text-right ${isSelected ? 'text-white/80' : isSaturday ? 'text-[#e52521]/80' : appTheme === 'dark' ? 'text-slate-400' : 'text-slate-400'}`}>
+                        {adDay}
                       </span>
                     </button>
                   );
