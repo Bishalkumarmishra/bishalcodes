@@ -400,6 +400,31 @@ export default function WidgetCalendar() {
   const [isMobileModalOpen, setIsMobileModalOpen] = useState<boolean>(false);
   const [selectedZodiac, setSelectedZodiac] = useState<any>(ZODIAC_SIGNS[0]);
 
+  const DEFAULT_HERO_SLIDERS = [
+    'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1000&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=1000&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=1000&auto=format&fit=crop&q=80'
+  ];
+  const [heroSliders, setHeroSliders] = useState<string[]>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('mp_hero_sliders');
+        if (saved) return JSON.parse(saved);
+      }
+      return DEFAULT_HERO_SLIDERS;
+    } catch (_) {
+      return DEFAULT_HERO_SLIDERS;
+    }
+  });
+  const [sliderIdx, setSliderIdx] = useState<number>(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSliderIdx(prev => (prev + 1) % (heroSliders.length || 1));
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [heroSliders]);
+
   // Real-time ticking clock, weather & news
   const [liveTimeStr, setLiveTimeStr] = useState<string>('08:24 am');
   const [liveAdDateStr, setLiveAdDateStr] = useState<string>('Sep 6, 2026');
@@ -967,77 +992,93 @@ export default function WidgetCalendar() {
         {activeTab === 'home' && (
           <div className="space-y-4 p-4 animate-fadeIn">
             
-            {/* Weather & Scenic Hero Landscape Card (Exact Screenshot 1) */}
-            <div className="relative rounded-3xl overflow-hidden shadow-md text-white min-h-[160px] flex flex-col justify-between p-4 bg-cover bg-center border border-transparent" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&auto=format&fit=crop&q=80')` }}>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/30 z-10" />
+            {/* Weather & Scenic 3-Slider Hero Landscape Card (Admin Controllable) */}
+            <div 
+              className="relative rounded-3xl overflow-hidden shadow-lg text-white min-h-[170px] flex flex-col justify-between p-4 bg-cover bg-center border border-transparent transition-all duration-700" 
+              style={{ backgroundImage: `url('${heroSliders[sliderIdx] || DEFAULT_HERO_SLIDERS[0]}')` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/40 z-10" />
               <div className="relative z-20 flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-slate-200">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-200">
                     {appLang === 'ne' ? 'शुभ प्रभात' : 'Good Morning'}
                   </p>
-                  <h2 className="text-xl font-black text-white flex items-center gap-1.5 mt-0.5">
+                  <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-1.5 mt-0.5 drop-shadow-md">
                     <Sun size={20} className="text-amber-300" /> {liveTemperature}° C | {liveCity}
                   </h2>
                 </div>
               </div>
 
-              <div className="relative z-20 flex justify-end">
+              {/* Slider Controls & See More Button (Visible in Light & Dark Mode) */}
+              <div className="relative z-20 flex items-center justify-between pt-4">
+                {/* 3 Slider Indicator Dots */}
+                <div className="flex items-center gap-1.5 bg-black/40 px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/20">
+                  {heroSliders.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSliderIdx(idx)}
+                      className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
+                        sliderIdx === idx ? 'w-5 bg-[#e52521]' : 'bg-white/60 hover:bg-white'
+                      }`}
+                      title={`Slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+
                 <button 
                   onClick={() => setActiveTab('calendar')}
-                  className="px-4 py-1.5 bg-white/90 hover:bg-white text-slate-900 text-xs font-extrabold rounded-full shadow-md transition-all backdrop-blur-md"
+                  className="px-4 py-1.5 bg-[#e52521] hover:bg-[#d01f1c] text-white text-xs font-black rounded-full shadow-lg border border-white/40 transition-all cursor-pointer"
                 >
                   {appLang === 'ne' ? 'थप हेर्नुहोस्' : 'See More'}
                 </button>
               </div>
             </div>
 
-            {/* Date Summary Card with Right Mini Calendar Grid (Clickable to open full Calendar) */}
+            {/* Date Summary Card with Right Mini Calendar Grid (Hamro Patro Screenshot UI Match) */}
             <div className={`rounded-3xl p-4 shadow-sm flex flex-col sm:flex-row items-stretch gap-4 border transition-all ${
               appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-white border-slate-200 text-slate-900'
             }`}>
+              {/* Left Date Column Details */}
               <div 
                 onClick={() => setActiveTab('calendar')}
-                className={`flex-1 space-y-1 border-b sm:border-b-0 sm:border-r pb-3 sm:pb-0 sm:pr-4 cursor-pointer group hover:opacity-95 transition-all ${
+                className={`flex-1 space-y-1.5 border-b sm:border-b-0 sm:border-r pb-3 sm:pb-0 sm:pr-4 cursor-pointer group hover:opacity-95 transition-all ${
                   appTheme === 'dark' ? 'border-zinc-800' : 'border-slate-100'
                 }`}
                 title={appLang === 'ne' ? 'पात्रो खोल्न थिच्नुहोस्' : 'Click to open full calendar'}
               >
                 <div className="flex items-center justify-between">
-                  <h2 className={`text-2xl font-black group-hover:text-[#e52521] transition-colors ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                    {appLang === 'ne' ? `${NEPALI_MONTHS_NE[todayBs.month]} ${toNepaliDigits(todayBs.day)}` : `${todayBs.day} ${NEPALI_MONTHS_EN[todayBs.month]}`}
+                  <h2 className={`text-2xl sm:text-3xl font-black group-hover:text-[#e52521] transition-colors ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                    {appLang === 'ne' ? `${toNepaliDigits(todayBs.day)} ${NEPALI_MONTHS_NE[todayBs.month]}` : `${todayBs.day} ${NEPALI_MONTHS_EN[todayBs.month]}`}
                   </h2>
-                  <span className="text-[11px] font-extrabold text-[#e52521] opacity-90 group-hover:underline flex items-center gap-0.5">
-                    {appLang === 'ne' ? 'पात्रो →' : 'Calendar →'}
-                  </span>
                 </div>
-                <p className={`text-xs font-bold ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
+                <p className={`text-xs font-black ${appTheme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>
                   {appLang === 'ne' ? `${DAYS_NE_FULL[new Date().getDay()]}, ${toNepaliDigits(todayBs.year)}` : `${DAYS_EN_FULL[new Date().getDay()]}, ${todayBs.year}`}
                 </p>
                 <p className={`text-xs font-semibold ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{liveAdDateStr}</p>
                 
-                <div className={`pt-1.5 space-y-0.5 text-xs ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
-                  <p className={`font-bold ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{NEPALI_MONTHS_NE[todayBs.month]} कृष्ण दशमी</p>
-                  <p className={`text-[11px] ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>ने.सं. ११४६ गुंलागा दशमी</p>
-                  <p className="text-[#e52521] text-xs font-extrabold font-mono pt-1">{liveTimeStr}</p>
+                <div className={`pt-1 space-y-0.5 text-xs ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
+                  <p className={`font-bold ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{NEPALI_MONTHS_NE[todayBs.month]} कृष्ण एकादशी</p>
+                  <p className={`text-[11px] ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>ने.सं. ११४६ गुंलागा एकादशी</p>
+                  <p className="text-[#e52521] text-sm font-black font-mono pt-1">{liveTimeStr}</p>
                 </div>
               </div>
 
-              {/* Right Mini Month Calendar Grid with Highlighted Red 21 Circle (Clickable to open full Calendar) */}
+              {/* Right Mini Month Calendar Grid with Highlighted Green 22 Circle (Exact Hamro Patro Match) */}
               <div 
                 onClick={() => setActiveTab('calendar')}
-                className={`w-full sm:w-52 p-2.5 rounded-2xl border cursor-pointer hover:border-[#e52521]/40 transition-all ${
+                className={`w-full sm:w-56 p-3 rounded-2xl border cursor-pointer hover:border-[#e52521]/40 transition-all ${
                   appTheme === 'dark' ? 'bg-[#141416] border-zinc-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
                 }`}
                 title={appLang === 'ne' ? 'पात्रो खोल्न थिच्नुहोस्' : 'Click to open full calendar'}
               >
-                <div className={`grid grid-cols-7 gap-1 text-center text-[10px] font-bold pb-1.5 border-b ${
+                <div className={`grid grid-cols-7 gap-1 text-center text-[11px] font-black pb-1.5 border-b ${
                   appTheme === 'dark' ? 'border-zinc-800 text-slate-400' : 'border-slate-200 text-slate-600'
                 }`}>
-                  {(appLang === 'ne' ? ['आ', 'सो', 'म', 'बु', 'बि', 'शु', 'श'] : ['S', 'M', 'T', 'W', 'T', 'F', 'S']).map((d, i) => (
-                    <span key={i} className={i === 6 ? 'text-[#e52521]' : ''}>{d}</span>
+                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+                    <span key={i} className={i === 0 || i === 6 ? 'text-[#e52521]' : ''}>{d}</span>
                   ))}
                 </div>
-                <div className="grid grid-cols-7 gap-1 pt-1.5 text-center text-xs">
+                <div className="grid grid-cols-7 gap-1 pt-2 text-center text-xs">
                   {Array.from({ length: startDayOfWeek }).map((_, i) => (
                     <div key={`m-blank-${i}`} />
                   ))}
@@ -1045,6 +1086,7 @@ export default function WidgetCalendar() {
                     const d = i + 1;
                     const isToday = d === todayBs.day;
                     const isSaturday = (startDayOfWeek + i) % 7 === 6;
+                    const isSunday = (startDayOfWeek + i) % 7 === 0;
                     return (
                       <span 
                         key={`m-${d}`} 
@@ -1055,15 +1097,15 @@ export default function WidgetCalendar() {
                         }}
                         className={`w-6 h-6 mx-auto rounded-full flex items-center justify-center text-[11px] font-bold cursor-pointer transition-all ${
                           isToday
-                            ? 'bg-[#e52521] text-white shadow-md'
-                            : isSaturday
-                            ? 'text-[#e52521] hover:bg-slate-700'
+                            ? 'bg-[#288448] text-white shadow-md font-black scale-105'
+                            : isSaturday || isSunday
+                            ? 'text-[#e52521] hover:bg-red-500/10'
                             : appTheme === 'dark'
                             ? 'text-white hover:bg-zinc-800'
                             : 'text-slate-800 hover:bg-slate-200'
                         }`}
                       >
-                        {appLang === 'ne' ? toNepaliDigits(d) : d}
+                        {d}
                       </span>
                     );
                   })}
@@ -3826,10 +3868,10 @@ export default function WidgetCalendar() {
                 </div>
               </div>
             ) : (
-              /* Full Embedded Web Page View */
+              /* Full Embedded Web Page View (Stripping Site Header & Footer) */
               <div className="w-full h-[680px] rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 bg-white">
                 <iframe
-                  src={openedNewsItem.link}
+                  src={`/api/v1/news/read?url=${encodeURIComponent(openedNewsItem.link)}`}
                   className="w-full h-full border-none"
                   title={openedNewsItem.title}
                   sandbox="allow-scripts allow-same-origin allow-popups allow-forms"

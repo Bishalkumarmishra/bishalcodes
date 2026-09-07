@@ -30,7 +30,6 @@ export async function GET(req: Request) {
 
         if (res.ok) {
           const xml = await res.text();
-          // Extract <item> tags
           const itemBlocks = xml.split('<item>').slice(1);
           
           let count = 0;
@@ -39,7 +38,6 @@ export async function GET(req: Request) {
             const endIdx = block.indexOf('</item>');
             const itemXml = endIdx !== -1 ? block.substring(0, endIdx) : block;
 
-            // Helper to extract text from XML tag
             const getTagValue = (tagName: string): string => {
               const rx = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i');
               const m = itemXml.match(rx);
@@ -54,14 +52,14 @@ export async function GET(req: Request) {
 
             // Extract Real Banner Image URL
             let image = '';
-            
-            // 1. Check media:content or media:thumbnail
+
+            // 1. Media content or thumbnail
             const mediaMatch = itemXml.match(/<media:(?:content|thumbnail)[^>]*url=["']([^"']+)["']/i);
             if (mediaMatch && mediaMatch[1]) {
               image = mediaMatch[1];
             }
 
-            // 2. Check enclosure
+            // 2. Enclosure URL
             if (!image) {
               const enclosureMatch = itemXml.match(/<enclosure[^>]*url=["']([^"']+)["']/i);
               if (enclosureMatch && enclosureMatch[1]) {
@@ -69,15 +67,22 @@ export async function GET(req: Request) {
               }
             }
 
-            // 3. Check <img> tag inside description or content:encoded
+            // 3. Search for <img> src or image URL in itemXml (including description and content:encoded)
             if (!image) {
-              const imgTagMatch = itemXml.match(/<img[^>]+src=["']([^"']+)["']/i);
-              if (imgTagMatch && imgTagMatch[1]) {
-                image = imgTagMatch[1];
+              const imgMatch = itemXml.match(/(?:src|url)=["'](https?:\/\/[^"']+\.(?:jpg|jpeg|png|webp|gif)[^"']*)["']/i);
+              if (imgMatch && imgMatch[1]) {
+                image = imgMatch[1];
               }
             }
 
-            // Extract clean description summary snippet
+            // 4. Fallback search for any http(s) image link in the block
+            if (!image) {
+              const rawImgMatch = itemXml.match(/(https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp))/i);
+              if (rawImgMatch && rawImgMatch[1]) {
+                image = rawImgMatch[1];
+              }
+            }
+
             let rawDesc = getTagValue('description');
             let description = rawDesc.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -102,13 +107,11 @@ export async function GET(req: Request) {
       }
     }
 
-    // Filter by category if requested
     let filteredNews = allNews;
     if (categoryFilter && categoryFilter !== 'all') {
       filteredNews = allNews.filter(n => n.category.includes(categoryFilter) || n.source.toLowerCase().includes(categoryFilter.toLowerCase()));
     }
 
-    // Pagination
     const startIndex = (page - 1) * limit;
     const paginatedNews = filteredNews.slice(startIndex, startIndex + limit);
 

@@ -577,7 +577,7 @@ export default function WidgetCalendarAdmin({ onBackToApp }: WidgetCalendarAdmin
               <div className="bg-[#0a0a0c] border border-zinc-900 p-5 rounded-3xl space-y-4 shadow-sm">
                 <div>
                   <h2 className="text-lg font-black text-white">Mero Patro App Configuration</h2>
-                  <p className="text-xs text-slate-400">Configure global app defaults, splash screen slogan, and branding.</p>
+                  <p className="text-xs text-slate-400">Configure global app defaults, splash screen slogan, and hero banner sliders.</p>
                 </div>
 
                 {savedSettingsSuccess && (
@@ -586,7 +586,7 @@ export default function WidgetCalendarAdmin({ onBackToApp }: WidgetCalendarAdmin
                   </div>
                 )}
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
                     <label className="text-[10px] font-extrabold text-slate-400 uppercase block mb-1">Splash Screen Slogan</label>
                     <input
@@ -596,6 +596,66 @@ export default function WidgetCalendarAdmin({ onBackToApp }: WidgetCalendarAdmin
                       className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl p-2.5 text-xs font-bold outline-none"
                     />
                   </div>
+
+                  {/* 3 HERO SLIDERS MANAGER */}
+                  <div className="pt-3 border-t border-zinc-800 space-y-3">
+                    <h3 className="text-sm font-black text-white flex items-center gap-2">
+                      <Sliders size={16} className="text-[#e52521]" /> Home Page 3 Hero Slider Banner Images
+                    </h3>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase block mb-1">Slider 1 Image URL (Lord Vishnu / Divine Scenery)</label>
+                        <input
+                          type="text"
+                          value={slider1}
+                          onChange={(e) => setSlider1(e.target.value)}
+                          placeholder="https://..."
+                          className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl p-2.5 text-xs font-bold outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase block mb-1">Slider 2 Image URL (Pashupatinath / Temple Scenery)</label>
+                        <input
+                          type="text"
+                          value={slider2}
+                          onChange={(e) => setSlider2(e.target.value)}
+                          placeholder="https://..."
+                          className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl p-2.5 text-xs font-bold outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase block mb-1">Slider 3 Image URL (Mount Everest / Divine Scenery)</label>
+                        <input
+                          type="text"
+                          value={slider3}
+                          onChange={(e) => setSlider3(e.target.value)}
+                          placeholder="https://..."
+                          className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl p-2.5 text-xs font-bold outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-2">
+                    <button
+                      onClick={() => {
+                        localStorage.setItem('mp_hero_sliders', JSON.stringify([slider1, slider2, slider3]));
+                        localStorage.setItem('mp_splash_slogan', splashSlogan);
+                        setSavedSettingsSuccess(true);
+                        setTimeout(() => setSavedSettingsSuccess(false), 3000);
+                      }}
+                      className="px-6 py-2.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-black text-xs rounded-xl flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                    >
+                      <Save size={16} /> Save App Settings & Sliders
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
                   <div>
                     <label className="text-[10px] font-extrabold text-slate-400 uppercase block mb-1">Primary Brand Accent Color</label>
