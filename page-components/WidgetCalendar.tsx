@@ -827,14 +827,17 @@ export default function WidgetCalendar() {
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* ANIMATED RED SPLASH SCREEN OVERLAY                                */}
       {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* ANIMATED RED SPLASH SCREEN OVERLAY                                */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
       {showSplash && (
         <div className="fixed inset-0 z-[99999] bg-[#e52521] flex flex-col items-center justify-center text-white space-y-4 animate-fadeIn">
           <div className="w-24 h-24 rounded-3xl bg-white p-3.5 shadow-2xl flex items-center justify-center animate-bounce">
             <img src="/mero-patro-app-icon-3d.png" alt="Mero Patro" className="w-full h-full object-contain" />
           </div>
-          <div className="text-center space-y-1">
+          <div className="text-center space-y-1 px-4">
             <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md font-sans">मेरो पात्रो</h1>
-            <p className="text-xs font-extrabold text-white/90 tracking-widest uppercase font-mono">MERO PATRO • 100% REAL</p>
+            <p className="text-xs font-bold text-white/95 tracking-wide font-sans">नेपालको आफ्नो पात्रो • Nepali Calendar & Panchanga</p>
           </div>
           <div className="flex items-center gap-2 pt-6">
             <div className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
@@ -846,51 +849,51 @@ export default function WidgetCalendar() {
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* APP TOP BAR (Exact Matching Reference Screenshots 1, 2, 3, 4, 5) */}
       {/* ═════════════════════════════════════════════════════════════════ */}
-      <header className={`px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0 transition-colors ${
+      <header className={`px-3 sm:px-4 py-2.5 pt-[calc(0.6rem+env(safe-area-inset-top,0px))] flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0 w-full max-w-full transition-colors ${
         appTheme === 'dark' 
           ? 'bg-[#000000] border-b border-zinc-900 text-white' 
           : 'bg-[#e52521] border-b border-[#d01f1c] text-white'
       }`}>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 shrink">
           <button 
             onClick={() => setIsHamroDrawerOpen(true)}
-            className="p-1 text-white hover:text-white/80 transition-colors cursor-pointer"
+            className="p-1 text-white hover:text-white/80 transition-colors cursor-pointer shrink-0"
             title="Mero Services Menu"
           >
-            <Menu size={22} />
+            <Menu size={20} className="sm:w-5 sm:h-5" />
           </button>
           
           {/* Official Mero Patro Logo */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             <img 
               src="/mero-patro-app-icon-3d.png" 
               alt="Mero Patro" 
-              className="w-9 h-9 rounded-lg object-contain shadow-sm hover:scale-105 transition-transform bg-white/10 p-0.5" 
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-contain shadow-xs shrink-0 hover:scale-105 transition-transform bg-white/10 p-0.5" 
             />
-            <h1 className="text-base font-black tracking-tight font-sans text-white">
+            <h1 className="text-xs sm:text-base font-black tracking-tight font-sans text-white truncate max-w-[85px] xs:max-w-[120px] sm:max-w-none">
               {t.appName}
             </h1>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Quick theme toggle */}
           <button 
             onClick={toggleTheme}
-            className={`p-1.5 rounded-xl border transition-all cursor-pointer ${
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
               appTheme === 'dark' 
                 ? 'bg-zinc-900 border-zinc-800 text-amber-400 hover:bg-zinc-800' 
                 : 'bg-white/20 border-white/30 text-white hover:bg-white/30'
             }`}
             title="Toggle Theme"
           >
-            {appTheme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+            {appTheme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
           </button>
 
           {/* Quick language toggle */}
           <button 
             onClick={toggleLang}
-            className={`px-2.5 py-1 rounded-xl border text-[11px] font-black transition-all cursor-pointer ${
+            className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full border text-[10px] sm:text-[11px] font-black shrink-0 transition-all cursor-pointer ${
               appTheme === 'dark'
                 ? 'bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800'
                 : 'bg-white/20 border-white/30 text-white hover:bg-white/30'
@@ -902,22 +905,23 @@ export default function WidgetCalendar() {
 
           <button 
             onClick={() => setIsSearchOpen(true)}
-            className="p-1 text-white hover:text-white/80 transition-colors cursor-pointer"
+            className="p-1 text-white hover:text-white/80 transition-colors cursor-pointer shrink-0"
             title="Search"
           >
-            <Search size={20} />
+            <Search size={18} className="sm:w-5 sm:h-5" />
           </button>
+
           <button 
             onClick={() => setIsProfileOpen(true)}
-            className={`w-8 h-8 rounded-full border flex items-center justify-center transition-colors overflow-hidden cursor-pointer ${
-              appTheme === 'dark' ? 'bg-zinc-900 border-zinc-800 text-white' : 'bg-white/20 border-white/30 text-white'
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full aspect-square border-2 flex items-center justify-center transition-colors overflow-hidden shrink-0 cursor-pointer ${
+              appTheme === 'dark' ? 'bg-zinc-900 border-zinc-700 text-white' : 'bg-white/30 border-white/50 text-white'
             }`}
             title="Profile"
           >
             {userPhoto ? (
-              <img src={userPhoto} alt="User Avatar" className="w-full h-full object-cover" />
+              <img src={userPhoto} alt="User Avatar" className="w-full h-full object-cover rounded-full" />
             ) : (
-              <User size={18} />
+              <User size={15} />
             )}
           </button>
         </div>
