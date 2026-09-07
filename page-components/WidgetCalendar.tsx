@@ -893,7 +893,7 @@ export default function WidgetCalendar() {
               alt="Mero Patro" 
               className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-contain shadow-xs shrink-0 hover:scale-105 transition-transform bg-white/10 p-0.5" 
             />
-            <h1 className="text-xs sm:text-base font-black tracking-tight font-sans text-white truncate max-w-[85px] xs:max-w-[120px] sm:max-w-none">
+            <h1 className="text-xs sm:text-base font-bold tracking-tight font-sans text-white truncate max-w-[85px] xs:max-w-[120px] sm:max-w-none">
               {t.appName}
             </h1>
           </div>
@@ -916,7 +916,7 @@ export default function WidgetCalendar() {
           {/* Quick language toggle */}
           <button 
             onClick={toggleLang}
-            className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full border text-[10px] sm:text-[11px] font-black shrink-0 transition-all cursor-pointer ${
+            className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full border text-[10px] sm:text-[11px] font-bold shrink-0 transition-all cursor-pointer ${
               appTheme === 'dark'
                 ? 'bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800'
                 : 'bg-white/20 border-white/30 text-white hover:bg-white/30'
@@ -988,10 +988,10 @@ export default function WidgetCalendar() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30 z-10" />
               <div className="relative z-20 flex items-start justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-100 drop-shadow-xs">
+                  <p className="text-xs sm:text-sm font-medium text-slate-100 drop-shadow-xs">
                     {appLang === 'ne' ? 'शुभ प्रभात' : 'Good Morning , Bishal'}
                   </p>
-                  <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-1.5 mt-0.5 drop-shadow-md">
+                  <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-1.5 mt-0.5 drop-shadow-md">
                     <Sun size={20} className="text-amber-300" /> {liveTemperature}° C | {liveCity}
                   </h2>
                 </div>
@@ -1013,7 +1013,7 @@ export default function WidgetCalendar() {
 
                 <button 
                   onClick={() => setActiveTab('calendar')}
-                  className="px-4 py-1.5 bg-white/95 hover:bg-white text-slate-900 text-xs font-bold rounded-full shadow-md transition-all backdrop-blur-md cursor-pointer border border-white/40"
+                  className="px-4 py-1.5 bg-white/95 hover:bg-white text-slate-900 text-xs font-semibold rounded-full shadow-md transition-all backdrop-blur-md cursor-pointer border border-white/40"
                 >
                   {appLang === 'ne' ? 'थप हेर्नुहोस्' : 'See More'}
                 </button>
@@ -1030,18 +1030,18 @@ export default function WidgetCalendar() {
                 className="flex-1 space-y-1 pr-2 cursor-pointer group transition-all"
                 title={appLang === 'ne' ? 'पात्रो खोल्न थिच्नुहोस्' : 'Click to open full calendar'}
               >
-                <h2 className={`text-2xl font-black tracking-tight group-hover:text-[#e52521] transition-colors ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                <h2 className={`text-2xl font-bold tracking-tight group-hover:text-[#e52521] transition-colors ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                   {appLang === 'ne' ? `${toNepaliDigits(todayBs.day)} ${NEPALI_MONTHS_NE[todayBs.month]}` : `${todayBs.day} ${NEPALI_MONTHS_EN[todayBs.month]}`}
                 </h2>
-                <p className={`text-xs font-bold ${appTheme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>
+                <p className={`text-xs font-semibold ${appTheme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>
                   {appLang === 'ne' ? `${DAYS_NE_FULL[new Date().getDay()]}, ${toNepaliDigits(todayBs.year)}` : `${DAYS_EN_FULL[new Date().getDay()]}, ${todayBs.year}`}
                 </p>
-                <p className={`text-[11px] font-semibold ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{liveAdDateStr}</p>
+                <p className={`text-[11px] font-medium ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{liveAdDateStr}</p>
                 
                 <div className="pt-1 space-y-0.5 text-xs">
-                  <p className={`font-bold ${appTheme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>{NEPALI_MONTHS_NE[todayBs.month]} कृष्ण एकादशी</p>
+                  <p className={`font-semibold ${appTheme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>{NEPALI_MONTHS_NE[todayBs.month]} कृष्ण एकादशी</p>
                   <p className={`text-[10px] ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>ने.सं. ११४६ गुंलागा एकादशी</p>
-                  <p className="text-[#e52521] text-xs font-black font-mono pt-1">{liveTimeStr}</p>
+                  <p className="text-[#e52521] text-xs font-bold font-mono pt-1">{liveTimeStr}</p>
                 </div>
               </div>
 
@@ -2578,13 +2578,26 @@ export default function WidgetCalendar() {
                 </button>
                 <button 
                   onClick={() => { setIsHamroDrawerOpen(false); setActiveFullScreenPage('contact'); }}
-                  className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition-colors"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <Phone size={16} className="text-[#e52521]" />
                     <span>{t.contactUs}</span>
                   </div>
                   <ChevronRight size={14} className="text-slate-400" />
+                </button>
+                <button 
+                  onClick={() => { 
+                    setIsHamroDrawerOpen(false); 
+                    if (typeof window !== 'undefined') window.location.href = '/widgets/calendar/admin';
+                  }}
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#e52521] text-white text-xs font-semibold shadow-sm hover:bg-[#d01f1c] transition-colors mt-2 cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck size={16} className="text-white" />
+                    <span>{appLang === 'ne' ? 'पात्रो एडमिन प्यानल' : 'Calendar Admin Panel'}</span>
+                  </div>
+                  <ChevronRight size={14} className="text-white" />
                 </button>
               </div>
 

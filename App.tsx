@@ -72,6 +72,8 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
       case 'developers': return { page: 'developers', id: id };
       case 'checkout': return { page: 'checkout', id: id };
       case 'widgets': {
+        if (slugArr[1] === 'calendar' && slugArr[2] === 'admin') return { page: 'widget-calendar-admin', id: null };
+        if (id === 'calendar-admin' || id === 'admin') return { page: 'widget-calendar-admin', id: null };
         if (id === 'date-converter') return { page: 'widget-date-converter', id: null };
         if (id === 'calendar') return { page: 'widget-calendar', id: null };
         return { page: 'widgets', id: null };
