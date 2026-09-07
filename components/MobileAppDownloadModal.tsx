@@ -20,10 +20,52 @@ export default function MobileAppDownloadModal({
   const [downloading, setDownloading] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
-  const iosProfileUrl = `/api/ios-profile?type=webclip&title=${encodeURIComponent(appName)}&url=${encodeURIComponent(appUrl)}&organization=${encodeURIComponent('Bishal Codes')}`;
+  const effectiveAppUrl = appUrl || (typeof window !== 'undefined' ? `${window.location.origin}/widgets/calendar` : 'https://bishalcodes.com/widgets/calendar');
+  const iosProfileUrl = `/api/ios-profile?type=webclip&title=${encodeURIComponent(appName)}&url=${encodeURIComponent(effectiveAppUrl)}&organization=${encodeURIComponent('Bishal Codes')}`;
   const androidApkUrl = '/downloads/NepaliCalendar-Mobile.apk';
 
-  // Listen for PWA prompt
+  // Helper to pre-cache all page resources for offline WebClip availability
+  const ensureOfflinePrecached = async () => {
+    if (typeof window === 'undefined') return;
+    try {
+      if ('serviceWorker' in navigator) {
+        await navigator.serviceWorker.register('/service-worker.js').catch(e => console.warn(e));
+      }
+      if ('caches' in window) {
+        const cache = await caches.open('bishalcodes-v6');
+        const staticAssets = [
+          effectiveAppUrl,
+          '/',
+          '/widgets/calendar',
+          '/widgets/calendar/',
+          '/manifest.json',
+          '/favicon.svg',
+          '/apple-touch-icon.png',
+          '/mero-patro-app-icon-3d.png',
+          '/mero-patro-logo.png'
+        ];
+
+        const scriptUrls = Array.from(document.querySelectorAll('script[src]'))
+          .map((s: any) => s.src)
+          .filter(src => src.startsWith(window.location.origin));
+        const styleUrls = Array.from(document.querySelectorAll('link[rel="stylesheet"][href]'))
+          .map((l: any) => l.href)
+          .filter(href => href.startsWith(window.location.origin));
+
+        const allAssetsToPrecache = Array.from(new Set([...staticAssets, ...scriptUrls, ...styleUrls]));
+        console.log(`[Offline Prep] Pre-caching ${allAssetsToPrecache.length} assets for WebClip...`);
+        await Promise.allSettled(
+          allAssetsToPrecache.map(url =>
+            cache.add(new Request(url, { credentials: 'omit' })).catch(e => console.warn('[Precache warn]', url, e))
+          )
+        );
+      }
+    } catch (err) {
+      console.warn('[Offline Prep] Pre-cache error:', err);
+    }
+  };
+
+  // Listen for PWA prompt & auto pre-cache on modal open
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -31,8 +73,13 @@ export default function MobileAppDownloadModal({
       setDeferredPrompt(e);
     };
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    if (isOpen) {
+      ensureOfflinePrecached();
+    }
+
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, []);
+  }, [isOpen]);
 
   // Generate QR Code for target app URL
   useEffect(() => {
@@ -55,13 +102,16 @@ export default function MobileAppDownloadModal({
   const handleDownloadIosProfile = async () => {
     setDownloading(true);
     try {
+      // Ensure SW pre-cache is done before downloading profile
+      await ensureOfflinePrecached();
+
       const response = await fetch('/api/ios-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'webclip',
           title: appName,
-          url: appUrl,
+          url: effectiveAppUrl,
           organization: 'Bishal Codes',
           fullScreen: true,
           isRemovable: true,

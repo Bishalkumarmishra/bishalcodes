@@ -42,7 +42,7 @@ function buildWebClipPayload(data: {
   const payloadUUID = generateUUID();
   const topUUID = generateUUID();
   const title = escapeXml(data.title || 'App Shortcut');
-  const url = escapeXml(data.url || 'https://bishalcodes.com');
+  const url = escapeXml(data.url || 'https://bishalcodes.com/widgets/calendar');
   const organization = escapeXml(data.organization || 'Bishal Codes');
   const fullScreen = data.fullScreen !== false;
   const isRemovable = data.isRemovable !== false;
@@ -54,7 +54,7 @@ function buildWebClipPayload(data: {
 
   let iconXml = '';
   if (base64Icon) {
-    const cleanBase64 = base64Icon.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
+    const cleanBase64 = base64Icon.replace(/^data:image\/(png|jpeg|jpg);base64,/, '').trim();
     iconXml = `
             <key>Icon</key>
             <data>${cleanBase64}</data>`;
@@ -71,12 +71,16 @@ function buildWebClipPayload(data: {
             <${fullScreen}/>
             <key>IsRemovable</key>
             <${isRemovable}/>
+            <key>Precomposed</key>
+            <true/>
+            <key>IgnoreManifest</key>
+            <false/>
             <key>Label</key>
             <string>${title}</string>
             <key>PayloadDescription</key>
             <string>Configures Web Clip shortcut for ${title}</string>
             <key>PayloadDisplayName</key>
-            <string>${title} Shortcut</string>
+            <string>${title}</string>
             <key>PayloadIdentifier</key>
             <string>com.bishalcodes.webclip.${payloadUUID.substring(0, 8)}</string>
             <key>PayloadType</key>
@@ -229,11 +233,17 @@ async function handleProfileRequest(params: {
 }
 
 export async function GET(req: NextRequest) {
+  const origin = req.nextUrl.origin;
   const { searchParams } = new URL(req.url);
+  let rawUrl = searchParams.get('url') || `${origin}/widgets/calendar`;
+  if (rawUrl.startsWith('/')) {
+    rawUrl = `${origin}${rawUrl}`;
+  }
+
   const params = {
     type: searchParams.get('type') || 'webclip',
-    title: searchParams.get('title') || 'Bishal Codes App',
-    url: searchParams.get('url') || 'https://bishalcodes.com',
+    title: searchParams.get('title') || 'Nepali Calendar',
+    url: rawUrl,
     fullScreen: searchParams.get('fullScreen') !== 'false',
     isRemovable: searchParams.get('isRemovable') !== 'false',
     dnsProvider: searchParams.get('dnsProvider') || 'cloudflare',
@@ -246,7 +256,15 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const origin = req.nextUrl.origin;
     const body = await req.json();
+    if (body && body.url) {
+      if (body.url.startsWith('/')) {
+        body.url = `${origin}${body.url}`;
+      }
+    } else if (body) {
+      body.url = `${origin}/widgets/calendar`;
+    }
     return handleProfileRequest(body);
   } catch (error) {
     return NextResponse.json(

@@ -1,13 +1,14 @@
-// Bishal Codes — Bulletproof Offline Service Worker v5
+// Bishal Codes — Bulletproof Offline Service Worker v6
 // Strategy: Cache app shell + Next.js bundles for full offline support
 
-const CACHE_NAME = 'bishalcodes-v5';
-const RUNTIME_CACHE = 'bishalcodes-runtime-v5';
+const CACHE_NAME = 'bishalcodes-v6';
+const RUNTIME_CACHE = 'bishalcodes-runtime-v6';
 
-// Only cache assets that ACTUALLY EXIST in public/
+// Only cache assets that ACTUALLY EXIST in public/ and main routes
 const PRECACHE_ASSETS = [
   '/',
   '/widgets/calendar',
+  '/widgets/calendar/',
   '/widgets/date-converter',
   '/widgets/calendar/admin',
   '/offline.html',

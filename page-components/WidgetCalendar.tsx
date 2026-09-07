@@ -2454,7 +2454,7 @@ export default function WidgetCalendar() {
         isOpen={isMobileModalOpen}
         onClose={() => setIsMobileModalOpen(false)}
         appName="Nepali Calendar"
-        appUrl="https://bishalcodes.com/widgets/calendar"
+        appUrl={typeof window !== 'undefined' ? `${window.location.origin}/widgets/calendar` : 'https://bishalcodes.com/widgets/calendar'}
       />
 
       {/* ─── PERMISSION PROMPT (First Visit) ─── */}
