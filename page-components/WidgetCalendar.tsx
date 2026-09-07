@@ -980,16 +980,25 @@ export default function WidgetCalendar() {
               </div>
             </div>
 
-            {/* Date Summary Card with Right Mini Calendar Grid (Exact Screenshot 1) */}
-            <div className={`rounded-3xl p-4 shadow-sm flex flex-col sm:flex-row items-stretch gap-4 border ${
+            {/* Date Summary Card with Right Mini Calendar Grid (Clickable to open full Calendar) */}
+            <div className={`rounded-3xl p-4 shadow-sm flex flex-col sm:flex-row items-stretch gap-4 border transition-all ${
               appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-white border-slate-200 text-slate-900'
             }`}>
-              <div className={`flex-1 space-y-1 border-b sm:border-b-0 sm:border-r pb-3 sm:pb-0 sm:pr-4 ${
-                appTheme === 'dark' ? 'border-zinc-800' : 'border-slate-100'
-              }`}>
-                <h2 className={`text-2xl font-black ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                  {appLang === 'ne' ? `${NEPALI_MONTHS_NE[todayBs.month]} ${toNepaliDigits(todayBs.day)}` : `${todayBs.day} ${NEPALI_MONTHS_EN[todayBs.month]}`}
-                </h2>
+              <div 
+                onClick={() => setActiveTab('calendar')}
+                className={`flex-1 space-y-1 border-b sm:border-b-0 sm:border-r pb-3 sm:pb-0 sm:pr-4 cursor-pointer group hover:opacity-95 transition-all ${
+                  appTheme === 'dark' ? 'border-zinc-800' : 'border-slate-100'
+                }`}
+                title={appLang === 'ne' ? 'पात्रो खोल्न थिच्नुहोस्' : 'Click to open full calendar'}
+              >
+                <div className="flex items-center justify-between">
+                  <h2 className={`text-2xl font-black group-hover:text-[#e52521] transition-colors ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                    {appLang === 'ne' ? `${NEPALI_MONTHS_NE[todayBs.month]} ${toNepaliDigits(todayBs.day)}` : `${todayBs.day} ${NEPALI_MONTHS_EN[todayBs.month]}`}
+                  </h2>
+                  <span className="text-[11px] font-extrabold text-[#e52521] opacity-90 group-hover:underline flex items-center gap-0.5">
+                    {appLang === 'ne' ? 'पात्रो →' : 'Calendar →'}
+                  </span>
+                </div>
                 <p className={`text-xs font-bold ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
                   {appLang === 'ne' ? `${DAYS_NE_FULL[new Date().getDay()]}, ${toNepaliDigits(todayBs.year)}` : `${DAYS_EN_FULL[new Date().getDay()]}, ${todayBs.year}`}
                 </p>
@@ -1002,10 +1011,14 @@ export default function WidgetCalendar() {
                 </div>
               </div>
 
-              {/* Right Mini Month Calendar Grid with Highlighted Red 21 Circle (Exact Screenshot 1) */}
-              <div className={`w-full sm:w-52 p-2.5 rounded-2xl border ${
-                appTheme === 'dark' ? 'bg-[#141416] border-zinc-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
-              }`}>
+              {/* Right Mini Month Calendar Grid with Highlighted Red 21 Circle (Clickable to open full Calendar) */}
+              <div 
+                onClick={() => setActiveTab('calendar')}
+                className={`w-full sm:w-52 p-2.5 rounded-2xl border cursor-pointer hover:border-[#e52521]/40 transition-all ${
+                  appTheme === 'dark' ? 'bg-[#141416] border-zinc-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
+                }`}
+                title={appLang === 'ne' ? 'पात्रो खोल्न थिच्नुहोस्' : 'Click to open full calendar'}
+              >
                 <div className={`grid grid-cols-7 gap-1 text-center text-[10px] font-bold pb-1.5 border-b ${
                   appTheme === 'dark' ? 'border-zinc-800 text-slate-400' : 'border-slate-200 text-slate-600'
                 }`}>
@@ -1024,7 +1037,11 @@ export default function WidgetCalendar() {
                     return (
                       <span 
                         key={`m-${d}`} 
-                        onClick={() => setSelectedDay(d)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedDay(d);
+                          setActiveTab('calendar');
+                        }}
                         className={`w-6 h-6 mx-auto rounded-full flex items-center justify-center text-[11px] font-bold cursor-pointer transition-all ${
                           isToday
                             ? 'bg-[#e52521] text-white shadow-md'
