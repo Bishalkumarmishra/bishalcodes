@@ -246,10 +246,6 @@ input, textarea, [contenteditable="true"] {
   color: var(--nav-text) !important;
 }
 
-.nav-link-inactive:hover {
-  color: var(--nav-text-hover) !important;
-}
-
 @media (max-width: 768px) {
   .sky-status-bar {
     display: block !important;

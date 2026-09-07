@@ -832,16 +832,15 @@ export default function WidgetCalendar() {
       {/* ═════════════════════════════════════════════════════════════════ */}
       {showSplash && (
         <div className="fixed inset-0 z-[99999] bg-[#e52521] flex flex-col items-center justify-center text-white space-y-4 animate-fadeIn">
-          <div className="w-24 h-24 rounded-3xl bg-white p-3.5 shadow-2xl flex items-center justify-center animate-bounce">
+          <div className="w-24 h-24 rounded-3xl bg-white p-3.5 shadow-2xl flex items-center justify-center">
             <img src="/mero-patro-app-icon-3d.png" alt="Mero Patro" className="w-full h-full object-contain" />
           </div>
           <div className="text-center space-y-1 px-4">
             <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md font-sans">मेरो पात्रो</h1>
-            <p className="text-xs font-bold text-white/95 tracking-wide font-sans">नेपालको आफ्नो पात्रो • Nepali Calendar & Panchanga</p>
+            <p className="text-xs font-semibold text-white/95 tracking-wide font-sans">नेपालको आफ्नो पात्रो • Nepali Calendar & Panchanga</p>
           </div>
           <div className="flex items-center gap-2 pt-6">
-            <div className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
-            <span className="text-xs font-extrabold text-white/80">लोड हुँदैछ...</span>
+            <span className="text-xs font-semibold text-white/90">लोड हुँदैछ...</span>
           </div>
         </div>
       )}
