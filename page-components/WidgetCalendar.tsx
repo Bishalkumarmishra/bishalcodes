@@ -389,9 +389,9 @@ export default function WidgetCalendar() {
   const [selectedZodiac, setSelectedZodiac] = useState<any>(ZODIAC_SIGNS[0]);
 
   const DEFAULT_HERO_SLIDERS = [
-    'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1000&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=1000&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=1000&auto=format&fit=crop&q=80'
+    'https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=1000&auto=format&fit=crop&q=80', // Sacred Lord Vishnu / Divine Temple motif
+    'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1000&auto=format&fit=crop&q=80', // Pashupatinath Temple Nepal
+    'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=1000&auto=format&fit=crop&q=80'  // Divine Mountain Sanctuary
   ];
   const [heroSliders, setHeroSliders] = useState<string[]>(() => {
     try {
@@ -980,16 +980,16 @@ export default function WidgetCalendar() {
         {activeTab === 'home' && (
           <div className="space-y-4 p-4 animate-fadeIn">
             
-            {/* Weather & Scenic 3-Slider Hero Landscape Card (Admin Controllable) */}
+            {/* Weather & Scenic Deity Hero Landscape Card (Hamro Patro Match) */}
             <div 
-              className="relative rounded-3xl overflow-hidden shadow-lg text-white min-h-[170px] flex flex-col justify-between p-4 bg-cover bg-center border border-transparent transition-all duration-700" 
+              className="relative rounded-3xl overflow-hidden shadow-md text-white min-h-[160px] flex flex-col justify-between p-4 bg-cover bg-center border border-transparent transition-all duration-700" 
               style={{ backgroundImage: `url('${heroSliders[sliderIdx] || DEFAULT_HERO_SLIDERS[0]}')` }}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/40 z-10" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30 z-10" />
               <div className="relative z-20 flex items-start justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-200">
-                    {appLang === 'ne' ? 'शुभ प्रभात' : 'Good Morning'}
+                  <p className="text-xs sm:text-sm font-semibold text-slate-100 drop-shadow-xs">
+                    {appLang === 'ne' ? 'शुभ प्रभात' : 'Good Morning , Bishal'}
                   </p>
                   <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-1.5 mt-0.5 drop-shadow-md">
                     <Sun size={20} className="text-amber-300" /> {liveTemperature}° C | {liveCity}
@@ -997,76 +997,66 @@ export default function WidgetCalendar() {
                 </div>
               </div>
 
-              {/* Slider Controls & See More Button (Visible in Light & Dark Mode) */}
-              <div className="relative z-20 flex items-center justify-between pt-4">
-                {/* 3 Slider Indicator Dots */}
-                <div className="flex items-center gap-1.5 bg-black/40 px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/20">
+              {/* Slider Dots & See More Pill Button (100% Visible in Both Themes) */}
+              <div className="relative z-20 flex items-center justify-between pt-3">
+                <div className="flex items-center gap-1.5 bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm border border-white/20">
                   {heroSliders.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => setSliderIdx(idx)}
-                      className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
-                        sliderIdx === idx ? 'w-5 bg-[#e52521]' : 'bg-white/60 hover:bg-white'
+                      className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                        sliderIdx === idx ? 'w-4 bg-[#e52521]' : 'w-1.5 bg-white/60 hover:bg-white'
                       }`}
-                      title={`Slide ${idx + 1}`}
                     />
                   ))}
                 </div>
 
                 <button 
                   onClick={() => setActiveTab('calendar')}
-                  className="px-4 py-1.5 bg-[#e52521] hover:bg-[#d01f1c] text-white text-xs font-black rounded-full shadow-lg border border-white/40 transition-all cursor-pointer"
+                  className="px-4 py-1.5 bg-white/95 hover:bg-white text-slate-900 text-xs font-bold rounded-full shadow-md transition-all backdrop-blur-md cursor-pointer border border-white/40"
                 >
                   {appLang === 'ne' ? 'थप हेर्नुहोस्' : 'See More'}
                 </button>
               </div>
             </div>
 
-            {/* Date Summary Card with Right Mini Calendar Grid (Hamro Patro Screenshot UI Match) */}
-            <div className={`rounded-3xl p-4 shadow-sm flex flex-col sm:flex-row items-stretch gap-4 border transition-all ${
-              appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-white border-slate-200 text-slate-900'
+            {/* Date Summary Card with Right Mini Calendar Grid (Side-by-Side Exact Hamro Patro Match) */}
+            <div className={`rounded-3xl p-4 shadow-xs flex flex-row items-stretch justify-between gap-2 border transition-all ${
+              appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-white border-slate-100 text-slate-900'
             }`}>
               {/* Left Date Column Details */}
               <div 
                 onClick={() => setActiveTab('calendar')}
-                className={`flex-1 space-y-1.5 border-b sm:border-b-0 sm:border-r pb-3 sm:pb-0 sm:pr-4 cursor-pointer group hover:opacity-95 transition-all ${
-                  appTheme === 'dark' ? 'border-zinc-800' : 'border-slate-100'
-                }`}
+                className="flex-1 space-y-1 pr-2 cursor-pointer group transition-all"
                 title={appLang === 'ne' ? 'पात्रो खोल्न थिच्नुहोस्' : 'Click to open full calendar'}
               >
-                <div className="flex items-center justify-between">
-                  <h2 className={`text-2xl sm:text-3xl font-black group-hover:text-[#e52521] transition-colors ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                    {appLang === 'ne' ? `${toNepaliDigits(todayBs.day)} ${NEPALI_MONTHS_NE[todayBs.month]}` : `${todayBs.day} ${NEPALI_MONTHS_EN[todayBs.month]}`}
-                  </h2>
-                </div>
-                <p className={`text-xs font-black ${appTheme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>
+                <h2 className={`text-2xl font-black tracking-tight group-hover:text-[#e52521] transition-colors ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                  {appLang === 'ne' ? `${toNepaliDigits(todayBs.day)} ${NEPALI_MONTHS_NE[todayBs.month]}` : `${todayBs.day} ${NEPALI_MONTHS_EN[todayBs.month]}`}
+                </h2>
+                <p className={`text-xs font-bold ${appTheme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>
                   {appLang === 'ne' ? `${DAYS_NE_FULL[new Date().getDay()]}, ${toNepaliDigits(todayBs.year)}` : `${DAYS_EN_FULL[new Date().getDay()]}, ${todayBs.year}`}
                 </p>
-                <p className={`text-xs font-semibold ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{liveAdDateStr}</p>
+                <p className={`text-[11px] font-semibold ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{liveAdDateStr}</p>
                 
-                <div className={`pt-1 space-y-0.5 text-xs ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
-                  <p className={`font-bold ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{NEPALI_MONTHS_NE[todayBs.month]} कृष्ण एकादशी</p>
-                  <p className={`text-[11px] ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>ने.सं. ११४६ गुंलागा एकादशी</p>
-                  <p className="text-[#e52521] text-sm font-black font-mono pt-1">{liveTimeStr}</p>
+                <div className="pt-1 space-y-0.5 text-xs">
+                  <p className={`font-bold ${appTheme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>{NEPALI_MONTHS_NE[todayBs.month]} कृष्ण एकादशी</p>
+                  <p className={`text-[10px] ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>ने.सं. ११४६ गुंलागा एकादशी</p>
+                  <p className="text-[#e52521] text-xs font-black font-mono pt-1">{liveTimeStr}</p>
                 </div>
               </div>
 
-              {/* Right Mini Month Calendar Grid with Highlighted Green 22 Circle (Exact Hamro Patro Match) */}
+              {/* Right Mini Month Calendar Grid (Exact Green Circle Day 22 Highlight) */}
               <div 
                 onClick={() => setActiveTab('calendar')}
-                className={`w-full sm:w-56 p-3 rounded-2xl border cursor-pointer hover:border-[#e52521]/40 transition-all ${
-                  appTheme === 'dark' ? 'bg-[#141416] border-zinc-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
-                }`}
+                className="w-48 sm:w-56 p-2 rounded-2xl cursor-pointer transition-all"
                 title={appLang === 'ne' ? 'पात्रो खोल्न थिच्नुहोस्' : 'Click to open full calendar'}
               >
-                <div className={`grid grid-cols-7 gap-1 text-center text-[11px] font-black pb-1.5 border-b ${
-                  appTheme === 'dark' ? 'border-zinc-800 text-slate-400' : 'border-slate-200 text-slate-600'
-                }`}>
+                <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold pb-1 text-slate-700 dark:text-slate-300">
                   {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
                     <span key={i} className={i === 0 || i === 6 ? 'text-[#e52521]' : ''}>{d}</span>
                   ))}
                 </div>
-                <div className="grid grid-cols-7 gap-1 pt-2 text-center text-xs">
+                <div className="grid grid-cols-7 gap-1 pt-1 text-center text-xs">
                   {Array.from({ length: startDayOfWeek }).map((_, i) => (
                     <div key={`m-blank-${i}`} />
                   ))}
@@ -1083,14 +1073,14 @@ export default function WidgetCalendar() {
                           setSelectedDay(d);
                           setActiveTab('calendar');
                         }}
-                        className={`w-6 h-6 mx-auto rounded-full flex items-center justify-center text-[11px] font-bold cursor-pointer transition-all ${
+                        className={`w-5 h-5 mx-auto rounded-full flex items-center justify-center text-[10px] font-bold cursor-pointer transition-all ${
                           isToday
-                            ? 'bg-[#288448] text-white shadow-md font-black scale-105'
+                            ? 'bg-[#288448] text-white shadow-xs font-black'
                             : isSaturday || isSunday
-                            ? 'text-[#e52521] hover:bg-red-500/10'
+                            ? 'text-[#e52521]'
                             : appTheme === 'dark'
-                            ? 'text-white hover:bg-zinc-800'
-                            : 'text-slate-800 hover:bg-slate-200'
+                            ? 'text-white'
+                            : 'text-slate-900'
                         }`}
                       >
                         {d}
@@ -1101,55 +1091,84 @@ export default function WidgetCalendar() {
               </div>
             </div>
 
-            {/* Upcoming Events Carousel Section (Exact Screenshot 1) */}
-            <div className="space-y-2.5">
+            {/* Upcoming Events Section (Exact Hamro Patro Match) */}
+            <div className="space-y-2.5 pt-1">
               <div className="flex items-center justify-between">
-                <h3 className={`text-base font-extrabold ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Upcoming Events</h3>
-                <button onClick={() => setActiveTab('calendar')} className="text-xs font-extrabold text-[#e52521] hover:underline flex items-center gap-0.5">
+                <h3 className={`text-sm sm:text-base font-black ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Upcoming Events</h3>
+                <button onClick={() => setActiveTab('calendar')} className="text-xs font-bold text-[#e52521] hover:underline flex items-center gap-0.5">
                   View All <ChevronRight size={14} />
                 </button>
               </div>
 
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
-                {/* Event Card 1 (Lord Vishnu Image) */}
-                <div className="shrink-0 w-44 h-52 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-3.5 flex flex-col justify-between shadow-md border border-slate-200">
-                  <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=500&auto=format&fit=crop&q=80')` }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20 z-10" />
+              <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                {/* Event Card 1 (Deity Image Overlay) */}
+                <div className="shrink-0 w-36 h-48 sm:w-40 sm:h-52 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-3 flex flex-col justify-between shadow-xs border border-slate-200 dark:border-zinc-800">
+                  <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=500&auto=format&fit=crop&q=80')` }} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/20 z-10" />
                   <div className="relative z-20 flex justify-start">
-                    <span className="px-2.5 py-0.5 rounded-full bg-black/40 backdrop-blur-md text-white font-extrabold text-[9px]">Tomorrow</span>
+                    <span className="px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-md text-white font-extrabold text-[9px]">Today</span>
                   </div>
-                  <div className="relative z-20 space-y-1">
-                    <p className="text-xl font-black text-white">22 <span className="text-xs font-normal">Bhadra</span></p>
-                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-snug">Aja Ekadashi Vrata</h4>
-                    <p className="text-[10px] text-slate-300">Mon +1</p>
+                  <div className="relative z-20 space-y-0.5">
+                    <p className="text-xl font-black text-white leading-none">22 <span className="text-xs font-normal">Bhadra</span></p>
+                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-tight">Aja Ekadashi Vrata</h4>
+                    <div className="flex items-center justify-between text-[9px] text-slate-300 pt-0.5">
+                      <span>Mon</span>
+                      <span className="bg-white/20 px-1 rounded">+1</span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Event Card 2 (Gen-Z Sahid Diwas) */}
-                <div className="shrink-0 w-44 h-52 rounded-3xl relative overflow-hidden bg-slate-950 text-white p-3.5 flex flex-col justify-between shadow-md border border-slate-800">
+                <div className="shrink-0 w-36 h-48 sm:w-40 sm:h-52 rounded-3xl relative overflow-hidden bg-slate-950 text-white p-3 flex flex-col justify-between shadow-xs border border-slate-800">
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900 to-black z-10" />
                   <div className="relative z-20 flex justify-start">
-                    <span className="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[9px]">In 2 days</span>
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500/90 text-slate-950 font-black text-[9px]">Tomorrow</span>
                   </div>
-                  <div className="relative z-20 space-y-1">
-                    <p className="text-xl font-black text-amber-400">23 <span className="text-xs font-normal text-white">Bhadra</span></p>
-                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-snug">Gen-Z Sahid Diwas</h4>
-                    <p className="text-[10px] text-slate-400">Tue +3</p>
+                  <div className="relative z-20 space-y-0.5">
+                    <p className="text-xl font-black text-amber-400 leading-none">23 <span className="text-xs font-normal text-white">Bhadra</span></p>
+                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-tight">Gen-Z Sahid Diwas</h4>
+                    <div className="flex items-center justify-between text-[9px] text-slate-400 pt-0.5">
+                      <span>Tue</span>
+                      <span className="bg-white/10 px-1 rounded">+3</span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Event Card 3 (World Suicide Prevention Day) */}
-                <div className="shrink-0 w-44 h-52 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-3.5 flex flex-col justify-between shadow-md border border-slate-200">
+                <div className="shrink-0 w-36 h-48 sm:w-40 sm:h-52 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-3 flex flex-col justify-between shadow-xs border border-slate-200 dark:border-zinc-800">
                   <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=500&auto=format&fit=crop&q=80')` }} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 z-10" />
                   <div className="relative z-20 flex justify-start">
-                    <span className="px-2.5 py-0.5 rounded-full bg-black/40 backdrop-blur-md text-white font-extrabold text-[9px]">In 4 days</span>
+                    <span className="px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-md text-white font-extrabold text-[9px]">In 3 days</span>
                   </div>
-                  <div className="relative z-20 space-y-1">
-                    <p className="text-xl font-black text-white">25 <span className="text-xs font-normal">Bhadra</span></p>
-                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-snug">World Suicide Prevention Day</h4>
-                    <p className="text-[10px] text-slate-300">Thu</p>
+                  <div className="relative z-20 space-y-0.5">
+                    <p className="text-xl font-black text-white leading-none">25 <span className="text-xs font-normal">Bhadra</span></p>
+                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-tight">World Suicide Prevention Day</h4>
+                    <div className="flex items-center justify-between text-[9px] text-slate-300 pt-0.5">
+                      <span>Thu</span>
+                    </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Today's Events List Bar (Exact Hamro Patro Match) */}
+              <div className={`p-3 rounded-2xl border space-y-2 ${
+                appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-slate-50 border-slate-100 text-slate-900'
+              }`}>
+                <span className="px-2 py-0.5 bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-slate-300 font-bold text-[10px] rounded-md">
+                  Today's events
+                </span>
+
+                <div className="flex items-center justify-between pt-1 cursor-pointer" onClick={() => setActiveTab('calendar')}>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-red-100 dark:bg-red-950/40 p-1 flex items-center justify-center shrink-0">
+                      <img src="/mero-patro-app-icon-3d.png" alt="Event Icon" className="w-full h-full object-contain" />
+                    </div>
+                    <p className="text-xs font-bold text-slate-900 dark:text-white">
+                      Aja Ekadashi Vrata, Nijamati Sewa Diwas
+                    </p>
+                  </div>
+                  <ChevronRight size={16} className="text-slate-400" />
                 </div>
               </div>
             </div>
