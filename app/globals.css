@@ -238,10 +238,6 @@ input, textarea, [contenteditable="true"] {
   padding-bottom: 0.5rem;
 }
 
-.site-navbar .brand-logo-img {
-  /* removed filter */
-}
-
 .nav-link-active {
   color: var(--nav-text-active) !important;
 }
