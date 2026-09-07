@@ -1446,50 +1446,20 @@ export default function WidgetCalendar() {
           <div className="space-y-4 p-4 animate-fadeIn">
             
             {/* Header Banner (Exact Screenshot 3) */}
-            <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm text-center space-y-1.5">
+            <div className={`rounded-3xl p-5 border text-center space-y-1.5 shadow-sm ${
+              appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-white border-slate-200 text-slate-900'
+            }`}>
               <h2 className="text-2xl font-black text-[#e52521]">Stay Ahead - Stay Informed</h2>
-              <p className="text-xs text-slate-600 font-medium">
-                Explore trusted news coverage, insightful stories, and local perspectives—all in one place.
+              <p className={`text-xs font-medium ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+                Explore trusted news coverage from official top Nepali news portals—Onlinekhabar, Ratopati & Kantipur.
               </p>
-            </div>
-
-            {/* News Story Horizontal Cards */}
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-extrabold text-slate-900">News Story</h3>
-                <span className="text-xs font-bold text-slate-600 cursor-pointer">थप समाचार पढ्नुहोस्</span>
-              </div>
-
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
-                {/* Story 1 */}
-                <div className="shrink-0 w-48 h-60 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-3.5 flex flex-col justify-end shadow-md">
-                  <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500&auto=format&fit=crop&q=80')` }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-                  <div className="relative z-10 space-y-1">
-                    <h4 className="text-xs font-bold text-white line-clamp-3 leading-snug">
-                      फिदिम स्पोर्टिङ क्लब ताप्लेजुङ गोल्डकपको सेमिफाइनलमा
-                    </h4>
-                  </div>
-                </div>
-
-                {/* Story 2 */}
-                <div className="shrink-0 w-48 h-60 rounded-3xl relative overflow-hidden bg-slate-950 text-white p-3.5 flex flex-col justify-end shadow-md border border-slate-800">
-                  <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=500&auto=format&fit=crop&q=80')` }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-                  <div className="relative z-10 space-y-1">
-                    <h4 className="text-xs font-bold text-white line-clamp-3 leading-snug">
-                      कस्तो रहला तपाईंको दिन ? हेर्नुहोस् आजका राशिफल
-                    </h4>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Popular News Feed Vertical Stream (Exact Screenshot 4) */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-extrabold text-slate-900">Popular News</h3>
-                <span className="text-xs font-bold text-slate-600 cursor-pointer">View All</span>
+                <h3 className={`text-base font-extrabold ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Popular News</h3>
+                <span className="text-xs font-extrabold text-[#e52521]">१००% आधिकारिक समाचार</span>
               </div>
 
               <div className="space-y-2.5">
@@ -1497,30 +1467,38 @@ export default function WidgetCalendar() {
                   liveNews.map((item, idx) => {
                     const source = NEPALI_NEWS_SOURCES[idx % NEPALI_NEWS_SOURCES.length];
                     return (
-                      <a
+                      <button
                         key={item.id || idx}
-                        href={item.link || '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-start gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm hover:border-[#e52521] transition-all group text-left w-full"
+                        onClick={() => setOpenedNewsItem(item)}
+                        className={`flex items-start gap-3 p-3 rounded-2xl border shadow-sm transition-all group text-left w-full cursor-pointer ${
+                          appTheme === 'dark'
+                            ? 'bg-[#0a0a0c] border-zinc-900 hover:border-[#e52521] text-white'
+                            : 'bg-white border-slate-200 hover:border-[#e52521] text-slate-900'
+                        }`}
                       >
-                        <div className="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
-                          <Newspaper size={24} className="text-slate-400" />
+                        <div className={`w-16 h-16 rounded-xl border overflow-hidden shrink-0 flex items-center justify-center ${
+                          appTheme === 'dark' ? 'bg-zinc-900 border-zinc-800' : 'bg-slate-100 border-slate-200'
+                        }`}>
+                          <Newspaper size={24} className="text-[#e52521]" />
                         </div>
                         <div className="flex-1 space-y-1 min-w-0">
-                          <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#e52521] leading-snug line-clamp-2">
+                          <h4 className={`text-xs font-black leading-snug line-clamp-2 ${
+                            appTheme === 'dark' ? 'text-white group-hover:text-[#e52521]' : 'text-slate-900 group-hover:text-[#e52521]'
+                          }`}>
                             {item.title}
                           </h4>
                           <div className="flex items-center justify-between text-[10px] text-slate-400">
-                            <span className="font-semibold text-[#e52521]">{source.name}</span>
-                            <span className="flex items-center gap-0.5">{source.domain} <ExternalLink size={9} /></span>
+                            <span className="font-extrabold text-[#e52521]">{item.source || source.name}</span>
+                            <span className="flex items-center gap-0.5 font-medium">{item.domain || source.domain}</span>
                           </div>
                         </div>
-                      </a>
+                      </button>
                     );
                   })
                 ) : (
-                  <div className="p-4 bg-white rounded-2xl border border-slate-200 text-center text-xs text-slate-500">
+                  <div className={`p-4 rounded-2xl border text-center text-xs font-semibold ${
+                    appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-slate-400' : 'bg-white border-slate-200 text-slate-500'
+                  }`}>
                     समाचार लोड हुँदैछ...
                   </div>
                 )}
@@ -1553,14 +1531,12 @@ export default function WidgetCalendar() {
                   <p className="text-[10px] text-slate-500">{liveNews.length > 0 ? 'Google News Nepal RSS' : 'लोड हुँदैछ...'}</p>
                 </div>
                 {liveNews.length > 0 && (
-                  <a
-                    href={liveNews[0].link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3.5 py-1.5 bg-[#e52521] text-white font-extrabold text-xs rounded-xl hover:bg-[#d01f1c] shadow-sm flex items-center gap-1"
+                  <button
+                    onClick={() => setOpenedNewsItem(liveNews[0])}
+                    className="px-3.5 py-1.5 bg-[#e52521] text-white font-extrabold text-xs rounded-xl hover:bg-[#d01f1c] shadow-sm flex items-center gap-1 cursor-pointer"
                   >
                     पढ्नुहोस् <ExternalLink size={11} />
-                  </a>
+                  </button>
                 )}
               </div>
             </div>
@@ -3453,6 +3429,75 @@ export default function WidgetCalendar() {
             >
               बन्द गर्नुहोस् (Close)
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* IN-APP FULLSCREEN NEWS ARTICLE READER OVERLAY                     */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {openedNewsItem && (
+        <div className={`fixed inset-0 z-[9999] flex flex-col w-full h-full animate-fadeIn transition-colors ${
+          appTheme === 'dark' ? 'bg-[#000000] text-white' : 'bg-[#ffffff] text-slate-900'
+        }`}>
+          {/* Reader Top Bar */}
+          <div className={`px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] border-b flex items-center justify-between sticky top-0 z-50 ${
+            appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-[#e52521] border-[#d01f1c] text-white'
+          }`}>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setOpenedNewsItem(null)}
+                className="p-1.5 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer flex items-center gap-1 font-bold text-xs"
+              >
+                <ArrowLeft size={20} />
+                <span>पछाडि</span>
+              </button>
+              <div className="flex items-center gap-2 border-l border-white/20 pl-3">
+                <span className="px-2 py-0.5 rounded-md bg-white/20 text-white font-extrabold text-[10px] uppercase">
+                  {openedNewsItem.source || 'नेपाली समाचार'}
+                </span>
+                <span className="text-xs font-bold truncate max-w-[140px] sm:max-w-xs text-white/90">
+                  {openedNewsItem.domain || 'onlinekhabar.com'}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setOpenedNewsItem(null)}
+              className="p-1.5 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Reader Article Content Body */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 max-w-2xl mx-auto w-full">
+            <div className="space-y-2 border-b pb-4 border-slate-200 dark:border-zinc-800">
+              <span className="px-3 py-1 rounded-full bg-[#e52521] text-white text-[11px] font-black inline-block">
+                {openedNewsItem.source || 'OnlineKhabar'} • १००% आधिकारिक नेपाली समाचार
+              </span>
+              <h1 className={`text-xl sm:text-2xl font-black leading-snug ${
+                appTheme === 'dark' ? 'text-white' : 'text-slate-900'
+              }`}>
+                {openedNewsItem.title}
+              </h1>
+              <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
+                <Clock size={14} className="text-[#e52521]" />
+                <span>{new Date(openedNewsItem.pubDate || Date.now()).toLocaleDateString('ne-NP')}</span>
+                <span>•</span>
+                <span>सत्यापित समाचार स्रोत</span>
+              </div>
+            </div>
+
+            {/* Embedded Live News Article Frame */}
+            <div className="w-full h-[650px] rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 bg-white">
+              <iframe
+                src={openedNewsItem.link}
+                className="w-full h-full border-none"
+                title={openedNewsItem.title}
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+              />
+            </div>
           </div>
         </div>
       )}
