@@ -7,16 +7,15 @@ const RUNTIME_CACHE = 'bishalcodes-runtime-v5';
 // Only cache assets that ACTUALLY EXIST in public/
 const PRECACHE_ASSETS = [
   '/',
+  '/widgets/calendar',
+  '/widgets/date-converter',
+  '/widgets/calendar/admin',
   '/offline.html',
   '/manifest.json',
-  '/favicon.ico',
-  '/favicon-16x16.png',
-  '/favicon-32x32.png',
-  '/favicon-96x96.png',
-  '/apple-icon-180x180.png',
-  '/android-icon-192x192.png',
-  '/512 size.png',
-  '/logo.png',
+  '/favicon.svg',
+  '/apple-touch-icon.png',
+  '/mero-patro-app-icon-3d.png',
+  '/mero-patro-logo.png',
 ];
 
 // ── INSTALL: Pre-cache essential assets ──

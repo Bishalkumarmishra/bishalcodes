@@ -93,6 +93,25 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="msapplication-TileColor" content="#FFFFFF" />
 
+        {/* Service Worker Registration for PWA & 100% Offline Support */}
+        <Script
+          id="sw-registration"
+          dangerouslySetInnerHTML={{ __html: `
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js')
+                  .then(function(reg) {
+                    console.log('[SW] PWA Service Worker active:', reg.scope);
+                  })
+                  .catch(function(err) {
+                    console.warn('[SW] Registration failed:', err);
+                  });
+              });
+            }
+          `}}
+          strategy="afterInteractive"
+        />
+
         {/* Gemini API Key Shim */}
         <Script
           id="gemini-shim"
