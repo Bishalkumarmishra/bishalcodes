@@ -4,17 +4,17 @@
 
 :root {
   --html-bg: #FFFFFF;
-  --body-bg: #FFFFFF; /* Fully white `#FFFFFF` */
-  --nav-bg: #FFFFFF; /* Fully white `#FFFFFF` */
-  --nav-border: rgba(0, 0, 0, 0.06);
-  --nav-text: #475569;
-  --nav-text-active: #0f172a;
-  --nav-text-hover: #0f172a;
-  --status-bar-bg: #FFFFFF;
-  --logo-filter: drop-shadow(1px 0px 0px #2e2a24) drop-shadow(-1px 0px 0px #2e2a24) drop-shadow(0px 1px 0px #2e2a24) drop-shadow(0px -1px 0px #2e2a24);
-  --burger-bg: rgba(0, 0, 0, 0.03);
-  --burger-border: rgba(0, 0, 0, 0.06);
-  --burger-color: #334155;
+  --body-bg: #FFFFFF;
+  --nav-bg: #e52521;
+  --nav-border: #d01f1c;
+  --nav-text: #ffffff;
+  --nav-text-active: #ffffff;
+  --nav-text-hover: #ffffff;
+  --status-bar-bg: #e52521;
+  --logo-filter: none;
+  --burger-bg: rgba(255, 255, 255, 0.15);
+  --burger-border: rgba(255, 255, 255, 0.25);
+  --burger-color: #ffffff;
   --overlay-bg: #FFFFFF;
   --overlay-text: #0f172a;
   --connect-border: rgba(0, 0, 0, 0.06);
@@ -28,12 +28,12 @@
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
     --html-bg: #000000;
-    --body-bg: #000000; /* Fully black */
+    --body-bg: #000000;
     --nav-bg: #000000;
-    --nav-border: #111827;
-    --nav-text: #94a3b8;
-    --nav-text-active: #f1f5f9;
-    --nav-text-hover: #f1f5f9;
+    --nav-border: #18181b;
+    --nav-text: #f8fafc;
+    --nav-text-active: #ffffff;
+    --nav-text-hover: #ffffff;
     --status-bar-bg: #000000;
     --logo-filter: none;
     --burger-bg: rgba(255, 255, 255, 0.08);
@@ -41,23 +41,23 @@
     --burger-color: #f1f5f9;
     --overlay-bg: #000000;
     --overlay-text: #f1f5f9;
-    --connect-border: #1e293b;
+    --connect-border: #18181b;
     --social-bg: #0f172a;
     --social-color: #94a3b8;
-    --card-bg: #000000;
-    --card-bg-secondary: #000000;
-    --border-color: #1e293b;
+    --card-bg: #0a0a0c;
+    --card-bg-secondary: #121214;
+    --border-color: #18181b;
   }
 }
 
 :root.dark {
   --html-bg: #000000;
-  --body-bg: #000000; /* Fully black */
+  --body-bg: #000000;
   --nav-bg: #000000;
-  --nav-border: #111827;
-  --nav-text: #94a3b8;
-  --nav-text-active: #f1f5f9;
-  --nav-text-hover: #f1f5f9;
+  --nav-border: #18181b;
+  --nav-text: #f8fafc;
+  --nav-text-active: #ffffff;
+  --nav-text-hover: #ffffff;
   --status-bar-bg: #000000;
   --logo-filter: none;
   --burger-bg: rgba(255, 255, 255, 0.08);
@@ -65,27 +65,27 @@
   --burger-color: #f1f5f9;
   --overlay-bg: #000000;
   --overlay-text: #f1f5f9;
-  --connect-border: #1e293b;
+  --connect-border: #18181b;
   --social-bg: #0f172a;
   --social-color: #94a3b8;
-  --card-bg: #000000;
-  --card-bg-secondary: #000000;
-  --border-color: #1e293b;
+  --card-bg: #0a0a0c;
+  --card-bg-secondary: #121214;
+  --border-color: #18181b;
 }
 
 :root.light {
   --html-bg: #FFFFFF;
-  --body-bg: #FFFFFF; /* Fully white */
-  --nav-bg: #FFFFFF;
-  --nav-border: rgba(0, 0, 0, 0.06);
-  --nav-text: #475569;
-  --nav-text-active: #0f172a;
-  --nav-text-hover: #0f172a;
-  --status-bar-bg: #FFFFFF;
-  --logo-filter: drop-shadow(1px 0px 0px #2e2a24) drop-shadow(-1px 0px 0px #2e2a24) drop-shadow(0px 1px 0px #2e2a24) drop-shadow(0px -1px 0px #2e2a24);
-  --burger-bg: rgba(0, 0, 0, 0.03);
-  --burger-border: rgba(0, 0, 0, 0.06);
-  --burger-color: #334155;
+  --body-bg: #FFFFFF;
+  --nav-bg: #e52521;
+  --nav-border: #d01f1c;
+  --nav-text: #ffffff;
+  --nav-text-active: #ffffff;
+  --nav-text-hover: #ffffff;
+  --status-bar-bg: #e52521;
+  --logo-filter: none;
+  --burger-bg: rgba(255, 255, 255, 0.15);
+  --burger-border: rgba(255, 255, 255, 0.25);
+  --burger-color: #ffffff;
   --overlay-bg: #FFFFFF;
   --overlay-text: #0f172a;
   --connect-border: rgba(0, 0, 0, 0.06);

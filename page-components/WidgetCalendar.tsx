@@ -234,6 +234,7 @@ export default function WidgetCalendar() {
   const [playingRadio, setPlayingRadio] = useState<string | null>(null);
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '', sent: false });
   const [healthBmi, setHealthBmi] = useState<{ height: number; weight: number; result: number | null }>({ height: 170, weight: 65, result: null });
+  const [showSplash, setShowSplash] = useState<boolean>(true);
   // Live market data
   const [nepseData, setNepseData] = useState<any>(null);
   const [goldData, setGoldData] = useState<any>(null);
@@ -242,6 +243,29 @@ export default function WidgetCalendar() {
   const [pullY, setPullY] = useState(0);
   const pullStartY = useRef(0);
   const mainRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    const skyStatusBar = document.querySelector('.sky-status-bar') as HTMLElement;
+    if (appTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+      if (metaThemeColor) metaThemeColor.setAttribute('content', '#000000');
+      if (skyStatusBar) skyStatusBar.style.backgroundColor = '#000000';
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+      if (metaThemeColor) metaThemeColor.setAttribute('content', '#e52521');
+      if (skyStatusBar) skyStatusBar.style.backgroundColor = '#e52521';
+    }
+  }, [appTheme]);
 
   const toggleTheme = () => {
     setAppTheme(prev => {
@@ -730,22 +754,43 @@ export default function WidgetCalendar() {
   return (
     <div className={`fixed inset-0 z-30 flex flex-col w-full h-full font-sans overflow-hidden select-none sm:relative sm:inset-auto sm:z-auto sm:max-w-xl sm:mx-auto sm:h-[880px] sm:rounded-3xl sm:border sm:shadow-2xl transition-colors duration-200 ${
       appTheme === 'dark' 
-        ? 'bg-[#0f1115] text-slate-100 border-slate-800' 
+        ? 'bg-[#000000] text-white border-zinc-900' 
         : 'bg-[#f8f9fa] text-slate-900 border-slate-300'
     } ${
       textSize === 'small' ? 'text-xs' : textSize === 'large' ? 'text-base' : 'text-sm'
     }`}>
       
       {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* ANIMATED RED SPLASH SCREEN OVERLAY                                */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {showSplash && (
+        <div className="fixed inset-0 z-[99999] bg-[#e52521] flex flex-col items-center justify-center text-white space-y-4 animate-fadeIn">
+          <div className="w-24 h-24 rounded-3xl bg-white p-3.5 shadow-2xl flex items-center justify-center animate-bounce">
+            <img src="/mero-patro-app-icon-3d.png" alt="Mero Patro" className="w-full h-full object-contain" />
+          </div>
+          <div className="text-center space-y-1">
+            <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md font-sans">मेरो पात्रो</h1>
+            <p className="text-xs font-extrabold text-white/90 tracking-widest uppercase font-mono">MERO PATRO • 100% REAL</p>
+          </div>
+          <div className="flex items-center gap-2 pt-6">
+            <div className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
+            <span className="text-xs font-extrabold text-white/80">लोड हुँदैछ...</span>
+          </div>
+        </div>
+      )}
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
       {/* APP TOP BAR (Exact Matching Reference Screenshots 1, 2, 3, 4, 5) */}
       {/* ═════════════════════════════════════════════════════════════════ */}
-      <header className={`px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] border-b flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0 transition-colors ${
-        appTheme === 'dark' ? 'bg-[#16181f] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
+      <header className={`px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0 transition-colors ${
+        appTheme === 'dark' 
+          ? 'bg-[#000000] border-b border-zinc-900 text-white' 
+          : 'bg-[#e52521] border-b border-[#d01f1c] text-white'
       }`}>
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsHamroDrawerOpen(true)}
-            className="p-1 hover:text-[#e52521] transition-colors cursor-pointer"
+            className="p-1 text-white hover:text-white/80 transition-colors cursor-pointer"
             title="Mero Services Menu"
           >
             <Menu size={22} />
@@ -756,9 +801,9 @@ export default function WidgetCalendar() {
             <img 
               src="/mero-patro-app-icon-3d.png" 
               alt="Mero Patro" 
-              className="w-9 h-9 rounded-lg object-contain shadow-sm hover:scale-105 transition-transform" 
+              className="w-9 h-9 rounded-lg object-contain shadow-sm hover:scale-105 transition-transform bg-white/10 p-0.5" 
             />
-            <h1 className="text-base font-black tracking-tight font-sans">
+            <h1 className="text-base font-black tracking-tight font-sans text-white">
               {t.appName}
             </h1>
           </div>
@@ -770,8 +815,8 @@ export default function WidgetCalendar() {
             onClick={toggleTheme}
             className={`p-1.5 rounded-xl border transition-all cursor-pointer ${
               appTheme === 'dark' 
-                ? 'bg-slate-800 border-slate-700 text-amber-400 hover:bg-slate-700' 
-                : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
+                ? 'bg-zinc-900 border-zinc-800 text-amber-400 hover:bg-zinc-800' 
+                : 'bg-white/20 border-white/30 text-white hover:bg-white/30'
             }`}
             title="Toggle Theme"
           >
@@ -781,10 +826,10 @@ export default function WidgetCalendar() {
           {/* Quick language toggle */}
           <button 
             onClick={toggleLang}
-            className={`px-2 py-1 rounded-xl border text-[11px] font-black transition-all cursor-pointer ${
-              appLang === 'ne' 
-                ? 'bg-[#e52521] text-white border-[#e52521]' 
-                : 'bg-slate-100 border-slate-200 text-slate-800 hover:bg-slate-200'
+            className={`px-2.5 py-1 rounded-xl border text-[11px] font-black transition-all cursor-pointer ${
+              appTheme === 'dark'
+                ? 'bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800'
+                : 'bg-white/20 border-white/30 text-white hover:bg-white/30'
             }`}
             title="Switch Language"
           >
@@ -793,14 +838,16 @@ export default function WidgetCalendar() {
 
           <button 
             onClick={() => setIsSearchOpen(true)}
-            className="p-1 text-slate-500 hover:text-[#e52521] transition-colors cursor-pointer"
+            className="p-1 text-white hover:text-white/80 transition-colors cursor-pointer"
             title="Search"
           >
             <Search size={20} />
           </button>
           <button 
             onClick={() => setIsProfileOpen(true)}
-            className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-700 hover:border-[#e52521] hover:text-[#e52521] transition-colors overflow-hidden cursor-pointer"
+            className={`w-8 h-8 rounded-full border flex items-center justify-center transition-colors overflow-hidden cursor-pointer ${
+              appTheme === 'dark' ? 'bg-zinc-900 border-zinc-800 text-white' : 'bg-white/20 border-white/30 text-white'
+            }`}
             title="Profile"
           >
             {userPhoto ? (
@@ -818,7 +865,7 @@ export default function WidgetCalendar() {
       <main
         ref={mainRef}
         className={`flex-1 min-h-0 overflow-y-auto pb-6 custom-scrollbar transition-colors ${
-          appTheme === 'dark' ? 'bg-[#0f1115]' : 'bg-[#f8f9fa]'
+          appTheme === 'dark' ? 'bg-[#000000] text-white' : 'bg-[#f8f9fa] text-slate-900'
         }`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -843,7 +890,7 @@ export default function WidgetCalendar() {
           <div className="space-y-4 p-4 animate-fadeIn">
             
             {/* Weather & Scenic Hero Landscape Card (Exact Screenshot 1) */}
-            <div className="relative rounded-3xl overflow-hidden shadow-md text-white min-h-[160px] flex flex-col justify-between p-4 bg-cover bg-center border border-slate-200" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&auto=format&fit=crop&q=80')` }}>
+            <div className="relative rounded-3xl overflow-hidden shadow-md text-white min-h-[160px] flex flex-col justify-between p-4 bg-cover bg-center border border-transparent" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&auto=format&fit=crop&q=80')` }}>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/30 z-10" />
               <div className="relative z-20 flex items-start justify-between">
                 <div>
@@ -865,26 +912,34 @@ export default function WidgetCalendar() {
             </div>
 
             {/* Date Summary Card with Right Mini Calendar Grid (Exact Screenshot 1) */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-sm flex flex-col sm:flex-row items-stretch gap-4">
-              <div className="flex-1 space-y-1 border-b sm:border-b-0 sm:border-r border-slate-100 pb-3 sm:pb-0 sm:pr-4">
-                <h2 className="text-2xl font-black text-slate-900">
+            <div className={`rounded-3xl p-4 shadow-sm flex flex-col sm:flex-row items-stretch gap-4 border ${
+              appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-white border-slate-200 text-slate-900'
+            }`}>
+              <div className={`flex-1 space-y-1 border-b sm:border-b-0 sm:border-r pb-3 sm:pb-0 sm:pr-4 ${
+                appTheme === 'dark' ? 'border-zinc-800' : 'border-slate-100'
+              }`}>
+                <h2 className={`text-2xl font-black ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                   {todayBs.day} {NEPALI_MONTHS_EN[todayBs.month]}
                 </h2>
-                <p className="text-xs font-bold text-slate-700">
+                <p className={`text-xs font-bold ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
                   {DAYS_NE_FULL[new Date().getDay()]}, {toNepaliDigits(todayBs.year)}
                 </p>
-                <p className="text-xs text-slate-500 font-semibold">{liveAdDateStr}</p>
+                <p className={`text-xs font-semibold ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{liveAdDateStr}</p>
                 
-                <div className="pt-1.5 space-y-0.5 text-xs text-slate-700">
-                  <p className="font-bold text-slate-900">{NEPALI_MONTHS_NE[todayBs.month]} कृष्ण दशमी</p>
-                  <p className="text-slate-500 text-[11px]">ने.सं. ११४६ गुंलागा दशमी</p>
+                <div className={`pt-1.5 space-y-0.5 text-xs ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
+                  <p className={`font-bold ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{NEPALI_MONTHS_NE[todayBs.month]} कृष्ण दशमी</p>
+                  <p className={`text-[11px] ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>ने.सं. ११४६ गुंलागा दशमी</p>
                   <p className="text-[#e52521] text-xs font-extrabold font-mono pt-1">{liveTimeStr}</p>
                 </div>
               </div>
 
               {/* Right Mini Month Calendar Grid with Highlighted Red 21 Circle (Exact Screenshot 1) */}
-              <div className="w-full sm:w-52 bg-slate-50 p-2.5 rounded-2xl border border-slate-200">
-                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-600 pb-1.5 border-b border-slate-200">
+              <div className={`w-full sm:w-52 p-2.5 rounded-2xl border ${
+                appTheme === 'dark' ? 'bg-[#141416] border-zinc-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
+              }`}>
+                <div className={`grid grid-cols-7 gap-1 text-center text-[10px] font-bold pb-1.5 border-b ${
+                  appTheme === 'dark' ? 'border-zinc-800 text-slate-400' : 'border-slate-200 text-slate-600'
+                }`}>
                   {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
                     <span key={i} className={i === 6 ? 'text-[#e52521]' : ''}>{d}</span>
                   ))}
@@ -905,7 +960,9 @@ export default function WidgetCalendar() {
                           isToday
                             ? 'bg-[#e52521] text-white shadow-md'
                             : isSaturday
-                            ? 'text-[#e52521] hover:bg-slate-200'
+                            ? 'text-[#e52521] hover:bg-slate-700'
+                            : appTheme === 'dark'
+                            ? 'text-white hover:bg-zinc-800'
                             : 'text-slate-800 hover:bg-slate-200'
                         }`}
                       >
@@ -920,7 +977,7 @@ export default function WidgetCalendar() {
             {/* Upcoming Events Carousel Section (Exact Screenshot 1) */}
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-extrabold text-slate-900">Upcoming Events</h3>
+                <h3 className={`text-base font-extrabold ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Upcoming Events</h3>
                 <button onClick={() => setActiveTab('calendar')} className="text-xs font-extrabold text-[#e52521] hover:underline flex items-center gap-0.5">
                   View All <ChevronRight size={14} />
                 </button>
@@ -1046,19 +1103,21 @@ export default function WidgetCalendar() {
           <div className="space-y-4 p-4 animate-fadeIn">
             
             {/* Month Controller Bar (Exact Screenshot 2) */}
-            <div className="bg-white p-3 rounded-3xl border border-slate-200 flex items-center justify-between shadow-sm">
+            <div className={`p-3 rounded-3xl border flex items-center justify-between shadow-sm ${
+              appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-white border-slate-200 text-slate-900'
+            }`}>
               <div>
                 <div className="flex items-center gap-1 cursor-pointer">
-                  <h2 className="text-base font-black text-slate-900">{NEPALI_MONTHS_NE[calMonth]} {toNepaliDigits(calYear)}</h2>
-                  <ChevronDown size={16} className="text-slate-500" />
+                  <h2 className={`text-base font-black ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{NEPALI_MONTHS_NE[calMonth]} {toNepaliDigits(calYear)}</h2>
+                  <ChevronDown size={16} className={appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
                 </div>
-                <p className="text-xs text-slate-500 font-medium">Aug/Sep 2026</p>
+                <p className={`text-xs font-medium ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Aug/Sep 2026</p>
               </div>
 
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => { setCalYear(todayBs.year); setCalMonth(todayBs.month); setSelectedDay(todayBs.day); }}
-                  className="px-3.5 py-1.5 bg-slate-900 text-white font-extrabold text-xs rounded-xl shadow-sm hover:bg-slate-800"
+                  className="px-3.5 py-1.5 bg-[#e52521] text-white font-extrabold text-xs rounded-xl shadow-sm hover:bg-[#d01f1c]"
                 >
                   Today
                 </button>
@@ -1067,7 +1126,9 @@ export default function WidgetCalendar() {
                     if (calMonth === 0) { setCalMonth(11); setCalYear(prev => prev - 1); }
                     else { setCalMonth(prev => prev - 1); }
                   }}
-                  className="w-7 h-7 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center hover:bg-slate-200"
+                  className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                    appTheme === 'dark' ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }`}
                 >
                   <ChevronLeft size={16} />
                 </button>
@@ -1076,7 +1137,9 @@ export default function WidgetCalendar() {
                     if (calMonth === 11) { setCalMonth(0); setCalYear(prev => prev + 1); }
                     else { setCalMonth(prev => prev + 1); }
                   }}
-                  className="w-7 h-7 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center hover:bg-slate-200"
+                  className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                    appTheme === 'dark' ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }`}
                 >
                   <ChevronRight size={16} />
                 </button>
@@ -1084,10 +1147,14 @@ export default function WidgetCalendar() {
             </div>
 
             {/* 7-Column Calendar Grid with Dual Dates (Exact Screenshot 2) */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-3 space-y-1 shadow-sm">
-              <div className="grid grid-cols-7 gap-1 text-center border-b border-slate-200 pb-2">
+            <div className={`border rounded-3xl p-3 space-y-1 shadow-sm ${
+              appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-white border-slate-200 text-slate-900'
+            }`}>
+              <div className={`grid grid-cols-7 gap-1 text-center border-b pb-2 ${
+                appTheme === 'dark' ? 'border-zinc-800' : 'border-slate-200'
+              }`}>
                 {DAYS_EN_SHORT.map((d, idx) => (
-                  <span key={d} className={`text-xs font-extrabold ${idx === 6 ? 'text-[#e52521]' : 'text-slate-800'}`}>
+                  <span key={d} className={`text-xs font-extrabold ${idx === 6 ? 'text-[#e52521]' : appTheme === 'dark' ? 'text-white' : 'text-slate-800'}`}>
                     {d}
                   </span>
                 ))}
@@ -1113,16 +1180,16 @@ export default function WidgetCalendar() {
                         isSelected 
                           ? 'bg-[#24592a] text-white border-[#24592a] shadow-md z-10' 
                           : isToday
-                          ? 'bg-slate-50 text-slate-900 border-[#e52521] ring-2 ring-[#e52521]/30'
+                          ? appTheme === 'dark' ? 'bg-zinc-800 text-white border-[#e52521] ring-2 ring-[#e52521]/30' : 'bg-slate-50 text-slate-900 border-[#e52521] ring-2 ring-[#e52521]/30'
                           : isSaturday
-                          ? 'bg-white text-[#e52521] border-slate-200 hover:bg-slate-50'
-                          : 'bg-white text-slate-900 border-slate-200 hover:bg-slate-50'
+                          ? appTheme === 'dark' ? 'bg-[#141416] text-[#e52521] border-zinc-800 hover:bg-zinc-800' : 'bg-white text-[#e52521] border-slate-200 hover:bg-slate-50'
+                          : appTheme === 'dark' ? 'bg-[#141416] text-white border-zinc-800 hover:bg-zinc-800' : 'bg-white text-slate-900 border-slate-200 hover:bg-slate-50'
                       }`}
                     >
-                      <span className={`text-sm font-extrabold ${isSelected ? 'text-white' : isSaturday ? 'text-[#e52521]' : 'text-slate-900'}`}>
+                      <span className={`text-sm font-extrabold ${isSelected ? 'text-white' : isSaturday ? 'text-[#e52521]' : appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                         {toNepaliDigits(day)}
                       </span>
-                      <span className={`text-[10px] font-semibold text-right ${isSelected ? 'text-white/80' : isSaturday ? 'text-[#e52521]' : 'text-slate-400'}`}>
+                      <span className={`text-[10px] font-semibold text-right ${isSelected ? 'text-white/80' : isSaturday ? 'text-[#e52521]' : appTheme === 'dark' ? 'text-slate-400' : 'text-slate-400'}`}>
                         {day}
                       </span>
                     </button>
@@ -1132,20 +1199,26 @@ export default function WidgetCalendar() {
             </div>
 
             {/* Selected Day Details Panel (Exact Screenshot 3 & 4) */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-4 space-y-4 shadow-sm">
-              <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+            <div className={`border rounded-3xl p-4 space-y-4 shadow-sm ${
+              appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-white border-slate-200 text-slate-900'
+            }`}>
+              <div className={`flex items-start justify-between border-b pb-3 ${
+                appTheme === 'dark' ? 'border-zinc-800' : 'border-slate-100'
+              }`}>
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-3xl font-black text-[#e52521]">{selectedDay}</span>
-                    <span className="px-2.5 py-0.5 rounded-lg bg-slate-200 text-slate-800 text-xs font-extrabold">
+                    <span className={`px-2.5 py-0.5 rounded-lg text-xs font-extrabold ${
+                      appTheme === 'dark' ? 'bg-zinc-800 text-white' : 'bg-slate-200 text-slate-800'
+                    }`}>
                       {selectedDay === todayBs.day ? 'Today' : `Bhadra ${selectedDay}`}
                     </span>
                   </div>
-                  <h3 className="text-base font-black text-slate-900 leading-tight mt-1">
+                  <h3 className={`text-base font-black leading-tight mt-1 ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                     {NEPALI_MONTHS_EN[calMonth]} {calYear}
                   </h3>
-                  <p className="text-xs text-slate-500 font-bold">{DAYS_EN_FULL[(startDayOfWeek + selectedDay - 1) % 7]}</p>
-                  <p className="text-xs text-slate-400 font-medium">{liveAdDateStr}</p>
+                  <p className={`text-xs font-bold ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-500'}`}>{DAYS_EN_FULL[(startDayOfWeek + selectedDay - 1) % 7]}</p>
+                  <p className={`text-xs font-medium ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-400'}`}>{liveAdDateStr}</p>
                 </div>
 
                 <div className="flex flex-col items-end gap-2">
@@ -1247,13 +1320,15 @@ export default function WidgetCalendar() {
             </div>
 
             {/* Sub-Tabs Switcher Bar: Events vs Saait This Month (Exact Screenshot 1 & 2) */}
-            <div className="bg-white border-b border-slate-200 flex items-center justify-around mt-4 pt-1">
+            <div className={`border-b flex items-center justify-around mt-4 pt-1 ${
+              appTheme === 'dark' ? 'bg-[#000000] border-zinc-800' : 'bg-white border-slate-200'
+            }`}>
               <button
                 onClick={() => setCalSubTab('events')}
                 className={`flex-1 py-3 text-center font-black text-sm border-b-2 transition-all cursor-pointer ${
                   calSubTab === 'events'
                     ? 'border-[#e52521] text-[#e52521]'
-                    : 'border-transparent text-slate-400 hover:text-slate-700'
+                    : appTheme === 'dark' ? 'border-transparent text-slate-400 hover:text-white' : 'border-transparent text-slate-400 hover:text-slate-700'
                 }`}
               >
                 Events
@@ -1263,7 +1338,7 @@ export default function WidgetCalendar() {
                 className={`flex-1 py-3 text-center font-black text-sm border-b-2 transition-all cursor-pointer ${
                   calSubTab === 'saait'
                     ? 'border-[#e52521] text-[#e52521]'
-                    : 'border-transparent text-slate-400 hover:text-slate-700'
+                    : appTheme === 'dark' ? 'border-transparent text-slate-400 hover:text-white' : 'border-transparent text-slate-400 hover:text-slate-700'
                 }`}
               >
                 Saait This Month
@@ -1272,7 +1347,9 @@ export default function WidgetCalendar() {
 
             {/* TAB CONTENT A: Events List View (Exact Screenshot 2) */}
             {calSubTab === 'events' && (
-              <div className="bg-white rounded-3xl border border-slate-200 divide-y divide-slate-100 shadow-sm overflow-hidden animate-fadeIn">
+              <div className={`rounded-3xl border divide-y shadow-sm overflow-hidden animate-fadeIn ${
+                appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 divide-zinc-900 text-white' : 'bg-white border-slate-200 divide-slate-100 text-slate-900'
+              }`}>
                 {Array.from({ length: monthDaysCount }).map((_, idx) => {
                   const dayNum = idx + 1;
                   const dayOfWeekIdx = (startDayOfWeek + idx) % 7;
@@ -1283,23 +1360,27 @@ export default function WidgetCalendar() {
                   const relText = getRelativeDaysText(calYear, calMonth, dayNum, todayBs);
 
                   return (
-                    <div key={dayNum} className="p-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                    <div key={dayNum} className={`p-3.5 flex items-center justify-between transition-colors ${
+                      appTheme === 'dark' ? 'hover:bg-zinc-900/50' : 'hover:bg-slate-50'
+                    }`}>
                       {/* Left: Day & Month info */}
-                      <div className="w-14 text-center shrink-0 border-r border-slate-100 pr-2">
+                      <div className={`w-14 text-center shrink-0 border-r pr-2 ${
+                        appTheme === 'dark' ? 'border-zinc-900' : 'border-slate-100'
+                      }`}>
                         <span className="text-[10px] font-bold text-slate-400 block uppercase">{dayNameShort}</span>
-                        <span className={`text-2xl font-black block leading-none my-0.5 ${isSat ? 'text-[#e52521]' : 'text-slate-900'}`}>{dayNum}</span>
+                        <span className={`text-2xl font-black block leading-none my-0.5 ${isSat ? 'text-[#e52521]' : appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{dayNum}</span>
                         <span className="text-[10px] text-slate-500 font-semibold">{NEPALI_MONTHS_EN[calMonth]}</span>
                       </div>
 
                       {/* Middle: Tithi & Events */}
                       <div className="flex-1 px-3 space-y-1 min-w-0">
-                        <p className="text-[11px] font-bold text-slate-600">{tithiStr}</p>
+                        <p className={`text-[11px] font-bold ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{tithiStr}</p>
                         {eventObj ? (
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-md bg-[#e52521]/10 text-[#e52521] flex items-center justify-center shrink-0">
                               <Sparkles size={13} />
                             </div>
-                            <h4 className="text-xs font-black text-slate-900 truncate">{eventObj.title}</h4>
+                            <h4 className={`text-xs font-black truncate ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{eventObj.title}</h4>
                           </div>
                         ) : (
                           <p className="text-[10px] text-slate-400 font-medium">सामान्य दिन</p>
@@ -1313,7 +1394,7 @@ export default function WidgetCalendar() {
                             ? 'bg-[#e52521] text-white shadow-xs'
                             : relText === 'Tomorrow'
                             ? 'bg-amber-500 text-white shadow-xs'
-                            : 'bg-slate-100 text-slate-500'
+                            : appTheme === 'dark' ? 'bg-zinc-900 text-slate-400' : 'bg-slate-100 text-slate-500'
                         }`}>
                           {relText}
                         </span>
@@ -1326,10 +1407,12 @@ export default function WidgetCalendar() {
 
             {/* TAB CONTENT B: Saait Grid View (Exact Screenshot 1) */}
             {calSubTab === 'saait' && (
-              <div className="bg-white rounded-3xl border border-slate-200 p-4 space-y-5 shadow-sm animate-fadeIn">
+              <div className={`rounded-3xl border p-4 space-y-5 shadow-sm animate-fadeIn ${
+                appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-white border-slate-200 text-slate-900'
+              }`}>
                 {(SAAIT_DATA[calMonth] || SAAIT_DATA[4]).map((cat, idx) => (
                   <div key={idx} className="space-y-2.5">
-                    <h4 className="text-xs font-black text-slate-900 flex items-center gap-2">
+                    <h4 className={`text-xs font-black flex items-center gap-2 ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                       <span className="w-2 h-2 rounded-full bg-[#e52521]" />
                       {cat.title}
                     </h4>
@@ -1338,7 +1421,11 @@ export default function WidgetCalendar() {
                         <button
                           key={d}
                           onClick={() => setSelectedDay(d)}
-                          className="w-9 h-9 rounded-full bg-amber-100/90 hover:bg-amber-200 text-amber-900 text-xs font-black flex items-center justify-center shadow-xs border border-amber-300/60 cursor-pointer transition-all hover:scale-110"
+                          className={`w-9 h-9 rounded-full text-xs font-black flex items-center justify-center shadow-xs border cursor-pointer transition-all hover:scale-110 ${
+                            appTheme === 'dark'
+                              ? 'bg-amber-900/40 text-amber-300 border-amber-800/60 hover:bg-amber-900/60'
+                              : 'bg-amber-100/90 text-amber-900 border-amber-300/60 hover:bg-amber-200'
+                          }`}
                         >
                           {d}
                         </button>
