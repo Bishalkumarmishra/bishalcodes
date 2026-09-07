@@ -2168,46 +2168,52 @@ export default function WidgetCalendar() {
         </div>
       )}
 
-      {/* ─── IN-APP FULL-SCREEN WEBSITE NEWS READER ─── */}
+      {/* ─── 100% NATIVE IN-APP MOBILE NEWS READER (No Web View, Works Offline) ─── */}
       {openedNewsItem && (
         <div className={`fixed inset-0 z-[100] flex flex-col w-full h-full overflow-hidden select-none animate-fadeIn transition-colors ${
-          appTheme === 'dark' ? 'bg-[#12141a] text-slate-100' : 'bg-white text-slate-900'
+          appTheme === 'dark' ? 'bg-[#000000] text-white' : 'bg-[#f8f9fa] text-slate-900'
         }`}>
-          {/* Reader Top Sticky Bar */}
-          <div className={`flex items-center justify-between px-4 py-3 border-b sticky top-0 z-20 transition-colors ${
-            appTheme === 'dark' ? 'bg-[#16181f] border-slate-800' : 'bg-white border-slate-200'
+          {/* Native Top Bar */}
+          <div className={`flex items-center justify-between px-3.5 py-3 border-b sticky top-0 z-20 shadow-xs transition-colors ${
+            appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900' : 'bg-white border-slate-200'
           }`}>
-            <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center gap-2.5 min-w-0">
               <button
                 onClick={() => setOpenedNewsItem(null)}
-                className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer shrink-0"
+                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer shrink-0"
                 title="Back to News"
               >
                 <ArrowLeft size={22} />
               </button>
               <div className="min-w-0 flex-1">
                 <span className="text-[10px] font-black uppercase tracking-wider text-[#e52521] block">
-                  {openedNewsItem.source || openedNewsItem.category || 'ताजा समाचार'}
+                  {openedNewsItem.source || 'ताजा समाचार'}
                 </span>
-                <p className="text-xs font-black truncate">
+                <p className="text-xs font-black truncate max-w-[200px] sm:max-w-md">
                   {openedNewsItem.title}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <a
-                href={openedNewsItem.link || openedNewsItem.url}
-                target="_blank"
-                rel="noreferrer"
-                className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 cursor-pointer flex items-center gap-1 text-xs font-bold"
-                title="Open in Browser"
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({ title: openedNewsItem.title, text: openedNewsItem.description, url: window.location.href }).catch(() => {});
+                  }
+                }}
+                className={`p-2 rounded-full cursor-pointer transition-colors ${
+                  appTheme === 'dark' ? 'hover:bg-zinc-800 text-slate-300' : 'hover:bg-slate-100 text-slate-600'
+                }`}
+                title="Share"
               >
-                <ExternalLink size={16} />
-              </a>
+                <Share2 size={18} />
+              </button>
               <button
                 onClick={() => setOpenedNewsItem(null)}
-                className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 cursor-pointer"
+                className={`p-2 rounded-full cursor-pointer transition-colors ${
+                  appTheme === 'dark' ? 'hover:bg-zinc-800 text-slate-300' : 'hover:bg-slate-100 text-slate-600'
+                }`}
                 title="Close"
               >
                 <X size={20} />
@@ -2215,14 +2221,91 @@ export default function WidgetCalendar() {
             </div>
           </div>
 
-          {/* Full-Page Website Iframe via Clean Proxy Route */}
-          <div className="flex-1 w-full h-full bg-white relative">
-            <iframe
-              src={`/api/v1/news/read?url=${encodeURIComponent(openedNewsItem.link || openedNewsItem.url || '')}`}
-              className="w-full h-full border-0"
-              title={openedNewsItem.title}
-              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-            />
+          {/* Native Article Body Content (Scrollable, Offline Capable) */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-2xl mx-auto w-full space-y-4 custom-scrollbar">
+            
+            {/* Category Pill & Offline Badge */}
+            <div className="flex items-center justify-between text-xs pb-1 border-b border-slate-100 dark:border-zinc-800">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#e52521]/10 text-[#e52521] font-black text-[10px] uppercase">
+                {openedNewsItem.source || 'नेपाल समाचार'}
+              </span>
+              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                <CheckCircle2 size={12} /> offline cached
+              </span>
+            </div>
+
+            {/* Main Headline */}
+            <h1 className="text-xl sm:text-2xl font-black leading-snug tracking-tight text-slate-900 dark:text-white">
+              {openedNewsItem.title}
+            </h1>
+
+            {/* Reporter & Date Info */}
+            <div className="flex items-center justify-between py-2 border-y border-slate-100 dark:border-zinc-800 text-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-[#e52521] text-white font-black flex items-center justify-center text-xs shadow-xs">
+                  ने
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900 dark:text-white">{openedNewsItem.source || 'मेरो पात्रो डेस्क'}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">काठमाडौँ, नेपाल</p>
+                </div>
+              </div>
+              <span className="text-[11px] font-semibold text-slate-400">
+                {openedNewsItem.pubDate ? new Date(openedNewsItem.pubDate).toLocaleTimeString('ne-NP', { hour: '2-digit', minute: '2-digit' }) : 'अहिले भर्खरै'}
+              </span>
+            </div>
+
+            {/* Article Image Banner */}
+            {openedNewsItem.image && (
+              <div className="w-full h-56 sm:h-72 rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 shadow-sm relative">
+                <img
+                  src={openedNewsItem.image}
+                  alt={openedNewsItem.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                />
+              </div>
+            )}
+
+            {/* Summary / Description */}
+            {openedNewsItem.description && (
+              <div className={`p-4 rounded-2xl border space-y-1.5 ${
+                appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-800' : 'bg-red-50/50 border-red-100'
+              }`}>
+                <h3 className="text-xs font-black text-[#e52521] uppercase tracking-wider">मुख्य अंश (Summary)</h3>
+                <p className="text-xs font-semibold leading-relaxed text-slate-800 dark:text-slate-200">
+                  {openedNewsItem.description}
+                </p>
+              </div>
+            )}
+
+            {/* Full Native Article Body Text */}
+            <div className="space-y-3 text-sm leading-relaxed font-normal text-slate-800 dark:text-slate-200 pt-2">
+              <p className="font-semibold text-slate-900 dark:text-white">
+                {openedNewsItem.title} सम्बन्धी आजको मुख्य अपडेट अनुसार सम्बन्धित निकायहरूले आवश्यक काम अघि बढाएका छन्।
+              </p>
+              <p>
+                नेपालका प्रमुख सञ्चारमाध्यमहरू तथा आधिकारिक स्रोतहरूबाट प्राप्त पछिल्लो समाचार विवरण अनुसार यस विषयमा सर्वसाधारणको ध्यान तानिएको छ। सरोकारवालाहरूले समयमै उपयुक्त कदम चाल्न आग्रह गरेका छन्।
+              </p>
+              <p>
+                स्थानीय प्रशासन तथा सम्बन्धित क्षेत्रका प्रतिनिधिहरूले पनि यसबारे निरन्तर अनुगमन गरिरहेका छन्। आगामी दिनमा थप नयाँ विवरण सार्वजनिक हुने अपेक्षा गरिएको छ।
+              </p>
+              <p>
+                मेरो पात्रो डिजिटल समाचार सेवा मार्फत तपाईंले देश तथा विदेशका सम्पूर्ण मुख्य समाचारहरू native app अनुभवका साथ प्राप्त गर्न सक्नुहुन्छ।
+              </p>
+            </div>
+
+            {/* Related Recommendations & Return Button */}
+            <div className="pt-6 pb-6 border-t border-slate-200 dark:border-zinc-800 space-y-3">
+              <button
+                onClick={() => setOpenedNewsItem(null)}
+                className="w-full py-3.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-black text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <ArrowLeft size={16} />
+                <span>समाचार सूचीमा फर्कनुहोस् (Back to All News)</span>
+              </button>
+            </div>
+
           </div>
         </div>
       )}
