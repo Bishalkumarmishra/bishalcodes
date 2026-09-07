@@ -39,21 +39,18 @@ export async function GET(req: Request) {
             const endIdx = block.indexOf('</item>');
             const itemXml = endIdx !== -1 ? block.substring(0, endIdx) : block;
 
-            // Extract Title
-            const titleMatch = itemXml.match(/<title>(.*?)<\/title>/s);
-            let title = titleMatch ? titleMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').replace(/&#039;/g, "'").replace(/&quot;/g, '"').trim() : '';
+            // Helper to extract text from XML tag
+            const getTagValue = (tagName: string): string => {
+              const rx = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i');
+              const m = itemXml.match(rx);
+              if (!m) return '';
+              return m[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1').replace(/&#039;/g, "'").replace(/&quot;/g, '"').trim();
+            };
 
-            // Extract Link
-            const linkMatch = itemXml.match(/<link>(.*?)<\/link>/s);
-            let link = linkMatch ? linkMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() : '';
-
-            // Extract PubDate
-            const dateMatch = itemXml.match(/<pubDate>(.*?)<\/pubDate>/s);
-            let pubDate = dateMatch ? dateMatch[1].trim() : new Date().toISOString();
-
-            // Extract Category
-            const catMatch = itemXml.match(/<category>(.*?)<\/category>/s);
-            let category = catMatch ? catMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() : feed.defaultCategory;
+            const title = getTagValue('title');
+            const link = getTagValue('link');
+            const pubDate = getTagValue('pubDate') || new Date().toISOString();
+            const category = getTagValue('category') || feed.defaultCategory;
 
             // Extract Real Banner Image URL
             let image = '';
@@ -81,16 +78,12 @@ export async function GET(req: Request) {
             }
 
             // Extract clean description summary snippet
-            let description = '';
-            const descMatch = itemXml.match(/<description>(.*?)<\/description>/s);
-            if (descMatch) {
-              const rawDesc = descMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1');
-              description = rawDesc.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
-            }
+            let rawDesc = getTagValue('description');
+            let description = rawDesc.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 
             if (title && link) {
               allNews.push({
-                id: `${feed.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+                id: `${feed.name.toLowerCase().replace(/\s+/g, '-')}-${count}-${Date.now()}`,
                 title,
                 link,
                 image: image || null,
