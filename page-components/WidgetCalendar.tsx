@@ -376,6 +376,9 @@ export default function WidgetCalendar() {
   const [noteText, setNoteText] = useState<string>('');
   const [notes, setNotes] = useState<{id:any;text:string;date:string}[]>([]);
   const [openedNewsItem, setOpenedNewsItem] = useState<any>(null);
+  const [readerViewMode, setReaderViewMode] = useState<'clean' | 'web'>('clean');
+  const [newsCategory, setNewsCategory] = useState<string>('all');
+  const [newsPage, setNewsPage] = useState<number>(1);
   const [hasPromptedPerms, setHasPromptedPerms] = useState<boolean>(false);
   const [showPermPrompt, setShowPermPrompt] = useState<boolean>(false);
   const [notesSource, setNotesSource] = useState<'local'|'firestore'>('local');
@@ -689,10 +692,18 @@ export default function WidgetCalendar() {
     }
   };
 
-  const fetchNews = () => {
-    fetch('/api/v1/news')
+  const fetchNews = (category: string = newsCategory, pageNum: number = 1) => {
+    fetch(`/api/v1/news?category=${encodeURIComponent(category)}&page=${pageNum}&limit=20`)
       .then(res => res.json())
-      .then(data => { if (data?.news) setLiveNews(data.news); })
+      .then(data => {
+        if (data?.news) {
+          if (pageNum > 1) {
+            setLiveNews(prev => [...prev, ...data.news]);
+          } else {
+            setLiveNews(data.news);
+          }
+        }
+      })
       .catch(() => {});
   };
 
@@ -1567,29 +1578,93 @@ export default function WidgetCalendar() {
         )}
 
         {/* ─────────────────────────────────────────────────────────────── */}
-        {/* TAB 3: NEWS (Exact Screenshots 3 & 4)                           */}
+        {/* TAB 3: NEWS (Official Nepali Media Real-Time RSS Stream)        */}
         {/* ─────────────────────────────────────────────────────────────── */}
         {activeTab === 'news' && (
           <div className="space-y-4 p-4 animate-fadeIn">
             
-            {/* Header Banner (Exact Screenshot 3) */}
+            {/* Header Banner */}
             <div className={`rounded-3xl p-5 border text-center space-y-1.5 shadow-sm ${
               appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-white border-slate-200 text-slate-900'
             }`}>
-              <h2 className="text-2xl font-black text-[#e52521]">Stay Ahead - Stay Informed</h2>
+              <h2 className="text-2xl font-black text-[#e52521]">ताजा तथा आधिकारिक नेपाली समाचार</h2>
               <p className={`text-xs font-medium ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
-                Explore trusted news coverage from official top Nepali news portals—Onlinekhabar, Ratopati & Kantipur.
+                अनलाइनखबर, रातोपाटी, सेतोपाटी, नागरिक न्यूज तथा प्रमुख नेपाली सञ्चारमाध्यमहरूबाट प्रत्यक्ष समाचार RSS फिड
               </p>
             </div>
 
-            {/* Popular News Feed Vertical Stream (Exact Screenshot 4) */}
-            <div className="space-y-3">
+            {/* Category Filter Pills */}
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              {[
+                { id: 'all', label: appLang === 'ne' ? 'सबै' : 'All' },
+                { id: 'ताजा', label: appLang === 'ne' ? 'ताजा समाचार' : 'Latest' },
+                { id: 'राजनीति', label: appLang === 'ne' ? 'राजनीति' : 'Politics' },
+                { id: 'अर्थ', label: appLang === 'ne' ? 'अर्थ / शेयर' : 'Finance' },
+                { id: 'खेलकुद', label: appLang === 'ne' ? 'खेलकुद' : 'Sports' },
+                { id: 'मनोरञ्जन', label: appLang === 'ne' ? 'मनोरञ्जन' : 'Entertainment' },
+              ].map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    setNewsCategory(cat.id);
+                    setNewsPage(1);
+                    fetchNews(cat.id, 1);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer shrink-0 border ${
+                    newsCategory === cat.id
+                      ? 'bg-[#e52521] text-white border-[#d01f1c] shadow-sm'
+                      : appTheme === 'dark'
+                      ? 'bg-[#0a0a0c] text-slate-300 border-zinc-800 hover:border-zinc-700'
+                      : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Featured Hero Breaking News Card */}
+            {liveNews.length > 0 && liveNews[0] && (
+              <div 
+                onClick={() => setOpenedNewsItem(liveNews[0])}
+                className="relative rounded-3xl overflow-hidden shadow-lg border border-zinc-800 text-white min-h-[220px] flex flex-col justify-end p-5 cursor-pointer group transition-transform hover:scale-[1.01]"
+              >
+                <div 
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                  style={{ 
+                    backgroundImage: `url('${liveNews[0].image || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1000&auto=format&fit=crop&q=80'}')` 
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                <div className="relative z-10 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#e52521] text-white font-extrabold text-[10px] uppercase">
+                      {liveNews[0].source || 'मुख्य समाचार'}
+                    </span>
+                    <span className="text-[11px] font-semibold text-white/80">
+                      {new Date(liveNews[0].pubDate || Date.now()).toLocaleTimeString('ne-NP', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-black leading-snug text-white group-hover:text-amber-300 transition-colors drop-shadow-md">
+                    {liveNews[0].title}
+                  </h3>
+                  {liveNews[0].description && (
+                    <p className="text-xs text-white/80 line-clamp-2 font-normal">
+                      {liveNews[0].description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Popular News Feed Vertical Stream */}
+            <div className="space-y-3 pt-2">
               <div className="flex items-center justify-between">
-                <h3 className={`text-base font-extrabold ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Popular News</h3>
-                <span className="text-xs font-extrabold text-[#e52521]">१००% आधिकारिक समाचार</span>
+                <h3 className={`text-base font-extrabold ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>सत्यापित समाचार फिड</h3>
+                <span className="text-xs font-extrabold text-[#e52521]">१००% आधिकारिक सञ्चारमाध्यम</span>
               </div>
 
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 {liveNews.length > 0 ? (
                   liveNews.map((item, idx) => {
                     const source = NEPALI_NEWS_SOURCES[idx % NEPALI_NEWS_SOURCES.length];
@@ -1603,18 +1678,37 @@ export default function WidgetCalendar() {
                             : 'bg-white border-slate-200 hover:border-[#e52521] text-slate-900'
                         }`}
                       >
-                        <div className={`w-16 h-16 rounded-xl border overflow-hidden shrink-0 flex items-center justify-center ${
+                        {/* Real Banner Image Thumbnail */}
+                        <div className={`w-20 h-20 sm:w-24 sm:h-20 rounded-xl border overflow-hidden shrink-0 flex items-center justify-center relative ${
                           appTheme === 'dark' ? 'bg-zinc-900 border-zinc-800' : 'bg-slate-100 border-slate-200'
                         }`}>
-                          <Newspaper size={24} className="text-[#e52521]" />
+                          {item.image ? (
+                            <img 
+                              src={item.image} 
+                              alt={item.title} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                              onError={(e) => {
+                                // Fallback to newspaper icon if image fails to load
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <Newspaper size={26} className="text-[#e52521]" />
+                          )}
                         </div>
+
                         <div className="flex-1 space-y-1 min-w-0">
-                          <h4 className={`text-xs font-black leading-snug line-clamp-2 ${
+                          <h4 className={`text-xs sm:text-sm font-bold leading-snug line-clamp-2 ${
                             appTheme === 'dark' ? 'text-white group-hover:text-[#e52521]' : 'text-slate-900 group-hover:text-[#e52521]'
                           }`}>
                             {item.title}
                           </h4>
-                          <div className="flex items-center justify-between text-[10px] text-slate-400">
+                          {item.description && (
+                            <p className="text-[11px] text-slate-500 line-clamp-1 font-normal">
+                              {item.description}
+                            </p>
+                          )}
+                          <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
                             <span className="font-extrabold text-[#e52521]">{item.source || source.name}</span>
                             <span className="flex items-center gap-0.5 font-medium">{item.domain || source.domain}</span>
                           </div>
@@ -1623,13 +1717,33 @@ export default function WidgetCalendar() {
                     );
                   })
                 ) : (
-                  <div className={`p-4 rounded-2xl border text-center text-xs font-semibold ${
+                  <div className={`p-6 rounded-2xl border text-center text-xs font-semibold ${
                     appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-slate-400' : 'bg-white border-slate-200 text-slate-500'
                   }`}>
-                    समाचार लोड हुँदैछ...
+                    ताजा समाचार फिड लोड हुँदैछ...
                   </div>
                 )}
               </div>
+
+              {/* Load More News Button */}
+              {liveNews.length > 0 && (
+                <div className="pt-3 text-center">
+                  <button
+                    onClick={() => {
+                      const nextPage = newsPage + 1;
+                      setNewsPage(nextPage);
+                      fetchNews(newsCategory, nextPage);
+                    }}
+                    className={`px-5 py-2.5 rounded-2xl font-extrabold text-xs border transition-all cursor-pointer shadow-sm ${
+                      appTheme === 'dark'
+                        ? 'bg-[#121214] border-zinc-800 text-white hover:bg-zinc-800'
+                        : 'bg-white border-slate-300 text-slate-800 hover:bg-slate-100'
+                    }`}
+                  >
+                    अझै समाचार लोड गर्नुहोस् (Load More News)
+                  </button>
+                </div>
+              )}
             </div>
 
           </div>
@@ -3605,42 +3719,123 @@ export default function WidgetCalendar() {
               </div>
             </div>
 
-            <button
-              onClick={() => setOpenedNewsItem(null)}
-              className="p-1.5 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
-            >
-              <X size={20} />
-            </button>
+            {/* Mode Switcher: Clean Reader vs Full Web Page */}
+            <div className="flex items-center gap-2">
+              <div className="flex bg-white/10 p-0.5 rounded-xl border border-white/20">
+                <button
+                  onClick={() => setReaderViewMode('clean')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                    readerViewMode === 'clean' ? 'bg-white text-slate-900 shadow-xs' : 'text-white/80 hover:text-white'
+                  }`}
+                >
+                  सफा रिडर
+                </button>
+                <button
+                  onClick={() => setReaderViewMode('web')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                    readerViewMode === 'web' ? 'bg-white text-slate-900 shadow-xs' : 'text-white/80 hover:text-white'
+                  }`}
+                >
+                  वेबसाइट
+                </button>
+              </div>
+
+              <button
+                onClick={() => setOpenedNewsItem(null)}
+                className="p-1.5 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
 
           {/* Reader Article Content Body */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 max-w-2xl mx-auto w-full">
-            <div className="space-y-2 border-b pb-4 border-slate-200 dark:border-zinc-800">
-              <span className="px-3 py-1 rounded-full bg-[#e52521] text-white text-[11px] font-black inline-block">
-                {openedNewsItem.source || 'OnlineKhabar'} • १००% आधिकारिक नेपाली समाचार
-              </span>
-              <h1 className={`text-xl sm:text-2xl font-black leading-snug ${
-                appTheme === 'dark' ? 'text-white' : 'text-slate-900'
-              }`}>
-                {openedNewsItem.title}
-              </h1>
-              <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
-                <Clock size={14} className="text-[#e52521]" />
-                <span>{new Date(openedNewsItem.pubDate || Date.now()).toLocaleDateString('ne-NP')}</span>
-                <span>•</span>
-                <span>सत्यापित समाचार स्रोत</span>
-              </div>
-            </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-5 max-w-2xl mx-auto w-full">
+            {readerViewMode === 'clean' ? (
+              <div className="space-y-5 animate-fadeIn">
+                {/* Article Metadata & Title Header */}
+                <div className="space-y-2.5 border-b pb-4 border-slate-200 dark:border-zinc-800">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="px-3 py-1 rounded-full bg-[#e52521] text-white text-[11px] font-black">
+                      {openedNewsItem.source || 'OnlineKhabar'}
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold">
+                      {openedNewsItem.category || 'ताजा समाचार'}
+                    </span>
+                    <span className="text-xs text-slate-400 font-semibold flex items-center gap-1">
+                      <Clock size={12} className="text-[#e52521]" />
+                      {new Date(openedNewsItem.pubDate || Date.now()).toLocaleDateString('ne-NP')}
+                    </span>
+                  </div>
+                  
+                  <h1 className={`text-xl sm:text-2xl font-black leading-snug tracking-tight ${
+                    appTheme === 'dark' ? 'text-white' : 'text-slate-900'
+                  }`}>
+                    {openedNewsItem.title}
+                  </h1>
+                </div>
 
-            {/* Embedded Live News Article Frame */}
-            <div className="w-full h-[650px] rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 bg-white">
-              <iframe
-                src={openedNewsItem.link}
-                className="w-full h-full border-none"
-                title={openedNewsItem.title}
-                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-              />
-            </div>
+                {/* Real Banner Post Image */}
+                {openedNewsItem.image && (
+                  <div className="rounded-3xl overflow-hidden shadow-md border border-slate-200 dark:border-zinc-800 max-h-[380px] bg-slate-900">
+                    <img 
+                      src={openedNewsItem.image} 
+                      alt={openedNewsItem.title} 
+                      className="w-full h-full object-cover max-h-[380px]"
+                    />
+                  </div>
+                )}
+
+                {/* Clean Article Content Body */}
+                <div className={`space-y-4 text-sm sm:text-base leading-relaxed font-normal ${
+                  appTheme === 'dark' ? 'text-slate-200' : 'text-slate-800'
+                }`}>
+                  {openedNewsItem.description ? (
+                    <p className="bg-slate-50 dark:bg-[#0a0a0c] p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 text-sm leading-relaxed font-medium">
+                      {openedNewsItem.description}
+                    </p>
+                  ) : (
+                    <p className="text-slate-400 italic text-xs">
+                      यो समाचारको मुख्य अंश आधिकारिक सञ्चारमाध्यम फिडबाट प्राप्त भएको हो। पूरा समाचारको लागि तलको लिङ्क क्लिक गर्नुहोस्।
+                    </p>
+                  )}
+                </div>
+
+                {/* Action Bar: Open Original Article */}
+                <div className="pt-4 border-t border-slate-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <a
+                    href={openedNewsItem.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto px-6 py-3 bg-[#e52521] hover:bg-[#d01f1c] text-white font-extrabold text-xs rounded-2xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <span>मूल समाचार पोर्टलमा हेर्नुहोस्</span>
+                    <ExternalLink size={14} />
+                  </a>
+
+                  <button
+                    onClick={() => setReaderViewMode('web')}
+                    className={`w-full sm:w-auto px-5 py-3 rounded-2xl font-bold text-xs border cursor-pointer transition-colors ${
+                      appTheme === 'dark' 
+                        ? 'bg-[#141416] border-zinc-800 text-slate-300 hover:bg-zinc-800' 
+                        : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    पूरा वेबसाइट पेज देखाउनुहोस्
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Full Embedded Web Page View */
+              <div className="w-full h-[680px] rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 bg-white">
+                <iframe
+                  src={openedNewsItem.link}
+                  className="w-full h-full border-none"
+                  title={openedNewsItem.title}
+                  sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                />
+              </div>
+            )}
           </div>
         </div>
       )}
