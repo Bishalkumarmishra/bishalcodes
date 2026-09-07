@@ -94,6 +94,14 @@ export default function WidgetCalendar() {
   const [playingRadio, setPlayingRadio] = useState<string | null>(null);
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '', sent: false });
   const [healthBmi, setHealthBmi] = useState<{ height: number; weight: number; result: number | null }>({ height: 170, weight: 65, result: null });
+  // Live market data
+  const [nepseData, setNepseData] = useState<any>(null);
+  const [goldData, setGoldData] = useState<any>(null);
+  const [radioStations, setRadioStations] = useState<any[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [pullY, setPullY] = useState(0);
+  const pullStartY = useRef(0);
+  const mainRef = useRef<HTMLDivElement>(null);
 
   const toggleTheme = () => {
     setAppTheme(prev => {
@@ -411,22 +419,106 @@ export default function WidgetCalendar() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch Live Weather & News
+  // Update meta theme-color for dark/light mode (status bar color)
   useEffect(() => {
-    fetch('/api/v1/weather?city=Bharatpur')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.temp_celsius) setLiveTemperature(data.temp_celsius);
-      })
-      .catch(() => {});
+    const meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+    if (meta) {
+      meta.content = appTheme === 'dark' ? '#000000' : '#ffffff';
+    } else {
+      const m = document.createElement('meta');
+      m.name = 'theme-color';
+      m.content = appTheme === 'dark' ? '#000000' : '#ffffff';
+      document.head.appendChild(m);
+    }
+  }, [appTheme]);
 
+  // Fetch Live Weather with geolocation, fallback to Kathmandu
+  const fetchWeather = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          fetch(`/api/v1/weather?lat=${latitude}&lon=${longitude}`)
+            .then(res => res.json())
+            .then(data => { if (data?.temp_celsius) setLiveTemperature(Math.round(data.temp_celsius)); })
+            .catch(() => {});
+        },
+        () => {
+          // fallback: Kathmandu coords
+          fetch('/api/v1/weather?lat=27.7172&lon=85.3240')
+            .then(res => res.json())
+            .then(data => { if (data?.temp_celsius) setLiveTemperature(Math.round(data.temp_celsius)); })
+            .catch(() => {});
+        },
+        { timeout: 5000 }
+      );
+    } else {
+      fetch('/api/v1/weather?lat=27.7172&lon=85.3240')
+        .then(res => res.json())
+        .then(data => { if (data?.temp_celsius) setLiveTemperature(Math.round(data.temp_celsius)); })
+        .catch(() => {});
+    }
+  };
+
+  const fetchNews = () => {
     fetch('/api/v1/news')
       .then(res => res.json())
-      .then(data => {
-        if (data && data.news) setLiveNews(data.news);
-      })
+      .then(data => { if (data?.news) setLiveNews(data.news); })
       .catch(() => {});
+  };
+
+  const fetchMarketData = () => {
+    fetch('/api/v1/nepse')
+      .then(res => res.json())
+      .then(data => setNepseData(data))
+      .catch(() => {});
+    fetch('/api/v1/gold')
+      .then(res => res.json())
+      .then(data => setGoldData(data))
+      .catch(() => {});
+    fetch('/api/v1/radio')
+      .then(res => res.json())
+      .then(data => { if (data?.stations) setRadioStations(data.stations); })
+      .catch(() => {});
+  };
+
+  // Fetch Live Weather & News
+  useEffect(() => {
+    fetchWeather();
+    fetchNews();
+    fetchMarketData();
   }, []);
+
+  // Pull-to-refresh handler
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const el = mainRef.current;
+    if (el && el.scrollTop === 0) {
+      pullStartY.current = e.touches[0].clientY;
+    }
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const el = mainRef.current;
+    if (el && el.scrollTop === 0 && !isRefreshing) {
+      const delta = e.touches[0].clientY - pullStartY.current;
+      if (delta > 0) setPullY(Math.min(delta, 80));
+    }
+  };
+  const handleTouchEnd = async () => {
+    if (pullY > 55 && !isRefreshing) {
+      setIsRefreshing(true);
+      setPullY(0);
+      if (activeTab === 'news') {
+        await Promise.all([fetchNews()]);
+      } else if (activeTab === 'home') {
+        await Promise.all([fetchWeather(), fetchNews(), fetchMarketData()]);
+      } else if (activeTab === 'calendar') {
+        // just reset
+      }
+      setTimeout(() => setIsRefreshing(false), 800);
+    } else {
+      setPullY(0);
+    }
+  };
 
   const getDaysInMonth = (year: number, monthIndex: number): number => {
     try {
@@ -452,14 +544,37 @@ export default function WidgetCalendar() {
   const handleConvert = () => {
     if (convMode === 'BS_TO_AD') {
       try {
+        // NepaliDate uses 0-indexed months
         const npDate = new NepaliDate(convYear, convMonth, convDay);
         const jsDate = npDate.toJsDate();
-        setConvResult(`${jsDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} (AD)`);
+        if (isNaN(jsDate.getTime())) throw new Error('Invalid date');
+        setConvResult(
+          `${jsDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })} (AD)`
+        );
       } catch (_) {
-        setConvResult(`Sep ${convDay}, ${convYear - 57} (AD)`);
+        // Manual fallback approximation (57 year offset)
+        const adYear = convYear - 56;
+        const adDate = new Date(adYear, convMonth + 3, convDay);
+        setConvResult(
+          `~${adDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} (AD approx.)`
+        );
       }
     } else {
-      setConvResult(`${toNepaliDigits(convYear)} ${NEPALI_MONTHS_NE[convMonth]} ${toNepaliDigits(convDay)} गते (BS)`);
+      // AD → BS using NepaliDate constructor from JS Date
+      try {
+        const adDate = new Date(convYear, convMonth, convDay);
+        const npDate = new NepaliDate(adDate);
+        const bsYear = npDate.getYear();
+        const bsMonth = npDate.getMonth();
+        const bsDay = npDate.getDate();
+        const dayOfWeek = DAYS_NE_FULL[adDate.getDay()];
+        setConvResult(
+          `${dayOfWeek}, ${NEPALI_MONTHS_NE[bsMonth]} ${toNepaliDigits(bsDay)}, ${toNepaliDigits(bsYear)} (BS)`
+        );
+      } catch (_) {
+        const bsYear = convYear + 56;
+        setConvResult(`~${toNepaliDigits(bsYear)} ${NEPALI_MONTHS_NE[convMonth]} ${toNepaliDigits(convDay)} गते (BS approx.)`);
+      }
     }
   };
 
@@ -559,9 +674,26 @@ export default function WidgetCalendar() {
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* MAIN VIEW CONTROLLER (Scrollable View)                            */}
       {/* ═════════════════════════════════════════════════════════════════ */}
-      <main className={`flex-1 min-h-0 overflow-y-auto pb-6 custom-scrollbar transition-colors ${
-        appTheme === 'dark' ? 'bg-[#0f1115]' : 'bg-[#f8f9fa]'
-      }`}>
+      <main
+        ref={mainRef}
+        className={`flex-1 min-h-0 overflow-y-auto pb-6 custom-scrollbar transition-colors ${
+          appTheme === 'dark' ? 'bg-[#0f1115]' : 'bg-[#f8f9fa]'
+        }`}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Pull-to-refresh indicator */}
+        {(pullY > 10 || isRefreshing) && (
+          <div
+            style={{ height: isRefreshing ? 48 : pullY * 0.6 }}
+            className="flex items-center justify-center transition-all overflow-hidden"
+          >
+            <div className={`w-8 h-8 rounded-full border-2 border-[#e52521] border-t-transparent ${isRefreshing ? 'animate-spin' : ''} flex items-center justify-center`}>
+              <RefreshCw size={14} className={`text-[#e52521] ${!isRefreshing ? 'opacity-70' : ''}`} />
+            </div>
+          </div>
+        )}
 
         {/* ─────────────────────────────────────────────────────────────── */}
         {/* TAB 1: HOME (Exact Screenshot 1)                                */}
@@ -961,13 +1093,15 @@ export default function WidgetCalendar() {
                   liveNews.map((item, idx) => {
                     const source = NEPALI_NEWS_SOURCES[idx % NEPALI_NEWS_SOURCES.length];
                     return (
-                      <button
+                      <a
                         key={item.id || idx}
-                        onClick={() => setOpenedNewsItem(item)}
+                        href={item.link || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="flex items-start gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm hover:border-[#e52521] transition-all group text-left w-full"
                       >
-                        <div className="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
-                          <img src={`https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&auto=format&fit=crop&q=80`} alt="News" className="w-full h-full object-cover" />
+                        <div className="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                          <Newspaper size={24} className="text-slate-400" />
                         </div>
                         <div className="flex-1 space-y-1 min-w-0">
                           <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#e52521] leading-snug line-clamp-2">
@@ -975,10 +1109,10 @@ export default function WidgetCalendar() {
                           </h4>
                           <div className="flex items-center justify-between text-[10px] text-slate-400">
                             <span className="font-semibold text-[#e52521]">{source.name}</span>
-                            <span>{source.domain}</span>
+                            <span className="flex items-center gap-0.5">{source.domain} <ExternalLink size={9} /></span>
                           </div>
                         </div>
-                      </button>
+                      </a>
                     );
                   })
                 ) : (
@@ -998,23 +1132,32 @@ export default function WidgetCalendar() {
         {activeTab === 'profile' && (
           <div className="space-y-4 p-4 animate-fadeIn">
             
-            {/* Hero Update Banner (Exact Screenshot 5) */}
-            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
-              <div className="h-40 bg-cover bg-center relative" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&auto=format&fit=crop&q=80')` }}>
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-4">
-                  <h3 className="text-xl font-black text-white text-center drop-shadow-md">
-                    भोटेकोशी बाढी UPDATE
+            {/* Hero Update Banner — Live top news from API */}
+            <div className={`border rounded-3xl overflow-hidden shadow-sm ${ appTheme === 'dark' ? 'bg-[#16181f] border-slate-800' : 'bg-white border-slate-200' }`}>
+              <div className="h-40 bg-gradient-to-br from-[#d01f1c] to-slate-900 relative flex items-center justify-center p-4">
+                <div className="absolute inset-0 bg-black/20" />
+                <div className="relative z-10 text-center space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/70">ताजा समाचार • Breaking News</span>
+                  <h3 className="text-base font-black text-white drop-shadow-md line-clamp-3 leading-snug">
+                    {liveNews.length > 0 ? liveNews[0].title : 'नेपालका प्रमुख समाचारहरू'}
                   </h3>
                 </div>
               </div>
-              <div className="p-3.5 flex items-center justify-between bg-rose-50/50">
+              <div className={`p-3.5 flex items-center justify-between ${ appTheme === 'dark' ? 'bg-[#1e222b]' : 'bg-slate-50' }`}>
                 <div>
-                  <p className="text-xs font-bold text-slate-900">Click here to view more</p>
-                  <p className="text-[10px] text-slate-500">app.hamropatro.com</p>
+                  <p className="text-xs font-bold">नेपाली ताजा समाचार</p>
+                  <p className="text-[10px] text-slate-500">{liveNews.length > 0 ? 'Google News Nepal RSS' : 'लोड हुँदैछ...'}</p>
                 </div>
-                <button className="px-3.5 py-1.5 bg-white border border-slate-300 text-slate-900 font-extrabold text-xs rounded-xl hover:bg-slate-50 shadow-sm">
-                  See More
-                </button>
+                {liveNews.length > 0 && (
+                  <a
+                    href={liveNews[0].link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-1.5 bg-[#e52521] text-white font-extrabold text-xs rounded-xl hover:bg-[#d01f1c] shadow-sm flex items-center gap-1"
+                  >
+                    पढ्नुहोस् <ExternalLink size={11} />
+                  </a>
+                )}
               </div>
             </div>
 
@@ -2476,113 +2619,91 @@ export default function WidgetCalendar() {
               </div>
             )}
 
-            {/* 4. NEPSE LIVE SHARE MARKET (Full Page) */}
+            {/* 4. NEPSE LIVE SHARE MARKET (Full Page) - Real API Data */}
             {activeFullScreenPage === 'nepse' && (
               <div className="space-y-5">
-                {/* Index Overview Hero */}
-                <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white p-5 rounded-3xl border border-slate-800 shadow-xl space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-black tracking-wider uppercase inline-flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        बजार खुला छ (Market Live)
-                      </span>
-                      <h3 className="text-2xl font-black mt-1">NEPSE : 2,648.42</h3>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-emerald-400 text-lg font-black flex items-center justify-end gap-1">
-                        <TrendingUp size={20} /> +18.25 (+0.69%)
-                      </span>
-                      <p className="text-[10px] text-slate-400">आजको प्रत्यक्ष कारोबार</p>
-                    </div>
+                {!nepseData ? (
+                  <div className="flex items-center justify-center py-16">
+                    <div className="w-8 h-8 border-2 border-[#e52521] border-t-transparent rounded-full animate-spin" />
+                    <span className="ml-3 text-sm text-slate-500">शेयर बजार डेटा लोड हुँदैछ...</span>
                   </div>
-
-                  {/* High level metrics */}
-                  <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-800 text-center text-xs">
-                    <div className="p-2 bg-slate-900/60 rounded-xl">
-                      <p className="text-[10px] text-slate-400">कुल कारोबार (Turnover)</p>
-                      <p className="font-black text-amber-400 mt-0.5">रु. ७.४५ अर्ब</p>
-                    </div>
-                    <div className="p-2 bg-slate-900/60 rounded-xl">
-                      <p className="text-[10px] text-slate-400">कुल कित्ता (Shares)</p>
-                      <p className="font-black text-slate-200 mt-0.5">१,८५,४२,१००</p>
-                    </div>
-                    <div className="p-2 bg-slate-900/60 rounded-xl">
-                      <p className="text-[10px] text-slate-400">कारोबार संख्या</p>
-                      <p className="font-black text-slate-200 mt-0.5">८४,३२०</p>
-                    </div>
+                ) : nepseData.status === 'error' ? (
+                  <div className="p-6 text-center bg-red-50 dark:bg-red-950/30 rounded-3xl border border-red-200 dark:border-red-900">
+                    <TrendingUp size={32} className="text-[#e52521] mx-auto mb-2" />
+                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300">बजार डेटा अस्थायी रूपमा उपलब्ध छैन।</p>
+                    <p className="text-xs text-slate-500 mt-1">ShareSansar.com बाट लाइभ डेटा फेच हुँदैछ। पुनः प्रयास गर्नुहोस्।</p>
+                    <button onClick={fetchMarketData} className="mt-3 px-4 py-2 bg-[#e52521] text-white font-bold text-xs rounded-xl">
+                      पुनः प्रयास (Retry)
+                    </button>
                   </div>
-                </div>
-
-                {/* Top Movers Ticker List */}
-                <div className={`border rounded-3xl p-4 shadow-sm space-y-3 ${
-                  appTheme === 'dark' ? 'bg-[#16181f] border-slate-800' : 'bg-white border-slate-200'
-                }`}>
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
-                    <h4 className="text-xs font-black uppercase tracking-wider text-[#e52521]">
-                      शीर्ष कम्पनीहरूको प्रत्यक्ष मूल्य (Live Tickers)
-                    </h4>
-                    <span className="text-[10px] text-slate-400">स्रोत: नेपाल स्टक एक्सचेन्ज</span>
-                  </div>
-
-                  <div className="space-y-2">
-                    {[
-                      { sym: 'SHIVM', name: 'Shivam Cements Ltd.', ltp: '542.00', chg: '+7.20%', vol: '452K', up: true },
-                      { sym: 'HDL', name: 'Himalayan Distillery Ltd.', ltp: '1,820.00', chg: '+5.80%', vol: '210K', up: true },
-                      { sym: 'NICA', name: 'NIC Asia Bank', ltp: '430.50', chg: '+4.10%', vol: '890K', up: true },
-                      { sym: 'CHCL', name: 'Chilime Hydropower', ltp: '498.00', chg: '+3.90%', vol: '310K', up: true },
-                      { sym: 'CIT', name: 'Citizen Investment Trust', ltp: '2,190.00', chg: '+2.80%', vol: '95K', up: true },
-                      { sym: 'UPPER', name: 'Upper Tamakoshi Hydro', ltp: '215.00', chg: '-1.80%', vol: '620K', up: false },
-                      { sym: 'GBIME', name: 'Global IME Bank', ltp: '208.20', chg: '+1.50%', vol: '740K', up: true },
-                      { sym: 'NABIL', name: 'Nabil Bank Ltd.', ltp: '520.00', chg: '+2.10%', vol: '510K', up: true }
-                    ].map((item) => (
-                      <div key={item.sym} className={`p-3 rounded-2xl flex items-center justify-between border transition-all ${
-                        appTheme === 'dark' ? 'bg-[#1e222b] border-slate-700/60' : 'bg-slate-50 border-slate-200'
-                      }`}>
+                ) : (
+                  <>
+                    {/* Index Overview Hero */}
+                    <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white p-5 rounded-3xl border border-slate-800 shadow-xl space-y-4">
+                      <div className="flex items-center justify-between">
                         <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-black">{item.sym}</span>
-                            <span className="text-[10px] text-slate-400 truncate max-w-[140px] sm:max-w-xs">{item.name}</span>
-                          </div>
-                          <p className="text-[10px] text-slate-400 mt-0.5">कारोबार कित्ता: {item.vol}</p>
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-black tracking-wider uppercase inline-flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            Live Data • ShareSansar.com
+                          </span>
+                          <h3 className="text-2xl font-black mt-1">NEPSE : {nepseData.index}</h3>
                         </div>
                         <div className="text-right">
-                          <p className="text-xs font-black">रु. {item.ltp}</p>
-                          <span className={`text-[11px] font-extrabold flex items-center justify-end gap-0.5 ${
-                            item.up ? 'text-emerald-500' : 'text-red-500'
-                          }`}>
-                            {item.chg}
+                          <span className={`text-lg font-black flex items-center justify-end gap-1 ${nepseData.isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+                            <TrendingUp size={20} /> {nepseData.change} ({nepseData.percent})
                           </span>
+                          <p className="text-[10px] text-slate-400">कुल कारोबार: {nepseData.turnover}</p>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
 
-                {/* Sector Performance */}
-                <div className={`border rounded-3xl p-4 shadow-sm space-y-3 ${
-                  appTheme === 'dark' ? 'bg-[#16181f] border-slate-800' : 'bg-white border-slate-200'
-                }`}>
-                  <h4 className="text-xs font-black uppercase tracking-wider text-[#e52521]">उप-समूहगत अवस्था (Sectors)</h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                    <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                      <p className="text-[10px] text-slate-400">वाणिज्य बैंक</p>
-                      <p className="font-black text-emerald-500 mt-0.5">+0.82%</p>
-                    </div>
-                    <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                      <p className="text-[10px] text-slate-400">जलविद्युत</p>
-                      <p className="font-black text-emerald-500 mt-0.5">+1.45%</p>
-                    </div>
-                    <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                      <p className="text-[10px] text-slate-400">उत्पादन तथा प्रशोधन</p>
-                      <p className="font-black text-emerald-500 mt-0.5">+2.10%</p>
-                    </div>
-                    <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                      <p className="text-[10px] text-slate-400">जीवन बीमा</p>
-                      <p className="font-black text-emerald-500 mt-0.5">+0.95%</p>
-                    </div>
-                  </div>
-                </div>
+                    {/* Top Gainers */}
+                    {nepseData.gainers && nepseData.gainers.length > 0 && (
+                      <div className={`border rounded-3xl p-4 shadow-sm space-y-3 ${
+                        appTheme === 'dark' ? 'bg-[#16181f] border-slate-800' : 'bg-white border-slate-200'
+                      }`}>
+                        <h4 className="text-xs font-black uppercase tracking-wider text-emerald-600">शीर्ष बढनेवाला (Top Gainers)</h4>
+                        <div className="space-y-2">
+                          {nepseData.gainers.slice(0, 6).map((item: any, i: number) => (
+                            <div key={i} className={`p-3 rounded-2xl flex items-center justify-between border ${
+                              appTheme === 'dark' ? 'bg-[#1e222b] border-slate-700/60' : 'bg-slate-50 border-slate-200'
+                            }`}>
+                              <span className="text-xs font-black">{item.sym}</span>
+                              <div className="text-right">
+                                <p className="text-xs font-black">रु. {item.ltp}</p>
+                                <span className="text-[11px] font-extrabold text-emerald-500">{item.chg}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Top Losers */}
+                    {nepseData.losers && nepseData.losers.length > 0 && (
+                      <div className={`border rounded-3xl p-4 shadow-sm space-y-3 ${
+                        appTheme === 'dark' ? 'bg-[#16181f] border-slate-800' : 'bg-white border-slate-200'
+                      }`}>
+                        <h4 className="text-xs font-black uppercase tracking-wider text-red-500">शीर्ष घट्नेवाला (Top Losers)</h4>
+                        <div className="space-y-2">
+                          {nepseData.losers.slice(0, 6).map((item: any, i: number) => (
+                            <div key={i} className={`p-3 rounded-2xl flex items-center justify-between border ${
+                              appTheme === 'dark' ? 'bg-[#1e222b] border-slate-700/60' : 'bg-slate-50 border-slate-200'
+                            }`}>
+                              <span className="text-xs font-black">{item.sym}</span>
+                              <div className="text-right">
+                                <p className="text-xs font-black">रु. {item.ltp}</p>
+                                <span className="text-[11px] font-extrabold text-red-500">{item.chg}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="text-[10px] text-slate-400 text-center">स्रोत: sharesansar.com • डेटा २ मिनेटमा अद्यावधिक</p>
+                  </>
+                )}
               </div>
             )}
 
@@ -2697,7 +2818,7 @@ export default function WidgetCalendar() {
               </div>
             )}
 
-            {/* 6. LIVE GOLD & SILVER (Full Page) */}
+            {/* 6. LIVE GOLD & SILVER (Full Page) - Real API Data */}
             {activeFullScreenPage === 'gold' && (
               <div className="space-y-5">
                 <div className={`border rounded-3xl p-5 shadow-sm space-y-4 ${
@@ -2708,48 +2829,63 @@ export default function WidgetCalendar() {
                       <Coins size={20} className="text-amber-500" />
                       <h3 className="text-sm font-black">सुनचाँदीको आधिकारिक बजार भाउ</h3>
                     </div>
-                    <span className="text-[10px] text-slate-400">स्रोत: नेपाल सुनचाँदी व्यवसायी महासंघ</span>
+                    <button onClick={fetchMarketData}>
+                      <RefreshCw size={14} className="text-slate-400 hover:text-[#e52521]" />
+                    </button>
                   </div>
 
-                  <div className="space-y-3">
-                    <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-between">
-                      <div>
-                        <h4 className="text-sm font-black text-amber-500">छापावाल सुन (Fine Gold 24K)</h4>
-                        <p className="text-[10px] text-slate-400">प्रति तोला (11.66 Grams)</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-black text-amber-500">रु. १,६०,५००</p>
-                        <span className="text-[10px] text-emerald-500 font-bold">+रु. ८०० (बढ्यो)</span>
-                      </div>
+                  {!goldData ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="w-7 h-7 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                      <span className="ml-3 text-sm text-slate-500">सुनचाँदीको दर लोड हुँदैछ...</span>
                     </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-black text-amber-500">छापावाल सुन (Fine Gold 24K)</h4>
+                          <p className="text-[10px] text-slate-400">प्रति तोला (11.66 Grams)</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-black text-amber-500">{goldData.fineGold?.price || '—'}</p>
+                          <span className={`text-[10px] font-bold ${goldData.fineGold?.up ? 'text-emerald-500' : 'text-red-500'}`}>
+                            {goldData.fineGold?.change !== '—' ? (goldData.fineGold?.up ? '+' : '') + goldData.fineGold?.change : '—'}
+                          </span>
+                        </div>
+                      </div>
 
-                    <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-between">
-                      <div>
-                        <h4 className="text-sm font-black text-amber-400">तेजाबी सुन (Tejabi Gold)</h4>
-                        <p className="text-[10px] text-slate-400">प्रति तोला</p>
+                      <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-black text-amber-400">तेजाबी सुन (Tejabi Gold)</h4>
+                          <p className="text-[10px] text-slate-400">प्रति तोला</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-black text-amber-400">{goldData.tejabiGold?.price || '—'}</p>
+                          <span className={`text-[10px] font-bold ${goldData.tejabiGold?.up ? 'text-emerald-500' : 'text-red-500'}`}>
+                            {goldData.tejabiGold?.change !== '—' ? (goldData.tejabiGold?.up ? '+' : '') + goldData.tejabiGold?.change : '—'}
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-lg font-black text-amber-400">रु. १,५९,८००</p>
-                        <span className="text-[10px] text-emerald-500 font-bold">+रु. ८०० (बढ्यो)</span>
-                      </div>
-                    </div>
 
-                    <div className="p-4 bg-slate-500/10 border border-slate-500/20 rounded-2xl flex items-center justify-between">
-                      <div>
-                        <h4 className="text-sm font-black text-slate-300">चाँदी (Silver)</h4>
-                        <p className="text-[10px] text-slate-400">प्रति तोला</p>
+                      <div className="p-4 bg-slate-500/10 border border-slate-500/20 rounded-2xl flex items-center justify-between">
+                        <div>
+                          <h4 className={`text-sm font-black ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>चाँदी (Silver)</h4>
+                          <p className="text-[10px] text-slate-400">प्रति तोला</p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-lg font-black ${appTheme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>{goldData.silver?.price || '—'}</p>
+                          <span className="text-[10px] text-emerald-500 font-bold">{goldData.silver?.change || '—'}</span>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-lg font-black text-slate-200">रु. १,९८०</p>
-                        <span className="text-[10px] text-emerald-500 font-bold">+रु. १५ (बढ्यो)</span>
-                      </div>
+
+                      <p className="text-[10px] text-slate-400 text-center">स्रोत: sharesansar.com/bullion • प्रत्येक घण्टामा अद्यावधिक</p>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* 7. LIVE NEPALI FM RADIO (Full Page) */}
+            {/* 7. LIVE NEPALI FM RADIO (Full Page) - Real verified streams */}
             {activeFullScreenPage === 'radio' && (
               <div className="space-y-5">
                 <div className={`border rounded-3xl p-5 shadow-sm space-y-4 ${
@@ -2763,22 +2899,40 @@ export default function WidgetCalendar() {
                     </div>
                   </div>
 
+                  {/* Hidden audio element for real streaming */}
+                  {playingRadio && (() => {
+                    const stations = radioStations.length > 0 ? radioStations : [
+                      { id: 'radiokantipur', streamUrl: 'https://radio-broadcast.ekantipur.com/stream' },
+                      { id: 'radionepal', streamUrl: 'https://streaming.softnep.net:10982/;stream.mp3' },
+                      { id: 'sagarmatha', streamUrl: 'https://streaming.softnep.net:10952/;stream.mp3' },
+                      { id: 'imagefm', streamUrl: 'https://streaming.softnep.net:10972/;stream.mp3' },
+                      { id: 'bbcnepali', streamUrl: 'https://stream.live.vc.bbcmedia.co.uk/bbc_nepali_radio' },
+                    ];
+                    const s = stations.find((x: any) => x.id === playingRadio);
+                    return s ? <audio key={s.id} src={s.streamUrl} autoPlay controls className="w-full rounded-xl h-10" /> : null;
+                  })()}
+
                   <div className="space-y-2.5">
-                    {[
-                      { id: 'radionepal', name: 'रेडियो नेपाल (Radio Nepal)', freq: '100.0 MHz', loc: 'सिंहदरबार, काठमाडौँ' },
-                      { id: 'ujyaalo', name: 'उज्यालो ९० नेटवर्क (Ujyaalo 90)', freq: '90.0 MHz', loc: 'काठमाडौँ' },
-                      { id: 'kantipur', name: 'रेडियो कान्तिपुर (Radio Kantipur)', freq: '96.1 MHz', loc: 'काठमाडौँ' },
-                      { id: 'kalika', name: 'कालिका एफएम (Kalika FM)', freq: '95.2 MHz', loc: 'भरतपुर, चितवन' },
-                      { id: 'hits', name: 'हिट्स एफएम (Hits FM)', freq: '91.2 MHz', loc: 'काठमाडौँ' }
-                    ].map((station) => (
-                      <div key={station.id} className={`p-3.5 rounded-2xl flex items-center justify-between border ${
+                    {(radioStations.length > 0 ? radioStations : [
+                      { id: 'radiokantipur', name: 'रेडियो कान्तिपुर (Radio Kantipur)', freq: '96.1 MHz', loc: 'काठमाडौँ', streamUrl: 'https://radio-broadcast.ekantipur.com/stream' },
+                      { id: 'radionepal', name: 'रेडियो नेपाल (Radio Nepal)', freq: '100.0 MHz', loc: 'सिंहदरबार, काठमाडौँ', streamUrl: 'https://streaming.softnep.net:10982/;stream.mp3' },
+                      { id: 'sagarmatha', name: 'रेडियो सगरमाथा (Radio Sagarmatha)', freq: '102.4 MHz', loc: 'काठमाडौँ', streamUrl: 'https://streaming.softnep.net:10952/;stream.mp3' },
+                      { id: 'imagefm', name: 'इमेज एफएम (Image FM)', freq: '97.9 MHz', loc: 'काठमाडौँ', streamUrl: 'https://streaming.softnep.net:10972/;stream.mp3' },
+                      { id: 'bbcnepali', name: 'बीबीसी नेपाली (BBC Nepali)', freq: 'Online', loc: 'आन्तर्राष्ट्रिय', streamUrl: 'https://stream.live.vc.bbcmedia.co.uk/bbc_nepali_radio' },
+                    ]).map((station: any) => (
+                      <div key={station.id} className={`p-3.5 rounded-2xl flex items-center justify-between border transition-all ${
                         playingRadio === station.id 
                           ? 'border-[#e52521] bg-red-500/10' 
                           : appTheme === 'dark' ? 'bg-[#1e222b] border-slate-700/60' : 'bg-slate-50 border-slate-200'
                       }`}>
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-[#e52521] text-white flex items-center justify-center">
-                            <Radio size={18} />
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                            playingRadio === station.id ? 'bg-[#e52521]' : 'bg-slate-200 dark:bg-slate-700'
+                          }`}>
+                            {playingRadio === station.id 
+                              ? <Volume2 size={18} className="text-white animate-pulse" />
+                              : <Radio size={18} className="text-slate-600 dark:text-slate-300" />
+                            }
                           </div>
                           <div>
                             <h4 className="text-xs font-black">{station.name}</h4>
@@ -2788,10 +2942,10 @@ export default function WidgetCalendar() {
 
                         <button
                           onClick={() => setPlayingRadio(playingRadio === station.id ? null : station.id)}
-                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-sm ${
                             playingRadio === station.id 
-                              ? 'bg-[#e52521] text-white animate-pulse' 
-                              : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
+                              ? 'bg-[#e52521] text-white' 
+                              : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300'
                           }`}
                         >
                           {playingRadio === station.id ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
@@ -2799,6 +2953,7 @@ export default function WidgetCalendar() {
                       </div>
                     ))}
                   </div>
+                  <p className="text-[10px] text-slate-400 text-center">⚡ वास्तविक लाइभ स्ट्रिम • HTTP Audio Stream</p>
                 </div>
               </div>
             )}
