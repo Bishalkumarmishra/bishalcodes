@@ -25,7 +25,9 @@ import {
   X,
   Play,
   Square,
-  Database
+  Database,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react';
 import { db, auth } from '../services/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
@@ -98,6 +100,45 @@ export default function WidgetCalendarAdmin({ onBackToApp }: WidgetCalendarAdmin
   const [slider1, setSlider1] = useState<string>('https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=1000&auto=format&fit=crop&q=80');
   const [slider2, setSlider2] = useState<string>('https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1000&auto=format&fit=crop&q=80');
   const [slider3, setSlider3] = useState<string>('https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=1000&auto=format&fit=crop&q=80');
+
+  // Cloudinary Upload State
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, targetSetter: (url: string) => void, fieldName: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const MAX_SIZE_MB = 100;
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      showToast(`File exceeds ${MAX_SIZE_MB}MB limit. Please choose a smaller file.`);
+      return;
+    }
+
+    setUploadingField(fieldName);
+    showToast(`Uploading ${(file.size / (1024 * 1024)).toFixed(1)}MB file to Cloudinary...`);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'mero_patro_admin');
+
+      const res = await fetch('/api/v1/cloudinary/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+      if (data.success && data.url) {
+        targetSetter(data.url);
+        showToast('File uploaded to Cloudinary successfully!');
+      } else {
+        throw new Error(data.error || 'Upload failed');
+      }
+    } catch (err: any) {
+      showToast('Cloudinary upload error: ' + (err.message || 'Failed'));
+    } finally {
+      setUploadingField(null);
+    }
+  };
 
   // Load Auth and Initial Firestore Data
   useEffect(() => {
@@ -1027,47 +1068,119 @@ export default function WidgetCalendarAdmin({ onBackToApp }: WidgetCalendarAdmin
                     />
                   </div>
 
-                  {/* 3 HERO SLIDERS MANAGER */}
+                  {/* 3 HERO SLIDERS MANAGER WITH CLOUDINARY UPLOAD */}
                   <div className="pt-4 border-t border-slate-200 dark:border-zinc-800 space-y-3">
                     <h3 className="text-xs font-black text-slate-900 dark:text-white flex items-center gap-2 uppercase tracking-wide">
-                      <Sliders size={16} className="text-[#e52521]" /> Home Page 3 Hero Banner Image URLs
+                      <Sliders size={16} className="text-[#e52521]" /> Home Page 3 Hero Banner Images & Media
                     </h3>
                     
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-[10px] font-extrabold text-slate-500 uppercase block mb-1">Slider 1 Image (Lord Vishnu / Divine Motif)</label>
-                        <input
-                          type="text"
-                          value={slider1}
-                          onChange={(e) => setSlider1(e.target.value)}
-                          className={`w-full border rounded-xl p-2.5 text-xs font-bold outline-none ${
-                            theme === 'dark' ? 'bg-zinc-800 border-zinc-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
-                          }`}
-                        />
+                    <div className="space-y-4">
+                      {/* Slider 1 */}
+                      <div className="p-3.5 rounded-2xl border border-slate-200 dark:border-zinc-800 space-y-2 bg-slate-50 dark:bg-zinc-900/50">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-extrabold text-slate-500 uppercase">
+                            Slider 1 Image (Lord Vishnu / Divine Motif)
+                          </label>
+                          <label className="cursor-pointer bg-[#e52521] hover:bg-[#d01f1c] text-white px-3 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition-colors shadow-xs">
+                            <Upload size={13} />
+                            <span>{uploadingField === 'slider1' ? 'Uploading to Cloudinary...' : 'Upload File (Up to 100MB)'}</span>
+                            <input
+                              type="file"
+                              accept="image/*,video/*"
+                              className="hidden"
+                              disabled={uploadingField === 'slider1'}
+                              onChange={(e) => handleFileUpload(e, setSlider1, 'slider1')}
+                            />
+                          </label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={slider1}
+                            onChange={(e) => setSlider1(e.target.value)}
+                            placeholder="https://res.cloudinary.com/..."
+                            className={`flex-1 border rounded-xl p-2.5 text-xs font-bold outline-none ${
+                              theme === 'dark' ? 'bg-zinc-800 border-zinc-700 text-white' : 'bg-white border-slate-300 text-slate-900'
+                            }`}
+                          />
+                          {slider1 && (
+                            <div className="w-14 h-10 rounded-lg overflow-hidden border shrink-0 bg-slate-900 shadow-xs">
+                              <img src={slider1} alt="Slider 1 Preview" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="text-[10px] font-extrabold text-slate-500 uppercase block mb-1">Slider 2 Image (Pashupatinath / Temple)</label>
-                        <input
-                          type="text"
-                          value={slider2}
-                          onChange={(e) => setSlider2(e.target.value)}
-                          className={`w-full border rounded-xl p-2.5 text-xs font-bold outline-none ${
-                            theme === 'dark' ? 'bg-zinc-800 border-zinc-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
-                          }`}
-                        />
+                      {/* Slider 2 */}
+                      <div className="p-3.5 rounded-2xl border border-slate-200 dark:border-zinc-800 space-y-2 bg-slate-50 dark:bg-zinc-900/50">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-extrabold text-slate-500 uppercase">
+                            Slider 2 Image (Pashupatinath / Temple)
+                          </label>
+                          <label className="cursor-pointer bg-[#e52521] hover:bg-[#d01f1c] text-white px-3 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition-colors shadow-xs">
+                            <Upload size={13} />
+                            <span>{uploadingField === 'slider2' ? 'Uploading to Cloudinary...' : 'Upload File (Up to 100MB)'}</span>
+                            <input
+                              type="file"
+                              accept="image/*,video/*"
+                              className="hidden"
+                              disabled={uploadingField === 'slider2'}
+                              onChange={(e) => handleFileUpload(e, setSlider2, 'slider2')}
+                            />
+                          </label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={slider2}
+                            onChange={(e) => setSlider2(e.target.value)}
+                            placeholder="https://res.cloudinary.com/..."
+                            className={`flex-1 border rounded-xl p-2.5 text-xs font-bold outline-none ${
+                              theme === 'dark' ? 'bg-zinc-800 border-zinc-700 text-white' : 'bg-white border-slate-300 text-slate-900'
+                            }`}
+                          />
+                          {slider2 && (
+                            <div className="w-14 h-10 rounded-lg overflow-hidden border shrink-0 bg-slate-900 shadow-xs">
+                              <img src={slider2} alt="Slider 2 Preview" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="text-[10px] font-extrabold text-slate-500 uppercase block mb-1">Slider 3 Image (Mountain Sanctuary)</label>
-                        <input
-                          type="text"
-                          value={slider3}
-                          onChange={(e) => setSlider3(e.target.value)}
-                          className={`w-full border rounded-xl p-2.5 text-xs font-bold outline-none ${
-                            theme === 'dark' ? 'bg-zinc-800 border-zinc-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
-                          }`}
-                        />
+                      {/* Slider 3 */}
+                      <div className="p-3.5 rounded-2xl border border-slate-200 dark:border-zinc-800 space-y-2 bg-slate-50 dark:bg-zinc-900/50">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-extrabold text-slate-500 uppercase">
+                            Slider 3 Image (Mountain Sanctuary)
+                          </label>
+                          <label className="cursor-pointer bg-[#e52521] hover:bg-[#d01f1c] text-white px-3 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition-colors shadow-xs">
+                            <Upload size={13} />
+                            <span>{uploadingField === 'slider3' ? 'Uploading to Cloudinary...' : 'Upload File (Up to 100MB)'}</span>
+                            <input
+                              type="file"
+                              accept="image/*,video/*"
+                              className="hidden"
+                              disabled={uploadingField === 'slider3'}
+                              onChange={(e) => handleFileUpload(e, setSlider3, 'slider3')}
+                            />
+                          </label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={slider3}
+                            onChange={(e) => setSlider3(e.target.value)}
+                            placeholder="https://res.cloudinary.com/..."
+                            className={`flex-1 border rounded-xl p-2.5 text-xs font-bold outline-none ${
+                              theme === 'dark' ? 'bg-zinc-800 border-zinc-700 text-white' : 'bg-white border-slate-300 text-slate-900'
+                            }`}
+                          />
+                          {slider3 && (
+                            <div className="w-14 h-10 rounded-lg overflow-hidden border shrink-0 bg-slate-900 shadow-xs">
+                              <img src={slider3} alt="Slider 3 Preview" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
