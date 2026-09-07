@@ -14,7 +14,7 @@ import {
 // @ts-ignore
 import { signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth';
 // @ts-ignore
-import { collection, doc, addDoc, deleteDoc, getDocs, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDoc, addDoc, deleteDoc, getDocs, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../services/firebase';
 import MobileAppDownloadModal from '../components/MobileAppDownloadModal';
 
