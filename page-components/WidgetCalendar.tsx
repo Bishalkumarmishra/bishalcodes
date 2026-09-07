@@ -283,19 +283,7 @@ export default function WidgetCalendar() {
   }, []);
 
   useEffect(() => {
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    const skyStatusBar = document.querySelector('.sky-status-bar') as HTMLElement;
-    if (appTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-      if (metaThemeColor) metaThemeColor.setAttribute('content', '#000000');
-      if (skyStatusBar) skyStatusBar.style.backgroundColor = '#000000';
-    } else {
-      document.documentElement.classList.add('light');
-      document.documentElement.classList.remove('dark');
-      if (metaThemeColor) metaThemeColor.setAttribute('content', '#e52521');
-      if (skyStatusBar) skyStatusBar.style.backgroundColor = '#e52521';
-    }
+    // Isolated theme state for Mero Patro widget only
   }, [appTheme]);
 
   const toggleTheme = () => {
