@@ -91,6 +91,9 @@ export default function WidgetCalendarAdmin({ onBackToApp }: WidgetCalendarAdmin
   const [splashSlogan, setSplashSlogan] = useState<string>('नेपालको आफ्नो पात्रो • Nepali Calendar & Panchanga');
   const [primaryColor, setPrimaryColor] = useState<string>('#e52521');
   const [savedSettingsSuccess, setSavedSettingsSuccess] = useState<boolean>(false);
+  const [slider1, setSlider1] = useState<string>('https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1000&auto=format&fit=crop&q=80');
+  const [slider2, setSlider2] = useState<string>('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=1000&auto=format&fit=crop&q=80');
+  const [slider3, setSlider3] = useState<string>('https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=1000&auto=format&fit=crop&q=80');
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (usr) => {
