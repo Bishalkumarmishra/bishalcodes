@@ -2168,45 +2168,43 @@ export default function WidgetCalendar() {
         </div>
       )}
 
-      {/* ─── IN-APP NATIVE FULL-SCREEN NEWS READER (Full Top-to-Bottom, No Card Popup) ─── */}
+      {/* ─── IN-APP FULL-SCREEN WEBSITE NEWS READER ─── */}
       {openedNewsItem && (
         <div className={`fixed inset-0 z-[100] flex flex-col w-full h-full overflow-hidden select-none animate-fadeIn transition-colors ${
           appTheme === 'dark' ? 'bg-[#12141a] text-slate-100' : 'bg-white text-slate-900'
         }`}>
           {/* Reader Top Sticky Bar */}
-          <div className={`flex items-center justify-between px-4 py-3.5 border-b sticky top-0 z-20 transition-colors ${
+          <div className={`flex items-center justify-between px-4 py-3 border-b sticky top-0 z-20 transition-colors ${
             appTheme === 'dark' ? 'bg-[#16181f] border-slate-800' : 'bg-white border-slate-200'
           }`}>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               <button
                 onClick={() => setOpenedNewsItem(null)}
-                className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer shrink-0"
                 title="Back to News"
               >
                 <ArrowLeft size={22} />
               </button>
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-[#e52521]">
-                  {openedNewsItem.category || 'ताजा समाचार'}
+              <div className="min-w-0 flex-1">
+                <span className="text-[10px] font-black uppercase tracking-wider text-[#e52521] block">
+                  {openedNewsItem.source || openedNewsItem.category || 'ताजा समाचार'}
                 </span>
-                <p className="text-xs font-black truncate max-w-[200px] sm:max-w-md">
+                <p className="text-xs font-black truncate">
                   {openedNewsItem.title}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  if (navigator.share) {
-                    navigator.share({ title: openedNewsItem.title, url: window.location.href }).catch(() => {});
-                  }
-                }}
-                className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 cursor-pointer"
-                title="Share"
+            <div className="flex items-center gap-2 shrink-0">
+              <a
+                href={openedNewsItem.link || openedNewsItem.url}
+                target="_blank"
+                rel="noreferrer"
+                className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 cursor-pointer flex items-center gap-1 text-xs font-bold"
+                title="Open in Browser"
               >
-                <Share2 size={18} />
-              </button>
+                <ExternalLink size={16} />
+              </a>
               <button
                 onClick={() => setOpenedNewsItem(null)}
                 className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 cursor-pointer"
@@ -2217,101 +2215,14 @@ export default function WidgetCalendar() {
             </div>
           </div>
 
-          {/* Full Article Content Body (Scrollable, Full-screen native reading experience) */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-3xl mx-auto w-full space-y-5 custom-scrollbar">
-            {/* Category & Date Metadata */}
-            <div className="flex items-center justify-between text-xs pb-1 border-b border-slate-100 dark:border-slate-800">
-              <span className="px-2.5 py-1 rounded-full bg-[#e52521]/10 text-[#e52521] font-extrabold text-[11px]">
-                नेपाली राष्ट्रिय समाचार
-              </span>
-              <span className="text-slate-400 font-medium">
-                {openedNewsItem.pubDate ? new Date(openedNewsItem.pubDate).toLocaleDateString('ne-NP') : 'अहिले भर्खरै प्रकाशित'}
-              </span>
-            </div>
-
-            {/* Headline */}
-            <h1 className="text-xl sm:text-2xl font-black leading-snug tracking-tight">
-              {openedNewsItem.title}
-            </h1>
-
-            {/* Source & Reporter Tag */}
-            <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-              <div className="w-8 h-8 rounded-full bg-[#e52521] text-white flex items-center justify-center font-black text-xs shadow-sm">
-                ने
-              </div>
-              <div>
-                <p className="font-bold text-slate-900 dark:text-slate-200">मेरो पात्रो विशेष समाचार डेस्क</p>
-                <p className="text-[11px]">काठमाडौँ, नेपाल • प्रत्यक्ष स्थलगत प्रतिवेदन</p>
-              </div>
-            </div>
-
-            {/* Full High-Resolution Hero Visual */}
-            <div className="w-full h-64 sm:h-80 rounded-2xl overflow-hidden shadow-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-              <img
-                src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&auto=format&fit=crop&q=80"
-                alt="News Banner"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <p className="text-[11px] text-slate-400 italic text-center -mt-3">
-              तस्बिर: घटना तथा समसामयिक विकास सम्बन्धी मेरो पात्रो विशेष दृश्य
-            </p>
-
-            {/* Key Highlights Card */}
-            <div className={`p-4 rounded-2xl border space-y-2 ${
-              appTheme === 'dark' ? 'bg-[#181a20] border-slate-700' : 'bg-red-50/60 border-red-100'
-            }`}>
-              <h3 className="text-xs font-black text-[#e52521] uppercase tracking-wider flex items-center gap-1.5">
-                <CheckCircle2 size={14} /> प्रमुख सारांश (Key Highlights)
-              </h3>
-              <ul className="text-xs space-y-1.5 font-medium leading-relaxed">
-                <li>• घटनाको बारेमा सम्बन्धित निकायहरूबाट विस्तृत अध्ययन सुरु गरिएको छ।</li>
-                <li>• सर्वसाधारण तथा सरोकारवालाहरूले यस विषयलाई निकै चासोका साथ हेरेका छन्।</li>
-                <li>• आगामी नीति तथा कार्ययोजनामा यसको दूरगामी प्रभाव पर्ने विज्ञहरूको विश्लेषण छ।</li>
-              </ul>
-            </div>
-
-            {/* Complete Full Article Body (Multi-Paragraphs, In-Depth Reporting) */}
-            <div className="text-sm leading-relaxed space-y-4 font-normal text-slate-800 dark:text-slate-200">
-              <p className="text-base font-semibold text-slate-900 dark:text-white leading-relaxed">
-                {openedNewsItem.title} का सम्बन्धमा पछिल्लो विवरण अनुसार स्थिति सामान्यीकरणतर्फ उन्मुख हुँदै गएको छ। सरकारी तथा स्थानीय प्रतिनिधिहरूले स्थलगत अनुगमन गरी यथार्थ विवरण संकलन गरिरहेका छन्।
-              </p>
-
-              <p>
-                पछिल्ला केही दिनयता विकसित घटनाक्रमले देशको समग्र सामाजिक, आर्थिक र प्रशासनिक क्षेत्रमा नयाँ बहस सिर्जना गरेको छ। विज्ञहरूका अनुसार यस्ता समसामयिक विषयहरूले नागरिकहरूको दैनिक जनजीवनमा प्रत्यक्ष प्रभाव पार्ने भएकाले समयमै स्पष्ट निर्णय आउनु जरुरी देखिएको छ।
-              </p>
-
-              <p>
-                सम्बन्धित निकायका उच्च अधिकारीले जनाए अनुसार आम नागरिकको सुरक्षा, सेवा प्रवाह र सूचनाको हक सुनिश्चित गर्न सबै संयन्त्रहरू उच्च सतर्कताका साथ परिचालित गरिएका छन्। विभिन्न राजनीतिक तथा सामाजिक अगुवाहरूले समेत यस विषयमा आ-आफ्नो धारणा सार्वजनिक गर्दै समाधानका लागि अग्रसर हुन आह्वान गरेका छन्।
-              </p>
-
-              <p>
-                यसबाहेक, स्थानीय तह तथा प्रदेश सरकारका प्रतिनिधिहरूले पनि आपतकालीन समन्वय बैठक आह्वान गरी जनसरोकारका विषयलाई पहिलो प्राथमिकतामा राख्ने प्रतिबद्धता व्यक्त गरेका छन्। सञ्चारमाध्यम तथा सामाजिक सञ्जालमा समेत यस विषयलाई लिएर सकारात्मक प्रतिक्रियाहरू आइरहेका छन्।
-              </p>
-
-              <p>
-                मेरो पात्रो डिजिटल समाचार टिमले यस विषयसँग सम्बन्धित आगामी सबै नयाँ अपडेटहरू निरन्तर प्रत्यक्ष प्रसारण गरिरहनेछ। थप आधिकारिक विवरणहरू आउनासाथ पाठकहरूलाई तुरुन्त सूचित गरिनेछ।
-              </p>
-            </div>
-
-            {/* Related Topics & Bottom Return Action */}
-            <div className="pt-6 pb-8 border-t border-slate-200 dark:border-slate-800 space-y-3">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">सम्बन्धित विषयहरू</h4>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-xs font-bold text-slate-700 dark:text-slate-300">#नेपाल_समाचार</span>
-                <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-xs font-bold text-slate-700 dark:text-slate-300">#ताजा_अपडेट</span>
-                <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-xs font-bold text-slate-700 dark:text-slate-300">#मेरो_पात्रो</span>
-              </div>
-
-              <button
-                onClick={() => setOpenedNewsItem(null)}
-                className="w-full mt-4 py-3.5 bg-[#e52521] hover:bg-[#d01f1c] text-white font-black text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <ArrowLeft size={16} />
-                <span>समाचार सूचीमा फर्कनुहोस् (Back to All News)</span>
-              </button>
-            </div>
-
+          {/* Full-Page Website Iframe via Clean Proxy Route */}
+          <div className="flex-1 w-full h-full bg-white relative">
+            <iframe
+              src={`/api/v1/news/read?url=${encodeURIComponent(openedNewsItem.link || openedNewsItem.url || '')}`}
+              className="w-full h-full border-0"
+              title={openedNewsItem.title}
+              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+            />
           </div>
         </div>
       )}
