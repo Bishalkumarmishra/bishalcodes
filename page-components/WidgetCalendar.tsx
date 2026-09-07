@@ -266,6 +266,16 @@ export default function WidgetCalendar() {
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '', sent: false });
   const [healthBmi, setHealthBmi] = useState<{ height: number; weight: number; result: number | null }>({ height: 170, weight: 65, result: null });
   const [showSplash, setShowSplash] = useState<boolean>(true);
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const completed = localStorage.getItem('mp_onboarding_completed');
+      return !completed;
+    }
+    return false;
+  });
+  const [onboardingStep, setOnboardingStep] = useState<number>(0);
+  const [newsUpdateEnabled, setNewsUpdateEnabled] = useState<boolean>(true);
+  const [radioUpdateEnabled, setRadioUpdateEnabled] = useState<boolean>(true);
   // Live market data
   const [nepseData, setNepseData] = useState<any>(null);
   const [goldData, setGoldData] = useState<any>(null);
@@ -866,6 +876,280 @@ export default function WidgetCalendar() {
           <div className="flex items-center gap-2 pt-6">
             <span className="text-xs font-semibold text-white/90">लोड हुँदैछ...</span>
           </div>
+        </div>
+      )}
+
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {/* FIRST TIME USER ONBOARDING & PREFERENCES CAROUSEL                  */}
+      {/* ═════════════════════════════════════════════════════════════════ */}
+      {!showSplash && showOnboarding && (
+        <div className="fixed inset-0 z-[9999] bg-[#f8f9fa] dark:bg-[#12141a] text-slate-900 dark:text-white flex flex-col justify-between p-6 select-none animate-fadeIn font-sans">
+          
+          {/* STEP 0: Preferences Setup Card (Exact Screenshot 1 Match) */}
+          {onboardingStep === 0 && (
+            <div className="flex-1 flex flex-col justify-between max-w-sm mx-auto w-full pt-4">
+              {/* Logo Header */}
+              <div className="flex flex-col items-center justify-center space-y-2 pt-4">
+                <img src="/mero-patro-app-icon-3d.png" alt="Nepali Patro" className="w-16 h-16 rounded-2xl shadow-md object-contain" />
+                <h1 className="text-xl font-black text-slate-800 dark:text-slate-100">नेपाली पात्रो</h1>
+              </div>
+
+              {/* Preferences Box */}
+              <div className="bg-white dark:bg-[#1e2026] rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-zinc-800 space-y-5 my-auto">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white text-center">Preferences</h2>
+
+                {/* Language Selection */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Preferred Language</label>
+                  <div className="flex items-center gap-6 pt-1">
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="pref_lang" 
+                        checked={appLang === 'en'} 
+                        onChange={() => setAppLang('en')} 
+                        className="accent-[#e52521] w-4 h-4 cursor-pointer"
+                      />
+                      <span>English</span>
+                    </label>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="pref_lang" 
+                        checked={appLang === 'ne'} 
+                        onChange={() => setAppLang('ne')} 
+                        className="accent-[#e52521] w-4 h-4 cursor-pointer"
+                      />
+                      <span>नेपाली</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Dark Theme Toggle */}
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Dark Theme</span>
+                  <button 
+                    onClick={toggleTheme}
+                    className={`w-11 h-6 rounded-full p-0.5 transition-colors cursor-pointer ${
+                      appTheme === 'dark' ? 'bg-[#e52521]' : 'bg-slate-300 dark:bg-zinc-700'
+                    }`}
+                  >
+                    <div className={`w-5 h-5 rounded-full bg-white shadow-md transition-transform ${
+                      appTheme === 'dark' ? 'translate-x-5' : 'translate-x-0'
+                    }`} />
+                  </button>
+                </div>
+
+                {/* News Update Toggle */}
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">News Update</span>
+                  <button 
+                    onClick={() => setNewsUpdateEnabled(!newsUpdateEnabled)}
+                    className={`w-11 h-6 rounded-full p-0.5 transition-colors cursor-pointer ${
+                      newsUpdateEnabled ? 'bg-[#e52521]' : 'bg-slate-300 dark:bg-zinc-700'
+                    }`}
+                  >
+                    <div className={`w-5 h-5 rounded-full bg-white shadow-md transition-transform ${
+                      newsUpdateEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`} />
+                  </button>
+                </div>
+
+                {/* Radio Update Toggle */}
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Radio Update</span>
+                  <button 
+                    onClick={() => setRadioUpdateEnabled(!radioUpdateEnabled)}
+                    className={`w-11 h-6 rounded-full p-0.5 transition-colors cursor-pointer ${
+                      radioUpdateEnabled ? 'bg-[#e52521]' : 'bg-slate-300 dark:bg-zinc-700'
+                    }`}
+                  >
+                    <div className={`w-5 h-5 rounded-full bg-white shadow-md transition-transform ${
+                      radioUpdateEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Terms Footer & Next Action */}
+              <div className="space-y-3 pb-2 text-center">
+                <p className="text-[11px] text-slate-400 font-medium">
+                  By clicking next you agree to our <span className="underline cursor-pointer">Privacy Policy</span> and <span className="underline cursor-pointer">Terms of Use</span>
+                </p>
+
+                <button 
+                  onClick={() => setOnboardingStep(1)}
+                  className="w-full py-3 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold text-sm rounded-2xl shadow-lg transition-all cursor-pointer active:scale-98"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 1: Festivals & Events (Exact Screenshot 5 Match) */}
+          {onboardingStep === 1 && (
+            <div className="flex-1 flex flex-col justify-between max-w-sm mx-auto w-full pt-8 text-center">
+              <div className="flex-1 flex items-center justify-center my-auto">
+                <div className="w-56 h-56 rounded-full bg-orange-50 dark:bg-orange-950/20 flex flex-col items-center justify-center border border-orange-200/50 p-6 relative shadow-inner">
+                  <CalendarIcon size={64} className="text-[#e52521]" />
+                  <Sparkles size={28} className="text-amber-500 absolute top-6 right-8" />
+                </div>
+              </div>
+
+              <div className="space-y-3 px-2 py-4">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Festivals & Events</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+                  Never miss to plan for religious festivals or formal events. Easy to use interface for finding dates, festivals and events in Nepali & English.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between pt-6 pb-2">
+                <button 
+                  onClick={() => { localStorage.setItem('mp_onboarding_completed', '1'); setShowOnboarding(false); }}
+                  className="text-xs font-bold text-[#e52521] hover:underline cursor-pointer"
+                >
+                  Skip
+                </button>
+
+                <div className="flex items-center gap-1.5">
+                  {[0, 1, 2, 3, 4].map(idx => (
+                    <div key={idx} className={`w-2 h-2 rounded-full transition-all ${idx === 1 ? 'w-4 bg-[#e52521]' : 'bg-slate-300 dark:bg-zinc-700'}`} />
+                  ))}
+                </div>
+
+                <button 
+                  onClick={() => setOnboardingStep(2)}
+                  className="w-10 h-10 rounded-full bg-[#e52521] text-white flex items-center justify-center shadow-md cursor-pointer hover:bg-[#d01f1c]"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2: Panchanga & Suva Sait (Exact Screenshot 4 Match) */}
+          {onboardingStep === 2 && (
+            <div className="flex-1 flex flex-col justify-between max-w-sm mx-auto w-full pt-8 text-center">
+              <div className="flex-1 flex items-center justify-center my-auto">
+                <div className="w-56 h-56 rounded-full bg-amber-50 dark:bg-amber-950/20 flex flex-col items-center justify-center border border-amber-200/50 p-6 relative shadow-inner">
+                  <Sparkles size={64} className="text-[#e52521]" />
+                  <Clock size={28} className="text-amber-600 absolute top-6 right-8" />
+                </div>
+              </div>
+
+              <div className="space-y-3 px-2 py-4">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Panchanga & Suva Sait</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+                  Little more interested in 'Vedic Astrology'? Get more on 'Panchanga' and find out 'Suva Sait' for marriage, bratabandha, rudri, hom etc.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between pt-6 pb-2">
+                <button 
+                  onClick={() => { localStorage.setItem('mp_onboarding_completed', '1'); setShowOnboarding(false); }}
+                  className="text-xs font-bold text-[#e52521] hover:underline cursor-pointer"
+                >
+                  Skip
+                </button>
+
+                <div className="flex items-center gap-1.5">
+                  {[0, 1, 2, 3, 4].map(idx => (
+                    <div key={idx} className={`w-2 h-2 rounded-full transition-all ${idx === 2 ? 'w-4 bg-[#e52521]' : 'bg-slate-300 dark:bg-zinc-700'}`} />
+                  ))}
+                </div>
+
+                <button 
+                  onClick={() => setOnboardingStep(3)}
+                  className="w-10 h-10 rounded-full bg-[#e52521] text-white flex items-center justify-center shadow-md cursor-pointer hover:bg-[#d01f1c]"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: Rashifal (Exact Screenshot 3 Match) */}
+          {onboardingStep === 3 && (
+            <div className="flex-1 flex flex-col justify-between max-w-sm mx-auto w-full pt-8 text-center">
+              <div className="flex-1 flex items-center justify-center my-auto">
+                <div className="w-56 h-56 rounded-full bg-red-50 dark:bg-red-950/20 flex flex-col items-center justify-center border border-red-200/50 p-6 relative shadow-inner">
+                  <div className="w-14 h-14 rounded-full bg-[#e52521] text-white flex items-center justify-center text-2xl shadow-md">
+                    ♈
+                  </div>
+                  <div className="flex gap-2.5 text-base pt-3 text-red-500">
+                    <span>♉</span> <span>♊</span> <span>♋</span> <span>♌</span> <span>♍</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3 px-2 py-4">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Rashifal</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+                  Read today's free daily rashifal for all zodiac signs. Learn what the day has in store for you with Nepali Patro.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between pt-6 pb-2">
+                <button 
+                  onClick={() => { localStorage.setItem('mp_onboarding_completed', '1'); setShowOnboarding(false); }}
+                  className="text-xs font-bold text-[#e52521] hover:underline cursor-pointer"
+                >
+                  Skip
+                </button>
+
+                <div className="flex items-center gap-1.5">
+                  {[0, 1, 2, 3, 4].map(idx => (
+                    <div key={idx} className={`w-2 h-2 rounded-full transition-all ${idx === 3 ? 'w-4 bg-[#e52521]' : 'bg-slate-300 dark:bg-zinc-700'}`} />
+                  ))}
+                </div>
+
+                <button 
+                  onClick={() => setOnboardingStep(4)}
+                  className="w-10 h-10 rounded-full bg-[#e52521] text-white flex items-center justify-center shadow-md cursor-pointer hover:bg-[#d01f1c]"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 4: News & Exchange Rates (Exact Screenshot 2 Match) */}
+          {onboardingStep === 4 && (
+            <div className="flex-1 flex flex-col justify-between max-w-sm mx-auto w-full pt-8 text-center">
+              <div className="flex-1 flex items-center justify-center my-auto">
+                <div className="w-56 h-56 rounded-full bg-slate-100 dark:bg-zinc-800 flex flex-col items-center justify-center border border-slate-200 dark:border-zinc-700 p-6 relative shadow-inner">
+                  <Newspaper size={64} className="text-[#e52521]" />
+                  <TrendingUp size={28} className="text-emerald-500 absolute top-6 right-8" />
+                </div>
+              </div>
+
+              <div className="space-y-3 px-2 py-4">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">News & Exchange Rates</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+                  Covers all latest breaking news, Top and Trending news across Nepal and worldwide. Check latest updates on Business, Finance and Economy across Nepal.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between pt-6 pb-2">
+                <div />
+
+                <div className="flex items-center gap-1.5">
+                  {[0, 1, 2, 3, 4].map(idx => (
+                    <div key={idx} className={`w-2 h-2 rounded-full transition-all ${idx === 4 ? 'w-4 bg-[#e52521]' : 'bg-slate-300 dark:bg-zinc-700'}`} />
+                  ))}
+                </div>
+
+                <button 
+                  onClick={() => { localStorage.setItem('mp_onboarding_completed', '1'); setShowOnboarding(false); }}
+                  className="text-xs font-bold text-[#e52521] hover:underline cursor-pointer"
+                >
+                  Let's Begin
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
       )}
 
@@ -2710,6 +2994,24 @@ export default function WidgetCalendar() {
                     </span>
                     <span className="w-4 h-4 rounded-full bg-[#e52521] flex items-center justify-center text-[10px] font-bold text-white">G</span>
                   </div>
+                </button>
+
+                {/* Reset & Setup App Preferences */}
+                <button
+                  onClick={() => {
+                    setIsProfileOpen(false);
+                    setOnboardingStep(0);
+                    setShowOnboarding(true);
+                  }}
+                  className={`w-full flex items-center justify-between p-3 rounded-2xl transition-colors text-left cursor-pointer ${
+                    appTheme === 'dark' ? 'hover:bg-slate-800/60' : 'hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Sparkles size={18} className="text-[#e52521]" />
+                    <span className="text-xs font-bold">{appLang === 'ne' ? 'अनुभव र प्राथमिकता मिलाउनुहोस्' : 'App Preferences & Setup'}</span>
+                  </div>
+                  <ChevronRight size={14} className="text-slate-400" />
                 </button>
 
                 {/* Admin Dashboard Access (Dedicated Mero Patro Calendar Admin Panel) */}
