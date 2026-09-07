@@ -2787,20 +2787,20 @@ export default function WidgetCalendar() {
                   </div>
                 </button>
 
-                {/* Admin Dashboard Access */}
+                {/* Admin Dashboard Access (Dedicated Mero Patro Calendar Admin Panel) */}
                 <button
                   onClick={() => {
                     if (typeof window !== 'undefined') {
-                      window.open('/admin', '_blank');
+                      window.location.href = '/widgets/calendar/admin';
                     }
                   }}
                   className="w-full flex items-center justify-between p-3.5 rounded-2xl transition-all text-left cursor-pointer bg-gradient-to-r from-[#d01f1c] to-[#e52521] text-white shadow-md hover:opacity-95 my-1.5"
                 >
                   <div className="flex items-center gap-3">
                     <ShieldCheck size={18} className="text-white" />
-                    <span className="text-xs font-black">{appLang === 'ne' ? 'एडमिन प्यानल (Admin Dashboard)' : 'Admin Dashboard'}</span>
+                    <span className="text-xs font-black">{appLang === 'ne' ? 'पात्रो एडमिन प्यानल (Calendar Admin)' : 'Mero Patro Calendar Admin'}</span>
                   </div>
-                  <ExternalLink size={14} className="text-white/80" />
+                  <ChevronRight size={16} className="text-white/90" />
                 </button>
               </div>
 
