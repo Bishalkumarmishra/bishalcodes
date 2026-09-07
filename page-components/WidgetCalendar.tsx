@@ -3988,13 +3988,13 @@ export default function WidgetCalendar() {
       )}
 
       {/* ═════════════════════════════════════════════════════════════════ */}
-      {/* IN-APP FULLSCREEN NEWS ARTICLE READER OVERLAY                     */}
+      {/* IN-APP FULLSCREEN DIRECT NEWS WEBSITE READER OVERLAY               */}
       {/* ═════════════════════════════════════════════════════════════════ */}
       {openedNewsItem && (
         <div className={`fixed inset-0 z-[9999] flex flex-col w-full h-full animate-fadeIn transition-colors ${
           appTheme === 'dark' ? 'bg-[#000000] text-white' : 'bg-[#ffffff] text-slate-900'
         }`}>
-          {/* Reader Top Bar */}
+          {/* Reader Header Navigation Bar */}
           <div className={`px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] border-b flex items-center justify-between sticky top-0 z-50 ${
             appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-[#e52521] border-[#d01f1c] text-white'
           }`}>
@@ -4010,32 +4010,23 @@ export default function WidgetCalendar() {
                 <span className="px-2 py-0.5 rounded-md bg-white/20 text-white font-extrabold text-[10px] uppercase">
                   {openedNewsItem.source || 'नेपाली समाचार'}
                 </span>
-                <span className="text-xs font-bold truncate max-w-[140px] sm:max-w-xs text-white/90">
+                <span className="text-xs font-bold truncate max-w-[160px] sm:max-w-xs text-white/90">
                   {openedNewsItem.domain || 'onlinekhabar.com'}
                 </span>
               </div>
             </div>
 
-            {/* Mode Switcher: Clean Reader vs Full Web Page */}
             <div className="flex items-center gap-2">
-              <div className="flex bg-white/10 p-0.5 rounded-xl border border-white/20">
-                <button
-                  onClick={() => setReaderViewMode('clean')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
-                    readerViewMode === 'clean' ? 'bg-white text-slate-900 shadow-xs' : 'text-white/80 hover:text-white'
-                  }`}
-                >
-                  सफा रिडर
-                </button>
-                <button
-                  onClick={() => setReaderViewMode('web')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
-                    readerViewMode === 'web' ? 'bg-white text-slate-900 shadow-xs' : 'text-white/80 hover:text-white'
-                  }`}
-                >
-                  वेबसाइट
-                </button>
-              </div>
+              <a
+                href={openedNewsItem.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs flex items-center gap-1.5 transition-colors"
+                title="Open in external browser"
+              >
+                <ExternalLink size={16} />
+                <span className="hidden sm:inline">ब्राउजरमा खोल्नुहोस्</span>
+              </a>
 
               <button
                 onClick={() => setOpenedNewsItem(null)}
@@ -4046,93 +4037,14 @@ export default function WidgetCalendar() {
             </div>
           </div>
 
-          {/* Reader Article Content Body */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-5 max-w-2xl mx-auto w-full">
-            {readerViewMode === 'clean' ? (
-              <div className="space-y-5 animate-fadeIn">
-                {/* Article Metadata & Title Header */}
-                <div className="space-y-2.5 border-b pb-4 border-slate-200 dark:border-zinc-800">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="px-3 py-1 rounded-full bg-[#e52521] text-white text-[11px] font-black">
-                      {openedNewsItem.source || 'OnlineKhabar'}
-                    </span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold">
-                      {openedNewsItem.category || 'ताजा समाचार'}
-                    </span>
-                    <span className="text-xs text-slate-400 font-semibold flex items-center gap-1">
-                      <Clock size={12} className="text-[#e52521]" />
-                      {new Date(openedNewsItem.pubDate || Date.now()).toLocaleDateString('ne-NP')}
-                    </span>
-                  </div>
-                  
-                  <h1 className={`text-xl sm:text-2xl font-black leading-snug tracking-tight ${
-                    appTheme === 'dark' ? 'text-white' : 'text-slate-900'
-                  }`}>
-                    {openedNewsItem.title}
-                  </h1>
-                </div>
-
-                {/* Real Banner Post Image */}
-                {openedNewsItem.image && (
-                  <div className="rounded-3xl overflow-hidden shadow-md border border-slate-200 dark:border-zinc-800 max-h-[380px] bg-slate-900">
-                    <img 
-                      src={openedNewsItem.image} 
-                      alt={openedNewsItem.title} 
-                      className="w-full h-full object-cover max-h-[380px]"
-                    />
-                  </div>
-                )}
-
-                {/* Clean Article Content Body */}
-                <div className={`space-y-4 text-sm sm:text-base leading-relaxed font-normal ${
-                  appTheme === 'dark' ? 'text-slate-200' : 'text-slate-800'
-                }`}>
-                  {openedNewsItem.description ? (
-                    <p className="bg-slate-50 dark:bg-[#0a0a0c] p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 text-sm leading-relaxed font-medium">
-                      {openedNewsItem.description}
-                    </p>
-                  ) : (
-                    <p className="text-slate-400 italic text-xs">
-                      यो समाचारको मुख्य अंश आधिकारिक सञ्चारमाध्यम फिडबाट प्राप्त भएको हो। पूरा समाचारको लागि तलको लिङ्क क्लिक गर्नुहोस्।
-                    </p>
-                  )}
-                </div>
-
-                {/* Action Bar: Open Original Article */}
-                <div className="pt-4 border-t border-slate-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-                  <a
-                    href={openedNewsItem.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full sm:w-auto px-6 py-3 bg-[#e52521] hover:bg-[#d01f1c] text-white font-extrabold text-xs rounded-2xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition-colors"
-                  >
-                    <span>मूल समाचार पोर्टलमा हेर्नुहोस्</span>
-                    <ExternalLink size={14} />
-                  </a>
-
-                  <button
-                    onClick={() => setReaderViewMode('web')}
-                    className={`w-full sm:w-auto px-5 py-3 rounded-2xl font-bold text-xs border cursor-pointer transition-colors ${
-                      appTheme === 'dark' 
-                        ? 'bg-[#141416] border-zinc-800 text-slate-300 hover:bg-zinc-800' 
-                        : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
-                    }`}
-                  >
-                    पूरा वेबसाइट पेज देखाउनुहोस्
-                  </button>
-                </div>
-              </div>
-            ) : (
-              /* Full Embedded Web Page View (Stripping Site Header & Footer) */
-              <div className="w-full h-[680px] rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 bg-white">
-                <iframe
-                  src={`/api/v1/news/read?url=${encodeURIComponent(openedNewsItem.link)}`}
-                  className="w-full h-full border-none"
-                  title={openedNewsItem.title}
-                  sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-                />
-              </div>
-            )}
+          {/* Direct Full Web Page Frame (No Safa Reader) */}
+          <div className="flex-1 w-full h-full bg-white overflow-hidden">
+            <iframe
+              src={`/api/v1/news/read?url=${encodeURIComponent(openedNewsItem.link)}`}
+              className="w-full h-full border-none"
+              title={openedNewsItem.title}
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+            />
           </div>
         </div>
       )}
