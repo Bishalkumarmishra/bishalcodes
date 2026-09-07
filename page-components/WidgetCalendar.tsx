@@ -1289,19 +1289,45 @@ export default function WidgetCalendar() {
                 </div>
 
                 {/* Sahits Today Pill Badges (Exact Screenshot 4) */}
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-xs font-black text-slate-900">Sahits today</span>
-                  <button onClick={() => setCalSubTab('saait')} className="text-xs font-extrabold text-[#e52521] hover:underline">
+                <div className={`pt-2 border-t flex items-center justify-between ${
+                  appTheme === 'dark' ? 'border-zinc-800' : 'border-slate-100'
+                }`}>
+                  <span className={`text-xs font-black ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Sahits today</span>
+                  <button 
+                    onClick={() => {
+                      setCalSubTab('saait');
+                      setTimeout(() => {
+                        document.getElementById('saait-subtab-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }, 50);
+                    }} 
+                    className="text-xs font-extrabold text-[#e52521] hover:underline cursor-pointer"
+                  >
                     View All
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-300 text-xs font-extrabold rounded-full border border-amber-200">
+                  <button 
+                    onClick={() => {
+                      setCalSubTab('saait');
+                      setTimeout(() => {
+                        document.getElementById('saait-subtab-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }, 50);
+                    }}
+                    className="px-3 py-1 bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-300 text-xs font-extrabold rounded-full border border-amber-200 cursor-pointer hover:opacity-80 transition-opacity"
+                  >
                     रुद्री जुर्ने
-                  </span>
-                  <span className="px-3 py-1 bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-300 text-xs font-extrabold rounded-full border border-amber-200">
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setCalSubTab('saait');
+                      setTimeout(() => {
+                        document.getElementById('saait-subtab-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }, 50);
+                    }}
+                    className="px-3 py-1 bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-300 text-xs font-extrabold rounded-full border border-amber-200 cursor-pointer hover:opacity-80 transition-opacity"
+                  >
                     अग्नि जुर्ने
-                  </span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1309,7 +1335,7 @@ export default function WidgetCalendar() {
             {/* Upcoming Events Horizontal Carousel (Exact Screenshot 4) */}
             <div className="space-y-2.5 pt-2">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-extrabold text-slate-900">Upcoming Events</h3>
+                <h3 className={`text-base font-extrabold ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Upcoming Events</h3>
               </div>
 
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
@@ -1354,7 +1380,7 @@ export default function WidgetCalendar() {
             </div>
 
             {/* Sub-Tabs Switcher Bar: Events vs Saait This Month (Exact Screenshot 1 & 2) */}
-            <div className={`border-b flex items-center justify-around mt-4 pt-1 ${
+            <div id="saait-subtab-section" className={`border-b flex items-center justify-around mt-4 pt-1 ${
               appTheme === 'dark' ? 'bg-[#000000] border-zinc-800' : 'bg-white border-slate-200'
             }`}>
               <button
