@@ -2614,6 +2614,22 @@ export default function WidgetCalendar() {
                     <span className="w-4 h-4 rounded-full bg-[#e52521] flex items-center justify-center text-[10px] font-bold text-white">G</span>
                   </div>
                 </button>
+
+                {/* Admin Dashboard Access */}
+                <button
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      window.open('/admin', '_blank');
+                    }
+                  }}
+                  className="w-full flex items-center justify-between p-3.5 rounded-2xl transition-all text-left cursor-pointer bg-gradient-to-r from-[#d01f1c] to-[#e52521] text-white shadow-md hover:opacity-95 my-1.5"
+                >
+                  <div className="flex items-center gap-3">
+                    <ShieldCheck size={18} className="text-white" />
+                    <span className="text-xs font-black">{appLang === 'ne' ? 'एडमिन प्यानल (Admin Dashboard)' : 'Admin Dashboard'}</span>
+                  </div>
+                  <ExternalLink size={14} className="text-white/80" />
+                </button>
               </div>
 
               {/* Group 2: Support & Info (Opens Full Dedicated Pages, Zero Emojis) */}
