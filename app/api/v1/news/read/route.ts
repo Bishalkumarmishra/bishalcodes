@@ -20,36 +20,7 @@ export async function GET(req: Request) {
       return NextResponse.redirect(targetUrl);
     }
 
-    let html = await res.text();
-
-    // Inject CSS to completely hide headers, footers, navbars, sidebars, and ads
-    const customCss = `
-      <style id="clean-reader-injected-style">
-        header, footer, nav, 
-        .header, .footer, .site-header, .site-footer, 
-        .main-header, .main-footer, .nav-bar, .navbar,
-        .sidebar, .side-bar, .ad-container, .adsbygoogle,
-        #header, #footer, #site-header, #site-footer, #nav,
-        .ok-header, .ok-footer, .rtp-header, .rtp-footer,
-        .stp-header, .stp-footer, .header-wrapper, .footer-wrapper {
-          display: none !important;
-          visibility: hidden !important;
-          height: 0 !important;
-          opacity: 0 !important;
-          pointer-events: none !important;
-        }
-        body {
-          padding-top: 10px !important;
-          padding-bottom: 20px !important;
-        }
-      </style>
-    `;
-
-    if (html.includes('</head>')) {
-      html = html.replace('</head>', `${customCss}</head>`);
-    } else {
-      html = customCss + html;
-    }
+    const html = await res.text();
 
     return new NextResponse(html, {
       headers: {
