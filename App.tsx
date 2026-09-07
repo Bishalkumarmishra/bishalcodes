@@ -20,6 +20,7 @@ import SecureVaultView from './components/SecureVaultView';
 import Widgets from './page-components/Widgets';
 import WidgetDateConverter from './page-components/WidgetDateConverter';
 import WidgetCalendar from './page-components/WidgetCalendar';
+import WidgetCalendarAdmin from './page-components/WidgetCalendarAdmin';
 import NotFoundPage from './page-components/NotFoundPage';
 // @ts-ignore
 import UserDashboard from './page-components/UserDashboard';
@@ -169,50 +170,47 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
     }
   }, [currentPage, selectedId]);
 
-  const navigate = (page: PathPage, id?: string, queryParams?: Record<string, string>) => {
-    let path = '';
-    switch (page) {
-      case 'home': path = '/'; break;
-      case 'admin': path = '/admin'; break;
-      case 'login': path = '/login'; break;
-      case 'about': path = '/about'; break;
-      case 'skills': path = '/skills'; break;
-      case 'projects': path = '/projects'; break;
-      case 'experience': path = '/experience'; break;
-      case 'services': path = id ? `/tools/${id}` : '/tools'; break;
-      case 'blog': path = '/blog'; break;
-      case 'blog-post': path = `/blog/${id}`; break;
-      case 'contact': path = '/contact'; break;
-      case 'legal-page': path = `/legal/${id}`; break;
-      case 'ai-studio': path = '/ai-studio'; break;
-      case 'docs': path = id ? `/docs/${id}` : '/docs'; break;
-      case 'transfer': path = id ? `/transfer/${id}` : '/transfer'; break;
-      case 'vault': path = id ? `/vault/${id}` : '/vault'; break;
-      case 'user-dashboard': path = '/dashboard'; break;
-      case 'developers': path = id ? `/developers/${id}` : '/developers'; break;
-      case 'checkout': path = id ? `/checkout/${id}` : '/checkout'; break;
-      case 'widgets': path = '/widgets'; break;
-      case 'widget-date-converter': path = '/widgets/date-converter'; break;
-      case 'widget-calendar': path = '/widgets/calendar'; break;
-      default: path = '/'; // Fallback
-    }
-    
-    if (queryParams) {
-      const search = new URLSearchParams(queryParams).toString();
-      if (search) {
-        path += `?${search}`;
-      }
-    }
+  const pathnameEquals = (path1: string, path2: string) => {
+    return path1.replace(/\/$/, '') === path2.replace(/\/$/, '');
+  };
 
-    const currentPath = window.location.pathname + window.location.search;
-    if (currentPath === path) {
+  const navigate = (page: PathPage, id: string | null = null) => {
+    setCurrentPage(page);
+    setSelectedId(id);
+    let path = '/';
+    if (page === 'about') path = '/about';
+    else if (page === 'skills') path = '/skills';
+    else if (page === 'projects') path = '/projects';
+    else if (page === 'experience') path = '/experience';
+    else if (page === 'services') path = id ? `/tools/${id}` : '/tools';
+    else if (page === 'blog') path = '/blog';
+    else if (page === 'blog-post') path = `/blog/${id}`;
+    else if (page === 'contact') path = '/contact';
+    else if (page === 'login') path = '/login';
+    else if (page === 'admin') path = '/admin';
+    else if (page === 'legal-page') path = id ? `/legal/${id}` : '/legal';
+    else if (page === 'ai-studio') path = '/ai-studio';
+    else if (page === 'docs') path = id ? `/docs/${id}` : '/docs';
+    else if (page === 'transfer') path = id ? `/transfer/${id}` : '/transfer';
+    else if (page === 'vault') path = id ? `/vault/${id}` : '/vault';
+    else if (page === 'user-dashboard') path = '/dashboard';
+    else if (page === 'developers') path = id ? `/developers/${id}` : '/developers';
+    else if (page === 'checkout') path = id ? `/checkout/${id}` : '/checkout';
+    else if (page === 'widgets') path = '/widgets';
+    else if (page === 'widget-date-converter') path = '/widgets/date-converter';
+    else if (page === 'widget-calendar') path = '/widgets/calendar';
+    else if (page === 'widget-calendar-admin') path = '/widgets/calendar/admin';
+
+    if (typeof window !== 'undefined') {
+      if (pathnameEquals(window.location.pathname, path)) {
+        return;
+      }
+      
+      window.history.pushState({}, '', path);
+      window.dispatchEvent(new PopStateEvent('popstate'));
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
     }
-    
-    window.history.pushState({}, '', path);
-    window.dispatchEvent(new PopStateEvent('popstate'));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   };
 
   const renderContent = () => {
@@ -239,6 +237,7 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
       case 'widgets': return <Widgets />;
       case 'widget-date-converter': return <WidgetDateConverter />;
       case 'widget-calendar': return <WidgetCalendar />;
+      case 'widget-calendar-admin': return <WidgetCalendarAdmin onBackToApp={() => navigate('widget-calendar')} />;
       case 'not-found': return <NotFoundPage />;
       default: return <NotFoundPage />;
     }
