@@ -48,6 +48,31 @@ const NE_MONTHS_EVENTS: Record<number, Record<number, { title: string; isHoliday
   11: { 1: { title: "फागु पूर्णिमा (Holi)", isHoliday: true }, 25: { title: "रामनवमी", isHoliday: true } }
 };
 
+const EN_MONTHS_EVENTS: Record<number, Record<number, { title: string; isHoliday: boolean; desc?: string }>> = {
+  0: { 1: { title: "New Year / May Day", isHoliday: true }, 11: { title: "Loktantra Diwas", isHoliday: true } },
+  1: { 15: { title: "Republic Day", isHoliday: true } },
+  2: { 1: { title: "Mithun Sankranti", isHoliday: false }, 6: { title: "Bhoto Jatra", isHoliday: true }, 29: { title: "Bhanu Jayanti", isHoliday: false } },
+  3: { 1: { title: "Saune Sankranti", isHoliday: false }, 27: { title: "Janai Purnima / Raksha Bandhan", isHoliday: true }, 28: { title: "Gai Jatra", isHoliday: true } },
+  4: { 3: { title: "Krishna Janmashtami", isHoliday: true }, 4: { title: "Gaura Parba / Dar Khane Din", isHoliday: true }, 5: { title: "Haritalika Teej Vrata", isHoliday: true }, 21: { title: "Human Trafficking Day", isHoliday: false }, 22: { title: "Aja Ekadashi Vrata", isHoliday: false }, 24: { title: "Gen-Z Sahid Diwas", isHoliday: false }, 25: { title: "World Suicide Prevention Day", isHoliday: false } },
+  5: { 3: { title: "Indra Jatra", isHoliday: true }, 16: { title: "World Tourism Day", isHoliday: false }, 28: { title: "Ghatasthapana (Dashain Begins)", isHoliday: true } },
+  6: { 4: { title: "Fulpati", isHoliday: true }, 5: { title: "Maha Ashtami", isHoliday: true }, 6: { title: "Mahanavami", isHoliday: true }, 7: { title: "Vijaya Dashami", isHoliday: true }, 28: { title: "Laxmi Puja", isHoliday: true }, 30: { title: "Bhai Tika", isHoliday: true } },
+  7: { 3: { title: "Chhath Parba", isHoliday: true }, 24: { title: "Udhauli Parba / Dhanya Purnima", isHoliday: true } },
+  8: { 10: { title: "Christmas Day", isHoliday: true }, 15: { title: "Tamu Lhosar", isHoliday: true }, 29: { title: "Prithvi Jayanti", isHoliday: false } },
+  9: { 1: { title: "Maghe Sankranti", isHoliday: true }, 16: { title: "Martyrs' Day", isHoliday: false }, 21: { title: "Sonam Lhosar", isHoliday: true } },
+  10: { 7: { title: "Saraswati Puja / Vasant Panchami", isHoliday: true }, 19: { title: "Democracy Day", isHoliday: true }, 24: { title: "Maha Shivaratri", isHoliday: true } },
+  11: { 1: { title: "Fagu Purnima (Holi)", isHoliday: true }, 25: { title: "Ram Navami", isHoliday: true } }
+};
+
+const SAAIT_TITLE_MAP_EN: Record<string, string> = {
+  "अन्नप्राशन": "Pasni (Weaning Ceremony)",
+  "व्यापारिक प्रतिष्ठान प्रारम्भ": "Business Inauguration",
+  "रुद्री जुर्ने": "Rudri Puja Auspicious",
+  "अग्नि जुर्ने": "Agni Jurne Auspicious",
+  "विवाह साइत": "Marriage Auspicious",
+  "व्रतबन्ध": "Bratabandha (Sacred Thread)",
+  "गृह प्रवेश": "Housewarming (Griha Pravesh)"
+};
+
 const SAAIT_DATA: Record<number, { title: string; days: number[] }[]> = {
   0: [
     { title: "अन्नप्राशन", days: [3, 8, 15, 24] },
@@ -172,20 +197,26 @@ function getTithiForDay(monthIndex: number, day: number) {
   return `${monthNameNe} ${paksha} ${tithiName}`;
 }
 
-function getRelativeDaysText(calYear: number, calMonth: number, day: number, todayBs: { year: number; month: number; day: number }) {
+function getRelativeDaysText(calYear: number, calMonth: number, day: number, todayBs: { year: number; month: number; day: number }, lang: 'en' | 'ne' = 'en') {
+  const mapDigits = (n: number) => {
+    if (lang !== 'ne') return n.toString();
+    const m: Record<string, string> = { '0': '०', '1': '१', '2': '२', '3': '३', '4': '४', '5': '५', '6': '६', '7': '७', '8': '८', '9': '९' };
+    return n.toString().split('').map(c => m[c] || c).join('');
+  };
+
   if (calYear < todayBs.year || (calYear === todayBs.year && calMonth < todayBs.month)) {
     const diff = (todayBs.month - calMonth) * 30 + (todayBs.day - day);
-    return `${diff} days ago`;
+    return lang === 'ne' ? `${mapDigits(diff)} दिन पहिले` : `${diff} days ago`;
   }
   if (calYear > todayBs.year || (calYear === todayBs.year && calMonth > todayBs.month)) {
     const diff = (calMonth - todayBs.month) * 30 + (day - todayBs.day);
-    return `In ${diff} days`;
+    return lang === 'ne' ? `${mapDigits(diff)} दिनमा` : `In ${diff} days`;
   }
   const diff = day - todayBs.day;
-  if (diff === 0) return "Today";
-  if (diff === 1) return "Tomorrow";
-  if (diff < 0) return `${Math.abs(diff)} days ago`;
-  return `In ${diff} days`;
+  if (diff === 0) return lang === 'ne' ? "आज" : "Today";
+  if (diff === 1) return lang === 'ne' ? "भोलि" : "Tomorrow";
+  if (diff < 0) return lang === 'ne' ? `${mapDigits(Math.abs(diff))} दिन पहिले` : `${Math.abs(diff)} days ago`;
+  return lang === 'ne' ? `${mapDigits(diff)} दिनमा` : `In ${diff} days`;
 }
 
 const ZODIAC_SIGNS = [
@@ -927,7 +958,9 @@ export default function WidgetCalendar() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/30 z-10" />
               <div className="relative z-20 flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-slate-200">Good Morning</p>
+                  <p className="text-sm font-semibold text-slate-200">
+                    {appLang === 'ne' ? 'शुभ प्रभात' : 'Good Morning'}
+                  </p>
                   <h2 className="text-xl font-black text-white flex items-center gap-1.5 mt-0.5">
                     <Sun size={20} className="text-amber-300" /> {liveTemperature}° C | {liveCity}
                   </h2>
@@ -939,7 +972,7 @@ export default function WidgetCalendar() {
                   onClick={() => setActiveTab('calendar')}
                   className="px-4 py-1.5 bg-white/90 hover:bg-white text-slate-900 text-xs font-extrabold rounded-full shadow-md transition-all backdrop-blur-md"
                 >
-                  See More
+                  {appLang === 'ne' ? 'थप हेर्नुहोस्' : 'See More'}
                 </button>
               </div>
             </div>
@@ -952,10 +985,10 @@ export default function WidgetCalendar() {
                 appTheme === 'dark' ? 'border-zinc-800' : 'border-slate-100'
               }`}>
                 <h2 className={`text-2xl font-black ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                  {todayBs.day} {NEPALI_MONTHS_EN[todayBs.month]}
+                  {appLang === 'ne' ? `${NEPALI_MONTHS_NE[todayBs.month]} ${toNepaliDigits(todayBs.day)}` : `${todayBs.day} ${NEPALI_MONTHS_EN[todayBs.month]}`}
                 </h2>
                 <p className={`text-xs font-bold ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
-                  {DAYS_NE_FULL[new Date().getDay()]}, {toNepaliDigits(todayBs.year)}
+                  {appLang === 'ne' ? `${DAYS_NE_FULL[new Date().getDay()]}, ${toNepaliDigits(todayBs.year)}` : `${DAYS_EN_FULL[new Date().getDay()]}, ${todayBs.year}`}
                 </p>
                 <p className={`text-xs font-semibold ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{liveAdDateStr}</p>
                 
@@ -973,7 +1006,7 @@ export default function WidgetCalendar() {
                 <div className={`grid grid-cols-7 gap-1 text-center text-[10px] font-bold pb-1.5 border-b ${
                   appTheme === 'dark' ? 'border-zinc-800 text-slate-400' : 'border-slate-200 text-slate-600'
                 }`}>
-                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+                  {(appLang === 'ne' ? ['आ', 'सो', 'म', 'बु', 'बि', 'शु', 'श'] : ['S', 'M', 'T', 'W', 'T', 'F', 'S']).map((d, i) => (
                     <span key={i} className={i === 6 ? 'text-[#e52521]' : ''}>{d}</span>
                   ))}
                 </div>
@@ -999,7 +1032,7 @@ export default function WidgetCalendar() {
                             : 'text-slate-800 hover:bg-slate-200'
                         }`}
                       >
-                        {d}
+                        {appLang === 'ne' ? toNepaliDigits(d) : d}
                       </span>
                     );
                   })}
@@ -1141,7 +1174,9 @@ export default function WidgetCalendar() {
             }`}>
               <div>
                 <div className="flex items-center gap-1 cursor-pointer">
-                  <h2 className={`text-base font-black ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{NEPALI_MONTHS_NE[calMonth]} {toNepaliDigits(calYear)}</h2>
+                  <h2 className={`text-base font-black ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                    {appLang === 'ne' ? `${NEPALI_MONTHS_NE[calMonth]} ${toNepaliDigits(calYear)}` : `${NEPALI_MONTHS_EN[calMonth]} ${calYear}`}
+                  </h2>
                   <ChevronDown size={16} className={appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
                 </div>
                 <p className={`text-xs font-medium ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Aug/Sep 2026</p>
@@ -1152,7 +1187,7 @@ export default function WidgetCalendar() {
                   onClick={() => { setCalYear(todayBs.year); setCalMonth(todayBs.month); setSelectedDay(todayBs.day); }}
                   className="px-3.5 py-1.5 bg-[#e52521] text-white font-extrabold text-xs rounded-xl shadow-sm hover:bg-[#d01f1c]"
                 >
-                  Today
+                  {appLang === 'ne' ? 'आज' : 'Today'}
                 </button>
                 <button 
                   onClick={() => {
@@ -1186,7 +1221,7 @@ export default function WidgetCalendar() {
               <div className={`grid grid-cols-7 gap-1 text-center border-b pb-2 ${
                 appTheme === 'dark' ? 'border-zinc-800' : 'border-slate-200'
               }`}>
-                {DAYS_EN_SHORT.map((d, idx) => (
+                {(appLang === 'ne' ? DAYS_NE_SHORT : DAYS_EN_SHORT).map((d, idx) => (
                   <span key={d} className={`text-xs font-extrabold ${idx === 6 ? 'text-[#e52521]' : appTheme === 'dark' ? 'text-white' : 'text-slate-800'}`}>
                     {d}
                   </span>
@@ -1221,7 +1256,7 @@ export default function WidgetCalendar() {
                       }`}
                     >
                       <span className={`text-lg sm:text-2xl font-black leading-none ${isSelected ? 'text-white' : isSaturday ? 'text-[#e52521]' : appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                        {toNepaliDigits(day)}
+                        {appLang === 'ne' ? toNepaliDigits(day) : day}
                       </span>
                       <span className={`text-[9px] sm:text-[10px] font-medium leading-none text-right ${isSelected ? 'text-white/80' : isSaturday ? 'text-[#e52521]/80' : appTheme === 'dark' ? 'text-slate-400' : 'text-slate-400'}`}>
                         {adDay}
@@ -1241,17 +1276,23 @@ export default function WidgetCalendar() {
               }`}>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-3xl font-black text-[#e52521]">{selectedDay}</span>
+                    <span className="text-3xl font-black text-[#e52521]">
+                      {appLang === 'ne' ? toNepaliDigits(selectedDay) : selectedDay}
+                    </span>
                     <span className={`px-2.5 py-0.5 rounded-lg text-xs font-extrabold ${
                       appTheme === 'dark' ? 'bg-zinc-800 text-white' : 'bg-slate-200 text-slate-800'
                     }`}>
-                      {selectedDay === todayBs.day ? 'Today' : `Bhadra ${selectedDay}`}
+                      {selectedDay === todayBs.day 
+                        ? (appLang === 'ne' ? 'आज' : 'Today') 
+                        : (appLang === 'ne' ? `${NEPALI_MONTHS_NE[calMonth]} ${toNepaliDigits(selectedDay)}` : `${NEPALI_MONTHS_EN[calMonth]} ${selectedDay}`)}
                     </span>
                   </div>
                   <h3 className={`text-base font-black leading-tight mt-1 ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                    {NEPALI_MONTHS_EN[calMonth]} {calYear}
+                    {appLang === 'ne' ? `${NEPALI_MONTHS_NE[calMonth]} ${toNepaliDigits(calYear)}` : `${NEPALI_MONTHS_EN[calMonth]} ${calYear}`}
                   </h3>
-                  <p className={`text-xs font-bold ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-500'}`}>{DAYS_EN_FULL[(startDayOfWeek + selectedDay - 1) % 7]}</p>
+                  <p className={`text-xs font-bold ${appTheme === 'dark' ? 'text-slate-300' : 'text-slate-500'}`}>
+                    {appLang === 'ne' ? DAYS_NE_FULL[(startDayOfWeek + selectedDay - 1) % 7] : DAYS_EN_FULL[(startDayOfWeek + selectedDay - 1) % 7]}
+                  </p>
                   <p className={`text-xs font-medium ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-400'}`}>{liveAdDateStr}</p>
                 </div>
 
@@ -1391,7 +1432,7 @@ export default function WidgetCalendar() {
                     : appTheme === 'dark' ? 'border-transparent text-slate-400 hover:text-white' : 'border-transparent text-slate-400 hover:text-slate-700'
                 }`}
               >
-                Events
+                {appLang === 'ne' ? 'पर्वहरू (Events)' : 'Events'}
               </button>
               <button
                 onClick={() => setCalSubTab('saait')}
@@ -1401,7 +1442,7 @@ export default function WidgetCalendar() {
                     : appTheme === 'dark' ? 'border-transparent text-slate-400 hover:text-white' : 'border-transparent text-slate-400 hover:text-slate-700'
                 }`}
               >
-                Saait This Month
+                {appLang === 'ne' ? 'यो महिनाको साइत' : 'Saait This Month'}
               </button>
             </div>
 
@@ -1413,11 +1454,11 @@ export default function WidgetCalendar() {
                 {Array.from({ length: monthDaysCount }).map((_, idx) => {
                   const dayNum = idx + 1;
                   const dayOfWeekIdx = (startDayOfWeek + idx) % 7;
-                  const dayNameShort = DAYS_EN_SHORT[dayOfWeekIdx];
+                  const dayNameShort = appLang === 'ne' ? DAYS_NE_SHORT[dayOfWeekIdx] : DAYS_EN_SHORT[dayOfWeekIdx];
                   const isSat = dayOfWeekIdx === 6;
-                  const eventObj = NE_MONTHS_EVENTS[calMonth]?.[dayNum];
+                  const eventObj = appLang === 'ne' ? NE_MONTHS_EVENTS[calMonth]?.[dayNum] : (EN_MONTHS_EVENTS[calMonth]?.[dayNum] || NE_MONTHS_EVENTS[calMonth]?.[dayNum]);
                   const tithiStr = getTithiForDay(calMonth, dayNum);
-                  const relText = getRelativeDaysText(calYear, calMonth, dayNum, todayBs);
+                  const relText = getRelativeDaysText(calYear, calMonth, dayNum, todayBs, appLang);
 
                   return (
                     <div key={dayNum} className={`p-3.5 flex items-center justify-between transition-colors ${
@@ -1428,8 +1469,12 @@ export default function WidgetCalendar() {
                         appTheme === 'dark' ? 'border-zinc-900' : 'border-slate-100'
                       }`}>
                         <span className="text-[10px] font-bold text-slate-400 block uppercase">{dayNameShort}</span>
-                        <span className={`text-2xl font-black block leading-none my-0.5 ${isSat ? 'text-[#e52521]' : appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{dayNum}</span>
-                        <span className="text-[10px] text-slate-500 font-semibold">{NEPALI_MONTHS_EN[calMonth]}</span>
+                        <span className={`text-2xl font-black block leading-none my-0.5 ${isSat ? 'text-[#e52521]' : appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                          {appLang === 'ne' ? toNepaliDigits(dayNum) : dayNum}
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-semibold">
+                          {appLang === 'ne' ? NEPALI_MONTHS_NE[calMonth] : NEPALI_MONTHS_EN[calMonth]}
+                        </span>
                       </div>
 
                       {/* Middle: Tithi & Events */}
@@ -1443,16 +1488,18 @@ export default function WidgetCalendar() {
                             <h4 className={`text-xs font-black truncate ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{eventObj.title}</h4>
                           </div>
                         ) : (
-                          <p className="text-[10px] text-slate-400 font-medium">सामान्य दिन</p>
+                          <p className="text-[10px] text-slate-400 font-medium">
+                            {appLang === 'ne' ? 'सामान्य दिन' : 'Normal Day'}
+                          </p>
                         )}
                       </div>
 
                       {/* Right: Relative Days Ago / In X days */}
                       <div className="text-right shrink-0">
                         <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full ${
-                          relText === 'Today'
+                          relText === 'Today' || relText === 'आज'
                             ? 'bg-[#e52521] text-white shadow-xs'
-                            : relText === 'Tomorrow'
+                            : relText === 'Tomorrow' || relText === 'भोलि'
                             ? 'bg-amber-500 text-white shadow-xs'
                             : appTheme === 'dark' ? 'bg-zinc-900 text-slate-400' : 'bg-slate-100 text-slate-500'
                         }`}>
@@ -1474,7 +1521,7 @@ export default function WidgetCalendar() {
                   <div key={idx} className="space-y-2.5">
                     <h4 className={`text-xs font-black flex items-center gap-2 ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                       <span className="w-2 h-2 rounded-full bg-[#e52521]" />
-                      {cat.title}
+                      {appLang === 'ne' ? cat.title : (SAAIT_TITLE_MAP_EN[cat.title] || cat.title)}
                     </h4>
                     <div className="flex flex-wrap gap-2.5 pt-0.5">
                       {cat.days.map((d) => (
@@ -1487,7 +1534,7 @@ export default function WidgetCalendar() {
                               : 'bg-amber-100/90 text-amber-900 border-amber-300/60 hover:bg-amber-200'
                           }`}
                         >
-                          {d}
+                          {appLang === 'ne' ? toNepaliDigits(d) : d}
                         </button>
                       ))}
                     </div>
