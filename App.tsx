@@ -211,7 +211,6 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
-  };
 
   const renderContent = () => {
     switch (currentPage) {
