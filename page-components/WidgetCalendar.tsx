@@ -398,6 +398,13 @@ export default function WidgetCalendar() {
   const [isMobileModalOpen, setIsMobileModalOpen] = useState<boolean>(false);
   const [selectedZodiac, setSelectedZodiac] = useState<any>(ZODIAC_SIGNS[0]);
 
+  // Date Picker Modal State (Matching Screenshot 2)
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState<boolean>(false);
+  const [pickerCalendarType, setPickerCalendarType] = useState<'BS' | 'AD'>('BS');
+  const [pickerYear, setPickerYear] = useState<number>(todayBs.year);
+  const [pickerMonth, setPickerMonth] = useState<number>(todayBs.month);
+  const [pickerDay, setPickerDay] = useState<number>(todayBs.day);
+
   const DEFAULT_HERO_SLIDERS = [
     'https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=1000&auto=format&fit=crop&q=80', // Sacred Lord Vishnu / Divine Temple motif
     'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1000&auto=format&fit=crop&q=80', // Pashupatinath Temple Nepal
@@ -1565,11 +1572,22 @@ export default function WidgetCalendar() {
               appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-white border-slate-200 text-slate-900'
             }`}>
               <div>
-                <div className="flex items-center gap-1 cursor-pointer">
+                <div 
+                  onClick={() => {
+                    setPickerYear(calYear);
+                    setPickerMonth(calMonth);
+                    setPickerDay(selectedDay);
+                    setIsDatePickerOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+                  title="Click to select month & year date"
+                >
                   <h2 className={`text-base font-black ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                     {appLang === 'ne' ? `${NEPALI_MONTHS_NE[calMonth]} ${toNepaliDigits(calYear)}` : `${NEPALI_MONTHS_EN[calMonth]} ${calYear}`}
                   </h2>
-                  <ChevronDown size={16} className={appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
+                  <div className="w-5 h-5 rounded-full border border-slate-300 dark:border-zinc-700 flex items-center justify-center bg-slate-100 dark:bg-zinc-800">
+                    <ChevronDown size={14} className={appTheme === 'dark' ? 'text-slate-300' : 'text-slate-700'} />
+                  </div>
                 </div>
                 <p className={`text-xs font-medium ${appTheme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Aug/Sep 2026</p>
               </div>
@@ -4045,6 +4063,127 @@ export default function WidgetCalendar() {
               title={openedNewsItem.title}
               sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
             />
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────── */}
+      {/* DATE PICKER DROPDOWN POPUP MODAL (Exact Screenshot 2)            */}
+      {/* ─────────────────────────────────────────────────────────────── */}
+      {isDatePickerOpen && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn">
+          <div className={`w-full max-w-sm rounded-3xl p-5 border shadow-2xl space-y-4 ${
+            appTheme === 'dark' ? 'bg-[#18181b] border-zinc-700 text-white' : 'bg-[#f4f4f5] border-slate-300 text-slate-900'
+          }`}>
+            
+            {/* BS / AD Mode Switcher */}
+            <div className="flex bg-slate-200 dark:bg-zinc-800 p-1 rounded-xl w-fit">
+              <button
+                onClick={() => setPickerCalendarType('BS')}
+                className={`px-4 py-1.5 rounded-lg text-xs font-black transition-all ${
+                  pickerCalendarType === 'BS' 
+                    ? 'bg-[#18181b] text-white dark:bg-white dark:text-slate-900 shadow-sm' 
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                BS
+              </button>
+              <button
+                onClick={() => setPickerCalendarType('AD')}
+                className={`px-4 py-1.5 rounded-lg text-xs font-black transition-all ${
+                  pickerCalendarType === 'AD' 
+                    ? 'bg-[#18181b] text-white dark:bg-white dark:text-slate-900 shadow-sm' 
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                AD
+              </button>
+            </div>
+
+            {/* 3 Dropdown Select Controls (Year, Month, Day) */}
+            <div className="grid grid-cols-3 gap-2">
+              {/* Year Select */}
+              <div className="relative">
+                <select
+                  value={pickerYear}
+                  onChange={(e) => setPickerYear(Number(e.target.value))}
+                  className={`w-full appearance-none border rounded-2xl p-2.5 pr-7 text-xs font-black outline-none ${
+                    appTheme === 'dark' ? 'bg-zinc-900 border-zinc-700 text-white' : 'bg-white border-slate-300 text-slate-900'
+                  }`}
+                >
+                  {Array.from({ length: 40 }).map((_, i) => {
+                    const y = (pickerCalendarType === 'BS' ? 2060 : 2004) + i;
+                    return (
+                      <option key={y} value={y}>
+                        {pickerCalendarType === 'BS' && appLang === 'ne' ? toNepaliDigits(y) : y}
+                      </option>
+                    );
+                  })}
+                </select>
+                <ChevronDown size={14} className="absolute right-2.5 top-3.5 pointer-events-none text-slate-500" />
+              </div>
+
+              {/* Month Select */}
+              <div className="relative">
+                <select
+                  value={pickerMonth}
+                  onChange={(e) => setPickerMonth(Number(e.target.value))}
+                  className={`w-full appearance-none border rounded-2xl p-2.5 pr-7 text-xs font-black outline-none ${
+                    appTheme === 'dark' ? 'bg-zinc-900 border-zinc-700 text-white' : 'bg-white border-slate-300 text-slate-900'
+                  }`}
+                >
+                  {NEPALI_MONTHS_NE.map((m, i) => (
+                    <option key={i} value={i}>
+                      {appLang === 'ne' ? m : NEPALI_MONTHS_EN[i]}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={14} className="absolute right-2.5 top-3.5 pointer-events-none text-slate-500" />
+              </div>
+
+              {/* Day Select */}
+              <div className="relative">
+                <select
+                  value={pickerDay}
+                  onChange={(e) => setPickerDay(Number(e.target.value))}
+                  className={`w-full appearance-none border rounded-2xl p-2.5 pr-7 text-xs font-black outline-none ${
+                    appTheme === 'dark' ? 'bg-zinc-900 border-zinc-700 text-white' : 'bg-white border-slate-300 text-slate-900'
+                  }`}
+                >
+                  {Array.from({ length: 32 }).map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {appLang === 'ne' ? toNepaliDigits(i + 1) : i + 1}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={14} className="absolute right-2.5 top-3.5 pointer-events-none text-slate-500" />
+              </div>
+            </div>
+
+            {/* Action Buttons: Cancel & Select */}
+            <div className="flex items-center justify-between pt-2">
+              <button
+                onClick={() => setIsDatePickerOpen(false)}
+                className={`px-5 py-2.5 rounded-2xl font-bold text-xs hover:bg-slate-300 dark:hover:bg-zinc-800 transition-colors ${
+                  appTheme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                }`}
+              >
+                {appLang === 'ne' ? 'रद्द गर्नुहोस्' : 'Cancel'}
+              </button>
+
+              <button
+                onClick={() => {
+                  setCalYear(pickerYear);
+                  setCalMonth(pickerMonth);
+                  setSelectedDay(pickerDay);
+                  setIsDatePickerOpen(false);
+                }}
+                className="px-6 py-2.5 bg-slate-300 hover:bg-slate-400 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-slate-900 dark:text-white font-extrabold text-xs rounded-2xl transition-all shadow-xs"
+              >
+                {appLang === 'ne' ? 'छनोट गर्नुहोस्' : 'Select'}
+              </button>
+            </div>
+
           </div>
         </div>
       )}

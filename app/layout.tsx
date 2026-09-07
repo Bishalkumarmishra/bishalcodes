@@ -98,7 +98,7 @@ export default function RootLayout({
           id="sw-registration"
           dangerouslySetInnerHTML={{ __html: `
             if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
+              var registerSW = function() {
                 navigator.serviceWorker.register('/service-worker.js')
                   .then(function(reg) {
                     console.log('[SW] PWA Service Worker active:', reg.scope);
@@ -106,7 +106,12 @@ export default function RootLayout({
                   .catch(function(err) {
                     console.warn('[SW] Registration failed:', err);
                   });
-              });
+              };
+              if (document.readyState === 'complete') {
+                registerSW();
+              } else {
+                window.addEventListener('load', registerSW);
+              }
             }
           `}}
           strategy="afterInteractive"

@@ -163,7 +163,7 @@ self.addEventListener('fetch', (event) => {
 
   // ─── NETWORK-FIRST: Navigation requests (HTML pages) ───
   // Cache the HTML so the app shell works offline
-  if (request.mode === 'navigate') {
+  if (request.mode === 'navigate' || (request.headers.get('accept') && request.headers.get('accept').includes('text/html'))) {
     event.respondWith(
       fetch(request)
         .then((response) => {
@@ -174,14 +174,15 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          // Offline: try cached version of this page first
-          return caches.match(request).then((cached) => {
+          // Offline: try cached version of this page first with ignoreSearch
+          return caches.match(request, { ignoreSearch: true }).then((cached) => {
             if (cached) return cached;
-            // Then try the home page cache (app shell)
-            return caches.match('/').then((homeCache) => {
-              if (homeCache) return homeCache;
-              // Last resort: offline fallback page
-              return caches.match('/offline.html');
+            return caches.match('/widgets/calendar', { ignoreSearch: true }).then((calCache) => {
+              if (calCache) return calCache;
+              return caches.match('/', { ignoreSearch: true }).then((homeCache) => {
+                if (homeCache) return homeCache;
+                return caches.match('/offline.html');
+              });
             });
           });
         })
