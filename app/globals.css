@@ -224,15 +224,7 @@ input, textarea, [contenteditable="true"] {
 
 /* Adaptive status bar and navbar classes styling */
 .sky-status-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 24px;
-  background-color: var(--status-bar-bg) !important;
-  z-index: 999999 !important;
-  pointer-events: none;
-  display: none;
+  display: none !important;
 }
 
 .site-navbar {

@@ -849,7 +849,7 @@ export default function WidgetCalendar() {
       {/* ═════════════════════════════════════════════════════════════════ */}
       {/* APP TOP BAR (Exact Matching Reference Screenshots 1, 2, 3, 4, 5) */}
       {/* ═════════════════════════════════════════════════════════════════ */}
-      <header className={`px-3 sm:px-4 py-2.5 pt-[calc(0.6rem+env(safe-area-inset-top,0px))] flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0 w-full max-w-full transition-colors ${
+      <header className={`px-3 sm:px-4 py-2.5 flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0 w-full max-w-full transition-colors ${
         appTheme === 'dark' 
           ? 'bg-[#000000] border-b border-zinc-900 text-white' 
           : 'bg-[#e52521] border-b border-[#d01f1c] text-white'
