@@ -48,6 +48,146 @@ const NE_MONTHS_EVENTS: Record<number, Record<number, { title: string; isHoliday
   11: { 1: { title: "फागु पूर्णिमा (Holi)", isHoliday: true }, 25: { title: "रामनवमी", isHoliday: true } }
 };
 
+const SAAIT_DATA: Record<number, { title: string; days: number[] }[]> = {
+  0: [
+    { title: "अन्नप्राशन", days: [3, 8, 15, 24] },
+    { title: "व्यापारिक प्रतिष्ठान प्रारम्भ", days: [2, 7, 11, 18, 26] },
+    { title: "रुद्री जुर्ने", days: [1, 4, 6, 9, 12, 14, 17, 20, 22, 25, 28, 30] },
+    { title: "अग्नि जुर्ने", days: [2, 5, 8, 10, 13, 16, 19, 21, 24, 27, 29] },
+    { title: "विवाह साइत", days: [5, 12, 18, 22, 27] },
+    { title: "व्रतबन्ध", days: [7, 14, 21] },
+    { title: "गृह प्रवेश", days: [8, 15, 23] }
+  ],
+  1: [
+    { title: "अन्नप्राशन", days: [4, 9, 16, 27] },
+    { title: "व्यापारिक प्रतिष्ठान प्रारम्भ", days: [1, 5, 12, 20, 28] },
+    { title: "रुद्री जुर्ने", days: [2, 3, 7, 10, 13, 15, 18, 21, 23, 26, 29, 31] },
+    { title: "अग्नि जुर्ने", days: [1, 4, 6, 8, 11, 14, 17, 19, 22, 25, 28, 30] },
+    { title: "विवाह साइत", days: [6, 11, 17, 23, 28] },
+    { title: "व्रतबन्ध", days: [8, 15, 22] },
+    { title: "गृह प्रवेश", days: [9, 16, 24] }
+  ],
+  2: [
+    { title: "अन्नप्राशन", days: [2, 11, 18, 25] },
+    { title: "व्यापारिक प्रतिष्ठान प्रारम्भ", days: [3, 8, 14, 22, 29] },
+    { title: "रुद्री जुर्ने", days: [1, 5, 8, 11, 14, 16, 19, 22, 24, 27, 30] },
+    { title: "अग्नि जुर्ने", days: [3, 6, 9, 12, 15, 18, 20, 23, 26, 28, 31] },
+    { title: "विवाह साइत", days: [4, 10, 16, 21, 29] },
+    { title: "व्रतबन्ध", days: [6, 13, 20] },
+    { title: "गृह प्रवेश", days: [7, 14, 22] }
+  ],
+  3: [
+    { title: "अन्नप्राशन", days: [5, 12, 19, 28] },
+    { title: "व्यापारिक प्रतिष्ठान प्रारम्भ", days: [2, 6, 13, 21, 27] },
+    { title: "रुद्री जुर्ने", days: [2, 4, 7, 10, 12, 15, 18, 21, 24, 26, 29, 31] },
+    { title: "अग्नि जुर्ने", days: [1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28, 30] },
+    { title: "विवाह साइत", days: [8, 14, 20, 26] },
+    { title: "व्रतबन्ध", days: [9, 16, 23] },
+    { title: "गृह प्रवेश", days: [10, 17, 25] }
+  ],
+  4: [
+    { title: "अन्नप्राशन", days: [1, 3, 10, 29] },
+    { title: "व्यापारिक प्रतिष्ठान प्रारम्भ", days: [1, 4, 14, 19, 28, 29] },
+    { title: "रुद्री जुर्ने", days: [1, 2, 3, 5, 8, 9, 10, 11, 13, 16, 17, 19, 22, 23, 24, 28, 31] },
+    { title: "अग्नि जुर्ने", days: [1, 3, 5, 8, 9, 11, 13, 14, 16, 18, 20, 21, 23, 25, 28, 30] },
+    { title: "विवाह साइत", days: [3, 9, 15, 21, 27] },
+    { title: "व्रतबन्ध", days: [5, 12, 19] },
+    { title: "गृह प्रवेश", days: [6, 13, 21] }
+  ],
+  5: [
+    { title: "अन्नप्राशन", days: [2, 8, 14, 23] },
+    { title: "व्यापारिक प्रतिष्ठान प्रारम्भ", days: [3, 7, 12, 18, 25] },
+    { title: "रुद्री जुर्ने", days: [1, 4, 6, 8, 11, 14, 17, 19, 22, 25, 27, 30] },
+    { title: "अग्नि जुर्ने", days: [2, 5, 7, 10, 13, 15, 18, 21, 23, 26, 29] },
+    { title: "विवाह साइत", days: [4, 10, 16, 22, 28] },
+    { title: "व्रतबन्ध", days: [6, 13, 20] },
+    { title: "गृह प्रवेश", days: [7, 14, 22] }
+  ],
+  6: [
+    { title: "अन्नप्राशन", days: [4, 10, 17, 26] },
+    { title: "व्यापारिक प्रतिष्ठान प्रारम्भ", days: [2, 8, 15, 21, 29] },
+    { title: "रुद्री जुर्ने", days: [2, 5, 7, 9, 12, 15, 18, 20, 23, 26, 28, 30] },
+    { title: "अग्नि जुर्ने", days: [1, 3, 6, 8, 11, 14, 16, 19, 22, 24, 27, 29] },
+    { title: "विवाह साइत", days: [5, 11, 17, 23, 29] },
+    { title: "व्रतबन्ध", days: [7, 14, 21] },
+    { title: "गृह प्रवेश", days: [8, 15, 23] }
+  ],
+  7: [
+    { title: "अन्नप्राशन", days: [3, 9, 16, 25] },
+    { title: "व्यापारिक प्रतिष्ठान प्रारम्भ", days: [1, 6, 13, 20, 27] },
+    { title: "रुद्री जुर्ने", days: [1, 3, 6, 8, 11, 13, 16, 19, 21, 24, 27, 29] },
+    { title: "अग्नि जुर्ने", days: [2, 4, 7, 9, 12, 14, 17, 20, 22, 25, 28, 30] },
+    { title: "विवाह साइत", days: [4, 9, 15, 21, 26] },
+    { title: "व्रतबन्ध", days: [6, 13, 20] },
+    { title: "गृह प्रवेश", days: [7, 14, 22] }
+  ],
+  8: [
+    { title: "अन्नप्राशन", days: [5, 11, 18, 27] },
+    { title: "व्यापारिक प्रतिष्ठान प्रारम्भ", days: [3, 7, 14, 22, 28] },
+    { title: "रुद्री जुर्ने", days: [2, 4, 7, 10, 12, 15, 17, 20, 23, 25, 28, 30] },
+    { title: "अग्नि जुर्ने", days: [1, 3, 6, 8, 11, 13, 16, 18, 21, 24, 26, 29] },
+    { title: "विवाह साइत", days: [7, 13, 19, 25] },
+    { title: "व्रतबन्ध", days: [8, 15, 22] },
+    { title: "गृह प्रवेश", days: [9, 16, 24] }
+  ],
+  9: [
+    { title: "अन्नप्राशन", days: [2, 8, 15, 24] },
+    { title: "व्यापारिक प्रतिष्ठान प्रारम्भ", days: [1, 5, 11, 19, 26] },
+    { title: "रुद्री जुर्ने", days: [1, 3, 6, 9, 11, 14, 16, 19, 22, 24, 27, 29] },
+    { title: "अग्नि जुर्ने", days: [2, 4, 7, 10, 12, 15, 17, 20, 23, 25, 28, 30] },
+    { title: "विवाह साइत", days: [3, 9, 14, 20, 26] },
+    { title: "व्रतबन्ध", days: [5, 12, 19] },
+    { title: "गृह प्रवेश", days: [6, 13, 21] }
+  ],
+  10: [
+    { title: "अन्नप्राशन", days: [4, 10, 17, 26] },
+    { title: "व्यापारिक प्रतिष्ठान प्रारम्भ", days: [2, 7, 13, 21, 28] },
+    { title: "रुद्री जुर्ने", days: [2, 5, 8, 10, 13, 15, 18, 21, 23, 26, 28, 30] },
+    { title: "अग्नि जुर्ने", days: [1, 4, 6, 9, 11, 14, 16, 19, 22, 24, 27, 29] },
+    { title: "विवाह साइत", days: [5, 11, 17, 23, 28] },
+    { title: "व्रतबन्ध", days: [7, 14, 21] },
+    { title: "गृह प्रवेश", days: [8, 15, 23] }
+  ],
+  11: [
+    { title: "अन्नप्राशन", days: [3, 9, 16, 25] },
+    { title: "व्यापारिक प्रतिष्ठान प्रारम्भ", days: [1, 6, 12, 19, 27] },
+    { title: "रुद्री जुर्ने", days: [1, 4, 7, 9, 12, 14, 17, 20, 22, 25, 27, 30] },
+    { title: "अग्नि जुर्ने", days: [2, 5, 8, 10, 13, 15, 18, 21, 23, 26, 28, 31] },
+    { title: "विवाह साइत", days: [4, 10, 15, 21, 27] },
+    { title: "व्रतबन्ध", days: [6, 13, 20] },
+    { title: "गृह प्रवेश", days: [7, 14, 22] }
+  ]
+};
+
+const TITHI_NAMES = [
+  "प्रतिपदा", "द्वितीया", "तृतीया", "चतुर्थी", "पञ्चमी", "षष्ठी",
+  "सप्तमी", "अष्टमी", "नवमी", "दशमी", "एकादशी", "द्वादशी", "त्रयोदशी", "चतुर्दशी", "पूर्णिमा", "औंसी"
+];
+
+function getTithiForDay(monthIndex: number, day: number) {
+  const monthNameNe = NEPALI_MONTHS_NE[monthIndex];
+  const paksha = day <= 15 ? "शुक्ल" : "कृष्ण";
+  const tithiIndex = (day - 1) % 15;
+  const tithiName = day === 15 ? "पूर्णिमा" : (day === 30 || day === 29) ? "औंसी" : TITHI_NAMES[tithiIndex];
+  return `${monthNameNe} ${paksha} ${tithiName}`;
+}
+
+function getRelativeDaysText(calYear: number, calMonth: number, day: number, todayBs: { year: number; month: number; day: number }) {
+  if (calYear < todayBs.year || (calYear === todayBs.year && calMonth < todayBs.month)) {
+    const diff = (todayBs.month - calMonth) * 30 + (todayBs.day - day);
+    return `${diff} days ago`;
+  }
+  if (calYear > todayBs.year || (calYear === todayBs.year && calMonth > todayBs.month)) {
+    const diff = (calMonth - todayBs.month) * 30 + (day - todayBs.day);
+    return `In ${diff} days`;
+  }
+  const diff = day - todayBs.day;
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Tomorrow";
+  if (diff < 0) return `${Math.abs(diff)} days ago`;
+  return `In ${diff} days`;
+}
+
 const ZODIAC_SIGNS = [
   { id: 'mesh', name: 'मेष', icon: '♈', desc: 'आज कार्यक्षेत्रमा नयाँ अवसरहरू मिल्नेछन्। मनमा प्रसन्नता छाउनेछ।' },
   { id: 'vrish', name: 'वृष', icon: '♉', desc: 'आर्थिक लाभको योग छ। परिवारको सहयोग पाइनेछ।' },
@@ -198,6 +338,7 @@ export default function WidgetCalendar() {
   const [calYear, setCalYear] = useState<number>(todayBs.year);
   const [calMonth, setCalMonth] = useState<number>(todayBs.month);
   const [selectedDay, setSelectedDay] = useState<number>(todayBs.day);
+  const [calSubTab, setCalSubTab] = useState<'events' | 'saait'>('events');
   const [isMobileModalOpen, setIsMobileModalOpen] = useState<boolean>(false);
   const [selectedZodiac, setSelectedZodiac] = useState<any>(ZODIAC_SIGNS[0]);
 
@@ -990,12 +1131,17 @@ export default function WidgetCalendar() {
               </div>
             </div>
 
-            {/* Selected Day Details Panel (Exact Screenshot 2) */}
+            {/* Selected Day Details Panel (Exact Screenshot 3 & 4) */}
             <div className="bg-white border border-slate-200 rounded-3xl p-4 space-y-4 shadow-sm">
               <div className="flex items-start justify-between border-b border-slate-100 pb-3">
                 <div>
-                  <span className="text-3xl font-black text-[#e52521]">{selectedDay}</span>
-                  <h3 className="text-base font-black text-slate-900 leading-tight">
+                  <div className="flex items-center gap-2">
+                    <span className="text-3xl font-black text-[#e52521]">{selectedDay}</span>
+                    <span className="px-2.5 py-0.5 rounded-lg bg-slate-200 text-slate-800 text-xs font-extrabold">
+                      {selectedDay === todayBs.day ? 'Today' : `Bhadra ${selectedDay}`}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-black text-slate-900 leading-tight mt-1">
                     {NEPALI_MONTHS_EN[calMonth]} {calYear}
                   </h3>
                   <p className="text-xs text-slate-500 font-bold">{DAYS_EN_FULL[(startDayOfWeek + selectedDay - 1) % 7]}</p>
@@ -1003,34 +1149,205 @@ export default function WidgetCalendar() {
                 </div>
 
                 <div className="flex flex-col items-end gap-2">
-                  <div className="flex items-center gap-1">
-                    <span className="px-3 py-1 rounded-lg bg-slate-200 text-slate-800 text-xs font-extrabold">Today</span>
-                    <ChevronRight size={18} className="text-slate-400" />
-                  </div>
-                  <button onClick={() => setIsNotesOpen(true)} className="px-3 py-1.5 bg-[#24592a] hover:bg-[#1b4320] text-white font-extrabold text-xs rounded-xl flex items-center gap-1 shadow-sm cursor-pointer transition-colors">
+                  <button onClick={() => setIsNotesOpen(true)} className="px-3.5 py-1.5 bg-[#24592a] hover:bg-[#1b4320] text-white font-extrabold text-xs rounded-xl flex items-center gap-1.5 shadow-sm cursor-pointer transition-colors">
                     <Plus size={14} /> Add Notes
                   </button>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <p className="text-xs text-slate-800 font-bold">
-                  {NEPALI_MONTHS_NE[calMonth]} कृष्ण दशमी (०७ : ५१ : १४ PM बजे सम्म)
+                <p className="text-xs text-slate-900 font-bold">
+                  {getTithiForDay(calMonth, selectedDay)} (०५ : २५ : ५२ PM बजे सम्म)
                 </p>
                 <p className="text-xs text-slate-500">NS 1146 गुंलागा दशमी</p>
 
-                <div className="flex items-center gap-6 pt-2 border-t border-slate-100">
+                {NE_MONTHS_EVENTS[calMonth]?.[selectedDay] && (
+                  <div className="p-2.5 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-2">
+                    <Sparkles size={16} className="text-[#e52521] shrink-0" />
+                    <p className="text-xs font-extrabold text-[#e52521]">
+                      {NE_MONTHS_EVENTS[calMonth][selectedDay].title}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
                   <div className="flex items-center gap-2">
                     <Moon size={18} className="text-slate-600" />
-                    <span className="text-xs font-semibold text-slate-600">Waxing Gibbous</span>
+                    <span className="font-semibold text-slate-600">Waxing Gibbous</span>
                   </div>
-                  <div className="flex items-center gap-4 text-xs font-bold text-slate-700">
-                    <span>🌅 05:44</span>
-                    <span>🌇 06:18</span>
+                  <div className="flex items-center gap-3 font-bold text-slate-700">
+                    <span>🌅 05:45</span>
+                    <span>🌇 06:17</span>
+                  </div>
+                </div>
+
+                {/* Sahits Today Pill Badges (Exact Screenshot 4) */}
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-xs font-black text-slate-900">Sahits today</span>
+                  <button onClick={() => setCalSubTab('saait')} className="text-xs font-extrabold text-[#e52521] hover:underline">
+                    View All
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-3 py-1 bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-300 text-xs font-extrabold rounded-full border border-amber-200">
+                    रुद्री जुर्ने
+                  </span>
+                  <span className="px-3 py-1 bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-300 text-xs font-extrabold rounded-full border border-amber-200">
+                    अग्नि जुर्ने
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Upcoming Events Horizontal Carousel (Exact Screenshot 4) */}
+            <div className="space-y-2.5 pt-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-extrabold text-slate-900">Upcoming Events</h3>
+              </div>
+
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                {/* Event Card 1 */}
+                <div className="shrink-0 w-48 h-56 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-4 flex flex-col justify-between shadow-md border border-slate-200">
+                  <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=500&auto=format&fit=crop&q=80')` }} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/20 z-10" />
+                  <div className="relative z-20 flex justify-start">
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#e52521] text-white font-extrabold text-[9px]">Today</span>
+                  </div>
+                  <div className="relative z-20 space-y-1">
+                    <h4 className="text-xs font-black text-white leading-snug">Aja Ekadashi Vrata, Nijamati Sewa Diwas</h4>
+                    <p className="text-[10px] text-slate-300 font-semibold">Bhadra 22, Mon (Today)</p>
+                  </div>
+                </div>
+
+                {/* Event Card 2 */}
+                <div className="shrink-0 w-48 h-56 rounded-3xl relative overflow-hidden bg-slate-950 text-white p-4 flex flex-col justify-between shadow-md border border-slate-800">
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900 to-black z-10" />
+                  <div className="relative z-20 flex justify-start">
+                    <span className="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[9px]">Tomorrow</span>
+                  </div>
+                  <div className="relative z-20 space-y-1">
+                    <h4 className="text-xs font-black text-amber-400 leading-snug">Gen-Z Sahid Diwas, Pradosh Vrata</h4>
+                    <p className="text-[10px] text-slate-400 font-semibold">Bhadra 23, Tue (Tomorrow)</p>
+                  </div>
+                </div>
+
+                {/* Event Card 3 */}
+                <div className="shrink-0 w-48 h-56 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-4 flex flex-col justify-between shadow-md border border-slate-200">
+                  <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=500&auto=format&fit=crop&q=80')` }} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/20 z-10" />
+                  <div className="relative z-20 flex justify-start">
+                    <span className="px-2.5 py-0.5 rounded-full bg-black/50 backdrop-blur-md text-white font-extrabold text-[9px]">In 3 days</span>
+                  </div>
+                  <div className="relative z-20 space-y-1">
+                    <h4 className="text-xs font-black text-white leading-snug">World Suicide Prevention Day</h4>
+                    <p className="text-[10px] text-slate-300 font-semibold">Bhadra 25, Thu (In 3 days)</p>
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Sub-Tabs Switcher Bar: Events vs Saait This Month (Exact Screenshot 1 & 2) */}
+            <div className="bg-white border-b border-slate-200 flex items-center justify-around mt-4 pt-1">
+              <button
+                onClick={() => setCalSubTab('events')}
+                className={`flex-1 py-3 text-center font-black text-sm border-b-2 transition-all cursor-pointer ${
+                  calSubTab === 'events'
+                    ? 'border-[#e52521] text-[#e52521]'
+                    : 'border-transparent text-slate-400 hover:text-slate-700'
+                }`}
+              >
+                Events
+              </button>
+              <button
+                onClick={() => setCalSubTab('saait')}
+                className={`flex-1 py-3 text-center font-black text-sm border-b-2 transition-all cursor-pointer ${
+                  calSubTab === 'saait'
+                    ? 'border-[#e52521] text-[#e52521]'
+                    : 'border-transparent text-slate-400 hover:text-slate-700'
+                }`}
+              >
+                Saait This Month
+              </button>
+            </div>
+
+            {/* TAB CONTENT A: Events List View (Exact Screenshot 2) */}
+            {calSubTab === 'events' && (
+              <div className="bg-white rounded-3xl border border-slate-200 divide-y divide-slate-100 shadow-sm overflow-hidden animate-fadeIn">
+                {Array.from({ length: monthDaysCount }).map((_, idx) => {
+                  const dayNum = idx + 1;
+                  const dayOfWeekIdx = (startDayOfWeek + idx) % 7;
+                  const dayNameShort = DAYS_EN_SHORT[dayOfWeekIdx];
+                  const isSat = dayOfWeekIdx === 6;
+                  const eventObj = NE_MONTHS_EVENTS[calMonth]?.[dayNum];
+                  const tithiStr = getTithiForDay(calMonth, dayNum);
+                  const relText = getRelativeDaysText(calYear, calMonth, dayNum, todayBs);
+
+                  return (
+                    <div key={dayNum} className="p-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                      {/* Left: Day & Month info */}
+                      <div className="w-14 text-center shrink-0 border-r border-slate-100 pr-2">
+                        <span className="text-[10px] font-bold text-slate-400 block uppercase">{dayNameShort}</span>
+                        <span className={`text-2xl font-black block leading-none my-0.5 ${isSat ? 'text-[#e52521]' : 'text-slate-900'}`}>{dayNum}</span>
+                        <span className="text-[10px] text-slate-500 font-semibold">{NEPALI_MONTHS_EN[calMonth]}</span>
+                      </div>
+
+                      {/* Middle: Tithi & Events */}
+                      <div className="flex-1 px-3 space-y-1 min-w-0">
+                        <p className="text-[11px] font-bold text-slate-600">{tithiStr}</p>
+                        {eventObj ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-md bg-[#e52521]/10 text-[#e52521] flex items-center justify-center shrink-0">
+                              <Sparkles size={13} />
+                            </div>
+                            <h4 className="text-xs font-black text-slate-900 truncate">{eventObj.title}</h4>
+                          </div>
+                        ) : (
+                          <p className="text-[10px] text-slate-400 font-medium">सामान्य दिन</p>
+                        )}
+                      </div>
+
+                      {/* Right: Relative Days Ago / In X days */}
+                      <div className="text-right shrink-0">
+                        <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full ${
+                          relText === 'Today'
+                            ? 'bg-[#e52521] text-white shadow-xs'
+                            : relText === 'Tomorrow'
+                            ? 'bg-amber-500 text-white shadow-xs'
+                            : 'bg-slate-100 text-slate-500'
+                        }`}>
+                          {relText}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* TAB CONTENT B: Saait Grid View (Exact Screenshot 1) */}
+            {calSubTab === 'saait' && (
+              <div className="bg-white rounded-3xl border border-slate-200 p-4 space-y-5 shadow-sm animate-fadeIn">
+                {(SAAIT_DATA[calMonth] || SAAIT_DATA[4]).map((cat, idx) => (
+                  <div key={idx} className="space-y-2.5">
+                    <h4 className="text-xs font-black text-slate-900 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#e52521]" />
+                      {cat.title}
+                    </h4>
+                    <div className="flex flex-wrap gap-2.5 pt-0.5">
+                      {cat.days.map((d) => (
+                        <button
+                          key={d}
+                          onClick={() => setSelectedDay(d)}
+                          className="w-9 h-9 rounded-full bg-amber-100/90 hover:bg-amber-200 text-amber-900 text-xs font-black flex items-center justify-center shadow-xs border border-amber-300/60 cursor-pointer transition-all hover:scale-110"
+                        >
+                          {d}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
           </div>
         )}
