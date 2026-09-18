@@ -20,8 +20,8 @@ function escapeXml(str: string): string {
 
 function getDefaultIconBase64(title?: string, url?: string): string {
   try {
-    const isCalendar = (title && /calendar|patro| पात्रो /i.test(title)) || (url && /calendar|date-converter/i.test(url));
-    const iconFilename = isCalendar ? 'calendar-desktop-icon.png' : 'apple-touch-icon.png';
+    const isCalendar = !title || /calendar|patro|mero|पात्रो/i.test(title) || /calendar|date-converter/i.test(url || '');
+    const iconFilename = isCalendar ? 'mero-patro-app-icon-3d.png' : 'apple-touch-icon.png';
     const iconPath = path.join(process.cwd(), 'public', iconFilename);
     if (fs.existsSync(iconPath)) {
       const buffer = fs.readFileSync(iconPath);
@@ -215,12 +215,12 @@ async function handleProfileRequest(params: {
     });
   } else {
     xmlContent = buildWebClipPayload({
-      title: params.title || 'Bishal Codes App',
-      url: params.url || 'https://bishalcodes.com',
+      title: params.title || 'Mero Patro',
+      url: params.url || 'https://bishalcodes.com/widgets/calendar',
       iconBase64: params.iconBase64,
       fullScreen: params.fullScreen !== false,
       isRemovable: params.isRemovable !== false,
-      organization: params.organization,
+      organization: params.organization || 'Bishal Codes',
     });
   }
 
