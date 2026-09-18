@@ -31,6 +31,7 @@ import DocScanner from '../components/DocScanner';
 import TypingPractice from '../components/TypingPractice';
 import CyberPulseGame from '../components/CyberPulseGame';
 import IOSProfileGenerator from './iOSProfileGenerator';
+import ShareMarketTool from '../components/ShareMarketTool';
 import Footer from '../sections/Footer';
 import { useNavigation } from '../context/NavigationContext';
 import { ArrowRight, Loader2, Star, Pin, Code } from 'lucide-react';
@@ -42,6 +43,11 @@ import EmbedToolModal from '../components/EmbedToolModal';
 const FAVOURITES_KEY = 'bishal_pinned_tools';
 
 const toolSeoData: Record<string, { title: string; desc: string; keywords: string[] }> = {
+  'share-market': {
+    title: 'Live NEPSE Share Market & Lagani Sutra Stock Portal',
+    desc: 'Track live NEPSE stock market index, market pressure gauge, top gainers, top losers, and stock portfolio analytics in real time.',
+    keywords: ['nepse live stock market', 'lagani sutra stock market', 'nepal share market', 'nepse index live', 'top gainers nepse']
+  },
   'cyber-defender': {
     title: 'CyberPulse Defender 2026 - Embeddable Arcade Shooter Game',
     desc: 'Play CyberPulse Defender directly in your browser or embed it into your website, blog, or mobile app. Handcrafted HTML5 Canvas arcade shooter with audio synthesis & live global leaderboard.',
@@ -200,6 +206,7 @@ export const CATEGORIES = ['All', 'Games & Arcade', 'PDF Tools', 'Converters', '
 
 // Map dynamic tool IDs to categories
 const DYNAMIC_TOOL_CATEGORIES: Record<string, string> = {
+  'share-market': 'Utilities',
   'ios-profile': 'Security & Transfer',
   'date-converter': 'Utilities',
   'translator': 'Utilities',
@@ -234,6 +241,15 @@ const DYNAMIC_TOOL_CATEGORIES: Record<string, string> = {
 };
 
 const STATIC_TOOLS: StaticTool[] = [
+  {
+    id: 'share-market',
+    name: 'Share Market Live (NEPSE)',
+    emoji: '📈',
+    description: 'Track live NEPSE stock market index, market pressure gauge, gainers/losers & portfolio analytics via Lagani Sutra.',
+    badge: 'LIVE NEPSE',
+    accentColor: 'indigo',
+    category: 'Utilities'
+  },
   {
     id: 'ios-profile',
     name: 'Mobile App & Profile Studio',
@@ -587,6 +603,7 @@ const ServicesPage: React.FC = () => {
 
   const renderActiveService = () => {
     switch (selectedId) {
+      case 'share-market': return <ShareMarketTool />;
       case 'date-converter': return <DateConverter />;
       case 'translator': return <LanguageTranslator />;
       case 'currency-converter': return <CurrencyConverter />;
@@ -742,7 +759,7 @@ const ServicesPage: React.FC = () => {
     ? (toolSeoData[selectedId]?.title.split('-')[0].split('|')[0].trim() || selectedId.replace(/-/g, ' ').toUpperCase())
     : 'Developer Utility Tool';
 
-  const isFullBleed = selectedId === 'file-transfer' || selectedId === 'font-downloader' || selectedId === 'ocr-converter' || selectedId === 'bg-remover' || selectedId === 'scan-pdf' || selectedId === 'ios-profile';
+  const isFullBleed = selectedId === 'file-transfer' || selectedId === 'font-downloader' || selectedId === 'ocr-converter' || selectedId === 'bg-remover' || selectedId === 'scan-pdf' || selectedId === 'ios-profile' || selectedId === 'share-market';
 
   return (
     <div className={`min-h-screen font-sans transition-colors duration-300 selection:bg-[#e52521]/30 flex flex-col justify-between ${selectedId === 'ios-profile' ? 'bg-[#050507] text-white' : 'bg-[#FDF9F3] dark:bg-slate-950'}`}>
