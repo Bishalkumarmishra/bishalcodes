@@ -3601,91 +3601,48 @@ export default function WidgetCalendar() {
               </div>
             )}
 
-            {/* 4. NEPSE LIVE SHARE MARKET (Full Page) - Real API Data */}
+            {/* 4. NEPSE LIVE SHARE MARKET (Full Page) - Embedded Lagani Sutra Integration */}
             {activeFullScreenPage === 'nepse' && (
-              <div className="space-y-5">
-                {!nepseData ? (
-                  <div className="flex items-center justify-center py-16">
-                    <div className="w-8 h-8 border-2 border-[#e52521] border-t-transparent rounded-full animate-spin" />
-                    <span className="ml-3 text-sm text-slate-500">शेयर बजार डेटा लोड हुँदैछ...</span>
-                  </div>
-                ) : nepseData.status === 'error' ? (
-                  <div className="p-6 text-center bg-red-50 dark:bg-red-950/30 rounded-3xl border border-red-200 dark:border-red-900">
-                    <TrendingUp size={32} className="text-[#e52521] mx-auto mb-2" />
-                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300">बजार डेटा अस्थायी रूपमा उपलब्ध छैन।</p>
-                    <p className="text-xs text-slate-500 mt-1">ShareSansar.com बाट लाइभ डेटा फेच हुँदैछ। पुनः प्रयास गर्नुहोस्।</p>
-                    <button onClick={fetchMarketData} className="mt-3 px-4 py-2 bg-[#e52521] text-white font-bold text-xs rounded-xl">
-                      पुनः प्रयास (Retry)
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    {/* Index Overview Hero */}
-                    <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white p-5 rounded-3xl border border-slate-800 shadow-xl space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-black tracking-wider uppercase inline-flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                            Live Data • ShareSansar.com
-                          </span>
-                          <h3 className="text-2xl font-black mt-1">NEPSE : {nepseData.index}</h3>
-                        </div>
-                        <div className="text-right">
-                          <span className={`text-lg font-black flex items-center justify-end gap-1 ${nepseData.isUp ? 'text-emerald-400' : 'text-red-400'}`}>
-                            <TrendingUp size={20} /> {nepseData.change} ({nepseData.percent})
-                          </span>
-                          <p className="text-[10px] text-slate-400">कुल कारोबार: {nepseData.turnover}</p>
-                        </div>
-                      </div>
+              <div className="space-y-4">
+                {/* Header Branding */}
+                <div className={`p-4 rounded-3xl border flex items-center justify-between shadow-sm ${
+                  appTheme === 'dark' ? 'bg-[#16181f] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
+                }`}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-[#e52521] text-white flex items-center justify-center font-black shadow-md text-xs">
+                      NEPSE
                     </div>
+                    <div>
+                      <h3 className="text-sm font-black flex items-center gap-1.5">
+                        STOCK MARKET
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#e52521]/20 text-[#e52521] font-semibold border border-[#e52521]/30">
+                          Powered by Lagani Sutra™
+                        </span>
+                      </h3>
+                      <p className="text-[11px] text-slate-400">लाइभ नेप्से परिसूचक, टप गेनर्स, शेयर विश्लेषण र पोर्टफोलियो</p>
+                    </div>
+                  </div>
 
-                    {/* Top Gainers */}
-                    {nepseData.gainers && nepseData.gainers.length > 0 && (
-                      <div className={`border rounded-3xl p-4 shadow-sm space-y-3 ${
-                        appTheme === 'dark' ? 'bg-[#16181f] border-slate-800' : 'bg-white border-slate-200'
-                      }`}>
-                        <h4 className="text-xs font-black uppercase tracking-wider text-emerald-600">शीर्ष बढनेवाला (Top Gainers)</h4>
-                        <div className="space-y-2">
-                          {nepseData.gainers.slice(0, 6).map((item: any, i: number) => (
-                            <div key={i} className={`p-3 rounded-2xl flex items-center justify-between border ${
-                              appTheme === 'dark' ? 'bg-[#1e222b] border-slate-700/60' : 'bg-slate-50 border-slate-200'
-                            }`}>
-                              <span className="text-xs font-black">{item.sym}</span>
-                              <div className="text-right">
-                                <p className="text-xs font-black">रु. {item.ltp}</p>
-                                <span className="text-[11px] font-extrabold text-emerald-500">{item.chg}</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                  <a
+                    href="https://laganisutra.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-2 bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors shadow-md"
+                  >
+                    <span>Full Site</span> <ExternalLink size={13} />
+                  </a>
+                </div>
 
-                    {/* Top Losers */}
-                    {nepseData.losers && nepseData.losers.length > 0 && (
-                      <div className={`border rounded-3xl p-4 shadow-sm space-y-3 ${
-                        appTheme === 'dark' ? 'bg-[#16181f] border-slate-800' : 'bg-white border-slate-200'
-                      }`}>
-                        <h4 className="text-xs font-black uppercase tracking-wider text-red-500">शीर्ष घट्नेवाला (Top Losers)</h4>
-                        <div className="space-y-2">
-                          {nepseData.losers.slice(0, 6).map((item: any, i: number) => (
-                            <div key={i} className={`p-3 rounded-2xl flex items-center justify-between border ${
-                              appTheme === 'dark' ? 'bg-[#1e222b] border-slate-700/60' : 'bg-slate-50 border-slate-200'
-                            }`}>
-                              <span className="text-xs font-black">{item.sym}</span>
-                              <div className="text-right">
-                                <p className="text-xs font-black">रु. {item.ltp}</p>
-                                <span className="text-[11px] font-extrabold text-red-500">{item.chg}</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <p className="text-[10px] text-slate-400 text-center">स्रोत: sharesansar.com • डेटा २ मिनेटमा अद्यावधिक</p>
-                  </>
-                )}
+                {/* Embedded Lagani Sutra Responsive Portal Container */}
+                <div className="relative w-full h-[750px] sm:h-[850px] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-black">
+                  <iframe
+                    src="https://laganisutra.com/"
+                    className="w-full h-full border-0"
+                    title="Lagani Sutra NEPSE Stock Market"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
               </div>
             )}
 
