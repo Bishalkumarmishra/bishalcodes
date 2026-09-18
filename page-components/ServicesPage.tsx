@@ -759,7 +759,7 @@ const ServicesPage: React.FC = () => {
     ? (toolSeoData[selectedId]?.title.split('-')[0].split('|')[0].trim() || selectedId.replace(/-/g, ' ').toUpperCase())
     : 'Developer Utility Tool';
 
-  const isFullBleed = selectedId === 'file-transfer' || selectedId === 'font-downloader' || selectedId === 'ocr-converter' || selectedId === 'bg-remover' || selectedId === 'scan-pdf' || selectedId === 'ios-profile' || selectedId === 'share-market';
+  const isFullBleed = selectedId === 'file-transfer' || selectedId === 'font-downloader' || selectedId === 'ocr-converter' || selectedId === 'bg-remover' || selectedId === 'scan-pdf' || selectedId === 'ios-profile';
 
   return (
     <div className={`min-h-screen font-sans transition-colors duration-300 selection:bg-[#e52521]/30 flex flex-col justify-between ${selectedId === 'ios-profile' ? 'bg-[#050507] text-white' : 'bg-[#FDF9F3] dark:bg-slate-950'}`}>
