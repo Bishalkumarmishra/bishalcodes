@@ -29,8 +29,8 @@ export default function IOSProfileGenerator() {
   
   // iOS States
   const [activeIosTab, setActiveIosTab] = useState<IosProfileType>('webclip');
-  const [appTitle, setAppTitle] = useState('Bishal Codes App');
-  const [siteUrl, setSiteUrl] = useState('https://bishalcodes.com');
+  const [appTitle, setAppTitle] = useState('Mero Patro');
+  const [siteUrl, setSiteUrl] = useState('https://bishalcodes.com/widgets/calendar');
   const [organization, setOrganization] = useState('Bishal Codes');
   const [fullScreen, setFullScreen] = useState(true);
   const [isRemovable, setIsRemovable] = useState(true);
@@ -151,56 +151,52 @@ export default function IOSProfileGenerator() {
     }
   };
 
+  const getProfileDownloadUrl = () => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bishalcodes.com';
+    const params = new URLSearchParams();
+    params.set('type', activeIosTab);
+    if (activeIosTab === 'webclip') {
+      params.set('title', appTitle || 'Mero Patro');
+      params.set('url', siteUrl || `${origin}/widgets/calendar`);
+      params.set('fullScreen', String(fullScreen));
+      params.set('isRemovable', String(isRemovable));
+    } else if (activeIosTab === 'dns') {
+      params.set('title', dnsProfileTitle || 'Encrypted DNS Profile');
+      params.set('dnsProvider', dnsProvider);
+      if (customDnsUrl) params.set('serverUrl', customDnsUrl);
+    }
+    params.set('organization', organization || 'Bishal Codes');
+    return `/api/ios-profile?${params.toString()}`;
+  };
+
   const handleDownloadIosProfile = async () => {
-    setDownloading(true);
-
-    try {
-      const payload: any = {
-        type: activeIosTab,
-        organization,
-      };
-
-      if (activeIosTab === 'webclip') {
-        payload.title = appTitle;
-        payload.url = siteUrl;
-        payload.fullScreen = fullScreen;
-        payload.isRemovable = isRemovable;
-        if (iconBase64) payload.iconBase64 = iconBase64;
-      } else if (activeIosTab === 'dns') {
-        payload.title = dnsProfileTitle;
-        payload.dnsProvider = dnsProvider;
-        payload.serverUrl = customDnsUrl;
-      } else if (activeIosTab === 'custom') {
-        payload.title = 'Custom Profile';
-        payload.customXml = customXml;
+    if (activeIosTab === 'custom' && customXml) {
+      setDownloading(true);
+      try {
+        const response = await fetch('/api/ios-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'custom', title: 'Custom Profile', customXml, organization }),
+        });
+        if (!response.ok) throw new Error('Failed to generate profile');
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = 'custom_profile.mobileconfig';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+        setShowGuideModal(true);
+      } catch (err) {
+        alert('Could not generate profile. Please check parameters and try again.');
+      } finally {
+        setDownloading(false);
       }
-
-      const response = await fetch('/api/ios-profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error('Failed to generate profile');
-
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const filename = `${(payload.title || 'profile').toLowerCase().replace(/[^a-z0-9]/g, '_')}.mobileconfig`;
-
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-
+    } else {
       setShowGuideModal(true);
-    } catch (err) {
-      console.error('Error downloading iOS profile:', err);
-      alert('Could not generate profile. Please check parameters and try again.');
-    } finally {
-      setDownloading(false);
+      window.location.href = getProfileDownloadUrl();
     }
   };
 
@@ -605,14 +601,14 @@ export default function IOSProfileGenerator() {
 
                 {/* Action Buttons */}
                 <div className="pt-2 flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
-                  <button
-                    onClick={handleDownloadIosProfile}
-                    disabled={downloading}
-                    className="flex-1 bg-[#e52521] hover:bg-[#d01f1c] text-white font-extrabold py-3 px-5 rounded-xl shadow-lg shadow-red-950/60 flex items-center justify-center gap-2 transition active:scale-95 disabled:opacity-50 text-xs sm:text-sm"
+                  <a
+                    href={getProfileDownloadUrl()}
+                    onClick={() => setShowGuideModal(true)}
+                    className="flex-1 bg-[#e52521] hover:bg-[#d01f1c] text-white font-extrabold py-3 px-5 rounded-xl shadow-lg shadow-red-950/60 flex items-center justify-center gap-2 transition active:scale-95 text-xs sm:text-sm text-center cursor-pointer"
                   >
                     <Download className="w-4 h-4 shrink-0" />
-                    <span>{downloading ? 'Generating...' : 'Download iOS Profile (.mobileconfig)'}</span>
-                  </button>
+                    <span>Download iOS Profile (.mobileconfig)</span>
+                  </a>
 
                   <button
                     onClick={() => setShowGuideModal(true)}

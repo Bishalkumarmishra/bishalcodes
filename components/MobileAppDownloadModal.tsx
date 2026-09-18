@@ -219,14 +219,14 @@ export default function MobileAppDownloadModal({
                 <p className="text-xs text-slate-300 leading-relaxed">
                   Downloads an official Apple `.mobileconfig` WebClip profile. Installs the {appName} directly on your iPhone/iPad Home Screen with full-screen support and custom app icon.
                 </p>
-                <button
-                  onClick={handleDownloadIosProfile}
-                  disabled={downloading}
-                  className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                <a
+                  href={iosProfileUrl}
+                  onClick={() => ensureOfflinePrecached()}
+                  className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer text-center"
                 >
                   <Download size={15} />
-                  {downloading ? 'Generating Profile...' : 'Download iOS Profile (.mobileconfig)'}
-                </button>
+                  <span>Download iOS Profile (.mobileconfig)</span>
+                </a>
               </div>
 
               {/* iOS Step-by-Step Guide */}
