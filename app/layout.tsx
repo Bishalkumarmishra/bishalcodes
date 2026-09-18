@@ -1,6 +1,7 @@
 import React from 'react';
 import Script from 'next/script';
 import { Inter, Outfit } from 'next/font/google';
+import DynamicManifest from '../components/DynamicManifest';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
@@ -321,6 +322,7 @@ export default function RootLayout({
         `}} />
       </head>
       <body className="bg-[#FFFFFF] selection:bg-[#e52521] selection:text-white" suppressHydrationWarning>
+        <DynamicManifest />
         {/* Sky-Blue mobile status bar filler */}
         <div className="sky-status-bar" />
         {children}

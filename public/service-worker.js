@@ -13,8 +13,11 @@ const PRECACHE_ASSETS = [
   '/widgets/calendar/admin',
   '/offline.html',
   '/manifest.json',
+  '/manifest-calendar.json',
   '/favicon.svg',
   '/apple-touch-icon.png',
+  '/logo-icon.png',
+  '/calendar-desktop-icon.png',
   '/mero-patro-app-icon-3d.png',
   '/mero-patro-logo.png',
 ];

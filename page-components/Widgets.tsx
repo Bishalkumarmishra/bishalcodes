@@ -399,7 +399,7 @@ export default function Widgets() {
       <MobileAppDownloadModal
         isOpen={isMobileModalOpen}
         onClose={() => setIsMobileModalOpen(false)}
-        appName="Nepali Calendar"
+        appName="Mero Patro"
         appUrl="https://bishalcodes.com/widgets/calendar"
       />
 

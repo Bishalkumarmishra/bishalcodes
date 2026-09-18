@@ -18,15 +18,17 @@ function escapeXml(str: string): string {
     .replace(/'/g, '&apos;');
 }
 
-function getDefaultIconBase64(): string {
+function getDefaultIconBase64(title?: string, url?: string): string {
   try {
-    const iconPath = path.join(process.cwd(), 'public', 'apple-touch-icon.png');
+    const isCalendar = (title && /calendar|patro| पात्रो /i.test(title)) || (url && /calendar|date-converter/i.test(url));
+    const iconFilename = isCalendar ? 'calendar-desktop-icon.png' : 'apple-touch-icon.png';
+    const iconPath = path.join(process.cwd(), 'public', iconFilename);
     if (fs.existsSync(iconPath)) {
       const buffer = fs.readFileSync(iconPath);
       return buffer.toString('base64');
     }
   } catch (e) {
-    console.warn('Could not read default apple-touch-icon.png:', e);
+    console.warn('Could not read icon for iOS profile:', e);
   }
   return '';
 }
@@ -49,7 +51,7 @@ function buildWebClipPayload(data: {
 
   let base64Icon = data.iconBase64;
   if (!base64Icon) {
-    base64Icon = getDefaultIconBase64();
+    base64Icon = getDefaultIconBase64(data.title, data.url);
   }
 
   let iconXml = '';

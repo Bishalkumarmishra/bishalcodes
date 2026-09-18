@@ -1,0 +1,27 @@
+{
+  "name": "Mero Patro - Nepali Calendar & Date Converter (नेपाली पात्रो)",
+  "short_name": "Mero Patro",
+  "description": "Official Mero Patro web app with Bikram Sambat (BS) Nepali Calendar & AD/BS Date Converter by Bishal Codes. 100% offline support.",
+  "start_url": "/widgets/calendar",
+  "scope": "/widgets/calendar",
+  "id": "/widgets/calendar",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#09090b",
+  "theme_color": "#e52521",
+  "categories": ["utilities", "productivity", "lifestyle"],
+  "icons": [
+    {
+      "src": "/calendar-desktop-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/mero-patro-app-icon-3d.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,14 +1,14 @@
 {
-  "name": "Bishal Codes | Full-Stack Developer Portfolio",
-  "short_name": "BishalCodes",
-  "description": "Premium full-stack developer portfolio by Bishal Mishra. Offline-capable PWA with utility tools, blog, and client portal.",
+  "name": "Bishal Codes | Full-Stack Developer & Free Developer APIs",
+  "short_name": "Bishal Codes",
+  "description": "Official full-stack developer portfolio & free APIs by Bishal Mishra. Developer tools, OCR, currency, screenshot, and calendar utilities.",
   "start_url": "/",
   "scope": "/",
   "id": "/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#FFFFFF",
-  "theme_color": "#FFFFFF",
+  "background_color": "#09090b",
+  "theme_color": "#e52521",
   "categories": ["developer tools", "utilities", "productivity"],
   "icons": [
     {
@@ -19,6 +19,12 @@
     },
     {
       "src": "/apple-touch-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-icon.png",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any maskable"

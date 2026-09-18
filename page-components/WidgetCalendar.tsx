@@ -18,6 +18,11 @@ import { collection, doc, getDoc, addDoc, deleteDoc, getDocs, query, orderBy, se
 import { auth, googleProvider, db } from '../services/firebase';
 import MobileAppDownloadModal from '../components/MobileAppDownloadModal';
 
+const toNepaliDigits = (num: number | string): string => {
+  const map: Record<string, string> = { '0':'०', '1':'१', '2':'२', '3':'३', '4':'४', '5':'५', '6':'६', '7':'७', '8':'८', '9':'९' };
+  return String(num).replace(/[0-9]/g, ch => map[ch] || ch);
+};
+
 const NEPALI_MONTHS_EN = [
   "Baisakh", "Jestha", "Ashadh", "Shrawan", "Bhadra", "Ashwin",
   "Kartik", "Mangsir", "Poush", "Magh", "Falgun", "Chaitra"
@@ -284,6 +289,78 @@ export default function WidgetCalendar() {
   const [pullY, setPullY] = useState(0);
   const pullStartY = useRef(0);
   const mainRef = useRef<HTMLDivElement>(null);
+  const dynamicUpcomingEvents = React.useMemo(() => {
+    const list: any[] = [];
+    const today = new Date();
+
+    for (let offset = 0; offset < 30 && list.length < 5; offset++) {
+      const d = new Date();
+      d.setDate(today.getDate() + offset);
+      const bsDate = new NepaliDate(d);
+      const mIdx = bsDate.getMonth();
+      const dNum = bsDate.getDate();
+
+      const eventsDict = appLang === 'ne' ? NE_MONTHS_EVENTS : EN_MONTHS_EVENTS;
+      const monthEvents = eventsDict[mIdx] || {};
+      const eventObj = monthEvents[dNum];
+
+      const monthName = appLang === 'ne' ? NEPALI_MONTHS_NE[mIdx] : NEPALI_MONTHS_EN[mIdx];
+      const dayOfWeekShort = appLang === 'ne' ? DAYS_NE_SHORT[d.getDay()] : DAYS_EN_SHORT[d.getDay()];
+
+      const label = offset === 0
+        ? (appLang === 'ne' ? 'आज' : 'Today')
+        : offset === 1
+        ? (appLang === 'ne' ? 'भोलि' : 'Tomorrow')
+        : (appLang === 'ne' ? `${offset} दिनमा` : `In ${offset} days`);
+
+      if (eventObj) {
+        list.push({
+          offset,
+          label,
+          dayNum: dNum,
+          dayNumNe: toNepaliDigits(dNum),
+          monthName,
+          title: eventObj.title,
+          isHoliday: eventObj.isHoliday,
+          dayOfWeek: dayOfWeekShort,
+          fullDateStr: `${monthName} ${dNum}, ${dayOfWeekShort}`
+        });
+      }
+    }
+
+    if (list.length < 3) {
+      for (let offset = 0; offset < 5 && list.length < 3; offset++) {
+        if (!list.some(e => e.offset === offset)) {
+          const d = new Date();
+          d.setDate(today.getDate() + offset);
+          const bsDate = new NepaliDate(d);
+          const mIdx = bsDate.getMonth();
+          const dNum = bsDate.getDate();
+          const monthName = appLang === 'ne' ? NEPALI_MONTHS_NE[mIdx] : NEPALI_MONTHS_EN[mIdx];
+          const dayOfWeekShort = appLang === 'ne' ? DAYS_NE_SHORT[d.getDay()] : DAYS_EN_SHORT[d.getDay()];
+          const label = offset === 0
+            ? (appLang === 'ne' ? 'आज' : 'Today')
+            : offset === 1
+            ? (appLang === 'ne' ? 'भोलि' : 'Tomorrow')
+            : (appLang === 'ne' ? `${offset} दिनमा` : `In ${offset} days`);
+
+          list.push({
+            offset,
+            label,
+            dayNum: dNum,
+            dayNumNe: toNepaliDigits(dNum),
+            monthName,
+            title: offset === 0 ? (appLang === 'ne' ? 'नेपाली पात्रो पञ्चाङ्ग' : "Nepali Calendar & Panchanga") : (appLang === 'ne' ? 'तिथि तथा शुभ साइत' : "Tithi & Auspicious Saait"),
+            isHoliday: false,
+            dayOfWeek: dayOfWeekShort,
+            fullDateStr: `${monthName} ${dNum}, ${dayOfWeekShort}`
+          });
+        }
+      }
+    }
+
+    return list;
+  }, [appLang]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -1410,64 +1487,39 @@ export default function WidgetCalendar() {
               </div>
             </div>
 
-            {/* Upcoming Events Section (Exact Hamro Patro Match) */}
+            {/* Upcoming Events Section (Exact Hamro Patro Match - Live Dynamic) */}
             <div className="space-y-2.5 pt-1">
               <div className="flex items-center justify-between">
-                <h3 className={`text-sm sm:text-base font-black ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Upcoming Events</h3>
+                <h3 className={`text-sm sm:text-base font-black ${appTheme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                  {appLang === 'ne' ? 'आगामी पर्वहरू' : 'Upcoming Events'}
+                </h3>
                 <button onClick={() => setActiveTab('calendar')} className="text-xs font-bold text-[#e52521] hover:underline flex items-center gap-0.5">
-                  View All <ChevronRight size={14} />
+                  {appLang === 'ne' ? 'सबै हेर्नुहोस्' : 'View All'} <ChevronRight size={14} />
                 </button>
               </div>
 
               <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide snap-x">
-                {/* Event Card 1 (Deity Image Overlay) */}
-                <div className="shrink-0 w-36 h-48 sm:w-40 sm:h-52 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-3 flex flex-col justify-between shadow-xs border border-slate-200 dark:border-zinc-800">
-                  <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=500&auto=format&fit=crop&q=80')` }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/20 z-10" />
-                  <div className="relative z-20 flex justify-start">
-                    <span className="px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-md text-white font-extrabold text-[9px]">Today</span>
-                  </div>
-                  <div className="relative z-20 space-y-0.5">
-                    <p className="text-xl font-black text-white leading-none">22 <span className="text-xs font-normal">Bhadra</span></p>
-                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-tight">Aja Ekadashi Vrata</h4>
-                    <div className="flex items-center justify-between text-[9px] text-slate-300 pt-0.5">
-                      <span>Mon</span>
-                      <span className="bg-white/20 px-1 rounded">+1</span>
+                {dynamicUpcomingEvents.map((evt: any, idx: number) => (
+                  <div key={idx} className="shrink-0 w-36 h-48 sm:w-40 sm:h-52 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-3 flex flex-col justify-between shadow-xs border border-slate-200 dark:border-zinc-800">
+                    <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=500&auto=format&fit=crop&q=80')` }} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/20 z-10" />
+                    <div className="relative z-20 flex justify-start">
+                      <span className={`px-2 py-0.5 rounded-full backdrop-blur-md text-white font-extrabold text-[9px] ${
+                        evt.offset === 0 ? 'bg-[#e52521]' : evt.offset === 1 ? 'bg-amber-500/90 text-slate-950' : 'bg-black/50'
+                      }`}>{evt.label}</span>
+                    </div>
+                    <div className="relative z-20 space-y-0.5">
+                      <p className="text-xl font-black text-white leading-none">
+                        {appLang === 'ne' ? evt.dayNumNe : evt.dayNum} <span className="text-xs font-normal">{evt.monthName}</span>
+                      </p>
+                      <h4 className="text-xs font-bold text-white line-clamp-2 leading-tight">{evt.title}</h4>
+                      <div className="flex items-center justify-between text-[9px] text-slate-300 pt-0.5">
+                        <span>{evt.dayOfWeek}</span>
+                        {evt.isHoliday && <span className="bg-[#e52521] px-1 rounded text-white font-bold">{appLang === 'ne' ? 'बिदा' : 'Holiday'}</span>}
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Event Card 2 (Gen-Z Sahid Diwas) */}
-                <div className="shrink-0 w-36 h-48 sm:w-40 sm:h-52 rounded-3xl relative overflow-hidden bg-slate-950 text-white p-3 flex flex-col justify-between shadow-xs border border-slate-800">
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900 to-black z-10" />
-                  <div className="relative z-20 flex justify-start">
-                    <span className="px-2 py-0.5 rounded-full bg-amber-500/90 text-slate-950 font-black text-[9px]">Tomorrow</span>
-                  </div>
-                  <div className="relative z-20 space-y-0.5">
-                    <p className="text-xl font-black text-amber-400 leading-none">23 <span className="text-xs font-normal text-white">Bhadra</span></p>
-                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-tight">Gen-Z Sahid Diwas</h4>
-                    <div className="flex items-center justify-between text-[9px] text-slate-400 pt-0.5">
-                      <span>Tue</span>
-                      <span className="bg-white/10 px-1 rounded">+3</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Event Card 3 (World Suicide Prevention Day) */}
-                <div className="shrink-0 w-36 h-48 sm:w-40 sm:h-52 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-3 flex flex-col justify-between shadow-xs border border-slate-200 dark:border-zinc-800">
-                  <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=500&auto=format&fit=crop&q=80')` }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 z-10" />
-                  <div className="relative z-20 flex justify-start">
-                    <span className="px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-md text-white font-extrabold text-[9px]">In 3 days</span>
-                  </div>
-                  <div className="relative z-20 space-y-0.5">
-                    <p className="text-xl font-black text-white leading-none">25 <span className="text-xs font-normal">Bhadra</span></p>
-                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-tight">World Suicide Prevention Day</h4>
-                    <div className="flex items-center justify-between text-[9px] text-slate-300 pt-0.5">
-                      <span>Thu</span>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
 
               {/* Today's Events List Bar (Exact Hamro Patro Match) */}
@@ -1475,7 +1527,7 @@ export default function WidgetCalendar() {
                 appTheme === 'dark' ? 'bg-[#0a0a0c] border-zinc-900 text-white' : 'bg-slate-50 border-slate-100 text-slate-900'
               }`}>
                 <span className="px-2 py-0.5 bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-slate-300 font-bold text-[10px] rounded-md">
-                  Today's events
+                  {appLang === 'ne' ? 'आजका पर्वहरू' : "Today's events"}
                 </span>
 
                 <div className="flex items-center justify-between pt-1 cursor-pointer" onClick={() => setActiveTab('calendar')}>
@@ -1484,7 +1536,7 @@ export default function WidgetCalendar() {
                       <img src="/mero-patro-app-icon-3d.png" alt="Event Icon" className="w-full h-full object-contain" />
                     </div>
                     <p className="text-xs font-bold text-slate-900 dark:text-white">
-                      Aja Ekadashi Vrata, Nijamati Sewa Diwas
+                      {dynamicUpcomingEvents[0]?.title || (appLang === 'ne' ? 'आज कुनै विशेष सार्वजनिक बिदा छैन' : 'No major public holiday today')}
                     </p>
                   </div>
                   <ChevronRight size={16} className="text-slate-400" />
@@ -1790,43 +1842,21 @@ export default function WidgetCalendar() {
               </div>
 
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
-                {/* Event Card 1 */}
-                <div className="shrink-0 w-48 h-56 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-4 flex flex-col justify-between shadow-md border border-slate-200">
-                  <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=500&auto=format&fit=crop&q=80')` }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/20 z-10" />
-                  <div className="relative z-20 flex justify-start">
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#e52521] text-white font-extrabold text-[9px]">Today</span>
+                {dynamicUpcomingEvents.map((evt: any, idx: number) => (
+                  <div key={idx} className="shrink-0 w-48 h-56 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-4 flex flex-col justify-between shadow-md border border-slate-200 dark:border-zinc-800">
+                    <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=500&auto=format&fit=crop&q=80')` }} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/20 z-10" />
+                    <div className="relative z-20 flex justify-start">
+                      <span className={`px-2.5 py-0.5 rounded-full font-extrabold text-[9px] ${
+                        evt.offset === 0 ? 'bg-[#e52521] text-white' : evt.offset === 1 ? 'bg-amber-500 text-slate-950 font-black' : 'bg-black/50 text-white'
+                      }`}>{evt.label}</span>
+                    </div>
+                    <div className="relative z-20 space-y-1">
+                      <h4 className="text-xs font-black text-white leading-snug">{evt.title}</h4>
+                      <p className="text-[10px] text-slate-300 font-semibold">{evt.fullDateStr} ({evt.label})</p>
+                    </div>
                   </div>
-                  <div className="relative z-20 space-y-1">
-                    <h4 className="text-xs font-black text-white leading-snug">Aja Ekadashi Vrata, Nijamati Sewa Diwas</h4>
-                    <p className="text-[10px] text-slate-300 font-semibold">Bhadra 22, Mon (Today)</p>
-                  </div>
-                </div>
-
-                {/* Event Card 2 */}
-                <div className="shrink-0 w-48 h-56 rounded-3xl relative overflow-hidden bg-slate-950 text-white p-4 flex flex-col justify-between shadow-md border border-slate-800">
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900 to-black z-10" />
-                  <div className="relative z-20 flex justify-start">
-                    <span className="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[9px]">Tomorrow</span>
-                  </div>
-                  <div className="relative z-20 space-y-1">
-                    <h4 className="text-xs font-black text-amber-400 leading-snug">Gen-Z Sahid Diwas, Pradosh Vrata</h4>
-                    <p className="text-[10px] text-slate-400 font-semibold">Bhadra 23, Tue (Tomorrow)</p>
-                  </div>
-                </div>
-
-                {/* Event Card 3 */}
-                <div className="shrink-0 w-48 h-56 rounded-3xl relative overflow-hidden bg-slate-900 text-white p-4 flex flex-col justify-between shadow-md border border-slate-200">
-                  <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=500&auto=format&fit=crop&q=80')` }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/20 z-10" />
-                  <div className="relative z-20 flex justify-start">
-                    <span className="px-2.5 py-0.5 rounded-full bg-black/50 backdrop-blur-md text-white font-extrabold text-[9px]">In 3 days</span>
-                  </div>
-                  <div className="relative z-20 space-y-1">
-                    <h4 className="text-xs font-black text-white leading-snug">World Suicide Prevention Day</h4>
-                    <p className="text-[10px] text-slate-300 font-semibold">Bhadra 25, Thu (In 3 days)</p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 

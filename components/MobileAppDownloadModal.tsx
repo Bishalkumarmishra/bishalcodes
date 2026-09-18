@@ -12,7 +12,7 @@ interface MobileAppDownloadModalProps {
 export default function MobileAppDownloadModal({
   isOpen,
   onClose,
-  appName = 'Nepali Calendar',
+  appName = 'Mero Patro',
   appUrl = 'https://bishalcodes.com/widgets/calendar'
 }: MobileAppDownloadModalProps) {
   const [activeTab, setActiveTab] = useState<'ios' | 'android'>('ios');
@@ -39,8 +39,11 @@ export default function MobileAppDownloadModal({
           '/widgets/calendar',
           '/widgets/calendar/',
           '/manifest.json',
+          '/manifest-calendar.json',
           '/favicon.svg',
           '/apple-touch-icon.png',
+          '/logo-icon.png',
+          '/calendar-desktop-icon.png',
           '/mero-patro-app-icon-3d.png',
           '/mero-patro-logo.png'
         ];

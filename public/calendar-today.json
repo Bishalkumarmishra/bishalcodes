@@ -1,0 +1,48 @@
+{
+  "updated_at": "2026-09-18T08:58:44.150651",
+  "today_ad": "2026-09-18",
+  "today_bs": {
+    "year": 2083,
+    "year_ne": "२०८३",
+    "month_index": 5,
+    "month_en": "Ashwin",
+    "month_ne": "असोज",
+    "day": 2,
+    "day_ne": "२",
+    "day_of_week_en": "Fri",
+    "day_of_week_ne": "शुक्रबार"
+  },
+  "today_event": "अजा एकादशी व्रत",
+  "upcoming_events": [
+    {
+      "offset": 0,
+      "label": "Today",
+      "bs_month_name_en": "Ashwin",
+      "bs_month_name_ne": "असोज",
+      "bs_day": 2,
+      "bs_day_ne": "२",
+      "day_of_week": "Fri",
+      "event_title": "अजा एकादशी व्रत"
+    },
+    {
+      "offset": 1,
+      "label": "Tomorrow",
+      "bs_month_name_en": "Ashwin",
+      "bs_month_name_ne": "असोज",
+      "bs_day": 3,
+      "bs_day_ne": "३",
+      "day_of_week": "Sat",
+      "event_title": "इन्द्रजात्रा (Yenya Punhi)"
+    },
+    {
+      "offset": 14,
+      "label": "In 14 days",
+      "bs_month_name_en": "Ashwin",
+      "bs_month_name_ne": "असोज",
+      "bs_day": 16,
+      "bs_day_ne": "१६",
+      "day_of_week": "Fri",
+      "event_title": "विश्व पर्यटन दिवस"
+    }
+  ]
+}

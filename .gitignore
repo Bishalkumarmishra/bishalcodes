@@ -49,3 +49,8 @@ android-file-transfer/.gradle/
 *.keystore
 *.jks
 key.properties
+
+# Scratch & Pycache
+scratch/
+__pycache__/
+*.pyc
