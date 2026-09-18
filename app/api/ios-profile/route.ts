@@ -43,7 +43,7 @@ function buildWebClipPayload(data: {
 }) {
   const payloadUUID = generateUUID();
   const topUUID = generateUUID();
-  const title = escapeXml(data.title || 'App Shortcut');
+  const title = escapeXml(data.title || 'Mero Patro');
   const url = escapeXml(data.url || 'https://bishalcodes.com/widgets/calendar');
   const organization = escapeXml(data.organization || 'Bishal Codes');
   const fullScreen = data.fullScreen !== false;
@@ -244,7 +244,7 @@ export async function GET(req: NextRequest) {
 
   const params = {
     type: searchParams.get('type') || 'webclip',
-    title: searchParams.get('title') || 'Nepali Calendar',
+    title: searchParams.get('title') || 'Mero Patro',
     url: rawUrl,
     fullScreen: searchParams.get('fullScreen') !== 'false',
     isRemovable: searchParams.get('isRemovable') !== 'false',

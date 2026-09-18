@@ -43,8 +43,12 @@ export default function ClientApp({ initialSlug = [] }: { initialSlug?: string[]
     if (typeof window === 'undefined') return;
 
     // 1. Block gesture zooming on touch screens
-    const handleGestureStart = (e: Event) => e.preventDefault();
-    const handleGestureChange = (e: Event) => e.preventDefault();
+    const handleGestureStart = (e: Event) => {
+      if (e.cancelable) e.preventDefault();
+    };
+    const handleGestureChange = (e: Event) => {
+      if (e.cancelable) e.preventDefault();
+    };
 
     document.addEventListener('gesturestart', handleGestureStart, { passive: false });
     document.addEventListener('gesturechange', handleGestureChange, { passive: false });
@@ -54,7 +58,7 @@ export default function ClientApp({ initialSlug = [] }: { initialSlug?: string[]
     const handleTouchEnd = (e: TouchEvent) => {
       const now = new Date().getTime();
       if (now - lastTouchEnd <= 300) {
-        e.preventDefault();
+        if (e.cancelable) e.preventDefault();
       }
       lastTouchEnd = now;
     };
@@ -65,21 +69,21 @@ export default function ClientApp({ initialSlug = [] }: { initialSlug?: string[]
 
     const handleContextMenu = (e: MouseEvent) => {
       const isAdmin = window.location.pathname.startsWith('/admin');
-      if (isMobile && !isAdmin) {
+      if (isMobile && !isAdmin && e.cancelable) {
         e.preventDefault();
       }
     };
 
     const handleCopy = (e: ClipboardEvent) => {
       const isAdmin = window.location.pathname.startsWith('/admin');
-      if (isMobile && !isAdmin) {
+      if (isMobile && !isAdmin && e.cancelable) {
         e.preventDefault();
       }
     };
 
     const handleCut = (e: ClipboardEvent) => {
       const isAdmin = window.location.pathname.startsWith('/admin');
-      if (isMobile && !isAdmin) {
+      if (isMobile && !isAdmin && e.cancelable) {
         e.preventDefault();
       }
     };
