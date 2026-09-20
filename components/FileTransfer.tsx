@@ -7,6 +7,7 @@ import {
   ShieldCheck, Clock, FileArchive, Lock, Zap, Globe, FileDown, Download
 } from 'lucide-react';
 import { useNavigation } from '../context/NavigationContext';
+import { downloadZip } from 'client-zip';
 import FileTransferDownload from './FileTransferDownload';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -32,10 +33,25 @@ interface SavedTransfer {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const formatBytes = (bytes: number): string => {
+  if (!bytes) return '—';
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+};
+
+const formatElapsed = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
+const formatTime = (seconds: number): string => {
+  if (!isFinite(seconds) || seconds < 0) return 'estimating...';
+  if (seconds < 60) return `${Math.ceil(seconds)}s remaining`;
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.ceil(seconds % 60);
+  return `${mins}m ${secs}s remaining`;
 };
 
 const getFileIcon = (name: string) => {
@@ -650,11 +666,19 @@ const FileTransfer: React.FC = () => {
     };
   }, []);
 
-  // WebRTC refs and speed tracking
+  // WebRTC refs, multi-session tracking and speed tracking
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dcRef = useRef<RTCDataChannel | null>(null);
   const unsubscribeRefs = useRef<Array<() => void>>([]);
   const activeTransferIdRef = useRef<string | null>(null);
+  const activeFilesRef = useRef<FileEntry[]>([]);
+  const activeNeedsZipRef = useRef<boolean>(false);
+  const activeTotalSizeRef = useRef<number>(0);
+  const activeFileNameRef = useRef<string>('');
+  const sessionsMapRef = useRef<Map<string, { pc: RTCPeerConnection; dc: RTCDataChannel | null; cleanup: () => void }>>(new Map());
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [completedTransfersCount, setCompletedTransfersCount] = useState<number>(0);
+
   const [transferSpeed, setTransferSpeed] = useState<string>('');
   const [timeRemaining, setTimeRemaining] = useState<string>('');
   const speedIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -727,9 +751,14 @@ const FileTransfer: React.FC = () => {
     };
   }, []);
 
-  const cleanupConnection = useCallback(() => {
+  const cleanupConnection = useCallback((markOffline: boolean = true) => {
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current);
+      heartbeatIntervalRef.current = null;
+    }
+
     const tId = activeTransferIdRef.current;
-    if (tId) {
+    if (tId && markOffline) {
       const transferRef = doc(db, 'transfers', tId);
       updateDoc(transferRef, { senderStatus: 'offline' }).catch(() => {});
     }
@@ -750,6 +779,12 @@ const FileTransfer: React.FC = () => {
     unsubscribeRefs.current.forEach(unsub => unsub());
     unsubscribeRefs.current = [];
     
+    // Cleanup all active sessions
+    sessionsMapRef.current.forEach((session) => {
+      try { session.cleanup(); } catch (e) {}
+    });
+    sessionsMapRef.current.clear();
+
     if (dcRef.current) {
       try { dcRef.current.close(); } catch (e) {}
       dcRef.current = null;
@@ -764,12 +799,280 @@ const FileTransfer: React.FC = () => {
 
   useEffect(() => {
     return () => {
-      cleanupConnection();
+      cleanupConnection(true);
     };
   }, [cleanupConnection]);
 
   const totalSize = fileEntries.reduce((s, e) => s + e.file.size, 0);
   const MAX_SIZE = 100 * 1024 * 1024 * 1024; // 100 GB
+
+  // Helper to stream files or ZIP directly into any RTCDataChannel
+  const streamPayloadToDataChannel = async (
+    dc: RTCDataChannel,
+    entries: FileEntry[],
+    needsZip: boolean,
+    totalSz: number,
+    onProgress: (pct: number, bytesSent: number) => void
+  ): Promise<void> => {
+    const CHUNK_SIZE = 262144; // 256 KB chunk slices
+    let bytesSent = 0;
+
+    const waitForBufferLow = () => {
+      if (dc.bufferedAmount <= 512 * 1024) return Promise.resolve();
+      return new Promise<void>((resolve) => {
+        const handler = () => {
+          dc.removeEventListener('bufferedamountlow', handler);
+          resolve();
+        };
+        dc.addEventListener('bufferedamountlow', handler);
+      });
+    };
+
+    if (needsZip) {
+      const zipInputs = entries.map(e => ({
+        name: e.relativePath,
+        input: e.file,
+        size: e.file.size,
+        lastModified: new Date(e.file.lastModified || Date.now())
+      }));
+      const response = downloadZip(zipInputs);
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('Failed to create ZIP stream reader');
+
+      while (true) {
+        if (dc.readyState !== 'open') throw new Error('DataChannel closed');
+        await waitForBufferLow();
+
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        let chunkOffset = 0;
+        while (chunkOffset < value.byteLength) {
+          if (dc.readyState !== 'open') throw new Error('DataChannel closed');
+          await waitForBufferLow();
+
+          const end = Math.min(chunkOffset + CHUNK_SIZE, value.byteLength);
+          const subChunk = value.slice(chunkOffset, end);
+          dc.send(subChunk.buffer.slice(subChunk.byteOffset, subChunk.byteOffset + subChunk.byteLength));
+          bytesSent += subChunk.byteLength;
+          chunkOffset = end;
+
+          if (totalSz > 0) {
+            const pct = Math.min(99, Math.round((bytesSent / totalSz) * 100));
+            onProgress(pct, bytesSent);
+          }
+        }
+      }
+    } else {
+      const file = entries[0].file;
+      let offset = 0;
+      while (offset < totalSz) {
+        if (dc.readyState !== 'open') throw new Error('DataChannel closed');
+        await waitForBufferLow();
+
+        const slice = file.slice(offset, Math.min(offset + CHUNK_SIZE, totalSz));
+        const buffer = await slice.arrayBuffer();
+        dc.send(buffer);
+        offset += buffer.byteLength;
+        bytesSent = offset;
+
+        if (totalSz > 0) {
+          const pct = Math.min(99, Math.round((bytesSent / totalSz) * 100));
+          onProgress(pct, bytesSent);
+        }
+      }
+    }
+
+    // Send completion message
+    await waitForBufferLow();
+    dc.send(JSON.stringify({ type: 'DONE' }));
+  };
+
+  // Dedicated handler for multi-receiver sessions
+  const handleReceiverSession = async (transferId: string, sessionId: string) => {
+    if (sessionsMapRef.current.has(sessionId)) return;
+
+    try {
+      const pc = new RTCPeerConnection({
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' },
+          { urls: 'stun:stun3.l.google.com:19302' },
+          { urls: 'stun:stun4.l.google.com:19302' },
+          { urls: 'stun:stun.services.mozilla.com' },
+          { urls: 'stun:stun.cloudflare.com:3478' }
+        ]
+      });
+
+      const sessionCleanups: Array<() => void> = [];
+
+      const sessionObj = {
+        pc,
+        dc: null as RTCDataChannel | null,
+        cleanup: () => {
+          sessionCleanups.forEach(u => u());
+          try { sessionObj.dc?.close(); } catch (e) {}
+          try { pc.close(); } catch (e) {}
+          sessionsMapRef.current.delete(sessionId);
+        }
+      };
+      sessionsMapRef.current.set(sessionId, sessionObj);
+
+      const dc = pc.createDataChannel('fileTransfer', { ordered: true });
+      dc.binaryType = 'arraybuffer';
+      dc.bufferedAmountLowThreshold = 512 * 1024;
+      sessionObj.dc = dc;
+
+      // Handle sender ICE candidates for this session
+      pc.onicecandidate = async (event) => {
+        if (event.candidate) {
+          try {
+            const candidateRef = doc(collection(db, 'transfers', transferId, 'sessions', sessionId, 'senderCandidates'));
+            await setDoc(candidateRef, event.candidate.toJSON());
+          } catch (e) {
+            console.error('Error writing session sender ICE candidate:', e);
+          }
+        }
+      };
+
+      const pendingReceiverCandidates: RTCIceCandidateInit[] = [];
+      const addReceiverCandidate = async (candidateData: RTCIceCandidateInit) => {
+        if (pc.remoteDescription) {
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(candidateData));
+          } catch (e) {}
+        } else {
+          pendingReceiverCandidates.push(candidateData);
+        }
+      };
+
+      // Listen to receiver candidates for this session
+      const receiverCandidatesCol = collection(db, 'transfers', transferId, 'sessions', sessionId, 'receiverCandidates');
+      const unsubCandidates = onSnapshot(receiverCandidatesCol, (snapshot) => {
+        snapshot.docChanges().forEach(async (change) => {
+          if (change.type === 'added') {
+            const candidateData = change.doc.data() as RTCIceCandidateInit;
+            await addReceiverCandidate(candidateData);
+          }
+        });
+      });
+      sessionCleanups.push(unsubCandidates);
+
+      // Create Offer
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      const sessionDocRef = doc(db, 'transfers', transferId, 'sessions', sessionId);
+      await setDoc(sessionDocRef, {
+        offer: { type: offer.type, sdp: offer.sdp },
+        status: 'offer_ready',
+        updatedAt: Date.now()
+      }, { merge: true });
+
+      // Listen for Answer on session document
+      const unsubSession = onSnapshot(sessionDocRef, async (snap) => {
+        if (!snap.exists()) return;
+        const data = snap.data();
+        if (data.answer && !pc.remoteDescription) {
+          try {
+            await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+            while (pendingReceiverCandidates.length > 0) {
+              const cand = pendingReceiverCandidates.shift();
+              if (cand) {
+                try {
+                  await pc.addIceCandidate(new RTCIceCandidate(cand));
+                } catch (e) {}
+              }
+            }
+          } catch (e) {
+            console.error('Error setting remote description for session:', e);
+          }
+        }
+      });
+      sessionCleanups.push(unsubSession);
+
+      pc.onconnectionstatechange = () => {
+        console.log(`Session ${sessionId} Connection State:`, pc.connectionState);
+        if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+          sessionObj.cleanup();
+        }
+      };
+
+      dc.onopen = async () => {
+        console.log(`DataChannel opened for session ${sessionId}`);
+        setStage('transferring');
+        setConnectionStateText('Recipient connected! Streaming file...');
+        
+        let lastTime = performance.now();
+        let lastBytes = 0;
+
+        let startTime = Date.now();
+        if (elapsedIntervalRef.current) clearInterval(elapsedIntervalRef.current);
+        elapsedIntervalRef.current = setInterval(() => {
+          const elapsedSecs = Math.floor((Date.now() - startTime) / 1000);
+          setElapsedText(formatElapsed(elapsedSecs));
+        }, 1000);
+
+        if (speedIntervalRef.current) clearInterval(speedIntervalRef.current);
+
+        try {
+          await streamPayloadToDataChannel(
+            dc,
+            activeFilesRef.current,
+            activeNeedsZipRef.current,
+            activeTotalSizeRef.current,
+            (pct, bytesSent) => {
+              setUploadProgress(pct);
+              const now = performance.now();
+              const elapsed = (now - lastTime) / 1000;
+              if (elapsed >= 0.5) {
+                const speed = (bytesSent - lastBytes) / elapsed;
+                setTransferSpeed(`${formatBytes(speed)}/s`);
+                const remainingBytes = activeTotalSizeRef.current - bytesSent;
+                if (speed > 0) {
+                  const secondsLeft = remainingBytes / speed;
+                  setTimeRemaining(formatTime(secondsLeft));
+                }
+                lastTime = now;
+                lastBytes = bytesSent;
+              }
+            }
+          );
+
+          setUploadProgress(100);
+          setCompletedTransfersCount(prev => {
+            const next = prev + 1;
+            setConnectionStateText(`Ready for downloads • Transferred to ${next} recipient${next > 1 ? 's' : ''}`);
+            return next;
+          });
+          setStage('done');
+          setTransferSpeed('');
+          setTimeRemaining('');
+
+          if (elapsedIntervalRef.current) clearInterval(elapsedIntervalRef.current);
+          if (speedIntervalRef.current) clearInterval(speedIntervalRef.current);
+
+          updateDoc(sessionDocRef, { status: 'completed', completedAt: Date.now() }).catch(() => {});
+        } catch (streamErr: any) {
+          console.error(`Stream error in session ${sessionId}:`, streamErr);
+          sessionObj.cleanup();
+        }
+      };
+
+      dc.onmessage = (e) => {
+        try {
+          const msg = JSON.parse(e.data);
+          if (msg.type === 'ACK_DONE') {
+            sessionObj.cleanup();
+          }
+        } catch (err) {}
+      };
+
+    } catch (err) {
+      console.error(`Failed to handle receiver session ${sessionId}:`, err);
+    }
+  };
 
   const setupP2PConnection = async (
     fileName: string,
@@ -779,12 +1082,17 @@ const FileTransfer: React.FC = () => {
     existingTransferId?: string
   ) => {
     setStage('connecting');
-    setConnectionStateText('Initializing P2P connection...');
-    cleanupConnection();
+    setConnectionStateText('Initializing secure P2P link...');
+    cleanupConnection(false);
 
     try {
       const transferId = existingTransferId || (Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10));
       activeTransferIdRef.current = transferId;
+      activeFilesRef.current = entries;
+      activeNeedsZipRef.current = needsZip;
+      activeTotalSizeRef.current = totalSz;
+      activeFileNameRef.current = fileName;
+
       const downloadPageUrl = `${window.location.origin}/transfer/${transferId}`;
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -811,7 +1119,8 @@ const FileTransfer: React.FC = () => {
         } catch (e) {}
       }
 
-      const pc = new RTCPeerConnection({
+      // Root RTCPeerConnection for legacy backward-compatibility
+      const rootPc = new RTCPeerConnection({
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
           { urls: 'stun:stun1.l.google.com:19302' },
@@ -822,14 +1131,14 @@ const FileTransfer: React.FC = () => {
           { urls: 'stun:stun.cloudflare.com:3478' }
         ]
       });
-      pcRef.current = pc;
+      pcRef.current = rootPc;
 
-      const dc = pc.createDataChannel('fileTransfer', { ordered: true });
-      dc.binaryType = 'arraybuffer';
-      dc.bufferedAmountLowThreshold = 65536; // 64 KB
-      dcRef.current = dc;
+      const rootDc = rootPc.createDataChannel('fileTransfer', { ordered: true });
+      rootDc.binaryType = 'arraybuffer';
+      rootDc.bufferedAmountLowThreshold = 512 * 1024;
+      dcRef.current = rootDc;
 
-      pc.onicecandidate = async (event) => {
+      rootPc.onicecandidate = async (event) => {
         if (event.candidate) {
           try {
             const candidateRef = doc(collection(db, 'transfers', transferId, 'senderCandidates'));
@@ -840,19 +1149,8 @@ const FileTransfer: React.FC = () => {
         }
       };
 
-      pc.onconnectionstatechange = () => {
-        console.log("Connection State:", pc.connectionState);
-        if (pc.connectionState === 'connected') {
-          setConnectionStateText('Recipient connected! Starting P2P transfer...');
-        } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
-          setError('Recipient disconnected. Make sure both browsers remain open.');
-          setStage('error');
-          cleanupConnection();
-        }
-      };
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
+      const offer = await rootPc.createOffer();
+      await rootPc.setLocalDescription(offer);
 
       const transferRef = doc(db, 'transfers', transferId);
       await setDoc(transferRef, {
@@ -862,41 +1160,66 @@ const FileTransfer: React.FC = () => {
         createdAt: new Date().toISOString(),
         expiresAt,
         offer: { type: offer.type, sdp: offer.sdp },
-        senderStatus: 'waiting',
+        senderStatus: 'online',
+        lastHeartbeat: Date.now(),
         receiverStatus: 'waiting'
       });
 
-      setConnectionStateText('Waiting for recipient to connect... Keep this page open.');
+      // Start continuous active heartbeat (every 3 seconds)
+      if (heartbeatIntervalRef.current) clearInterval(heartbeatIntervalRef.current);
+      heartbeatIntervalRef.current = setInterval(() => {
+        if (activeTransferIdRef.current) {
+          updateDoc(doc(db, 'transfers', activeTransferIdRef.current), {
+            senderStatus: 'online',
+            lastHeartbeat: Date.now()
+          }).catch(() => {});
+        }
+      }, 3000);
 
-      const pendingReceiverCandidates: RTCIceCandidateInit[] = [];
-      const addReceiverCandidate = async (candidateData: RTCIceCandidateInit) => {
-        if (pc.remoteDescription) {
-          try {
-            await pc.addIceCandidate(new RTCIceCandidate(candidateData));
-          } catch (e) {
-            console.error('Error adding receiver ICE candidate:', e);
+      setConnectionStateText('Waiting for recipients to connect... Keep this browser tab open.');
+
+      // Listen for multi-client sessions
+      const sessionsCol = collection(db, 'transfers', transferId, 'sessions');
+      const unsubSessions = onSnapshot(sessionsCol, (snapshot) => {
+        snapshot.docChanges().forEach(async (change) => {
+          if (change.type === 'added' || change.type === 'modified') {
+            const sessionData = change.doc.data();
+            const sessionId = change.doc.id;
+            if (sessionData && sessionData.status === 'requesting' && !sessionsMapRef.current.has(sessionId)) {
+              handleReceiverSession(transferId, sessionId);
+            }
           }
+        });
+      });
+      unsubscribeRefs.current.push(unsubSessions);
+
+      // Legacy fallback handler for root answer
+      const pendingRootReceiverCandidates: RTCIceCandidateInit[] = [];
+      const addRootReceiverCandidate = async (candidateData: RTCIceCandidateInit) => {
+        if (rootPc.remoteDescription) {
+          try {
+            await rootPc.addIceCandidate(new RTCIceCandidate(candidateData));
+          } catch (e) {}
         } else {
-          pendingReceiverCandidates.push(candidateData);
+          pendingRootReceiverCandidates.push(candidateData);
         }
       };
 
       const unsubTransfer = onSnapshot(transferRef, async (snapshot) => {
         const data = snapshot.data();
-        if (data && data.answer && !pc.remoteDescription) {
+        if (data && data.answer && !rootPc.remoteDescription) {
           try {
-            await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-            await updateDoc(transferRef, { senderStatus: 'connecting' });
-            while (pendingReceiverCandidates.length > 0) {
-              const cand = pendingReceiverCandidates.shift();
+            await rootPc.setRemoteDescription(new RTCSessionDescription(data.answer));
+            while (pendingRootReceiverCandidates.length > 0) {
+              const cand = pendingRootReceiverCandidates.shift();
               if (cand) {
                 try {
-                  await pc.addIceCandidate(new RTCIceCandidate(cand));
+                  await rootPc.addIceCandidate(new RTCIceCandidate(cand));
                 } catch (e) {}
               }
             }
           } catch (e) {
-            console.error('Error setting remote description:', e);
+            console.error('Error setting remote description for root pc:', e);
           }
         }
       });
@@ -907,242 +1230,27 @@ const FileTransfer: React.FC = () => {
         snapshot.docChanges().forEach(async (change) => {
           if (change.type === 'added') {
             const candidateData = change.doc.data() as RTCIceCandidateInit;
-            await addReceiverCandidate(candidateData);
+            await addRootReceiverCandidate(candidateData);
           }
         });
       });
       unsubscribeRefs.current.push(unsubCandidates);
 
-      dc.onopen = () => {
+      rootDc.onopen = async () => {
         setStage('transferring');
-        setConnectionStateText('Transferring...');
-        
-        // Optimize WebRTC data channel buffer and chunk sizes for maximum P2P speed (up to 100+ Mbps)
-        dc.bufferedAmountLowThreshold = 512 * 1024; // 512 KB threshold to trigger early bufferedamountlow
-        let offset = 0;
-        const CHUNK_SIZE = 262144; // Increase chunk size to 256 KB to minimize event loop overhead
-        let lastTime = performance.now();
-        let lastOffset = 0;
-
-        let startTime = Date.now();
-        elapsedIntervalRef.current = setInterval(() => {
-          const elapsedSecs = Math.floor((Date.now() - startTime) / 1000);
-          setElapsedText(formatElapsed(elapsedSecs));
-        }, 1000);
-
-        const finishTransfer = () => {
-          if (ackTimeoutRef.current) {
-            clearTimeout(ackTimeoutRef.current);
-            ackTimeoutRef.current = null;
-          }
-          if (speedIntervalRef.current) {
-            clearInterval(speedIntervalRef.current);
-            speedIntervalRef.current = null;
-          }
-          setTransferSpeed('');
+        setConnectionStateText('Recipient connected! Streaming file...');
+        try {
+          await streamPayloadToDataChannel(
+            rootDc,
+            entries,
+            needsZip,
+            totalSz,
+            (pct) => setUploadProgress(pct)
+          );
+          setUploadProgress(100);
           setStage('done');
-          setConnectionStateText('Transfer Complete!');
-          updateDoc(transferRef, { senderStatus: 'done' }).catch(console.error);
-        };
-
-        const initiateFinishTransfer = () => {
-          setConnectionStateText('Finishing transfer... writing to recipient\'s disk.');
-          try {
-            dc.send(JSON.stringify({ type: 'DONE' }));
-          } catch (e) {
-            finishTransfer();
-            return;
-          }
-          // Set fallback timeout if receiver doesn't support/send ACK_DONE
-          ackTimeoutRef.current = setTimeout(() => {
-            console.warn('ACK_DONE timeout, finalizing transfer.');
-            finishTransfer();
-          }, 8000);
-        };
-
-        dc.onmessage = (eEvent) => {
-          try {
-            const msg = JSON.parse(eEvent.data);
-            if (msg.type === 'ACK_DONE') {
-              finishTransfer();
-            }
-          } catch (err) {
-            // Ignore legacy or binary parsing errors
-          }
-        };
-
-        speedIntervalRef.current = setInterval(() => {
-          const now = performance.now();
-          const bytesSent = offset;
-          const elapsed = (now - lastTime) / 1000;
-          if (elapsed > 0) {
-            const speed = (bytesSent - lastOffset) / elapsed;
-            setTransferSpeed(`${formatBytes(speed)}/s`);
-            
-            const remainingBytes = totalSz - bytesSent;
-            if (speed > 0) {
-              const secondsLeft = remainingBytes / speed;
-              setTimeRemaining(formatTime(secondsLeft));
-            } else {
-              setTimeRemaining('estimating...');
-            }
-          }
-          lastTime = now;
-          lastOffset = bytesSent;
-        }, 1000);
-
-        if (needsZip) {
-          // Streaming ZIP logic via Worker
-          const workerCode = `
-            self.importScripts('https://cdn.jsdelivr.net/npm/client-zip/worker.js');
-            let reader = null;
-            self.onmessage = async function(e) {
-              const data = e.data;
-              if (data.type === 'start') {
-                try {
-                  const files = data.files;
-                  const zipInputs = files.map(f => ({
-                    name: f.relativePath,
-                    input: f.file,
-                    size: f.file.size,
-                    lastModified: new Date(f.file.lastModified || Date.now())
-                  }));
-                  const response = downloadZip(zipInputs);
-                  reader = response.body.getReader();
-                  self.postMessage({ type: 'ready' });
-                } catch (err) {
-                  self.postMessage({ type: 'error', error: err.message });
-                }
-              } else if (data.type === 'pull') {
-                if (!reader) return;
-                try {
-                  const { done, value } = await reader.read();
-                  if (done) {
-                    self.postMessage({ type: 'done' });
-                    reader = null;
-                  } else {
-                    const cleanBuffer = value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength);
-                    self.postMessage({ type: 'chunk', chunk: cleanBuffer }, [cleanBuffer]);
-                  }
-                } catch (err) {
-                  self.postMessage({ type: 'error', error: err.message });
-                  reader = null;
-                }
-              }
-            };
-          `;
-          
-          const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
-          const workerUrl = URL.createObjectURL(workerBlob);
-          const worker = new Worker(workerUrl);
-
-          let isPulling = false;
-
-          dc.bufferedAmountLowThreshold = 512 * 1024; // Configure threshold for worker streaming
-          const pullNext = () => {
-            if (isPulling) return;
-            if (dc.bufferedAmount > 1024 * 1024) { // Keep 1 MB pipeline filled
-              return;
-            }
-            isPulling = true;
-            worker.postMessage({ type: 'pull' });
-          };
-
-          dc.onbufferedamountlow = () => {
-            pullNext();
-          };
-
-          worker.onmessage = (eMsg) => {
-            const { type, chunk, error: workerErr } = eMsg.data;
-            if (type === 'ready') {
-              pullNext();
-            } else if (type === 'chunk') {
-              isPulling = false;
-              try {
-                const totalLength = chunk.byteLength;
-                let chunkOffset = 0;
-                const SEND_CHUNK_SIZE = 262144; // 256 KB chunk slices for zipping
-                
-                while (chunkOffset < totalLength) {
-                  const size = Math.min(SEND_CHUNK_SIZE, totalLength - chunkOffset);
-                  const subChunk = chunk.slice(chunkOffset, chunkOffset + size);
-                  dc.send(subChunk);
-                  offset += size;
-                  chunkOffset += size;
-                }
-                
-                const pct = Math.round((offset / totalSz) * 100);
-                setUploadProgress(pct);
-                pullNext();
-              } catch (err) {
-                console.error('Error sending chunk:', err);
-                setError('Data transmission failed.');
-                setStage('error');
-                worker.terminate();
-                URL.revokeObjectURL(workerUrl);
-                cleanupConnection();
-              }
-            } else if (type === 'done') {
-              worker.terminate();
-              URL.revokeObjectURL(workerUrl);
-              initiateFinishTransfer();
-            } else if (type === 'error') {
-              console.error('Worker error:', workerErr);
-              setError(workerErr || 'Zipping failed.');
-              setStage('error');
-              worker.terminate();
-              URL.revokeObjectURL(workerUrl);
-              cleanupConnection();
-            }
-          };
-
-          const filesToSend = entries.map(e => ({
-            relativePath: e.relativePath,
-            file: e.file
-          }));
-          worker.postMessage({ type: 'start', files: filesToSend });
-
-        } else {
-          // Single file transmission logic
-          const file = entries[0].file;
-          const sendNext = () => {
-            while (offset < totalSz) {
-              if (dc.bufferedAmount > 1024 * 1024) { // Allow up to 1 MB in socket queue
-                return;
-              }
-              const slice = file.slice(offset, offset + CHUNK_SIZE);
-              const reader = new FileReader();
-              reader.onload = (eLoad) => {
-                if (eLoad.target?.result instanceof ArrayBuffer) {
-                  try {
-                    dc.send(eLoad.target.result);
-                    offset += eLoad.target.result.byteLength;
-                    const pct = Math.round((offset / totalSz) * 100);
-                    setUploadProgress(pct);
-                    sendNext();
-                  } catch (err) {
-                    console.error('Error during send:', err);
-                    setError('Data transmission failed.');
-                    setStage('error');
-                    cleanupConnection();
-                  }
-                }
-              };
-              reader.readAsArrayBuffer(slice);
-              return;
-            }
-
-            if (offset >= totalSz) {
-              initiateFinishTransfer();
-            }
-          };
-
-          dc.onbufferedamountlow = () => {
-            sendNext();
-          };
-
-          sendNext();
-        }
+          setConnectionStateText('Transfer Complete! Ready for more downloads.');
+        } catch (e) {}
       };
 
       setResult({
@@ -2159,7 +2267,7 @@ const FileTransfer: React.FC = () => {
                           {stage === 'zipping' && `Zipping assets...`}
                           {stage === 'connecting' && connectionStateText}
                           {stage === 'transferring' && `Transferring...`}
-                          {stage === 'done' && `Transfer Complete!`}
+                          {stage === 'done' && (connectionStateText || `Transfer Complete! Ready for more downloads.`)}
                         </span>
                       </span>
                       {stage === 'transferring' && transferSpeed && (

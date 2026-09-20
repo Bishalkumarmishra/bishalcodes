@@ -165,6 +165,19 @@ const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) =
     }
   };
 
+  const rawDataRef = useRef<any>(null);
+
+  const isSenderOnline = (status?: string, lastHeartbeat?: number) => {
+    if (!status) return false;
+    if (status === 'offline') {
+      if (lastHeartbeat && (Date.now() - lastHeartbeat < 15000)) {
+        return true;
+      }
+      return false;
+    }
+    return true;
+  };
+
   useEffect(() => {
     if (!transferId) { setLoadState('notfound'); return; }
 
@@ -172,6 +185,8 @@ const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) =
     const unsubscribeTransfer = onSnapshot(transferDocRef, (snap) => {
       if (snap.exists()) {
         const data = snap.data();
+        rawDataRef.current = data;
+
         const meta: TransferMetadata = {
           transferId: data.transferId || transferId,
           fileName: data.fileName || 'Shared File',
@@ -180,7 +195,9 @@ const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) =
           createdAt: data.createdAt || new Date().toISOString(),
         };
         setMetadata(meta);
-        setSenderStatus(data.senderStatus || 'offline');
+
+        const online = isSenderOnline(data.senderStatus, data.lastHeartbeat);
+        setSenderStatus(online ? 'online' : 'offline');
 
         const now = new Date();
         const expiry = new Date(meta.expiresAt);
@@ -233,8 +250,17 @@ const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) =
       setLoadState('error');
     });
 
+    // Check heartbeat freshness continuously every 3 seconds
+    const heartbeatChecker = setInterval(() => {
+      if (rawDataRef.current) {
+        const online = isSenderOnline(rawDataRef.current.senderStatus, rawDataRef.current.lastHeartbeat);
+        setSenderStatus(online ? 'online' : 'offline');
+      }
+    }, 3000);
+
     return () => {
       unsubscribeTransfer();
+      clearInterval(heartbeatChecker);
     };
   }, [transferId]);
 
@@ -252,7 +278,7 @@ const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) =
 
     setDownloading(true);
     setDownloadProgress(0);
-    setConnectionStateText('Initializing P2P link...');
+    setConnectionStateText('Initializing secure P2P link...');
     cleanupConnection();
 
     let fileWriter: any = null;
@@ -268,6 +294,8 @@ const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) =
     }
 
     try {
+      const sessionId = 'rec_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+
       const pc = new RTCPeerConnection({
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
@@ -281,11 +309,11 @@ const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) =
       });
       pcRef.current = pc;
 
-      // Handle local ICE candidates
+      // Handle local ICE candidates for this session
       pc.onicecandidate = async (event) => {
         if (event.candidate) {
           try {
-            const candidateRef = doc(collection(db, 'transfers', transferId, 'receiverCandidates'));
+            const candidateRef = doc(collection(db, 'transfers', transferId, 'sessions', sessionId, 'receiverCandidates'));
             await setDoc(candidateRef, event.candidate.toJSON());
           } catch (e) {
             console.error('Error writing receiver ICE candidate:', e);
@@ -296,7 +324,7 @@ const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) =
       pc.onconnectionstatechange = () => {
         console.log("Receiver Connection State:", pc.connectionState);
         if (pc.connectionState === 'connected') {
-          setConnectionStateText('Connected to sender! Preparing streaming...');
+          setConnectionStateText('Connected to sender! Streaming data...');
         } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
           setConnectionStateText('Connection lost. Please make sure the sender keeps their tab open.');
           setDownloading(false);
@@ -318,7 +346,7 @@ const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) =
         let writeQueue = Promise.resolve();
 
         dc.onopen = () => {
-          setConnectionStateText('Receiving file...');
+          setConnectionStateText('Receiving file stream...');
         };
 
         dc.onmessage = (e) => {
@@ -350,7 +378,7 @@ const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) =
               lastBytes = bytesReceived;
             }
 
-            const pct = Math.min(100, Math.round((bytesReceived / metadata.fileSize) * 100));
+            const pct = Math.min(100, Math.round((bytesReceived / (metadata.fileSize || 1)) * 100));
             setDownloadProgress(pct);
 
             if (fileWriter) {
@@ -405,24 +433,11 @@ const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) =
 
           try {
             dc.send(JSON.stringify({ type: 'ACK_DONE' }));
-          } catch (err) {
-            console.error('Error sending ACK_DONE:', err);
-          }
+          } catch (err) {}
 
           cleanupConnection();
         };
       };
-
-      // Get transfer metadata & offer from Firestore
-      const transferDocRef = doc(db, 'transfers', transferId);
-      const snap = await getDoc(transferDocRef);
-      if (!snap.exists()) {
-        throw new Error('Transfer metadata not found.');
-      }
-      const data = snap.data();
-      if (!data.offer) {
-        throw new Error('Offer signal not found.');
-      }
 
       const pendingSenderCandidates: RTCIceCandidateInit[] = [];
       const addSenderCandidate = async (candidateData: RTCIceCandidateInit) => {
@@ -437,8 +452,8 @@ const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) =
         }
       };
 
-      // Subscribe to Sender ICE Candidates
-      const senderCandidatesCol = collection(db, 'transfers', transferId, 'senderCandidates');
+      // Subscribe to session Sender ICE Candidates
+      const senderCandidatesCol = collection(db, 'transfers', transferId, 'sessions', sessionId, 'senderCandidates');
       const unsubCandidates = onSnapshot(senderCandidatesCol, (snapshot) => {
         snapshot.docChanges().forEach(async (change) => {
           if (change.type === 'added') {
@@ -449,30 +464,73 @@ const FileTransferDownload: React.FC<Props> = ({ transferId: propTransferId }) =
       });
       unsubscribeRefs.current.push(unsubCandidates);
 
-      // Set Remote Description (SDP Offer)
-      await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
-
-      // Flush buffered sender candidates
-      while (pendingSenderCandidates.length > 0) {
-        const cand = pendingSenderCandidates.shift();
-        if (cand) {
-          try {
-            await pc.addIceCandidate(new RTCIceCandidate(cand));
-          } catch (e) {}
-        }
-      }
-
-      // Create local SDP Answer
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-
-      // Write Answer to Firestore
-      await updateDoc(transferDocRef, {
-        answer: { type: answer.type, sdp: answer.sdp },
-        receiverStatus: 'connecting'
+      // Create session request doc in Firestore
+      const sessionDocRef = doc(db, 'transfers', transferId, 'sessions', sessionId);
+      await setDoc(sessionDocRef, {
+        sessionId,
+        status: 'requesting',
+        createdAt: Date.now()
       });
 
+      // Listen for Offer from sender on this session
+      let offerReceived = false;
+      const unsubSession = onSnapshot(sessionDocRef, async (snap) => {
+        if (!snap.exists()) return;
+        const data = snap.data();
+        if (data.offer && !pc.remoteDescription && !offerReceived) {
+          offerReceived = true;
+          try {
+            await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+
+            // Flush buffered sender candidates
+            while (pendingSenderCandidates.length > 0) {
+              const cand = pendingSenderCandidates.shift();
+              if (cand) {
+                try {
+                  await pc.addIceCandidate(new RTCIceCandidate(cand));
+                } catch (e) {}
+              }
+            }
+
+            // Create local SDP Answer
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+
+            // Write Answer to session doc
+            await updateDoc(sessionDocRef, {
+              answer: { type: answer.type, sdp: answer.sdp },
+              status: 'answer_ready'
+            });
+
+            setConnectionStateText('Connected! Waiting for data stream...');
+          } catch (offerErr) {
+            console.error('Error handling session offer:', offerErr);
+          }
+        }
+      });
+      unsubscribeRefs.current.push(unsubSession);
+
       setConnectionStateText('Connecting to sender browser...');
+
+      // Fallback: If session offer is not received within 4.5 seconds, check root doc
+      setTimeout(async () => {
+        if (!offerReceived && !pc.remoteDescription) {
+          try {
+            const rootSnap = await getDoc(doc(db, 'transfers', transferId));
+            if (rootSnap.exists() && rootSnap.data().offer && !offerReceived) {
+              const rootData = rootSnap.data();
+              offerReceived = true;
+              await pc.setRemoteDescription(new RTCSessionDescription(rootData.offer));
+              const answer = await pc.createAnswer();
+              await pc.setLocalDescription(answer);
+              await updateDoc(doc(db, 'transfers', transferId), {
+                answer: { type: answer.type, sdp: answer.sdp },
+                receiverStatus: 'connecting'
+              });
+            }
+          } catch (e) {}
+        }
+      }, 4500);
 
     } catch (err: any) {
       console.error(err);

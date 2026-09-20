@@ -132,10 +132,7 @@ service cloud.firestore {
 
     match /transfers/{transferId} {
       allow read, write: if true;
-      match /senderCandidates/{candidateId} {
-        allow read, write: if true;
-      }
-      match /receiverCandidates/{candidateId} {
+      match /{allChildren=**} {
         allow read, write: if true;
       }
     }
