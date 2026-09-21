@@ -13,7 +13,8 @@ const LiveEditWidget: React.FC = () => {
     const allowedAdmins = [
       'bishalmishra9000@gmail.com',
       'admin@bishalcodes.com',
-      'developer@bishalcodes.com'
+      'developer@bishalcodes.com',
+      'info@bishalcodes.com'
     ];
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {

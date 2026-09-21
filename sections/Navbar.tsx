@@ -151,7 +151,8 @@ const Navbar: React.FC = () => {
   const allowedAdmins = [
     'bishalmishra9000@gmail.com',
     'admin@bishalcodes.com',
-    'developer@bishalcodes.com'
+    'developer@bishalcodes.com',
+    'info@bishalcodes.com'
   ];
   const isAdmin = user && user.email && allowedAdmins.includes(user.email);
 

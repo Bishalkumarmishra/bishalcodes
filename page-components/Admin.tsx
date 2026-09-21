@@ -617,7 +617,8 @@ const Admin: React.FC = () => {
         const allowedAdmins = [
           'bishalmishra9000@gmail.com',
           'admin@bishalcodes.com',
-          'developer@bishalcodes.com'
+          'developer@bishalcodes.com',
+          'info@bishalcodes.com'
         ];
         if (allowedAdmins.includes(user.email!)) {
           setIsAuthorized(true);

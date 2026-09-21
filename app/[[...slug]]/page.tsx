@@ -337,6 +337,8 @@ export default async function CatchAllPage(props: PageProps) {
           "image": "https://www.bishalcodes.com/bishal.png",
           "birthDate": "2006-06-19",
           "gender": "Male",
+          "email": ["mailto:info@bishalcodes.com", "mailto:developer@bishalcodes.com"],
+          "telephone": "+9779827801575",
           "birthPlace": {
             "@type": "Place",
             "name": "Harakthawa, Sarlahi",

@@ -283,13 +283,13 @@ const Footer: React.FC = () => {
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
                 <a
-                  href="mailto:developer@bishalcodes.com"
+                  href="mailto:info@bishalcodes.com"
                   style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#5a6478', textDecoration: 'none', transition: 'color 0.15s' }}
                   onMouseEnter={e => (e.currentTarget.style.color = '#c8d0dc')}
                   onMouseLeave={e => (e.currentTarget.style.color = '#5a6478')}
                 >
                   <Mail size={13} style={{ flexShrink: 0, color: '#3d4a5c' }} />
-                  developer@bishalcodes.com
+                  info@bishalcodes.com
                 </a>
                 <a
                   href="tel:+9779827801575"

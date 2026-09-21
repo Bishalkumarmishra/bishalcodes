@@ -195,6 +195,8 @@ export default function RootLayout({
           },
           "gender": "Male",
           "jobTitle": "Software Developer & Mobile Hardware Technician",
+          "email": ["mailto:info@bishalcodes.com", "mailto:developer@bishalcodes.com"],
+          "telephone": "+9779827801575",
           "worksFor": {
             "@type": "Organization",
             "@id": "https://bishalcodes.com/#organization",
@@ -246,6 +248,7 @@ export default function RootLayout({
           "image": "https://www.bishalcodes.com/bishal.png",
           "@id": "https://bishalcodes.com/",
           "url": "https://bishalcodes.com/",
+          "email": "info@bishalcodes.com",
           "telephone": "+9779827801575",
           "priceRange": "$$$",
           "address": {
