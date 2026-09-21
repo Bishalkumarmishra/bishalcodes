@@ -160,24 +160,81 @@ export default function RootLayout({
         {
           "@context": "https://schema.org",
           "@type": "Person",
-          "name": "Bishal Mishra",
+          "@id": "https://bishalcodes.com/#person",
+          "name": "Bishal Kumar Mishra",
+          "alternateName": ["Bishal Mishra", "Bishal Codes", "विशाल कुमार मिश्रा", "Bishal"],
+          "givenName": "Bishal",
+          "additionalName": "Kumar",
+          "familyName": "Mishra",
           "url": "https://bishalcodes.com/",
           "image": "https://www.bishalcodes.com/bishal.png",
+          "birthDate": "2006-06-19",
+          "birthPlace": {
+            "@type": "Place",
+            "name": "Harakthawa, Sarlahi",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Harakthawa",
+              "addressRegion": "Sarlahi, Madhesh Province",
+              "addressCountry": "Nepal"
+            }
+          },
+          "homeLocation": {
+            "@type": "Place",
+            "name": "Kathmandu, Nepal",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Kathmandu",
+              "addressRegion": "Bagmati",
+              "addressCountry": "Nepal"
+            }
+          },
+          "nationality": {
+            "@type": "Country",
+            "name": "Nepal"
+          },
+          "gender": "Male",
+          "jobTitle": "Software Developer & Mobile Hardware Technician",
+          "worksFor": {
+            "@type": "Organization",
+            "@id": "https://bishalcodes.com/#organization",
+            "name": "Bishal Codes",
+            "url": "https://bishalcodes.com/"
+          },
+          "alumniOf": {
+            "@type": "EducationalOrganization",
+            "name": "+2 Higher Secondary Graduate"
+          },
+          "hasOccupation": [
+            {
+              "@type": "Occupation",
+              "name": "Software Developer & Full-Stack Web Architect",
+              "description": "Designs high-performance web applications, APIs, and cloud services using Next.js, React, Node.js, and TypeScript."
+            },
+            {
+              "@type": "Occupation",
+              "name": "Mobile Hardware & Software Technician",
+              "description": "Expert in smartphone diagnostics, chip-level micro-soldering, board repair, and firmware restoration."
+            }
+          ],
+          "description": "Bishal Kumar Mishra (known professionally as Bishal Codes) is a Nepali software developer, mobile technician, and web architect from Harakthawa, Sarlahi, currently based in Kathmandu, Nepal. Born on June 19, 2006 (2063-03-05 BS), he is the creator of Bishal Codes developer suite, Mero Patro, and numerous high-performance developer utilities.",
+          "knowsAbout": [
+            "Software Engineering",
+            "Web Development",
+            "Next.js & React Ecosystem",
+            "Mobile Hardware Diagnostics & Repair",
+            "Full-Stack Web Architecture",
+            "UI/UX Design",
+            "REST & GraphQL APIs",
+            "Cloud Infrastructure"
+          ],
           "sameAs": [
             "https://www.facebook.com/share/1AhoqK2XMo/",
             "https://www.instagram.com/bishalmishra9827?igsh=NHo2d2I5YTBmdms3",
             "https://www.tiktok.com/@bishal_mishra1?_r=1&_t=ZS-92jwosZwCW0",
             "https://www.linkedin.com/in/beesalmishra/",
             "https://github.com/Bishalkumarmishra/bishalcodes"
-          ],
-          "jobTitle": "Full-Stack Web Developer",
-          "worksFor": {
-            "@type": "Organization",
-            "name": "Bishal Codes"
-          },
-          "description": "Expert Full-Stack Developer with 3+ years of experience in high-performance web engineering, Next.js, and 3D UI designs.",
-          "knowsAbout": ["Web Development", "Next.js", "React", "TypeScript", "Shopify", "UI/UX Architecture", "Cloud Computing"],
-          "alumniOf": "Tribhuvan University"
+          ]
         }
         `}} />
 

@@ -325,9 +325,60 @@ export default async function CatchAllPage(props: PageProps) {
       schemas.push({
         "@context": "https://schema.org",
         "@type": "AboutPage",
-        "name": "About Bishal Mishra",
+        "name": "About Bishal Kumar Mishra (Bishal Codes)",
         "url": canonUrl || "https://bishalcodes.com/about",
-        "description": descStr
+        "description": descStr || "Official biography, background, and career profile of Bishal Kumar Mishra (Bishal Codes). Full-Stack Web Developer, Mobile Hardware Technician, and creator of Mero Patro.",
+        "mainEntity": {
+          "@type": "Person",
+          "@id": "https://bishalcodes.com/#person",
+          "name": "Bishal Kumar Mishra",
+          "alternateName": ["Bishal Mishra", "Bishal Codes", "विशाल कुमार मिश्रा"],
+          "url": "https://bishalcodes.com/",
+          "image": "https://www.bishalcodes.com/bishal.png",
+          "birthDate": "2006-06-19",
+          "gender": "Male",
+          "birthPlace": {
+            "@type": "Place",
+            "name": "Harakthawa, Sarlahi",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Harakthawa",
+              "addressRegion": "Sarlahi, Madhesh Province",
+              "addressCountry": "Nepal"
+            }
+          },
+          "homeLocation": {
+            "@type": "Place",
+            "name": "Kathmandu, Nepal",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Kathmandu",
+              "addressRegion": "Bagmati",
+              "addressCountry": "Nepal"
+            }
+          },
+          "alumniOf": {
+            "@type": "EducationalOrganization",
+            "name": "+2 Higher Secondary Graduate"
+          },
+          "hasOccupation": [
+            {
+              "@type": "Occupation",
+              "name": "Full-Stack Software Developer & Web Architect"
+            },
+            {
+              "@type": "Occupation",
+              "name": "Mobile Device Hardware & Software Technician"
+            }
+          ],
+          "sameAs": [
+            "https://www.facebook.com/share/1AhoqK2XMo/",
+            "https://www.instagram.com/bishalmishra9827?igsh=NHo2d2I5YTBmdms3",
+            "https://www.tiktok.com/@bishal_mishra1?_r=1&_t=ZS-92jwosZwCW0",
+            "https://www.linkedin.com/in/beesalmishra/",
+            "https://github.com/Bishalkumarmishra/bishalcodes"
+          ]
+        }
       });
     } else if (firstSlug === 'contact') {
       schemas.push({
@@ -1446,19 +1497,34 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     // About Page
     if (firstSlug === 'about') {
       return {
-        title: "About Me | Bishal Mishra",
-        description: "Get to know me: I'm a developer who loves writing clean code and building user-centric websites. Here is my story, background, and tech stack.",
+        title: "Bishal Kumar Mishra (Bishal Codes) | Biography, Age, Career & Portfolio",
+        description: "Official biography of Bishal Kumar Mishra (Bishal Codes), born June 19, 2006 (2063 BS) in Harakthawa, Sarlahi, currently in Kathmandu. Full-Stack Software Developer, Mobile Hardware Technician, and creator of Mero Patro.",
+        keywords: "Bishal Kumar Mishra, Bishal Codes, Bishal Mishra age, Bishal Mishra bio, Bishal Mishra net worth, Bishal Codes net worth, Software Developer Nepal, Mobile technician Nepal, Harakthawa Sarlahi, Kathmandu Nepal, Mero Patro creator",
         alternates: {
           canonical: "https://bishalcodes.com/about",
         },
         openGraph: {
-          title: "About Me | Bishal Mishra",
-          description: "Get to know me: I'm a developer who loves writing clean code and building user-centric websites. Here is my story, background, and tech stack.",
+          title: "Bishal Kumar Mishra (Bishal Codes) | Biography, Age, Career & Portfolio",
+          description: "Official biography of Bishal Kumar Mishra (Bishal Codes), born June 19, 2006 (2063 BS) in Harakthawa, Sarlahi, currently in Kathmandu. Full-Stack Software Developer, Mobile Hardware Technician, and creator of Mero Patro.",
           url: "https://bishalcodes.com/about",
-          type: "website",
-          images: DEFAULT_OG_IMAGES
+          type: "profile",
+          images: [
+            {
+              url: "https://www.bishalcodes.com/bishal.png",
+              width: 1200,
+              height: 630,
+              alt: "Bishal Kumar Mishra (Bishal Codes)",
+            }
+          ]
         },
-        twitter: DEFAULT_TWITTER_CONFIG
+        twitter: {
+          card: "summary_large_image",
+          site: "@bishalmishra",
+          creator: "@bishalmishra",
+          title: "Bishal Kumar Mishra (Bishal Codes) | Biography, Age, Career & Portfolio",
+          description: "Official biography of Bishal Kumar Mishra (Bishal Codes). Full-Stack Software Developer & Mobile Hardware Technician.",
+          images: ["https://www.bishalcodes.com/bishal.png"]
+        }
       };
     }
 

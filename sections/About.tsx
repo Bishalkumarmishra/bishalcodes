@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Phone, MessageSquare, Briefcase, Loader2, ChevronLeft, ChevronRight, CheckCircle2, User, Edit2 } from 'lucide-react';
+import { Mail, Phone, MessageSquare, Briefcase, Loader2, ChevronLeft, ChevronRight, CheckCircle2, User, Edit2, Calendar, MapPin, GraduationCap, Wrench, Code, Heart, DollarSign, Award } from 'lucide-react';
 // @ts-ignore
 import { getDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { uploadToCloudinary } from '../services/cloudinary';
 
+const DEFAULT_BIO = "Hi! I'm Bishal Kumar Mishra (known professionally as Bishal Codes), an ambitious full-stack software developer and mobile device hardware technician from Harakthawa, Sarlahi, currently residing and building digital products in Kathmandu, Nepal.\n\nBorn on June 19, 2006 (2063-03-05 BS), I completed my +2 higher secondary education with a focus on computing and modern electronics. Over the past 3+ years, I have engineered 300+ custom web applications, launched developer APIs (OCR, Screenshots, Currency, P2P WebRTC), and created the standalone Mero Patro Nepali Calendar platform. My engineering blends clean, scalable software logic with hardware-level diagnostics to build lightning-fast, high-impact digital experiences.";
+
 const About: React.FC = () => {
   const [aboutData, setAboutData] = useState({
-    title: 'Full-Stack Web Architect',
-    aboutHeaderTitle: 'About Me',
+    title: 'Software Developer & Mobile Hardware Technician',
+    aboutHeaderTitle: 'About Bishal Mishra (Bishal Codes)',
     experience: '3+ Years',
-    bio: "Hi! I'm Bishal, a full-stack developer based in Nepal. I've spent the past 3+ years designing and building web solutions that bridge the gap between clean, scalable backends and fast, intuitive user interfaces. I love taking complex business ideas and turning them into solid, maintainable code.\n\nTo me, engineering isn't just about using the latest framework; it's about solving real-world problems, optimizing for the user experience, and ensuring that everything is secure, fast, and easy to maintain. I work primarily with Next.js, React, Node.js, and cloud ecosystems, building everything from custom APIs to full e-commerce architectures.",
+    bio: DEFAULT_BIO,
     phone: '+977 9827801575',
     email: 'developer@bishalcodes.com',
     imageUrl: 'https://www.bishalcodes.com/bishal.png',
@@ -30,10 +32,10 @@ const About: React.FC = () => {
         if (snap.exists() && isMounted) {
           const data = snap.data();
           setAboutData({
-            title: data.title || 'Full-Stack Web Architect',
-            aboutHeaderTitle: data.aboutHeaderTitle || 'About Me',
+            title: data.title || 'Software Developer & Mobile Hardware Technician',
+            aboutHeaderTitle: data.aboutHeaderTitle || 'About Bishal Mishra (Bishal Codes)',
             experience: data.experience || '3+ Years',
-            bio: data.bio || "Hi! I'm Bishal, a full-stack developer based in Nepal. I've spent the past 3+ years designing and building web solutions that bridge the gap between clean, scalable backends and fast, intuitive user interfaces. I love taking complex business ideas and turning them into solid, maintainable code.\n\nTo me, engineering isn't just about using the latest framework; it's about solving real-world problems, optimizing for the user experience, and ensuring that everything is secure, fast, and easy to maintain. I work primarily with Next.js, React, Node.js, and cloud ecosystems, building everything from custom APIs to full e-commerce architectures.",
+            bio: data.bio || DEFAULT_BIO,
             phone: (data.phone && data.phone.replace(/\s+/g, '') === '+9779828701575') ? '+977 9827801575' : (data.phone || '+977 9827801575'),
             email: data.email || 'developer@bishalcodes.com',
             imageUrl: data.imageUrl || 'https://www.bishalcodes.com/bishal.png',
@@ -377,6 +379,66 @@ const About: React.FC = () => {
                     >
                       {aboutData.phone}
                     </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Structured Public Biography / Quick Facts Grid */}
+              <div className="border-t border-slate-100 dark:border-slate-800 pt-4 mb-5 text-left">
+                <div className="flex items-center gap-2 mb-3">
+                  <Award size={14} className="text-[#e52521] shrink-0" />
+                  <h3 className="text-slate-900 dark:text-white font-extrabold text-xs uppercase tracking-wider font-outfit">
+                    Quick Facts & Public Bio
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] sm:text-xs">
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                    <User size={13} className="text-[#e52521] shrink-0" />
+                    <span className="text-slate-500 dark:text-slate-400">Full Name:</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200 ml-auto truncate">Bishal Kumar Mishra</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                    <Calendar size={13} className="text-[#e52521] shrink-0" />
+                    <span className="text-slate-500 dark:text-slate-400">Born:</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200 ml-auto">2006-06-19 (2063-03-05 BS)</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                    <MapPin size={13} className="text-[#e52521] shrink-0" />
+                    <span className="text-slate-500 dark:text-slate-400">Birthplace:</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200 ml-auto truncate">Harakthawa, Sarlahi</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                    <MapPin size={13} className="text-[#e52521] shrink-0" />
+                    <span className="text-slate-500 dark:text-slate-400">Current City:</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200 ml-auto">Kathmandu, Nepal</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                    <GraduationCap size={13} className="text-[#e52521] shrink-0" />
+                    <span className="text-slate-500 dark:text-slate-400">Education:</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200 ml-auto">+2 Graduate</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                    <Wrench size={13} className="text-[#e52521] shrink-0" />
+                    <span className="text-slate-500 dark:text-slate-400">Professions:</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200 ml-auto truncate">Developer & Mobile Tech</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                    <Heart size={13} className="text-[#e52521] shrink-0" />
+                    <span className="text-slate-500 dark:text-slate-400">Status:</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200 ml-auto">Single / Unmarried</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                    <DollarSign size={13} className="text-[#e52521] shrink-0" />
+                    <span className="text-slate-500 dark:text-slate-400">Monthly Net:</span>
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400 ml-auto font-mono">~1 Lakh NPR/mo</span>
                   </div>
                 </div>
               </div>
