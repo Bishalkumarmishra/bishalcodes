@@ -246,24 +246,9 @@ export default function WidgetCalendar() {
   const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
-  const [appTheme, setAppTheme] = useState<'light' | 'dark'>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('mp_theme') as 'light' | 'dark') || 'light';
-    }
-    return 'light';
-  });
-  const [appLang, setAppLang] = useState<'en' | 'ne'>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('mp_lang') as 'en' | 'ne') || 'ne';
-    }
-    return 'ne';
-  });
-  const [textSize, setTextSize] = useState<'small' | 'medium' | 'large'>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('mp_text_size') as 'small' | 'medium' | 'large') || 'medium';
-    }
-    return 'medium';
-  });
+  const [appTheme, setAppTheme] = useState<'light' | 'dark'>('light');
+  const [appLang, setAppLang] = useState<'en' | 'ne'>('ne');
+  const [textSize, setTextSize] = useState<'small' | 'medium' | 'large'>('medium');
 
   const [activeFullScreenPage, setActiveFullScreenPage] = useState<'about' | 'privacy' | 'contact' | 'nepse' | 'health' | 'radio' | 'gold' | null>(null);
   const [profileModalView, setProfileModalView] = useState<'account' | 'how-to' | 'messages' | null>(null);
@@ -271,14 +256,26 @@ export default function WidgetCalendar() {
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '', sent: false });
   const [healthBmi, setHealthBmi] = useState<{ height: number; weight: number; result: number | null }>({ height: 170, weight: 65, result: null });
   const [showSplash, setShowSplash] = useState<boolean>(true);
-  const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const completed = localStorage.getItem('mp_onboarding_completed');
-      return !completed;
-    }
-    return false;
-  });
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
   const [onboardingStep, setOnboardingStep] = useState<number>(0);
+
+  // Safely hydrate stored user preferences on client mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const savedTheme = localStorage.getItem('mp_theme') as 'light' | 'dark' | null;
+      if (savedTheme === 'light' || savedTheme === 'dark') setAppTheme(savedTheme);
+
+      const savedLang = localStorage.getItem('mp_lang') as 'en' | 'ne' | null;
+      if (savedLang === 'en' || savedLang === 'ne') setAppLang(savedLang);
+
+      const savedSize = localStorage.getItem('mp_text_size') as 'small' | 'medium' | 'large' | null;
+      if (savedSize === 'small' || savedSize === 'medium' || savedSize === 'large') setTextSize(savedSize);
+
+      const completed = localStorage.getItem('mp_onboarding_completed');
+      if (!completed) setShowOnboarding(true);
+    } catch (_) {}
+  }, []);
   const [newsUpdateEnabled, setNewsUpdateEnabled] = useState<boolean>(true);
   const [radioUpdateEnabled, setRadioUpdateEnabled] = useState<boolean>(true);
   // Live market data

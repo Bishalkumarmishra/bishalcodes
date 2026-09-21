@@ -47,7 +47,9 @@ export default function NotificationListener() {
     // Robust Web Push Subscription helper using navigator.serviceWorker.ready
     const syncPushSubscription = async () => {
       try {
+        if (typeof window === 'undefined') return;
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+        if (!('Notification' in window)) return;
 
         const reg = await navigator.serviceWorker.ready;
         if (!reg || !reg.pushManager) return;
@@ -82,10 +84,10 @@ export default function NotificationListener() {
     };
 
     // 1. Register Service Worker and sync Push Subscription when ready
-    if ('serviceWorker' in navigator) {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       navigator.serviceWorker.register('/service-worker.js').then(() => {
         console.log('✅ [Push System] Service Worker registered.');
-        if (Notification.permission === 'granted') {
+        if ('Notification' in window && Notification.permission === 'granted') {
           syncPushSubscription();
         }
       }).catch((err) => {
@@ -93,14 +95,14 @@ export default function NotificationListener() {
       });
 
       navigator.serviceWorker.ready.then(() => {
-        if (Notification.permission === 'granted') {
+        if ('Notification' in window && Notification.permission === 'granted') {
           syncPushSubscription();
         }
-      });
+      }).catch(() => {});
 
       // Continuous auto-resync when PWA or tab comes into foreground on mobile
       const handleVisibilityOrFocus = () => {
-        if (document.visibilityState === 'visible' && Notification.permission === 'granted') {
+        if (document.visibilityState === 'visible' && 'Notification' in window && Notification.permission === 'granted') {
           syncPushSubscription();
         }
       };
@@ -111,12 +113,16 @@ export default function NotificationListener() {
       // 2. Request Notification Permission automatically on app startup if default
       if ('Notification' in window && Notification.permission === 'default') {
         const permTimer = setTimeout(() => {
-          Notification.requestPermission().then((permission) => {
-            console.log('📢 [Push System] Notification permission:', permission);
-            if (permission === 'granted') {
-              syncPushSubscription();
+          try {
+            if ('Notification' in window) {
+              Notification.requestPermission().then((permission) => {
+                console.log('📢 [Push System] Notification permission:', permission);
+                if (permission === 'granted') {
+                  syncPushSubscription();
+                }
+              }).catch(() => {});
             }
-          }).catch(() => {});
+          } catch (_) {}
         }, 2000);
         return () => {
           clearTimeout(permTimer);
@@ -234,10 +240,14 @@ export default function NotificationListener() {
               navigator.serviceWorker.ready.then((reg) => {
                 reg.showNotification(title, options);
               }).catch(() => {
-                new Notification(title, options);
+                try {
+                  if ('Notification' in window) new Notification(title, options);
+                } catch (_) {}
               });
             } else {
-              new Notification(title, options);
+              try {
+                if ('Notification' in window) new Notification(title, options);
+              } catch (_) {}
             }
           }
         }

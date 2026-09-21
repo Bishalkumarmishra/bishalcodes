@@ -143,12 +143,14 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const checkMode = () => {
-      const mode = localStorage.getItem('liveEditMode') === 'true';
-      if (mode) {
-        document.documentElement.classList.add('live-edit-mode');
-      } else {
-        document.documentElement.classList.remove('live-edit-mode');
-      }
+      try {
+        const mode = localStorage.getItem('liveEditMode') === 'true';
+        if (mode) {
+          document.documentElement.classList.add('live-edit-mode');
+        } else {
+          document.documentElement.classList.remove('live-edit-mode');
+        }
+      } catch (_) {}
     };
     checkMode();
     window.addEventListener('liveEditToggle', checkMode);
@@ -245,9 +247,16 @@ const App: React.FC<AppProps> = ({ initialSlug = [] }) => {
   };
 
   const isEmbedded = typeof window !== 'undefined' && (
-    new URLSearchParams(window.location.search).get('embed') === 'true' ||
-    window.self !== window.top ||
-    window.location.pathname.startsWith('/widgets')
+    (function() {
+      try {
+        const isEmbedParam = new URLSearchParams(window.location.search).get('embed') === 'true';
+        const inIframe = window.self !== window.top;
+        const isWidget = window.location.pathname.startsWith('/widgets');
+        return isEmbedParam || inIframe || isWidget;
+      } catch (_) {
+        return true;
+      }
+    })()
   );
 
   return (
