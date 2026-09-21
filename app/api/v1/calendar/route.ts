@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import NepaliDate from 'nepali-date-converter';
+import { createNepaliDate } from '@/services/nepaliDate';
 
 const NEPALI_MONTHS_NE = [
   "वैशाख", "जेठ", "असार", "साउन", "भदौ", "असोज",
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const day = parseInt(searchParams.get('day') || '20', 10);
 
   try {
-    const npDate = new NepaliDate(year, month, day);
+    const npDate = createNepaliDate(year, month, day);
     const jsDate = npDate.toJsDate();
     const dayOfWeek = jsDate.getDay();
 

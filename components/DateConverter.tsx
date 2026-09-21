@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Calendar as CalendarIcon, Clock, Copy, Check, Download, Share2, ChevronLeft, ChevronRight, RotateCcw, ArrowRightLeft, Sparkles, HelpCircle, Code } from 'lucide-react';
-import NepaliDate from 'nepali-date-converter';
+import { createNepaliDate } from '../services/nepaliDate';
 import { useNavigation } from '../context/NavigationContext';
 import { auth, db } from '../services/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -239,7 +239,7 @@ export const DateConverter: React.FC = () => {
   ) => {
     try {
       let adDate: Date;
-      let npDate: NepaliDate;
+      let npDate: any;
 
       if (type === 'AD_TO_BS') {
         // Validate Gregorian date inputs
@@ -250,13 +250,13 @@ export const DateConverter: React.FC = () => {
         if (y < minAdYear || y > maxAdYear) {
           throw new Error(`AD Year must be between ${minAdYear} and ${maxAdYear}`);
         }
-        npDate = new NepaliDate(adDate);
+        npDate = createNepaliDate(adDate);
       } else {
         // Validate Nepali date inputs
         if (y < minBsYear || y > maxBsYear) {
           throw new Error(`BS Year must be between ${minBsYear} and ${maxBsYear}`);
         }
-        npDate = new NepaliDate(y, m, d);
+        npDate = createNepaliDate(y, m, d);
         adDate = npDate.toJsDate();
       }
 
@@ -348,7 +348,7 @@ export const DateConverter: React.FC = () => {
     setAdMonth(today.getMonth());
     setAdDay(today.getDate());
 
-    const npToday = new NepaliDate(today);
+    const npToday = createNepaliDate(today);
     setBsYear(npToday.getYear());
     setBsMonth(npToday.getMonth());
     setBsDay(npToday.getDate());
@@ -392,7 +392,7 @@ export const DateConverter: React.FC = () => {
 
     // Initial today's values
     const today = new Date();
-    const npToday = new NepaliDate(today);
+    const npToday = createNepaliDate(today);
     const npDig = (num: number) => {
       const map = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
       return num.toString().split('').map(c => map[parseInt(c, 10)] || c).join('');
@@ -496,14 +496,12 @@ END:VCALENDAR`;
     } else {
       // Create NepaliDate instance and get days count
       try {
-        const testNp = new NepaliDate(year, monthIndex, 1);
+        const testNp = createNepaliDate(year, monthIndex, 1);
         // Find total days by checking maximum valid day count (iterative check)
-        // Standard NepaliDate library handles this dynamically internally when doing dates logic,
-        // let's discover the limit using standard Date operations
         let maxDays = 29;
         for (let checkDay = 29; checkDay <= 32; checkDay++) {
           try {
-            const checkDate = new NepaliDate(year, monthIndex, checkDay);
+            const checkDate = createNepaliDate(year, monthIndex, checkDay);
             if (checkDate.getMonth() === monthIndex) {
               maxDays = checkDay;
             }
@@ -523,7 +521,7 @@ END:VCALENDAR`;
       return new Date(year, monthIndex, 1).getDay();
     } else {
       try {
-        const testNp = new NepaliDate(year, monthIndex, 1);
+        const testNp = createNepaliDate(year, monthIndex, 1);
         return testNp.toJsDate().getDay();
       } catch (_) {
         return 0; // Sunday
@@ -537,7 +535,7 @@ END:VCALENDAR`;
     } else {
       try {
         // Convert Gregorian to Nepali Date
-        const npDate = new NepaliDate(new Date(calYear, calMonth, day));
+        const npDate = createNepaliDate(new Date(calYear, calMonth, day));
         const bm = npDate.getMonth();
         const bd = npDate.getDate();
         return NE_MONTHS_EVENTS[bm]?.[bd] || null;
@@ -552,7 +550,7 @@ END:VCALENDAR`;
     const daysCount = new Date(year, monthIndex + 1, 0).getDate();
     for (let d = 1; d <= daysCount; d++) {
       try {
-        const npDate = new NepaliDate(new Date(year, monthIndex, d));
+        const npDate = createNepaliDate(new Date(year, monthIndex, d));
         const bm = npDate.getMonth();
         const bd = npDate.getDate();
         const ev = NE_MONTHS_EVENTS[bm]?.[bd];
@@ -567,10 +565,10 @@ END:VCALENDAR`;
   const getSecondaryDay = useCallback((day: number) => {
     try {
       if (calViewType === 'BS') {
-        const npDate = new NepaliDate(calYear, calMonth, day);
+        const npDate = createNepaliDate(calYear, calMonth, day);
         return npDate.toJsDate().getDate().toString();
       } else {
-        const npDate = new NepaliDate(new Date(calYear, calMonth, day));
+        const npDate = createNepaliDate(new Date(calYear, calMonth, day));
         return toNepaliStr(npDate.getDate());
       }
     } catch (_) {
@@ -640,7 +638,7 @@ END:VCALENDAR`;
         const key = `BS-${calYear}-${calMonth}-${day}`;
         return notes[key] || null;
       } else {
-        const npDate = new NepaliDate(new Date(calYear, calMonth, day));
+        const npDate = createNepaliDate(new Date(calYear, calMonth, day));
         const key = `BS-${npDate.getYear()}-${npDate.getMonth()}-${npDate.getDate()}`;
         return notes[key] || null;
       }
@@ -686,7 +684,7 @@ END:VCALENDAR`;
       let dow: number;
       
       if (calViewType === 'BS') {
-        const npDate = new NepaliDate(calYear, calMonth, day);
+        const npDate = createNepaliDate(calYear, calMonth, day);
         adDate = npDate.toJsDate();
         by = calYear;
         bm = calMonth;
@@ -694,7 +692,7 @@ END:VCALENDAR`;
         dow = npDate.getDay();
       } else {
         adDate = new Date(calYear, calMonth, day);
-        const npDate = new NepaliDate(adDate);
+        const npDate = createNepaliDate(adDate);
         by = npDate.getYear();
         bm = npDate.getMonth();
         bd = npDate.getDate();

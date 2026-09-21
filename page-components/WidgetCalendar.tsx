@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import NepaliDate from 'nepali-date-converter';
+import { createNepaliDate } from '../services/nepaliDate';
 import { 
   ChevronLeft, ChevronRight, Smartphone, Calendar as CalendarIcon, 
   Home, Newspaper, Sparkles, User, Sun, Moon, Search, Menu, Bell,
@@ -287,76 +287,80 @@ export default function WidgetCalendar() {
   const pullStartY = useRef(0);
   const mainRef = useRef<HTMLDivElement>(null);
   const dynamicUpcomingEvents = React.useMemo(() => {
-    const list: any[] = [];
-    const today = new Date();
+    try {
+      const list: any[] = [];
+      const today = new Date();
 
-    for (let offset = 0; offset < 30 && list.length < 5; offset++) {
-      const d = new Date();
-      d.setDate(today.getDate() + offset);
-      const bsDate = new NepaliDate(d);
-      const mIdx = bsDate.getMonth();
-      const dNum = bsDate.getDate();
+      for (let offset = 0; offset < 30 && list.length < 5; offset++) {
+        const d = new Date();
+        d.setDate(today.getDate() + offset);
+        const bsDate = createNepaliDate(d);
+        const mIdx = bsDate.getMonth();
+        const dNum = bsDate.getDate();
 
-      const eventsDict = appLang === 'ne' ? NE_MONTHS_EVENTS : EN_MONTHS_EVENTS;
-      const monthEvents = eventsDict[mIdx] || {};
-      const eventObj = monthEvents[dNum];
+        const eventsDict = appLang === 'ne' ? NE_MONTHS_EVENTS : EN_MONTHS_EVENTS;
+        const monthEvents = eventsDict[mIdx] || {};
+        const eventObj = monthEvents[dNum];
 
-      const monthName = appLang === 'ne' ? NEPALI_MONTHS_NE[mIdx] : NEPALI_MONTHS_EN[mIdx];
-      const dayOfWeekShort = appLang === 'ne' ? DAYS_NE_SHORT[d.getDay()] : DAYS_EN_SHORT[d.getDay()];
+        const monthName = appLang === 'ne' ? NEPALI_MONTHS_NE[mIdx] : NEPALI_MONTHS_EN[mIdx];
+        const dayOfWeekShort = appLang === 'ne' ? DAYS_NE_SHORT[d.getDay()] : DAYS_EN_SHORT[d.getDay()];
 
-      const label = offset === 0
-        ? (appLang === 'ne' ? 'आज' : 'Today')
-        : offset === 1
-        ? (appLang === 'ne' ? 'भोलि' : 'Tomorrow')
-        : (appLang === 'ne' ? `${offset} दिनमा` : `In ${offset} days`);
+        const label = offset === 0
+          ? (appLang === 'ne' ? 'आज' : 'Today')
+          : offset === 1
+          ? (appLang === 'ne' ? 'भोलि' : 'Tomorrow')
+          : (appLang === 'ne' ? `${offset} दिनमा` : `In ${offset} days`);
 
-      if (eventObj) {
-        list.push({
-          offset,
-          label,
-          dayNum: dNum,
-          dayNumNe: toNepaliDigits(dNum),
-          monthName,
-          title: eventObj.title,
-          isHoliday: eventObj.isHoliday,
-          dayOfWeek: dayOfWeekShort,
-          fullDateStr: `${monthName} ${dNum}, ${dayOfWeekShort}`
-        });
-      }
-    }
-
-    if (list.length < 3) {
-      for (let offset = 0; offset < 5 && list.length < 3; offset++) {
-        if (!list.some(e => e.offset === offset)) {
-          const d = new Date();
-          d.setDate(today.getDate() + offset);
-          const bsDate = new NepaliDate(d);
-          const mIdx = bsDate.getMonth();
-          const dNum = bsDate.getDate();
-          const monthName = appLang === 'ne' ? NEPALI_MONTHS_NE[mIdx] : NEPALI_MONTHS_EN[mIdx];
-          const dayOfWeekShort = appLang === 'ne' ? DAYS_NE_SHORT[d.getDay()] : DAYS_EN_SHORT[d.getDay()];
-          const label = offset === 0
-            ? (appLang === 'ne' ? 'आज' : 'Today')
-            : offset === 1
-            ? (appLang === 'ne' ? 'भोलि' : 'Tomorrow')
-            : (appLang === 'ne' ? `${offset} दिनमा` : `In ${offset} days`);
-
+        if (eventObj) {
           list.push({
             offset,
             label,
             dayNum: dNum,
             dayNumNe: toNepaliDigits(dNum),
             monthName,
-            title: offset === 0 ? (appLang === 'ne' ? 'नेपाली पात्रो पञ्चाङ्ग' : "Nepali Calendar & Panchanga") : (appLang === 'ne' ? 'तिथि तथा शुभ साइत' : "Tithi & Auspicious Saait"),
-            isHoliday: false,
+            title: eventObj.title,
+            isHoliday: eventObj.isHoliday,
             dayOfWeek: dayOfWeekShort,
             fullDateStr: `${monthName} ${dNum}, ${dayOfWeekShort}`
           });
         }
       }
-    }
 
-    return list;
+      if (list.length < 3) {
+        for (let offset = 0; offset < 5 && list.length < 3; offset++) {
+          if (!list.some(e => e.offset === offset)) {
+            const d = new Date();
+            d.setDate(today.getDate() + offset);
+            const bsDate = createNepaliDate(d);
+            const mIdx = bsDate.getMonth();
+            const dNum = bsDate.getDate();
+            const monthName = appLang === 'ne' ? NEPALI_MONTHS_NE[mIdx] : NEPALI_MONTHS_EN[mIdx];
+            const dayOfWeekShort = appLang === 'ne' ? DAYS_NE_SHORT[d.getDay()] : DAYS_EN_SHORT[d.getDay()];
+            const label = offset === 0
+              ? (appLang === 'ne' ? 'आज' : 'Today')
+              : offset === 1
+              ? (appLang === 'ne' ? 'भोलि' : 'Tomorrow')
+              : (appLang === 'ne' ? `${offset} दिनमा` : `In ${offset} days`);
+
+            list.push({
+              offset,
+              label,
+              dayNum: dNum,
+              dayNumNe: toNepaliDigits(dNum),
+              monthName,
+              title: offset === 0 ? (appLang === 'ne' ? 'नेपाली पात्रो पञ्चाङ्ग' : "Nepali Calendar & Panchanga") : (appLang === 'ne' ? 'तिथि तथा शुभ साइत' : "Tithi & Auspicious Saait"),
+              isHoliday: false,
+              dayOfWeek: dayOfWeekShort,
+              fullDateStr: `${monthName} ${dNum}, ${dayOfWeekShort}`
+            });
+          }
+        }
+      }
+
+      return list;
+    } catch (_) {
+      return [];
+    }
   }, [appLang]);
 
   useEffect(() => {
@@ -458,7 +462,7 @@ export default function WidgetCalendar() {
   // Today Date State initialized from real system date
   const [todayBs, setTodayBs] = useState<{ year: number; month: number; day: number }>(() => {
     try {
-      const np = new NepaliDate();
+      const np = createNepaliDate();
       return { year: np.getYear(), month: np.getMonth(), day: np.getDate() };
     } catch (_) {
       return { year: 2083, month: 4, day: 21 };
@@ -535,7 +539,7 @@ export default function WidgetCalendar() {
 
   const getAdDayForBs = (bsYear: number, bsMonth: number, bsDay: number): number => {
     try {
-      const np = new NepaliDate(bsYear, bsMonth, bsDay);
+      const np = createNepaliDate(bsYear, bsMonth, bsDay);
       return np.toJsDate().getDate();
     } catch (_) {
       return bsDay;
@@ -894,7 +898,7 @@ export default function WidgetCalendar() {
 
   const getDaysInMonth = (year: number, monthIndex: number): number => {
     try {
-      const test = new NepaliDate(year, monthIndex, 1);
+      const test = createNepaliDate(year, monthIndex, 1);
       let maxDays = 29;
       for (let d = 29; d <= 32; d++) {
         try {
@@ -908,7 +912,7 @@ export default function WidgetCalendar() {
 
   const getFirstDayOfWeek = (year: number, monthIndex: number): number => {
     try {
-      const testNp = new NepaliDate(year, monthIndex, 1);
+      const testNp = createNepaliDate(year, monthIndex, 1);
       return testNp.toJsDate().getDay();
     } catch (_) { return 0; }
   };
@@ -917,7 +921,7 @@ export default function WidgetCalendar() {
     if (convMode === 'BS_TO_AD') {
       try {
         // NepaliDate uses 0-indexed months
-        const npDate = new NepaliDate(convYear, convMonth, convDay);
+        const npDate = createNepaliDate(convYear, convMonth, convDay);
         const jsDate = npDate.toJsDate();
         if (isNaN(jsDate.getTime())) throw new Error('Invalid date');
         setConvResult(
@@ -935,7 +939,7 @@ export default function WidgetCalendar() {
       // AD → BS using NepaliDate constructor from JS Date
       try {
         const adDate = new Date(convYear, convMonth, convDay);
-        const npDate = new NepaliDate(adDate);
+        const npDate = createNepaliDate(adDate);
         const bsYear = npDate.getYear();
         const bsMonth = npDate.getMonth();
         const bsDay = npDate.getDate();

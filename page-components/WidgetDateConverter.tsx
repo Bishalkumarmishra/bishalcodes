@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import NepaliDate from 'nepali-date-converter';
+import { createNepaliDate } from '../services/nepaliDate';
 import { ArrowRightLeft } from 'lucide-react';
 
 const NEPALI_MONTHS_EN = [
@@ -57,7 +57,7 @@ export default function WidgetDateConverter() {
   const handleConvert = () => {
     try {
       if (conversionType === 'BS_TO_AD') {
-        const npDate = new NepaliDate(bsYear, bsMonth, bsDay);
+        const npDate = createNepaliDate(bsYear, bsMonth, bsDay);
         const adDate = npDate.toJsDate();
         
         const adFormatted = adDate.toLocaleDateString('en-US', {
@@ -73,7 +73,7 @@ export default function WidgetDateConverter() {
         });
       } else {
         const adDate = new Date(adYear, adMonth, adDay);
-        const npDate = new NepaliDate(adDate);
+        const npDate = createNepaliDate(adDate);
         
         const nepDay = toNepaliStr(npDate.getDate());
         const nepYear = toNepaliStr(npDate.getYear());
@@ -95,7 +95,7 @@ export default function WidgetDateConverter() {
 
   const getDaysInBsMonth = (y: number, m: number) => {
     try {
-      const test = new NepaliDate(y, m, 1);
+      const test = createNepaliDate(y, m, 1);
       let maxDays = 29;
       for (let d = 29; d <= 32; d++) {
         try {
