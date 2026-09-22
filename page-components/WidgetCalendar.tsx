@@ -3636,6 +3636,7 @@ export default function WidgetCalendar() {
 
                 {/* Embedded Responsive Portal Container with Logo Cover Mask */}
                 <div className="relative w-full h-[750px] sm:h-[850px] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-white dark:bg-black">
+                  {/* Top Logo Mask */}
                   <div className="absolute top-0 left-0 z-10 w-[240px] h-[64px] bg-[#ffffff] dark:bg-[#0f172a] border-b border-r border-slate-100 dark:border-slate-800 flex items-center px-4 gap-2.5 shadow-xs select-none">
                     <div className="w-8 h-8 rounded-xl bg-[#e52521] text-white flex items-center justify-center font-black text-xs shadow-xs">
                       <TrendingUp size={16} />
@@ -3644,6 +3645,9 @@ export default function WidgetCalendar() {
                       <div className="font-extrabold text-xs text-slate-900 dark:text-white tracking-tight">NEPSE Live</div>
                       <div className="text-[10px] text-slate-400 font-semibold tracking-wide uppercase">Share Market</div>
                     </div>
+                  </div>
+
+                  {/* Bottom Contact Mask */}
                   <div className="hidden md:flex absolute bottom-0 left-0 z-10 w-[240px] h-[210px] bg-[#f8fafc] dark:bg-[#0f172a] border-t border-r border-slate-200/80 dark:border-slate-800 p-4 flex-col justify-between shadow-xs select-none">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
@@ -3665,6 +3669,7 @@ export default function WidgetCalendar() {
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono font-medium">LIVE</span>
                     </div>
                   </div>
+
                   <iframe
                     src="https://laganisutra.com/"
                     className="w-full h-full border-0"
