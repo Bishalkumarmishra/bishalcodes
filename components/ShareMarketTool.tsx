@@ -1,10 +1,33 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ExternalLink, RefreshCw, TrendingUp } from 'lucide-react';
 
 export default function ShareMarketTool() {
   const [iframeKey, setIframeKey] = useState(0);
+  const [isMarketOpen, setIsMarketOpen] = useState<boolean>(false);
+
+  // Dynamic Nepal NEPSE Market Hours Calculator (Asia/Kathmandu: UTC +5:45)
+  // Sunday (0) to Thursday (4), 11:00 AM to 3:00 PM
+  useEffect(() => {
+    const checkMarketStatus = () => {
+      const now = new Date();
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      const nepalTime = new Date(utc + (5.75 * 3600000));
+      
+      const day = nepalTime.getDay(); // 0 = Sun, 1 = Mon, ..., 4 = Thu, 5 = Fri, 6 = Sat
+      const totalMinutes = nepalTime.getHours() * 60 + nepalTime.getMinutes();
+      
+      const isTradingDay = day >= 0 && day <= 4;
+      const isTradingHours = totalMinutes >= 660 && totalMinutes < 900; // 11:00 AM (660m) - 3:00 PM (900m)
+      
+      setIsMarketOpen(isTradingDay && isTradingHours);
+    };
+
+    checkMarketStatus();
+    const timer = setInterval(checkMarketStatus, 15000); // Check every 15s
+    return () => clearInterval(timer);
+  }, []);
 
   const handleRefresh = () => {
     setIframeKey(prev => prev + 1);
@@ -17,11 +40,20 @@ export default function ShareMarketTool() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#e52521] text-white font-semibold text-xs flex items-center gap-1">
-                <TrendingUp size={13} /> Live Stock Market
+              <span className={`px-2.5 py-0.5 rounded-full text-white font-semibold text-xs flex items-center gap-1.5 ${
+                isMarketOpen ? 'bg-emerald-600' : 'bg-[#e52521]'
+              }`}>
+                <span className="relative flex h-2 w-2">
+                  {isMarketOpen && (
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                  )}
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                </span>
+                <TrendingUp size={13} />
+                <span>{isMarketOpen ? 'NEPSE Market Open' : 'NEPSE Market Closed'}</span>
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium text-xs border border-slate-200 dark:border-slate-700">
-                NEPSE • Live Portal
+                Trading Hours: Sun-Thu 11:00 AM - 3:00 PM
               </span>
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
@@ -75,12 +107,23 @@ export default function ShareMarketTool() {
           </div>
 
           <div className="flex items-center gap-2.5">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+            {/* Dynamic Market Status Pill (Green when Open, Red when Closed) */}
+            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-xs font-semibold transition-colors ${
+              isMarketOpen 
+                ? 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200/80 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-300' 
+                : 'bg-red-50 dark:bg-red-950/50 border-red-200/80 dark:border-red-900/40 text-red-700 dark:text-red-300'
+            }`}>
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                {isMarketOpen ? (
+                  <>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </>
+                ) : (
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#e52521]"></span>
+                )}
               </span>
-              <span className="hidden xs:inline">Market Active</span>
+              <span>{isMarketOpen ? 'Market Open' : 'Market Closed'}</span>
             </div>
 
             <button
@@ -108,21 +151,35 @@ export default function ShareMarketTool() {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                {isMarketOpen ? (
+                  <>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </>
+                ) : (
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#e52521]"></span>
+                )}
               </span>
               <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                Live NEPSE Feed
+                {isMarketOpen ? 'Live NEPSE Feed' : 'NEPSE Market Closed'}
               </span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-              Real-time trading indices, market pressure, floor sheets, heatmaps &amp; portfolio metrics.
+              {isMarketOpen 
+                ? 'Real-time trading indices, market pressure, floor sheets & portfolio metrics.' 
+                : 'Market trading is closed. Regular hours: Sun - Thu, 11:00 AM - 3:00 PM.'}
             </p>
           </div>
 
           <div className="pt-2.5 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
             <span className="font-bold text-[#e52521]">BishalCodes Suite</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono font-medium">LIVE</span>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-medium ${
+              isMarketOpen 
+                ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300' 
+                : 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300'
+            }`}>
+              {isMarketOpen ? 'OPEN' : 'CLOSED'}
+            </span>
           </div>
         </div>
 
@@ -130,11 +187,17 @@ export default function ShareMarketTool() {
         <div className="md:hidden absolute bottom-0 left-0 right-0 z-10 w-full h-[62px] bg-[#ffffff] dark:bg-[#0f172a] border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between px-4 shadow-xs select-none">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              {isMarketOpen ? (
+                <>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </>
+              ) : (
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#e52521]"></span>
+              )}
             </span>
             <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-              NEPSE Live Stream
+              {isMarketOpen ? 'Market Open (Live)' : 'Market Closed'}
             </span>
           </div>
 

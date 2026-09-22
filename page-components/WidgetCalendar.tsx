@@ -3654,13 +3654,34 @@ export default function WidgetCalendar() {
                     </div>
 
                     <div className="flex items-center gap-2.5">
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                        </span>
-                        <span className="hidden xs:inline">Market Active</span>
-                      </div>
+                      {(() => {
+                        const now = new Date();
+                        const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+                        const nepalTime = new Date(utc + (5.75 * 3600000));
+                        const day = nepalTime.getDay();
+                        const totalMinutes = nepalTime.getHours() * 60 + nepalTime.getMinutes();
+                        const isOpen = (day >= 0 && day <= 4) && (totalMinutes >= 660 && totalMinutes < 900);
+
+                        return (
+                          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-xs font-semibold transition-colors ${
+                            isOpen 
+                              ? 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200/80 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-300' 
+                              : 'bg-red-50 dark:bg-red-950/50 border-red-200/80 dark:border-red-900/40 text-red-700 dark:text-red-300'
+                          }`}>
+                            <span className="relative flex h-2 w-2">
+                              {isOpen ? (
+                                <>
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </>
+                              ) : (
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#e52521]"></span>
+                              )}
+                            </span>
+                            <span>{isOpen ? 'Market Open' : 'Market Closed'}</span>
+                          </div>
+                        );
+                      })()}
 
                       <a
                         href="https://laganisutra.com/"
@@ -3679,7 +3700,6 @@ export default function WidgetCalendar() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                           <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                         </span>
                         <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
@@ -3701,7 +3721,6 @@ export default function WidgetCalendar() {
                   <div className="md:hidden absolute bottom-0 left-0 right-0 z-10 w-full h-[62px] bg-[#ffffff] dark:bg-[#0f172a] border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between px-4 shadow-xs select-none">
                     <div className="flex items-center gap-2">
                       <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                       </span>
                       <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
