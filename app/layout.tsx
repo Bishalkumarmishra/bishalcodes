@@ -383,8 +383,6 @@ export default function RootLayout({
       </head>
       <body className="bg-[#FFFFFF] selection:bg-[#e52521] selection:text-white" suppressHydrationWarning>
         <DynamicManifest />
-        {/* Sky-Blue mobile status bar filler */}
-        <div className="sky-status-bar" />
         {children}
       </body>
     </html>

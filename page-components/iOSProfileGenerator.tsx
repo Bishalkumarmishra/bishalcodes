@@ -1011,43 +1011,43 @@ export default function IOSProfileGenerator() {
 
       {/* iOS Installation Guide Modal */}
       {showGuideModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0d0d10] border border-neutral-800 rounded-2xl max-w-lg w-full p-6 space-y-5 relative shadow-2xl">
-            <div className="flex justify-between items-start border-b border-neutral-800 pb-3.5">
+        <div className="fixed inset-0 z-[99999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-5 relative shadow-2xl text-slate-800 dark:text-slate-100">
+            <div className="flex justify-between items-start border-b border-slate-100 dark:border-slate-800 pb-3.5">
               <div className="flex items-center gap-2.5">
                 <CheckCircle2 className="w-5 h-5 text-[#e52521]" />
                 <div>
-                  <h3 className="font-extrabold text-white text-base">Profile Download Triggered!</h3>
-                  <p className="text-[11px] text-neutral-400">Complete installation on your iPhone</p>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base">Profile Download Triggered!</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Complete installation on your iPhone</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowGuideModal(false)}
-                className="text-neutral-400 hover:text-white text-lg font-bold px-2"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-lg font-bold px-2"
               >
                 ✕
               </button>
             </div>
 
-            <div className="space-y-3 text-xs sm:text-sm text-neutral-200">
+            <div className="space-y-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
               <p>
                 Safari will show a system popup asking: <br />
-                <code className="text-amber-300 bg-black px-2 py-1 rounded-lg text-xs block mt-1.5 border border-neutral-800">
+                <code className="text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-1 rounded-lg text-xs block mt-1.5 border border-amber-200 dark:border-amber-900/50">
                   "This website is trying to download a configuration profile. Do you want to allow this?"
                 </code>
               </p>
 
-              <ol className="list-decimal list-inside space-y-2.5 text-xs text-neutral-300 leading-relaxed bg-[#16161a] p-4 rounded-xl border border-neutral-700 font-medium">
-                <li>Tap <strong className="text-white">Allow</strong> when Safari prompts to download profile.</li>
-                <li>Open iPhone <strong className="text-white">Settings</strong> & tap <strong className="text-white">Profile Downloaded</strong> near top.</li>
-                <li>When iOS shows <span className="text-red-400 font-bold">"Not Signed"</span> / <span className="text-red-400 font-bold">"Unsigned Profile"</span>, tap <strong className="text-sky-400 font-bold">Install</strong> (blue button top-right).</li>
-                <li>Enter your iPhone <strong className="text-white">Passcode</strong> & tap <strong className="text-sky-400 font-bold">Install</strong> to finish!</li>
+              <ol className="list-decimal list-inside space-y-2.5 text-xs text-slate-700 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-850 p-4 rounded-xl border border-slate-200 dark:border-slate-800 font-medium">
+                <li>Tap <strong className="text-slate-900 dark:text-white">Allow</strong> when Safari prompts to download profile.</li>
+                <li>Open iPhone <strong className="text-slate-900 dark:text-white">Settings</strong> & tap <strong className="text-slate-900 dark:text-white">Profile Downloaded</strong> near top.</li>
+                <li>When iOS shows <span className="text-red-500 font-semibold">"Not Signed"</span> / <span className="text-red-500 font-semibold">"Unsigned Profile"</span>, tap <strong className="text-[#e52521] font-bold">Install</strong> (top-right).</li>
+                <li>Enter your iPhone <strong className="text-slate-900 dark:text-white">Passcode</strong> & tap <strong className="text-[#e52521] font-bold">Install</strong> to finish!</li>
               </ol>
             </div>
 
             <button
               onClick={() => setShowGuideModal(false)}
-              className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white font-extrabold py-3 rounded-xl transition text-xs sm:text-sm shadow-lg shadow-red-950/60"
+              className="w-full bg-[#e52521] hover:bg-[#d01f1c] text-white font-bold py-2.5 rounded-xl transition text-xs sm:text-sm shadow-sm"
             >
               Got it, Done!
             </button>

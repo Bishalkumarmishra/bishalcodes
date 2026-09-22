@@ -215,13 +215,6 @@ input, textarea, [contenteditable="true"] {
   }
 }
 
-/* Blur protection for app-switching switcher */
-.app-protected-blur {
-  filter: blur(20px) grayscale(100%) !important;
-  pointer-events: none !important;
-  transition: filter 0.15s ease-out;
-}
-
 /* Adaptive status bar and navbar classes styling */
 .sky-status-bar {
   display: none !important;
@@ -229,9 +222,12 @@ input, textarea, [contenteditable="true"] {
 
 .site-navbar {
   position: fixed;
+  top: 0 !important;
+  left: 0;
+  right: 0;
   width: 100%;
   z-index: 100;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   border-bottom: 1px solid var(--nav-border) !important;
   background-color: var(--nav-bg) !important;
   padding-top: 0.5rem;
@@ -247,16 +243,11 @@ input, textarea, [contenteditable="true"] {
 }
 
 @media (max-width: 768px) {
-  .sky-status-bar {
-    display: block !important;
-    height: max(16px, env(safe-area-inset-top, 16px)) !important;
-  }
-  
-  /* Push mobile navbar down below the status bar */
+  /* Keep mobile navbar flush at the very top */
   .site-navbar {
-    top: max(16px, env(safe-area-inset-top, 16px)) !important;
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
+    top: 0 !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
   }
   
   /* Style mobile burger button */
@@ -266,9 +257,9 @@ input, textarea, [contenteditable="true"] {
     color: var(--burger-color) !important;
   }
   
-  /* Push down the navigation dropdown overlay list by the same height */
+  /* Push down the navigation dropdown overlay list below navbar */
   .nav-overlay {
-    padding-top: calc(max(16px, env(safe-area-inset-top, 16px)) + 4rem) !important;
+    padding-top: 4.5rem !important;
     background-color: var(--overlay-bg) !important;
     backdrop-filter: blur(8px);
   }
