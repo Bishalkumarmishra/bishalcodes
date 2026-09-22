@@ -44,9 +44,9 @@ const FAVOURITES_KEY = 'bishal_pinned_tools';
 
 const toolSeoData: Record<string, { title: string; desc: string; keywords: string[] }> = {
   'share-market': {
-    title: 'Live NEPSE Share Market & Lagani Sutra Stock Portal',
+    title: 'Live NEPSE Share Market & Stock Portal',
     desc: 'Track live NEPSE stock market index, market pressure gauge, top gainers, top losers, and stock portfolio analytics in real time.',
-    keywords: ['nepse live stock market', 'lagani sutra stock market', 'nepal share market', 'nepse index live', 'top gainers nepse']
+    keywords: ['nepse live stock market', 'nepal share market', 'nepse index live', 'top gainers nepse']
   },
   'cyber-defender': {
     title: 'CyberPulse Defender 2026 - Embeddable Arcade Shooter Game',
@@ -245,7 +245,7 @@ const STATIC_TOOLS: StaticTool[] = [
     id: 'share-market',
     name: 'Share Market Live (NEPSE)',
     emoji: '📈',
-    description: 'Track live NEPSE stock market index, market pressure gauge, gainers/losers & portfolio analytics via Lagani Sutra.',
+    description: 'Track live NEPSE stock market index, market pressure gauge, gainers/losers & portfolio analytics in real time.',
     badge: 'LIVE NEPSE',
     accentColor: 'indigo',
     category: 'Utilities'

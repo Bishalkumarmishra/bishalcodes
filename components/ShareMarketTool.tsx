@@ -21,11 +21,11 @@ export default function ShareMarketTool() {
                 <TrendingUp size={13} /> Live Stock Market
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium text-xs border border-slate-200 dark:border-slate-700">
-                NEPSE • Lagani Sutra™
+                NEPSE • Live Portal
               </span>
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-              Live NEPSE Share Market & Portfolio Portal
+              Live NEPSE Share Market &amp; Portfolio Portal
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-3xl leading-relaxed">
               Real-time NEPSE stock market index, market pressure gauge, top gainers, top losers, sector performance, and portfolio analytics.
@@ -48,20 +48,31 @@ export default function ShareMarketTool() {
               rel="noopener noreferrer"
               className="px-4 py-2 bg-[#e52521] hover:bg-[#d01f1c] text-white rounded-xl font-semibold text-xs transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
             >
-              <span>Open Lagani Sutra</span>
+              <span>Open Live Portal</span>
               <ExternalLink size={14} />
             </a>
           </div>
         </div>
       </div>
 
-      {/* Full Width Embedded Portal Container */}
-      <div className="w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 h-[calc(100vh-220px)] min-h-[750px]">
+      {/* Full Width Embedded Portal Container with Clean Branding Mask */}
+      <div className="relative w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 h-[calc(100vh-220px)] min-h-[750px]">
+        {/* CSS Brand Mask covering the iframe's top-left logo area */}
+        <div className="absolute top-0 left-0 z-10 w-[240px] h-[64px] bg-[#ffffff] dark:bg-[#0f172a] border-b border-r border-slate-100 dark:border-slate-800 flex items-center px-4 gap-2.5 shadow-xs select-none">
+          <div className="w-8 h-8 rounded-xl bg-[#e52521] text-white flex items-center justify-center font-black text-xs shadow-xs">
+            <TrendingUp size={16} />
+          </div>
+          <div>
+            <div className="font-extrabold text-xs text-slate-900 dark:text-white tracking-tight">NEPSE Live</div>
+            <div className="text-[10px] text-slate-400 font-semibold tracking-wide uppercase">Share Market</div>
+          </div>
+        </div>
+
         <iframe
           key={iframeKey}
           src="https://laganisutra.com/"
           className="w-full h-full border-0"
-          title="Lagani Sutra Live NEPSE Share Market Portal"
+          title="Live NEPSE Share Market Portal"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         />

@@ -3617,7 +3617,7 @@ export default function WidgetCalendar() {
                       <h3 className="text-sm font-black flex items-center gap-1.5">
                         STOCK MARKET
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#e52521]/20 text-[#e52521] font-semibold border border-[#e52521]/30">
-                          Powered by Lagani Sutra™
+                          Live Data Index
                         </span>
                       </h3>
                       <p className="text-[11px] text-slate-400">लाइभ नेप्से परिसूचक, टप गेनर्स, शेयर विश्लेषण र पोर्टफोलियो</p>
@@ -3634,12 +3634,21 @@ export default function WidgetCalendar() {
                   </a>
                 </div>
 
-                {/* Embedded Lagani Sutra Responsive Portal Container */}
-                <div className="relative w-full h-[750px] sm:h-[850px] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-black">
+                {/* Embedded Responsive Portal Container with Logo Cover Mask */}
+                <div className="relative w-full h-[750px] sm:h-[850px] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-white dark:bg-black">
+                  <div className="absolute top-0 left-0 z-10 w-[240px] h-[64px] bg-[#ffffff] dark:bg-[#0f172a] border-b border-r border-slate-100 dark:border-slate-800 flex items-center px-4 gap-2.5 shadow-xs select-none">
+                    <div className="w-8 h-8 rounded-xl bg-[#e52521] text-white flex items-center justify-center font-black text-xs shadow-xs">
+                      <TrendingUp size={16} />
+                    </div>
+                    <div>
+                      <div className="font-extrabold text-xs text-slate-900 dark:text-white tracking-tight">NEPSE Live</div>
+                      <div className="text-[10px] text-slate-400 font-semibold tracking-wide uppercase">Share Market</div>
+                    </div>
+                  </div>
                   <iframe
                     src="https://laganisutra.com/"
                     className="w-full h-full border-0"
-                    title="Lagani Sutra NEPSE Stock Market"
+                    title="Live NEPSE Stock Market"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   />
