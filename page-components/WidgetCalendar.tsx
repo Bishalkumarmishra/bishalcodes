@@ -3647,8 +3647,29 @@ export default function WidgetCalendar() {
                     </div>
                   </div>
 
+                  {/* Top Right Mask for Login/Offers */}
+                  <div className="hidden sm:flex absolute top-0 right-0 z-10 h-[64px] w-[430px] max-w-[60%] bg-[#ffffff] dark:bg-[#0f172a] border-b border-l border-slate-100 dark:border-slate-800 items-center justify-end px-4 gap-3 shadow-xs select-none">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      </span>
+                      <span>Market Active</span>
+                    </div>
+
+                    <a
+                      href="https://laganisutra.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 bg-[#e52521] hover:bg-[#d01f1c] text-white rounded-lg font-semibold text-xs transition-colors flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>Full Tab</span>
+                      <ExternalLink size={12} />
+                    </a>
+                  </div>
+
                   {/* Bottom Contact Mask */}
-                  <div className="hidden md:flex absolute bottom-0 left-0 z-10 w-[240px] h-[210px] bg-[#f8fafc] dark:bg-[#0f172a] border-t border-r border-slate-200/80 dark:border-slate-800 p-4 flex-col justify-between shadow-xs select-none">
+                  <div className="hidden md:flex absolute bottom-0 left-0 z-10 w-[240px] h-[270px] bg-[#f8fafc] dark:bg-[#0f172a] border-t border-r border-slate-200/80 dark:border-slate-800 p-4 flex-col justify-between shadow-xs select-none">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <span className="relative flex h-2 w-2">
