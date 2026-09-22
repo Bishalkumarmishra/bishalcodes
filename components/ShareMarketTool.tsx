@@ -68,6 +68,29 @@ export default function ShareMarketTool() {
           </div>
         </div>
 
+        {/* CSS Mask covering iframe's bottom-left contact, socials & download links */}
+        <div className="hidden md:flex absolute bottom-0 left-0 z-10 w-[240px] h-[210px] bg-[#f8fafc] dark:bg-[#0f172a] border-t border-r border-slate-200/80 dark:border-slate-800 p-4 flex-col justify-between shadow-xs select-none">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                Live NEPSE Feed
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              Real-time trading indices, market pressure, floor sheets &amp; portfolio metrics.
+            </p>
+          </div>
+
+          <div className="pt-2.5 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+            <span className="font-bold text-[#e52521]">BishalCodes Suite</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono font-medium">LIVE</span>
+          </div>
+        </div>
+
         <iframe
           key={iframeKey}
           src="https://laganisutra.com/"
