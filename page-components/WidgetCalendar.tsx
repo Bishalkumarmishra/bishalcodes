@@ -3636,39 +3636,45 @@ export default function WidgetCalendar() {
 
                 {/* Embedded Responsive Portal Container with Logo Cover Mask */}
                 <div className="relative w-full h-[750px] sm:h-[850px] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-white dark:bg-black">
-                  {/* Top Logo Mask */}
-                  <div className="absolute top-0 left-0 z-10 w-[240px] h-[64px] bg-[#ffffff] dark:bg-[#0f172a] border-b border-r border-slate-100 dark:border-slate-800 flex items-center px-4 gap-2.5 shadow-xs select-none">
-                    <div className="w-8 h-8 rounded-xl bg-[#e52521] text-white flex items-center justify-center font-black text-xs shadow-xs">
-                      <TrendingUp size={16} />
+                  {/* CSS Full-Width Header Mask covering the entire top bar of the iframe */}
+                  <div className="absolute top-0 left-0 right-0 z-10 w-full h-[64px] bg-[#ffffff] dark:bg-[#0f172a] border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between px-4 sm:px-6 shadow-xs select-none">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-xl bg-[#e52521] text-white flex items-center justify-center font-black text-xs shadow-xs">
+                        <TrendingUp size={16} />
+                      </div>
+                      <div>
+                        <div className="font-extrabold text-sm text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                          NEPSE Live
+                          <span className="hidden sm:inline-block text-[10px] px-2 py-0.5 rounded-full bg-[#e52521]/10 text-[#e52521] font-semibold">
+                            Real-Time
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-semibold tracking-wide uppercase">Share Market Portal</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-extrabold text-xs text-slate-900 dark:text-white tracking-tight">NEPSE Live</div>
-                      <div className="text-[10px] text-slate-400 font-semibold tracking-wide uppercase">Share Market</div>
+
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span className="hidden xs:inline">Market Active</span>
+                      </div>
+
+                      <a
+                        href="https://laganisutra.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 bg-[#e52521] hover:bg-[#d01f1c] text-white rounded-lg font-semibold text-xs transition-colors flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>Full Tab</span>
+                        <ExternalLink size={12} />
+                      </a>
                     </div>
                   </div>
 
-                  {/* Top Right Mask for Login/Offers */}
-                  <div className="hidden sm:flex absolute top-0 right-0 z-10 h-[64px] w-[430px] max-w-[60%] bg-[#ffffff] dark:bg-[#0f172a] border-b border-l border-slate-100 dark:border-slate-800 items-center justify-end px-4 gap-3 shadow-xs select-none">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                      </span>
-                      <span>Market Active</span>
-                    </div>
-
-                    <a
-                      href="https://laganisutra.com/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-1.5 bg-[#e52521] hover:bg-[#d01f1c] text-white rounded-lg font-semibold text-xs transition-colors flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>Full Tab</span>
-                      <ExternalLink size={12} />
-                    </a>
-                  </div>
-
-                  {/* Bottom Contact Mask */}
+                  {/* Desktop Bottom Contact Mask */}
                   <div className="hidden md:flex absolute bottom-0 left-0 z-10 w-[240px] h-[270px] bg-[#f8fafc] dark:bg-[#0f172a] border-t border-r border-slate-200/80 dark:border-slate-800 p-4 flex-col justify-between shadow-xs select-none">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
@@ -3689,6 +3695,29 @@ export default function WidgetCalendar() {
                       <span className="font-bold text-[#e52521]">BishalCodes Suite</span>
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono font-medium">LIVE</span>
                     </div>
+                  </div>
+
+                  {/* Mobile Bottom Navigation Mask */}
+                  <div className="md:hidden absolute bottom-0 left-0 right-0 z-10 w-full h-[62px] bg-[#ffffff] dark:bg-[#0f172a] border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between px-4 shadow-xs select-none">
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      </span>
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                        NEPSE Live Stream
+                      </span>
+                    </div>
+
+                    <a
+                      href="https://laganisutra.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 bg-[#e52521] text-white rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>Full Tab</span>
+                      <ExternalLink size={11} />
+                    </a>
                   </div>
 
                   <iframe
