@@ -135,23 +135,6 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
 
-        {/* Gemini API Key Shim */}
-        <Script
-          id="gemini-shim"
-          dangerouslySetInnerHTML={{ __html: `
-            window.__GEMINI_API_KEY__ = '${process.env.GEMINI_API_KEY || 'YOUR_GEMINI_API_KEY_HERE'}';
-            if (typeof window !== 'undefined') {
-              try {
-                window.process = window.process || {};
-                window.process.env = window.process.env || {};
-                window.process.env.API_KEY = '${process.env.GEMINI_API_KEY || 'YOUR_GEMINI_API_KEY_HERE'}';
-              } catch (e) {
-                console.warn('Could not inject window.process.env.API_KEY shim:', e);
-              }
-            }
-          `}}
-          strategy="beforeInteractive"
-        />
 
         {/* Structured JSON-LD Data Schemas */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: `

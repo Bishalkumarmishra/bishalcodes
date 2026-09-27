@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
-import { GoogleGenAI } from "@google/genai";
 import { X, Send, PhoneCall, Phone, Shield, ExternalLink, Sparkles, Loader2, Copy, Check, MessageCircle, HelpCircle, Wrench, DollarSign, BookOpen, Key, ArrowRight, User, Paperclip, Image as ImageIcon, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -1252,82 +1251,37 @@ const getCanonicalSessionId = (email?: string, fallbackId?: string) => {
 
     setLoading(true);
 
-    // Build human system prompt with exhaustive site knowledge & multimodal vision capabilities
-    const systemInstruction = `You are the personal Human Support Representative for Bishal Mishra's official website (Bishal Codes).
-Bishal Mishra is a world-class Full-Stack Developer & Digital Strategist with 3+ years experience and 300+ sites built.
-
-STRICT TONE & HUMANIZE GUIDELINES:
-- Speak warmly, empathetically, naturally, and conversationally like a helpful human support specialist texting a customer.
-- NEVER say "As an AI language model", "I am programmed", "As an artificial intelligence", or sound robotic.
-- Always be clear, friendly, and practical. Use Markdown lists, bold text, and clean formatting.
-- If an image or screenshot is attached: Thoroughly analyze the visual elements, text in screenshot, error messages, or UI design details. Provide direct actionable feedback, bug fixes, or explain how Bishal can build/replicate it!
-- If asked about pricing: Mention Informative (Rs. 10K-25K), E-Commerce (Rs. 25K-55K), Enterprise (Rs. 50K+).
-- If asked about tools or how to use them: Give step-by-step clear 1-2-3 instructions.
-- If asked for contact details: Mention WhatsApp/Phone +977 9827801575 and Email bishalmishra9000@gmail.com.
-
-DETAILED KNOWLEDGE OF THE SITE:
-- Tools (23+): Website Screenshot Studio, Developer Card Studio, File Transfer (100GB P2P), AI Background Remover, AI OCR Extractor, AI Document Summarizer, Code Runner Sandbox, Doc Scanner PDF, QR Code Studio, Secure Vault, Image Compressor, PDF Merger, PDF to Image, JPG to PDF, PDF Page Number Adder, Currency Converter, Nepali Date Converter (AD ↔ BS), JSON Formatter, Diff Checker, Font Downloader, Language Translator, EMI Calculator, Typing Practice.
-- Pages: Home (/), About (/about), Services & Tools (/services), Pricing (/pricing), AI Studio (/ai-studio), Blog (/blog), Developer Portal (/developers), Docs (/docs), Dashboard (/dashboard), Contact (/contact).
-
-If you generate code snippets, enclose them in markdown block code syntax so the live sandbox runner can execute them.`;
-
-    if (!isKeyAvailable) {
-      // Use local human response engine if API key is not yet set
-      setTimeout(() => {
-        const localResp = generateLocalHumanResponse(userMessage, !!currentAttachment, currentAttachment?.name);
-        setMessages(prev => [...prev, { role: 'bot', text: localResp.text, actionLinks: localResp.actionLinks, senderType: 'bot' }]);
-        syncBotMessageToSessions(localResp.text);
-        setLoading(false);
-        playNotificationSound();
-      }, 400);
-      return;
-    }
-
     try {
-      const ai = new GoogleGenAI({ apiKey: apiKey! });
-      let responseText = "";
+      const chatRes = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userMessage,
+          history: messages.slice(-6).map(m => ({ role: m.role, content: m.text })),
+          attachment: currentAttachment ? {
+            isImage: currentAttachment.isImage,
+            base64: currentAttachment.base64,
+            type: currentAttachment.type,
+            name: currentAttachment.name
+          } : undefined
+        })
+      });
 
-      const contentsParts: any[] = [];
-      if (currentAttachment && currentAttachment.base64) {
-        const base64Data = currentAttachment.base64.split(',')[1];
-        contentsParts.push({
-          inlineData: {
-            mimeType: currentAttachment.type || 'image/png',
-            data: base64Data
-          }
-        });
-      }
-      contentsParts.push({ text: userMessage || "Please analyze this uploaded photo/screenshot." });
+      const data = await chatRes.json();
+      const responseText = data.reply || "";
 
-      try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: contentsParts,
-          config: { systemInstruction },
-        });
-        responseText = response.text || "";
-      } catch (err) {
-        console.warn("gemini-2.5-flash failed, falling back to gemini-3-flash-preview:", err);
-        const response = await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
-          contents: contentsParts,
-          config: { systemInstruction },
-        });
-        responseText = response.text || "";
-      }
-
-      if (!responseText) {
-        const localResp = generateLocalHumanResponse(userMessage, !!currentAttachment, currentAttachment?.name);
-        setMessages(prev => [...prev, { role: 'bot', text: localResp.text, actionLinks: localResp.actionLinks, senderType: 'bot' }]);
-        syncBotMessageToSessions(localResp.text);
-      } else {
+      if (responseText) {
         const localResp = generateLocalHumanResponse(userMessage, !!currentAttachment, currentAttachment?.name);
         setMessages(prev => [...prev, { role: 'bot', text: responseText, actionLinks: localResp.actionLinks, senderType: 'bot' }]);
         syncBotMessageToSessions(responseText);
+      } else {
+        const localResp = generateLocalHumanResponse(userMessage, !!currentAttachment, currentAttachment?.name);
+        setMessages(prev => [...prev, { role: 'bot', text: localResp.text, actionLinks: localResp.actionLinks, senderType: 'bot' }]);
+        syncBotMessageToSessions(localResp.text);
       }
       playNotificationSound();
     } catch (e: any) {
-      console.warn("Gemini API call warning - utilizing local human support fallback:", e);
+      console.warn("Chat API call error - using local fallback:", e);
       const localResp = generateLocalHumanResponse(userMessage, !!currentAttachment, currentAttachment?.name);
       setMessages(prev => [...prev, { role: 'bot', text: localResp.text, actionLinks: localResp.actionLinks, senderType: 'bot' }]);
       syncBotMessageToSessions(localResp.text);
