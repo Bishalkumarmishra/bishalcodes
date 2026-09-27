@@ -20,7 +20,7 @@ export default function DynamicManifest() {
 
     const targetManifest = isCalendarRoute ? '/manifest-calendar.json' : '/manifest.json';
     const targetTitle = isCalendarRoute ? 'Mero Patro' : 'Bishal Codes';
-    const targetIcon = isCalendarRoute ? '/calendar-desktop-icon.png' : '/apple-touch-icon.png?v=2';
+    const targetIcon = isCalendarRoute ? '/calendar-desktop-icon.png' : '/apple-touch-icon.png';
 
     try {
       // Update <link rel="manifest">

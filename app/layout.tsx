@@ -27,6 +27,19 @@ export const metadata = {
     canonical: "https://bishalcodes.com/",
   },
   robots: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-48x48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+      { url: '/favicon-192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    shortcut: ['/favicon.ico'],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
   openGraph: {
     type: "website",
     url: "https://bishalcodes.com/",
@@ -88,9 +101,13 @@ export default function RootLayout({
         <meta name="msapplication-navbutton-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
         <meta name="msapplication-navbutton-color" content="#000000" media="(prefers-color-scheme: dark)" />
         <meta name="format-detection" content="telephone=no" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
-        <link rel="shortcut icon" href="/favicon.ico?v=2" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+        <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="msapplication-TileColor" content="#FFFFFF" />
 
