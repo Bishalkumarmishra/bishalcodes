@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    const hasImage = Boolean(attachment?.isImage && attachment?.base64);
     const model = 'openai/gpt-oss-120b';
 
     // Format conversation history for Groq / OpenAI standard API
@@ -61,26 +62,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Append current user message
-    if (hasImage) {
-      messages.push({
-        role: 'user',
-        content: [
-          { type: 'text', text: message || 'Please analyze this uploaded photo or screenshot.' },
-          {
-            type: 'image_url',
-            image_url: {
-              url: attachment.base64
-            }
-          }
-        ]
-      });
-    } else {
-      messages.push({
-        role: 'user',
-        content: message || 'Hello!'
-      });
-    }
+    // Append current user message (Groq gpt-oss models require string content)
+    const userPrompt = hasImage
+      ? `${message || 'Please review this screenshot or mockup file.'}\n[Attachment: "${attachment?.name || 'screenshot.png'}"]`
+      : (message || 'Hello!');
+
+    messages.push({
+      role: 'user',
+      content: userPrompt
+    });
 
     // Call Groq Cloud API
     const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
