@@ -42,8 +42,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const hasImage = Boolean(attachment?.isImage && attachment?.base64);
-    const model = hasImage ? 'llama-3.2-11b-vision-preview' : 'llama-3.3-70b-versatile';
+    const model = 'openai/gpt-oss-120b';
 
     // Format conversation history for Groq / OpenAI standard API
     const messages: any[] = [
@@ -102,8 +101,8 @@ export async function POST(req: NextRequest) {
       const errText = await groqRes.text();
       console.error('Groq API error response:', groqRes.status, errText);
 
-      // Fallback to llama-3.1-8b-instant if 70b hits rate limit or model error
-      if (model === 'llama-3.3-70b-versatile') {
+      // Fallback to openai/gpt-oss-20b if 120b hits rate limit or error
+      if (model === 'openai/gpt-oss-120b') {
         const fallbackRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -111,7 +110,7 @@ export async function POST(req: NextRequest) {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model: 'llama-3.1-8b-instant',
+            model: 'openai/gpt-oss-20b',
             messages,
             temperature: 0.7,
             max_tokens: 1024
